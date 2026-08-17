@@ -1,0 +1,12 @@
+generated: '2026-08-17'
+method: searched
+source: https://wazo.io/sitemap.xml, https://wazo.io/contact, https://wazo.io/download, https://wazo-platform.org/
+plan_count: 0
+plans: []
+model: open-source core + contact-sales commercial licensing
+note: Wazo publishes no pricing. https://wazo.io/sitemap.xml lists 13 pages and none of them is a pricing or plans page
+  (/, /apps, /integrations, /partners, /use-cases, /partner-portal, /contact, /about, /download, /eula, /privacy, /legal,
+  /cookies); https://wazo.io/pricing returns HTTP 200 only because the site is a React SPA with a catch-all route that serves
+  the same 2,481-byte shell for any path. The Wazo Platform itself is free software (GPL-3.0) installed from https://mirror.wazo.community/debian,
+  and the commercial E-UC/white-label offer routes through https://wazo.io/contact and the partner portal. No Pricing pointer
+  is emitted.

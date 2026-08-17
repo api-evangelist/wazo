@@ -1,0 +1,1357 @@
+swagger: '2.0'
+info:
+  title: wazo-chatd
+  description: Control your message and presence from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+schemes:
+- http
+basePath: /1.0
+consumes:
+- application/json
+produces:
+- application/json
+x-xivo-port: 9304
+x-xivo-name: chatd
+securityDefinitions:
+  wazo_auth_token:
+    type: apiKey
+    name: X-Auth-Token
+    in: header
+security:
+- wazo_auth_token: []
+responses:
+  AnotherServiceUnavailable:
+    description: Another service is unavailable (e.g. wazo-auth, wazo-confd, ...)
+    schema:
+      $ref: '#/definitions/Error'
+  NotFoundError:
+    description: The resource requested was not found on the server
+    schema:
+      $ref: '#/definitions/APIError'
+  InvalidRequest:
+    description: Invalid request
+    schema:
+      $ref: '#/definitions/APIError'
+  ResourceUpdated:
+    description: Resource was updated successfully
+  ResourceDeleted:
+    description: Resource was deleted successfully
+definitions:
+  APIError:
+    type: object
+    allOf:
+    - $ref: '#/definitions/Error'
+    - properties:
+        resource:
+          description: Resource name of the error
+          type: string
+  Error:
+    title: Error
+    description: Error message for the client
+    properties:
+      message:
+        description: Human readable explanation of the error
+        type: string
+      error_id:
+        description: Identifier of the type of error. It is more precise than the HTTP status code.
+        type: string
+      details:
+        description: Additional information about the error. The keys are specific to each error.
+        type: object
+      timestamp:
+        description: Time when the error occured
+        type: number
+        format: timestamp
+  ConfigPatchItem:
+    properties:
+      op:
+        type: string
+        description: 'Patch operation. Supported operation: `replace`.'
+      path:
+        type: string
+        description: 'Config element to operate on. Supported path: `/debug`'
+      value:
+        type: object
+        description: The new value for the resource.
+  ConnectorList:
+    title: ConnectorList
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Connector'
+      total:
+        type: integer
+        description: The number of results
+  Connector:
+    title: Connector
+    properties:
+      name:
+        type: string
+        description: The backend identifier
+      supported_types:
+        type: array
+        items:
+          type: string
+        description: Messaging types this backend can handle
+      configured:
+        type: boolean
+        description: 'Whether the backend is ready to use for this tenant. For backends
+
+          that require per-tenant credentials, this is true once wazo-auth has
+
+          external credentials stored. Backends with no credential requirement
+
+          (auth scope ``none``) are always reported as configured.
+
+          '
+      mode:
+        type: string
+        enum:
+        - webhook
+        - poll
+        - listen
+        description: 'Transport the backend uses to exchange messages with the provider.
+
+          ``webhook`` requires configuring a provider-side callback to wazo;
+
+          ``poll`` and ``listen`` need none.
+
+          '
+  ConnectorAuthSchema:
+    title: ConnectorAuthSchema
+    properties:
+      scope:
+        type: string
+        enum:
+        - none
+        - tenant
+        description: 'Where the credentials are stored. `none` means the backend needs
+
+          no credentials; `tenant` means they live in wazo-auth tenant
+
+          external config.
+
+          '
+      fields:
+        type: array
+        description: Fields required to collect the credentials.
+        items:
+          $ref: '#/definitions/ConnectorAuthSchemaField'
+  ConnectorAuthSchemaField:
+    title: ConnectorAuthSchemaField
+    properties:
+      name:
+        type: string
+        description: Machine-readable field name (used as the form key).
+      type:
+        type: string
+        enum:
+        - string
+        - secret
+        - select
+        - boolean
+        - integer
+        - url
+      required:
+        type: boolean
+      default:
+        type: string
+      label:
+        type: array
+        items:
+          $ref: '#/definitions/ConnectorLocalizedLabel'
+      choices:
+        type: array
+        items:
+          type: string
+        description: Allowed values; only emitted when `type` is `select`.
+  ConnectorLocalizedLabel:
+    title: ConnectorLocalizedLabel
+    properties:
+      language:
+        type: string
+        description: Locale tag, e.g. `en_US`.
+      value:
+        type: string
+  ConnectorIdentityList:
+    title: ConnectorIdentityList
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/ConnectorIdentityItem'
+      total:
+        type: integer
+        description: The number of results
+  ConnectorIdentityItem:
+    title: ConnectorIdentityItem
+    properties:
+      identity:
+        type: string
+        description: The external identity value
+      capabilities:
+        type: array
+        items:
+          type: string
+        description: Messaging capabilities of this identity (e.g. ["sms"], ["sms", "mms"])
+      binding:
+        $ref: '#/definitions/ConnectorIdentityBinding'
+        description: Wazo binding for this identity, or null when unbound
+  ConnectorIdentityBinding:
+    title: ConnectorIdentityBinding
+    properties:
+      identity_uuid:
+        type: string
+        description: The UUID of the bound UserIdentity row
+      user_uuid:
+        type: string
+        description: The UUID of the user the identity is bound to
+  UserIdentityList:
+    title: UserIdentityList
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/UserIdentity'
+      total:
+        type: integer
+        description: The number of results
+  UserIdentity:
+    title: UserIdentity
+    properties:
+      uuid:
+        type: string
+        description: The UUID of the identity
+        readOnly: true
+      backend:
+        type: string
+        description: The connector backend name
+        maxLength: 64
+      type:
+        type: string
+        description: The messaging type
+        maxLength: 32
+      identity:
+        type: string
+        description: The external identity value
+        maxLength: 256
+  Identity:
+    title: Identity
+    allOf:
+    - $ref: '#/definitions/UserIdentity'
+    - type: object
+      properties:
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant owning the identity
+          readOnly: true
+        user_uuid:
+          type: string
+          description: The UUID of the user owning the identity
+        extra:
+          type: object
+          description: 'Additional admin-managed metadata. Values must be
+
+            scalars (string, integer, float, boolean, null) or
+
+            lists of scalars. Keys ≤64 chars, individual values
+
+            ≤1024 chars, total serialized size ≤4096 chars.
+
+            '
+  IdentityList:
+    title: IdentityList
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Identity'
+      filtered:
+        type: integer
+        description: Count after applying filter parameters
+      total:
+        type: integer
+        description: Unfiltered count in the tenant scope
+  IdentityCreateRequest:
+    title: IdentityCreateRequest
+    properties:
+      user_uuid:
+        type: string
+        description: The UUID of the user the identity is bound to
+      backend:
+        type: string
+        description: The connector backend name
+        maxLength: 64
+      type:
+        type: string
+        description: The messaging type
+        maxLength: 32
+      identity:
+        type: string
+        description: The external identity value
+        maxLength: 256
+      extra:
+        type: object
+        description: 'Additional metadata. Values must be scalars (string,
+
+          integer, float, boolean, null) or lists of scalars. Keys
+
+          ≤64 chars, individual values ≤1024 chars, total serialized
+
+          size ≤4096 chars.
+
+          '
+    required:
+    - user_uuid
+    - backend
+    - type
+    - identity
+  IdentityUpdateRequest:
+    title: IdentityUpdateRequest
+    description: 'Partial update — every field is optional.
+
+      '
+    properties:
+      identity:
+        type: string
+        description: The external identity value
+        maxLength: 256
+      extra:
+        type: object
+        description: 'Additional metadata. Values must be scalars (string,
+
+          integer, float, boolean, null) or lists of scalars. Keys
+
+          ≤64 chars, individual values ≤1024 chars, total serialized
+
+          size ≤4096 chars.
+
+          '
+  PresenceList:
+    title: PresenceList
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Presence'
+      filtered:
+        type: integer
+        description: The number of result matching the searched terms
+      total:
+        type: integer
+        description: The number of results without filter
+  Presence:
+    title: Presence
+    properties:
+      uuid:
+        type: string
+        description: The UUID of the user
+        readOnly: true
+      tenant_uuid:
+        type: string
+        description: The UUID of the tenant of the user
+        readOnly: true
+      state:
+        type: string
+        description: The presence state of the user.
+        enum:
+        - available
+        - away
+        - unavailable
+        - invisible
+      status:
+        type: string
+        description: An extended description of the user presence.
+      do_not_disturb:
+        type: boolean
+        description: The "do not disturb" status of the user.
+        readOnly: true
+      last_activity:
+        type: string
+        description: The date time in UTC of the user's last activity. The value is updated when the user changes his state
+          explicitly. The value is NULL for new user.
+        readOnly: true
+      line_state:
+        type: string
+        description: 'The current state of the most prioritize state line. The prioritization of each state is the following:
+          ringing > progressing > holding > talking > available > unavailable'
+        readOnly: true
+        enum:
+        - available
+        - holding
+        - ringing
+        - progressing
+        - talking
+        - unavailable
+      lines:
+        type: array
+        readOnly: true
+        items:
+          $ref: '#/definitions/Line'
+      mobile:
+        type: boolean
+        readOnly: true
+        description: 'If the user uses a mobile application and can be considered reachable.
+
+
+          mobile will be true in the following situations
+
+
+          * The user has a mobile refresh token
+
+          * The user has a mobile session
+
+          '
+      connected:
+        type: boolean
+        readOnly: true
+        description: If the user has active connections.
+    required:
+    - state
+  Line:
+    properties:
+      id:
+        type: integer
+        readOnly: true
+      state:
+        type: string
+        description: The current state of the line.
+        readOnly: true
+        enum:
+        - available
+        - holding
+        - ringing
+        - progressing
+        - talking
+        - unavailable
+  Room:
+    title: Room
+    allOf:
+    - $ref: '#/definitions/RoomRelationBase'
+    - properties:
+        name:
+          type: string
+          description: The name of the room
+        users:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/definitions/RoomUser'
+      required:
+      - users
+  RoomRelationBase:
+    properties:
+      uuid:
+        type: string
+        description: The UUID of the room
+        readOnly: true
+  RoomUser:
+    properties:
+      uuid:
+        type: string
+      tenant_uuid:
+        type: string
+        description: The tenant of the user_uuid. Default to the same tenant as the token owner
+      wazo_uuid:
+        type: string
+        description: The wazo of the tenant_uuid. Default to the same wazo as the token owner
+      identity:
+        type: string
+        description: The external identity of this participant (e.g. a phone number for SMS). When set, the participant is
+          reachable via the matching connector backend.
+    required:
+    - uuid
+  Rooms:
+    title: Rooms
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Room'
+      filtered:
+        type: integer
+      total:
+        type: integer
+  UserMessagePOST:
+    properties:
+      content:
+        type: string
+        description: The content of the message
+      alias:
+        type: string
+        description: Alias/nickname of the sender
+      sender_identity_uuid:
+        type: string
+        format: uuid
+        description: The UUID of the sender's identity to use for outbound delivery. Required when the room contains external
+          participants.
+    required:
+    - content
+  Message:
+    properties:
+      uuid:
+        type: string
+        description: The UUID of the message
+        readOnly: true
+      content:
+        type: string
+        description: The content of the message
+      alias:
+        type: string
+        description: Alias/nickname of the sender
+      delivery:
+        $ref: '#/definitions/MessageDelivery'
+        readOnly: true
+      user_uuid:
+        type: string
+        description: user uuid of the sender
+      tenant_uuid:
+        type: string
+        description: tenant uuid of the sender
+      wazo_uuid:
+        type: string
+        description: wazo uuid of the sender
+      created_at:
+        type: string
+        description: The date of the message's creation
+        readOnly: true
+      room:
+        $ref: '#/definitions/RoomRelationBase'
+  MessageDelivery:
+    description: 'Delivery metadata for the message. Always present on the response.
+
+      Internal messages report `type=internal`, `backend=null`, and an empty
+
+      `recipients` array. External messages carry the channel info and one
+
+      recipient per outbound leg.
+
+      '
+    properties:
+      type:
+        type: string
+        description: The messaging type (e.g. 'internal', 'sms')
+        readOnly: true
+      backend:
+        type: string
+        description: The connector backend name (e.g. 'twilio'). Null for internal messages.
+        readOnly: true
+      recipients:
+        type: array
+        description: Per-recipient delivery state. Empty for internal messages.
+        readOnly: true
+        items:
+          $ref: '#/definitions/MessageRecipient'
+  MessageRecipient:
+    properties:
+      identity:
+        type: string
+        description: The recipient's external address (e.g. phone number)
+        readOnly: true
+      status:
+        type: string
+        description: 'Current delivery state for this recipient. One of: pending,
+
+          retrying, accepted, sent, delivered, failed, dead_letter.
+
+          '
+        readOnly: true
+      updated_at:
+        type: string
+        description: Timestamp of the latest status transition for this recipient
+        readOnly: true
+  Messages:
+    title: UserItems
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Message'
+      filtered:
+        type: integer
+      total:
+        type: integer
+  StatusSummary:
+    type: object
+    properties:
+      rest_api:
+        $ref: '#/definitions/ComponentWithStatus'
+      bus_consumer:
+        $ref: '#/definitions/ComponentWithStatus'
+      presence_initialization:
+        $ref: '#/definitions/ComponentWithStatus'
+      master_tenant:
+        $ref: '#/definitions/ComponentWithStatus'
+  ComponentWithStatus:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/StatusValue'
+  StatusValue:
+    type: string
+    enum:
+    - fail
+    - ok
+parameters:
+  recurse:
+    name: recurse
+    in: query
+    type: boolean
+    description: Should the query include sub-tenants
+    default: false
+    required: false
+  tenant_uuid:
+    name: Wazo-Tenant
+    type: string
+    in: header
+    description: The tenant's UUID, defining the ownership of a given resource.
+    required: false
+  user_uuid:
+    name: user_uuid
+    in: path
+    type: string
+    description: The UUID of the user
+    required: true
+  order:
+    required: false
+    name: order
+    in: query
+    type: string
+    description: Name of the field to use for sorting the list of items returned.
+  limit:
+    required: false
+    name: limit
+    in: query
+    type: integer
+    description: Maximum number of items to return in the list
+  distinct:
+    required: false
+    name: distinct
+    in: query
+    type: string
+    enum:
+    - room_uuid
+    description: Distinct list results by field. Always picks the latest entry. Required if `search` is not specified.
+  direction:
+    required: false
+    name: direction
+    in: query
+    type: string
+    enum:
+    - asc
+    - desc
+    description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+  search:
+    required: false
+    name: search
+    in: query
+    type: string
+    description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      Required if `distinct` is not specified.
+  search_distinct:
+    required: false
+    name: search
+    in: query
+    type: string
+    description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+  offset:
+    required: false
+    name: offset
+    in: query
+    type: integer
+    description: Number of items to skip over in the list. Useful for pagination.
+  user_uuid_query:
+    required: false
+    name: user_uuid
+    in: query
+    type: array
+    items:
+      type: string
+    description: Filter by user_uuid. Many uuid can be specified. A logical AND is used for filtering. Each uuid MUST be separated
+      by a comma (,).
+  configpatch:
+    name: config_patch
+    in: body
+    required: true
+    schema:
+      type: array
+      items:
+        $ref: '#/definitions/ConfigPatchItem'
+  identity_uuid:
+    name: identity_uuid
+    in: path
+    type: string
+    format: uuid
+    description: The UUID of the identity
+    required: true
+  identity_user_uuid_filter:
+    name: user_uuid
+    in: query
+    type: string
+    required: false
+    description: 'Filter by user_uuid. Comma-separated list — a row matches if its
+
+      user_uuid is any of the listed values (logical OR).
+
+      '
+  identity_backend_filter:
+    name: backend
+    in: query
+    type: string
+    required: false
+    description: Filter by exact backend name
+  identity_type_filter:
+    name: type
+    in: query
+    type: string
+    required: false
+    description: Filter by exact messaging type
+  identity_value_filter:
+    name: identity
+    in: query
+    type: string
+    required: false
+    description: Filter by exact identity value
+  room_uuid:
+    name: room_uuid
+    in: path
+    type: string
+    description: The UUID of the room
+    required: true
+  from_date:
+    name: from_date
+    in: query
+    type: string
+    format: date-time
+    description: 'The date and time from which to retrieve messages. Example: 2019-06-12T10:00:00.000+00:00'
+paths:
+  /config:
+    get:
+      summary: Show the current configuration
+      description: '**Required ACL:** `chatd.config.read`'
+      operationId: getConfig
+      tags:
+      - config
+      responses:
+        '200':
+          description: The configuration of the service
+    patch:
+      summary: Change part of the configuration
+      description: '**Required ACL:** `chatd.config.update`'
+      operationId: patchConfig
+      tags:
+      - config
+      parameters:
+      - $ref: '#/parameters/configpatch'
+      responses:
+        '200':
+          description: The configuration has been updated
+        '400':
+          description: The given configuration is invalid
+  /connectors:
+    get:
+      operationId: list_connectors
+      summary: List capability metadata for every registered backend
+      description: '**Required ACL:** `chatd.connectors.read`
+
+
+        Returns supported types and tenant-configured state for
+
+        each registered backend.
+
+        '
+      tags:
+      - connectors
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      responses:
+        '200':
+          description: Connector list
+          schema:
+            $ref: '#/definitions/ConnectorList'
+  /connectors/{backend}/auth-schema:
+    get:
+      operationId: get_connector_auth_schema
+      summary: Get the credential schema declared by the backend
+      description: '**Required ACL:** `chatd.connectors.{backend}.auth-schema.read`
+
+
+        Returns the connector''s declared credential fields and where the
+
+        credentials live (`scope`). The body is class-level metadata —
+
+        identical across tenants.
+
+        '
+      tags:
+      - connectors
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - name: backend
+        in: path
+        type: string
+        description: The backend name
+        required: true
+      - name: If-None-Match
+        in: header
+        type: string
+        required: false
+        description: Quoted ETag of a previously fetched body
+      responses:
+        '200':
+          description: Auth schema
+          headers:
+            ETag:
+              type: string
+              description: Quoted SHA-256 of the canonical body
+            Cache-Control:
+              type: string
+              description: Caching directives (`private, no-cache`)
+          schema:
+            $ref: '#/definitions/ConnectorAuthSchema'
+        '304':
+          description: Body unchanged since the ETag was issued
+        '404':
+          description: No such connector
+          schema:
+            $ref: '#/definitions/APIError'
+  /connectors/{backend}/identities:
+    get:
+      operationId: list_connector_identities
+      summary: List identities the backend reports this tenant owns
+      description: '**Required ACL:** `chatd.connectors.{backend}.identities.read`
+
+
+        Each item carries the backend-reported identity and its
+
+        binding to a Wazo user (``null`` when unbound).
+
+        '
+      tags:
+      - connectors
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - name: backend
+        in: path
+        type: string
+        description: The backend name
+        required: true
+      responses:
+        '200':
+          description: Identity list
+          schema:
+            $ref: '#/definitions/ConnectorIdentityList'
+        '400':
+          description: Backend not configured for this tenant
+          schema:
+            $ref: '#/definitions/APIError'
+        '404':
+          description: No such connector
+          schema:
+            $ref: '#/definitions/APIError'
+        '501':
+          description: Connector does not support listing identities
+          schema:
+            $ref: '#/definitions/APIError'
+        '502':
+          description: Connector failed to list identities
+          schema:
+            $ref: '#/definitions/APIError'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+  /identities:
+    get:
+      operationId: list_identities
+      summary: List all identities visible to the tenant
+      description: '**Required ACL:** `chatd.identities.read`
+
+
+        Returns every identity bound to a user in the calling
+
+        tenant. The `Wazo-Tenant` header scopes the result; each
+
+        item includes its owner (`user_uuid`) and `tenant_uuid`.
+
+        '
+      tags:
+      - identities
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - name: order
+        in: query
+        type: string
+        required: false
+        description: Name of the field to use for sorting the list of items returned.
+        enum:
+        - uuid
+        - backend
+        - type
+        - identity
+      - $ref: '#/parameters/direction'
+      - name: search
+        in: query
+        type: string
+        required: false
+        description: 'Filter identities whose ``identity`` value contains this term,
+
+          case-insensitive. Matching is a literal substring search; wildcard
+
+          characters are escaped and not interpreted. Only the ``identity``
+
+          column is searched.
+
+          '
+      - $ref: '#/parameters/identity_user_uuid_filter'
+      - $ref: '#/parameters/identity_backend_filter'
+      - $ref: '#/parameters/identity_type_filter'
+      - $ref: '#/parameters/identity_value_filter'
+      responses:
+        '200':
+          description: Identity list
+          schema:
+            $ref: '#/definitions/IdentityList'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+    post:
+      operationId: create_identity
+      summary: Create an identity
+      description: '**Required ACL:** `chatd.identities.create`
+
+
+        Creates an external identity for the user named in the body
+
+        on a configured backend.
+
+        '
+      tags:
+      - identities
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/IdentityCreateRequest'
+      responses:
+        '201':
+          description: Identity created
+          schema:
+            $ref: '#/definitions/Identity'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+        '409':
+          description: An identity with the same backend/type/identity already exists
+          schema:
+            $ref: '#/definitions/APIError'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+  /identities/{identity_uuid}:
+    get:
+      operationId: get_identity
+      summary: Get an identity by UUID
+      description: '**Required ACL:** `chatd.identities.{identity_uuid}.read`'
+      tags:
+      - identities
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - $ref: '#/parameters/identity_uuid'
+      responses:
+        '200':
+          description: Identity
+          schema:
+            $ref: '#/definitions/Identity'
+        '404':
+          $ref: '#/responses/NotFoundError'
+    put:
+      operationId: update_identity
+      summary: Update an identity (partial)
+      description: '**Required ACL:** `chatd.identities.{identity_uuid}.update`
+
+
+        Updates one or more mutable fields.
+
+        '
+      tags:
+      - identities
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - $ref: '#/parameters/identity_uuid'
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/IdentityUpdateRequest'
+      responses:
+        '200':
+          description: Identity updated
+          schema:
+            $ref: '#/definitions/Identity'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+        '409':
+          description: Another identity with the same value already exists
+          schema:
+            $ref: '#/definitions/APIError'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+    delete:
+      operationId: delete_identity
+      summary: Delete an identity
+      description: '**Required ACL:** `chatd.identities.{identity_uuid}.delete`'
+      tags:
+      - identities
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - $ref: '#/parameters/identity_uuid'
+      responses:
+        '204':
+          $ref: '#/responses/ResourceDeleted'
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /users/me/identities:
+    get:
+      operationId: list_user_me_identities
+      summary: List identities for the authenticated user
+      description: '**Required ACL:** `chatd.users.me.identities.read`
+
+
+        Returns all identities of the authenticated user. When a
+
+        `room_uuid` is provided, returns only identities usable to
+
+        reach the other participants of that room.
+
+        '
+      tags:
+      - identities
+      parameters:
+      - name: room_uuid
+        in: query
+        type: string
+        format: uuid
+        required: false
+        description: Filter identities by reachability for a specific room
+      responses:
+        '200':
+          description: Identity list
+          schema:
+            $ref: '#/definitions/UserIdentityList'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /connectors/incoming:
+    post:
+      operationId: connector_webhook
+      summary: Receive incoming webhook from connector
+      description: 'Dispatches an incoming webhook to the matching connector backend.
+
+
+        **Body size**: capped at 4 MB at the nginx layer. Bodies above
+
+        the cap are rejected with HTTP 413 before reaching chatd.
+
+        '
+      tags:
+      - connectors
+      security: []
+      consumes:
+      - application/json
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+      responses:
+        '204':
+          description: Webhook accepted
+        '400':
+          description: No connector matched the webhook payload
+          schema:
+            $ref: '#/definitions/APIError'
+        '401':
+          description: Webhook signature verification failed
+          schema:
+            $ref: '#/definitions/APIError'
+        '503':
+          description: Webhook deferred; backend should retry
+          schema:
+            $ref: '#/definitions/APIError'
+  /connectors/incoming/{backend}:
+    post:
+      operationId: connector_webhook_with_hint
+      summary: Receive incoming webhook with backend hint
+      description: Dispatches an incoming webhook, trying the specified backend first.
+      tags:
+      - connectors
+      security: []
+      consumes:
+      - application/json
+      - application/x-www-form-urlencoded
+      parameters:
+      - name: backend
+        in: path
+        type: string
+        description: Backend name hint for faster dispatch
+        required: true
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+      responses:
+        '204':
+          description: Webhook accepted
+        '400':
+          description: No connector matched the webhook payload
+          schema:
+            $ref: '#/definitions/APIError'
+        '401':
+          description: Webhook signature verification failed
+          schema:
+            $ref: '#/definitions/APIError'
+        '503':
+          description: Webhook deferred; backend should retry
+          schema:
+            $ref: '#/definitions/APIError'
+  /users/presences:
+    get:
+      operationId: list_presences
+      summary: List presences
+      description: '**Required ACL:** `chatd.users.presences.read`'
+      tags:
+      - presences
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - $ref: '#/parameters/recurse'
+      - $ref: '#/parameters/user_uuid_query'
+      responses:
+        '200':
+          description: Presences list
+          schema:
+            $ref: '#/definitions/PresenceList'
+  /users/{user_uuid}/presences:
+    get:
+      operationId: get_user_presence
+      summary: Get user presence
+      description: '**Required ACL:** `chatd.users.{user_uuid}.presences.read`'
+      tags:
+      - presences
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '200':
+          description: Presence
+          schema:
+            $ref: '#/definitions/Presence'
+        '404':
+          $ref: '#/responses/NotFoundError'
+    put:
+      operationId: update_user_presence
+      summary: Update user presence
+      description: '**Required ACL:** `chatd.users.{user_uuid}.presences.update`'
+      tags:
+      - presences
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - $ref: '#/parameters/user_uuid'
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Presence'
+      responses:
+        '204':
+          $ref: '#/responses/ResourceUpdated'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /users/me/rooms:
+    post:
+      operationId: create_room
+      summary: Create room
+      description: '**Required ACL:** `chatd.users.me.rooms.create`
+
+
+        **Warning**: **>=22.16**: If a room with the same participants exists,
+
+        it will be returned instead of creating new one. In this case, no other
+
+        parameter will be taken into account and the return code will be 201.
+
+        This behaviour will disappear in the future and a 409 error will be
+
+        raised.
+
+        '
+      tags:
+      - rooms
+      parameters:
+      - name: body
+        in: body
+        description: room to create
+        required: true
+        schema:
+          $ref: '#/definitions/Room'
+      responses:
+        '201':
+          description: Room created
+          schema:
+            $ref: '#/definitions/Room'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '409':
+          description: 'Either a participant is unreachable via any registered connector
+
+            (`unreachable-participant`) or no connector type is shared by all
+
+            participants (`no-common-connector`).
+
+            '
+    get:
+      operationId: get_room
+      summary: Get room
+      description: '**Required ACL:** `chatd.users.me.rooms.read`'
+      tags:
+      - rooms
+      parameters:
+      - $ref: '#/parameters/user_uuid_query'
+      responses:
+        '200':
+          description: Room
+          schema:
+            $ref: '#/definitions/Rooms'
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /users/me/rooms/messages:
+    get:
+      operationId: list_rooms_messages
+      summary: List rooms messages
+      description: '**Required ACL:** `chatd.users.me.rooms.messages.read`'
+      tags:
+      - rooms
+      - messages
+      parameters:
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search_distinct'
+      - $ref: '#/parameters/distinct'
+      responses:
+        '200':
+          description: Messages
+          schema:
+            $ref: '#/definitions/Messages'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+  /users/me/rooms/{room_uuid}/messages:
+    post:
+      operationId: create_room_message
+      summary: Create room messages
+      description: '**Required ACL:** `chatd.users.me.rooms.{room_uuid}.messages.create`'
+      tags:
+      - rooms
+      - messages
+      parameters:
+      - $ref: '#/parameters/room_uuid'
+      - name: body
+        in: body
+        description: message to create
+        required: true
+        schema:
+          $ref: '#/definitions/UserMessagePOST'
+      responses:
+        '201':
+          description: Message created (no outbound delivery)
+          schema:
+            $ref: '#/definitions/Message'
+        '202':
+          description: Message created, outbound delivery accepted
+          schema:
+            $ref: '#/definitions/Message'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+        '409':
+          description: sender_identity_uuid is required but missing, or identity is not reachable
+    get:
+      operationId: list_room_message
+      summary: List room messages
+      description: '**Required ACL:** `chatd.users.me.rooms.{room_uuid}.messages.read`'
+      tags:
+      - rooms
+      - messages
+      parameters:
+      - $ref: '#/parameters/room_uuid'
+      - $ref: '#/parameters/from_date'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      responses:
+        '200':
+          description: Messages
+          schema:
+            $ref: '#/definitions/Messages'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /status:
+    get:
+      summary: Print infos about internal status of wazo-chatd
+      description: '**Required ACL:** `chatd.status.read`'
+      tags:
+      - status
+      responses:
+        '200':
+          description: The internal infos of wazo-chatd
+          schema:
+            $ref: '#/definitions/StatusSummary'
+  /users/{user_uuid}/teams/presence:
+    post:
+      operationId: update_teams_presence
+      summary: Receive presence information from Microsoft Teams
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      tags:
+      - microsoft
+      responses:
+        '200':
+          description: Microsoft Teams presence information has been received
+          schema:
+            $ref: '#/responses/ResourceUpdated'
+        '404':
+          description: The resource requested was not found on the server
+          schema:
+            $ref: '#/responses/NotFoundError'
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-chatd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves
+    at /api/chatd/1.0/api/api.yml (see wazo_chatd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

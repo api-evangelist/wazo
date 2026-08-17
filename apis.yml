@@ -1,24 +1,702 @@
 aid: wazo
 name: Wazo
-description: 'Wazo is a company surfaced as a portfolio company of serena and added to the API Evangelist
-  network as a stub for enrichment. Sector: saas. This profile is a lead awaiting the enrichment pipeline.'
+description: 'Wazo Communication Inc. builds the Wazo Platform, an open-source (GPL-3.0) programmable unified-communications
+  and contact-centre platform assembled from Asterisk, Kamailio, RabbitMQ, PostgreSQL and nginx, which MSPs, carriers, telecom
+  integrators and enterprises self-host or resell white-label as UCaaS. The platform is API-first: thirteen HTTP microservices
+  — authentication, stack configuration (confd), runtime call control (calld), call detail records, directories, call-centre
+  agents, presence and chat, phone auto-provisioning, webhooks, plugin management, the Asterisk Manager facade and initial
+  setup — each publish their own Swagger 2.0 contract totalling 932 operations, share a single X-Auth-Token bearer model
+  governed by 788 fine-grained ACL permissions, and emit 327 named events onto a RabbitMQ bus that wazo-webhookd relays
+  as HTTP webhooks and wazo-websocketd streams over WebSocket. There is no public multi-tenant API host: every base URL
+  is the customer''s own stack.'
+image: https://wazo-platform.org/images/logo-black.svg
 url: https://raw.githubusercontent.com/api-evangelist/wazo/refs/heads/main/apis.yml
 x-type: company
 x-source: serena-portfolio
-x-tier: stub
-x-tier-reason: portfolio-lead
-specificationVersion: '0.20'
+specificationVersion: '0.21'
 created: '2026-08-17'
 modified: '2026-08-17'
 tags:
-- Company
-- Saas
-apis: []
+- telephony
+- voip
+- unified-communications
+- ucaas
+- contact-center
+- sip
+- asterisk
+- webrtc
+- open-source
+- self-hosted
+- white-label
+- pbx
+- msp
+- call-center
+- provisioning
+- webhooks
+- event-driven
+- chat
+- presence
+- cdr
+apis:
+- name: Wazo Authentication API (wazo-auth)
+  description: Authentication and authorisation service for the Wazo Platform. Issues and validates X-Auth-Token tokens
+    (username/password, LDAP, SAML and external identity providers including Google, Microsoft and mobile push), and manages
+    tenants, users, groups, sessions, refresh tokens, policies and fine-grained ACL access rules that every other Wazo service
+    enforces.
+  humanURL: https://api.wazo.io/documentation/api/authentication.html
+  baseURL: https://{wazo_stack}/api/auth/0.1
+  tags:
+  - asterisk
+  - authentication
+  - authorization
+  - identity
+  - ldap
+  - multi-tenant
+  - oauth
+  - saml
+  - sip
+  - telephony
+  - ucaas
+  - unified-communications
+  - voip
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-auth-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/authentication.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/authentication/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-auth
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-auth/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-auth-overlay.yaml
+  - type: AsyncAPI
+    url: asyncapi/wazo-auth-asyncapi.yml
+- name: Wazo Configuration API (wazo-confd)
+  description: The configuration API for a Wazo stack and the largest of its microservice contracts. Manages users, lines,
+    extensions, SIP/IAX/SCCP/custom endpoints, devices, contexts, groups, queues, agents, IVRs, conferences, meetings, schedules,
+    call permissions, call filters, function keys, voicemails, trunks, outgoing/incoming calls, parking lots, sound files,
+    switchboards, WebRTC settings and the whole PBX object graph.
+  humanURL: https://api.wazo.io/documentation/api/configuration.html
+  baseURL: https://{wazo_stack}/api/confd/1.1
+  tags:
+  - asterisk
+  - configuration
+  - pbx
+  - provisioning
+  - sip
+  - telephony
+  - ucaas
+  - unified-communications
+  - user-management
+  - voip
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-confd-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/configuration.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/configuration/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-confd
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-confd/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-confd-overlay.yaml
+  - type: AsyncAPI
+    url: asyncapi/wazo-confd-asyncapi.yml
+- name: Wazo Call Control / Application API (wazo-calld)
+  description: Runtime call control for the Wazo Platform. Originate, answer, hold, mute, transfer, relocate, record and
+    hang up calls; drive adhoc conferences, conferences, meetings, faxes, voicemails, switchboards, parking lots, and the
+    Stasis-based Application API that lets an external program own call routing, playbacks, snoops and node membership.
+  humanURL: https://api.wazo.io/documentation/api/application.html
+  baseURL: https://{wazo_stack}/api/calld/1.0
+  tags:
+  - asterisk
+  - call-control
+  - conferencing
+  - fax
+  - real-time
+  - sip
+  - telephony
+  - ucaas
+  - unified-communications
+  - voicemail
+  - voip
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-calld-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/application.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/application/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-calld
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-calld/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-calld-overlay.yaml
+  - type: AsyncAPI
+    url: asyncapi/wazo-calld-asyncapi.yml
+- name: Wazo Call Detail Records API (wazo-call-logd)
+  description: Call Detail Record and contact-centre reporting API. Retrieves and exports CDRs (JSON, CSV) for a tenant
+    or the authenticated user, recordings and voicemail transcription, retention configuration, and the Support Centre statistics
+    endpoints for agent and queue performance.
+  humanURL: https://api.wazo.io/documentation/api/cdr.html
+  baseURL: https://{wazo_stack}/api/call-logd/1.0
+  tags:
+  - analytics
+  - asterisk
+  - call-detail-records
+  - cdr
+  - contact-center
+  - reporting
+  - sip
+  - telephony
+  - ucaas
+  - unified-communications
+  - voip
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-call-logd-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/cdr.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/cdr/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-call-logd
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-call-logd/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-call-logd-overlay.yaml
+  - type: AsyncAPI
+    url: asyncapi/wazo-call-logd-asyncapi.yml
+- name: Wazo Directory & Contacts API (wazo-dird)
+  description: Directory lookup, reverse lookup and personal-contact service. Aggregates multiple directory backends (CSV,
+    CSV web service, LDAP, Wazo confd, Google, Microsoft Office 365, conference and personal sources) behind one search
+    API, and manages displays, profiles, sources, phonebooks and favourites.
+  humanURL: https://api.wazo.io/documentation/api/contact.html
+  baseURL: https://{wazo_stack}/api/dird/0.1
+  tags:
+  - asterisk
+  - contacts
+  - directory
+  - ldap
+  - phonebook
+  - search
+  - sip
+  - telephony
+  - ucaas
+  - unified-communications
+  - voip
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-dird-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/contact.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/contact/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-dird
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-dird/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-dird-overlay.yaml
+  - type: AsyncAPI
+    url: asyncapi/wazo-dird-asyncapi.yml
+- name: Wazo Phone Provisioning API (wazo-provd)
+  description: Phone auto-provisioning service. Manages device plugins, configuration templates, device registrations, DHCP
+    integration and the plugin repository used to provision desk phones and ATAs from vendors such as Aastra/Mitel, Cisco,
+    Fanvil, Gigaset, Htek, Polycom, Snom and Yealink.
+  humanURL: https://api.wazo.io/documentation/api/provisioning.html
+  baseURL: https://{wazo_stack}/api/provd/0.2
+  tags:
+  - asterisk
+  - device-management
+  - provisioning
+  - sip
+  - sip-phones
+  - telephony
+  - ucaas
+  - unified-communications
+  - voip
+  - zero-touch
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-provd-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/provisioning.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/provisioning/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-provd
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-provd/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-provd-overlay.yaml
+- name: Wazo Webhooks API (wazo-webhookd)
+  description: Webhook subscription service. Connects to the Wazo event bus and relays platform events to external HTTP
+    endpoints; manages tenant-wide and per-user subscriptions, the available relay services, mobile push configuration,
+    and per-subscription delivery logs.
+  humanURL: https://api.wazo.io/documentation/api/webhook.html
+  baseURL: https://{wazo_stack}/api/webhookd/1.0
+  tags:
+  - asterisk
+  - event-driven
+  - events
+  - push-notifications
+  - sip
+  - telephony
+  - ucaas
+  - unified-communications
+  - voip
+  - webhooks
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-webhookd-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/webhook.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/webhook/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-webhookd
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-webhookd/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-webhookd-overlay.yaml
+  - type: Webhooks
+    url: asyncapi/wazo-events-webhooks.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-webhookd-asyncapi.yml
+- name: Wazo Plugin Management API (wazo-plugind)
+  description: Plugin management microservice. Installs, upgrades and uninstalls Wazo plugins from a git or market source,
+    exposes the plugin market and the list of installed plugins, and reports asynchronous install progress.
+  humanURL: https://api.wazo.io/documentation/api/plugins.html
+  baseURL: https://{wazo_stack}/api/plugind/0.2
+  tags:
+  - asterisk
+  - extensibility
+  - package-management
+  - plugins
+  - sip
+  - telephony
+  - ucaas
+  - unified-communications
+  - voip
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-plugind-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/plugins.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/plugins/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-plugind
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-plugind/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-plugind-overlay.yaml
+  - type: AsyncAPI
+    url: asyncapi/wazo-plugind-asyncapi.yml
+- name: Wazo Call Centre Agent API (wazo-agentd)
+  description: Call-centre agent state API. Logs agents in and out of queues by agent id, agent number or extension, pauses
+    and unpauses them, relogs all agents, and reports per-agent and tenant-wide agent status.
+  humanURL: https://api.wazo.io/documentation/api/agent.html
+  baseURL: https://{wazo_stack}/api/agentd/1.0
+  tags:
+  - agents
+  - asterisk
+  - call-center
+  - contact-center
+  - queues
+  - sip
+  - telephony
+  - ucaas
+  - unified-communications
+  - voip
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-agentd-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/agent.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/agent/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-agentd
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-agentd/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-agentd-overlay.yaml
+  - type: AsyncAPI
+    url: asyncapi/wazo-agentd-asyncapi.yml
+- name: Wazo Presence & Chat API (wazo-chatd)
+  description: Presence and chat microservice. Tracks user, line and refresh-token presence (including Microsoft Teams presence
+    federation), and manages chat rooms and messages for the authenticated user.
+  humanURL: https://api.wazo.io/documentation/api/chat.html
+  baseURL: https://{wazo_stack}/api/chatd/1.0
+  tags:
+  - asterisk
+  - chat
+  - collaboration
+  - messaging
+  - presence
+  - sip
+  - telephony
+  - ucaas
+  - unified-communications
+  - voip
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-chatd-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/chat.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/chat/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-chatd
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-chatd/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-chatd-overlay.yaml
+  - type: AsyncAPI
+    url: asyncapi/wazo-chatd-asyncapi.yml
+- name: Wazo Phone Directory & Service API (wazo-phoned)
+  description: Directory and service endpoints consumed directly by desk phones. Serves vendor-specific XML/HTML phone directory
+    lookups and phone service actions (DND, call forward) for Aastra/Mitel, Cisco, Fanvil, Gigaset, Htek, Polycom, Snom,
+    Thomson and Yealink handsets.
+  humanURL: https://github.com/wazo-platform/wazo-phoned
+  baseURL: http://{wazo_stack}:9498/0.1
+  tags:
+  - asterisk
+  - directory
+  - provisioning
+  - sip
+  - sip-phones
+  - telephony
+  - ucaas
+  - unified-communications
+  - voip
+  - xml-directory
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-phoned-api-openapi.yml
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-phoned
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-phoned/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-phoned-overlay.yaml
+- name: Wazo Initial Setup API (wazo-setupd)
+  description: Initial system setup API. Performs the one-time bootstrap of a freshly installed Wazo stack — engine configuration,
+    tenant creation and the first administrative credentials.
+  humanURL: https://api.wazo.io/documentation/api/setup.html
+  baseURL: https://{wazo_stack}/api/setupd/1.0
+  tags:
+  - asterisk
+  - bootstrap
+  - provisioning
+  - setup
+  - sip
+  - telephony
+  - ucaas
+  - unified-communications
+  - voip
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-setupd-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/setup.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/setup/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-setupd
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-setupd/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-setupd-overlay.yaml
+- name: Wazo Asterisk Manager Interface API (wazo-amid)
+  description: A thin REST facade over the Asterisk Manager Interface. Executes AMI actions and Asterisk CLI commands, and
+    republishes AMI events onto the Wazo bus. Internal-platform surface, not intended for direct tenant use.
+  humanURL: https://api.wazo.io/documentation/api/amid.html
+  baseURL: https://{wazo_stack}/api/amid/1.0
+  tags:
+  - ami
+  - asterisk
+  - internal
+  - sip
+  - telephony
+  - ucaas
+  - unified-communications
+  - voip
+  properties:
+  - type: OpenAPI
+    url: openapi/wazo-amid-api-openapi.yml
+  - type: APIReference
+    url: https://api.wazo.io/documentation/api/amid.html
+  - type: Console
+    url: https://api.wazo.io/documentation/console/amid/
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-amid
+  - type: ChangeLog
+    url: https://github.com/wazo-platform/wazo-amid/blob/master/CHANGELOG.md
+  - type: Authentication
+    url: authentication/wazo-authentication.yml
+  - type: Conventions
+    url: conventions/wazo-conventions.yml
+  - type: ErrorCatalog
+    url: errors/wazo-problem-types.yml
+  - type: Overlay
+    url: overlays/wazo-amid-overlay.yaml
+  - type: AsyncAPI
+    url: asyncapi/wazo-amid-asyncapi.yml
+- name: Wazo Websocket Event Stream (wazo-websocketd)
+  description: WebSocket gateway onto the Wazo internal event bus. An authenticated client subscribes to named platform
+    events (327 event types across confd, calld, agentd, dird, amid, sysconfd and webhookd) and receives them as JSON frames
+    in real time. There is no REST contract for this surface; the event catalogue is captured as a webhook/event artifact
+    rather than an AsyncAPI document because Wazo publishes none.
+  humanURL: https://api.wazo.io/documentation/overview/websocket.html
+  baseURL: wss://{wazo_stack}/api/websocketd/
+  tags:
+  - websocket
+  - events
+  - event-driven
+  - real-time
+  - telephony
+  - pubsub
+  - streaming
+  properties:
+  - type: Documentation
+    url: https://api.wazo.io/documentation/overview/websocket.html
+  - type: Documentation
+    url: https://wazo-platform.org/uc-doc/api_sdk/websocket
+  - type: Webhooks
+    url: asyncapi/wazo-events-webhooks.yml
+  - type: SourceCode
+    url: https://github.com/wazo-platform/wazo-websocketd
+  - type: AsyncAPI
+    url: asyncapi/wazo-unattributed-asyncapi.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-agentd-asyncapi.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-amid-asyncapi.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-auth-asyncapi.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-call-logd-asyncapi.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-calld-asyncapi.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-chatd-asyncapi.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-confd-asyncapi.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-dird-asyncapi.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-plugind-asyncapi.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-sysconfd-asyncapi.yml
+  - type: AsyncAPI
+    url: asyncapi/wazo-webhookd-asyncapi.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: AgenticAccess
+  url: agentic-access/wazo-agentic-access.yml
+- type: DomainSecurity
+  url: security/wazo-domain-security.yml
 - type: Website
   url: https://wazo.io/
+- type: DeveloperPortal
+  url: https://api.wazo.io/
+- type: Portal
+  url: https://developers.wazo.io/
+- type: Documentation
+  url: https://wazo-platform.org/uc-doc/
+- type: APIReference
+  url: https://api.wazo.io/documentation/
+- type: GettingStarted
+  url: https://wazo-platform.org/uc-doc/api_sdk/rest_api/quickstart
+- type: Quickstart
+  url: https://wazo-platform.org/uc-doc/api_sdk/rest_api/quickstart
+- type: Support
+  url: https://wazo-platform.discourse.group/
+- type: Community
+  url: https://mm.wazo.community/wazo-platform/
+- type: Blog
+  url: https://wazo-platform.org/blog/
+- type: GitHubOrganization
+  url: https://github.com/wazo-platform
+- type: GitHubOrganization
+  url: https://github.com/wazo-communication
+- type: IssueTracker
+  url: https://wazo-dev.atlassian.net/
+- type: SignUp
+  url: https://wazo.io/contact
+- type: TermsOfService
+  url: https://wazo.io/eula
+- type: PrivacyPolicy
+  url: https://wazo.io/privacy
+- type: Download
+  url: https://wazo.io/download
+- type: Ecosystem
+  url: https://wazo-platform.org/ecosystem/
+- type: Tutorials
+  url: https://wazo-platform.org/tutorials/
+- type: Packages
+  url: packages/wazo-packages.yml
+- type: SDKs
+  url: packages/wazo-packages.yml
+- type: Authentication
+  url: authentication/wazo-authentication.yml
+- type: Scopes
+  url: scopes/wazo-acl-permissions.yml
+- type: Conventions
+  url: conventions/wazo-conventions.yml
+- type: ErrorCatalog
+  url: errors/wazo-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/wazo-lifecycle.yml
+- type: ChangeLog
+  url: changelog/wazo-changelog.yml
+- type: ChangeLog
+  url: https://wazo-platform.org/uc-doc/api_sdk/rest_api/changelog
+- type: Conformance
+  url: conformance/wazo-conformance.yml
+- type: DataModel
+  url: data-model/wazo-data-model.yml
+- type: CLI
+  url: cli/wazo-cli.yml
+- type: Components
+  url: components/wazo-components.yml
+- type: Sandbox
+  url: sandbox/wazo-sandbox.yml
+- type: Console
+  url: https://api.wazo.io/documentation/console/authentication/
+- type: Webhooks
+  url: asyncapi/wazo-events-webhooks.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: LLMsTxt
+  url: llms/wazo-llms.txt
+- type: Plans
+  url: plans/wazo-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/wazo-rate-limits.yml
+- type: AsyncAPI
+  url: asyncapi/wazo-unattributed-asyncapi.yml
+  name: undefined events
+- type: AsyncAPI
+  url: asyncapi/wazo-agentd-asyncapi.yml
+  name: wazo-agentd events
+- type: AsyncAPI
+  url: asyncapi/wazo-amid-asyncapi.yml
+  name: wazo-amid events
+- type: AsyncAPI
+  url: asyncapi/wazo-auth-asyncapi.yml
+  name: wazo-auth events
+- type: AsyncAPI
+  url: asyncapi/wazo-call-logd-asyncapi.yml
+  name: wazo-call_logd events
+- type: AsyncAPI
+  url: asyncapi/wazo-calld-asyncapi.yml
+  name: wazo-calld events
+- type: AsyncAPI
+  url: asyncapi/wazo-chatd-asyncapi.yml
+  name: wazo-chatd events
+- type: AsyncAPI
+  url: asyncapi/wazo-confd-asyncapi.yml
+  name: wazo-confd events
+- type: AsyncAPI
+  url: asyncapi/wazo-dird-asyncapi.yml
+  name: wazo-dird events
+- type: AsyncAPI
+  url: asyncapi/wazo-plugind-asyncapi.yml
+  name: wazo-plugind events
+- type: AsyncAPI
+  url: asyncapi/wazo-sysconfd-asyncapi.yml
+  name: wazo-sysconfd events
+- type: AsyncAPI
+  url: asyncapi/wazo-webhookd-asyncapi.yml
+  name: wazo-webhookd events
+x-enrichment:
+  date: '2026-08-17'
+  status: enriched
+  artifacts_added: 77
+  pass: local-v1

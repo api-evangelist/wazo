@@ -1,0 +1,216 @@
+swagger: '2.0'
+info:
+  title: wazo-setupd
+  description: Initialize Wazo Engine from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+schemes:
+- https
+basePath: /1.0
+produces:
+- application/json
+x-xivo-port: 9302
+x-xivo-name: setupd
+securityDefinitions:
+  wazo_auth_token:
+    type: apiKey
+    name: X-Auth-Token
+    in: header
+security:
+- wazo_auth_token: []
+responses:
+  AnotherServiceUnavailable:
+    description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+    schema:
+      $ref: '#/definitions/Error'
+  NotFoundError:
+    description: The resource requested was not found on the server
+    schema:
+      $ref: '#/definitions/Error'
+  InvalidRequest:
+    description: Invalid request
+    schema:
+      $ref: '#/definitions/Error'
+  SetupError:
+    description: A error occurred during the setup
+    schema:
+      $ref: '#/definitions/Error'
+definitions:
+  Error:
+    title: Error
+    description: Error message for the client
+    properties:
+      message:
+        description: Human readable explanation of the error
+        type: string
+      error_id:
+        description: Identifier of the type of error. It is more precise than the HTTP status code.
+        type: string
+      details:
+        description: Additional information about the error. The keys are specific to each error.
+        type: object
+      timestamp:
+        description: Time when the error occured
+        type: number
+        format: timestamp
+  SetupRequest:
+    type: object
+    properties:
+      engine_language:
+        description: The interface language for the Wazo Engine (either `en_US` or `fr_FR`)
+        type: string
+      engine_password:
+        description: Password of the first administrator ``root`` on the engine
+        type: string
+      engine_internal_address:
+        description: IP address of the engine
+        type: string
+      engine_license:
+        description: Whether the GNU GPLv3 license is accepted
+        type: boolean
+      engine_instance_uuid:
+        description: 'The UUID identifying this instance on Nestbox.
+
+
+          The engine_instance_uuid should only be specified if the instance has already been registered on the specified Nestbox.
+          Omitting this field for an instance that is already registered will create a duplicate entry on the Nestbox.
+
+          '
+        type: string
+      engine_rtp_icesupport:
+        description: 'Enable ICE support. This is required for WebRTC.
+
+
+          A STUN server must be defined in the `engine_rtp_stunaddr` field when using `engine_rtp_icesupport=true`.
+
+          '
+        type: boolean
+        default: false
+      engine_rtp_stunaddr:
+        description: The address of the STUN server to use for WebRTC
+        type: string
+        default: 'null'
+      nestbox_host:
+        description: Host of the Nestbox where the engine will register. Specifying this key will make nestbox and `engine_internal_address`
+          keys mandatory. Wazo will be connected to the specified Nestbox instance.
+        type: string
+      nestbox_port:
+        description: Port of the Nestbox where the engine will register
+        type: integer
+        default: 443
+      nestbox_verify_certificate:
+        description: Should the certificate used for HTTPS be verified? The setup will abort if the certificate fails the
+          verification.
+        type: boolean
+        default: true
+      nestbox_service_id:
+        description: Nestbox username used to register the engine
+        type: string
+      nestbox_service_key:
+        description: Nestbox password used to register the engine
+        type: string
+      nestbox_instance_name:
+        description: Name of the engine in Nestbox
+        type: string
+      nestbox_instance_preferred_connection:
+        description: Preferred connection method to contact the engine
+        type: string
+        enum:
+        - private
+        - public
+        default: public
+      nestbox_engine_host:
+        description: Host used by Nestbox to contact the engine
+        type: string
+      nestbox_engine_port:
+        description: Port used by Nestbox to contact the engine
+        type: integer
+        default: 443
+    required:
+    - engine_language
+    - engine_password
+    - engine_license
+  StatusSummary:
+    type: object
+    properties:
+      rest_api:
+        $ref: '#/definitions/ComponentWithStatus'
+      master_tenant:
+        $ref: '#/definitions/ComponentWithStatus'
+  ComponentWithStatus:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/StatusValue'
+  StatusValue:
+    type: string
+    enum:
+    - fail
+    - ok
+parameters:
+  TokenID:
+    name: token
+    in: query
+    description: The token's ID
+    type: string
+  SetupBody:
+    name: body
+    in: body
+    required: true
+    description: Setup options
+    schema:
+      $ref: '#/definitions/SetupRequest'
+paths:
+  /config:
+    get:
+      produces:
+      - application/json
+      summary: Show the current configuration
+      description: '**Required ACL:** `setupd.config.read`'
+      operationId: getConfig
+      tags:
+      - config
+      responses:
+        '200':
+          description: The configuration of the service
+  /setup:
+    post:
+      summary: Setup the Wazo Engine
+      operationId: create
+      parameters:
+      - $ref: '#/parameters/SetupBody'
+      tags:
+      - setup
+      responses:
+        '201':
+          description: The setup has been completed
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '500':
+          $ref: '#/responses/SetupError'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+  /status:
+    get:
+      summary: Print infos about internal status of wazo-setupd
+      description: '**Required ACL:** `setupd.status.read`'
+      tags:
+      - status
+      responses:
+        '200':
+          description: The internal infos of wazo-setupd
+          schema:
+            $ref: '#/definitions/StatusSummary'
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-setupd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves
+    at /api/setupd/1.0/api/api.yml (see wazo_setupd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

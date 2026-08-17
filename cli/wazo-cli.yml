@@ -1,0 +1,84 @@
+generated: '2026-08-17'
+method: searched
+source: https://github.com/wazo-platform, https://mirror.wazo.community/debian/dists/pelican-bookworm/main/binary-amd64/Packages.gz
+model: Wazo ships no single unified CLI. It ships one operator CLI per microservice, all installed on the stack itself from
+  the Wazo apt repository and run locally by the administrator, plus platform utilities. None of them is a remote client
+  you install on a laptop against a hosted API.
+unified_cli: false
+cli_count: 10
+clis:
+- name: wazo-auth-cli
+  repository: https://github.com/wazo-platform/wazo-auth-cli
+  install: apt-get install wazo-auth-cli
+  version: 25.15~20251015.132335.3c5410b.deb12
+  published: '2025-10-15'
+  description: 'Administer wazo-auth: tenants, users, groups, policies, sessions, external auth and tokens.'
+  official: true
+- name: wazo-confd-cli
+  repository: https://github.com/wazo-platform/wazo-confd
+  install: apt-get install wazo-confd-cli
+  version: 25.15~20251015.134140.d9cdea0.deb12
+  published: '2025-10-15'
+  description: Administer stack configuration objects through the confd API.
+  official: true
+- name: wazo-agentd-cli
+  repository: https://github.com/wazo-platform/wazo-agentd-cli
+  install: apt-get install wazo-agentd-cli
+  version: 26.08~20260629.211820.c049a41.deb12
+  published: '2026-06-29'
+  description: Log agents in and out of queues, pause/unpause, and inspect agent status.
+  official: true
+- name: wazo-provd-cli
+  repository: https://github.com/wazo-platform/wazo-provd-cli
+  install: apt-get install wazo-provd-cli
+  version: 25.15~20251015.143730.8bce39e.deb12
+  published: '2025-10-15'
+  description: Manage provisioning plugins, device configurations and registrations.
+  official: true
+- name: wazo-plugind-cli
+  repository: https://github.com/wazo-platform/wazo-plugind-cli
+  install: apt-get install wazo-plugind-cli
+  version: 26.08~20260630.195543.09e9832.deb12
+  published: '2026-06-30'
+  description: Install, upgrade and remove Wazo plugins from the market or a git source.
+  official: true
+- name: wazo-debug
+  repository: https://github.com/wazo-platform/wazo-debug
+  install: apt-get install wazo-debug
+  version: 26.08~20260722.114151.8b245b7.deb12
+  published: '2026-07-22'
+  description: Collect diagnostics and traces from a running stack for support.
+  official: true
+- name: wazo-upgrade
+  repository: https://github.com/wazo-platform/wazo-upgrade
+  install: apt-get install wazo-upgrade
+  version: 26.08~20260727.133437.1c251b9.deb12
+  published: '2026-07-27'
+  description: Perform a platform upgrade between release trains.
+  official: true
+- name: wazo-export-import
+  repository: https://github.com/wazo-platform/wazo-export-import
+  install: from source — not present in the pelican-bookworm apt index
+  version: null
+  published: null
+  description: Bulk export and import of stack configuration (CSV/JSON).
+  official: true
+- name: wazo-asterisk-cli
+  repository: https://github.com/wazo-platform/wazo-asterisk-cli
+  install: from source — not present in the pelican-bookworm apt index
+  version: null
+  published: null
+  description: Wrapper around the Asterisk CLI on a Wazo stack.
+  official: true
+- name: wazo-sdk
+  repository: https://github.com/wazo-platform/wazo-sdk
+  install: from source — not present in the pelican-bookworm apt index
+  version: null
+  published: null
+  description: 'Developer toolkit: mount local checkouts of Wazo services into a running stack for development (wdk).'
+  official: true
+developer_toolkit:
+  name: wazo-sdk
+  command: wdk
+  repository: https://github.com/wazo-platform/wazo-sdk
+  docs: https://wazo-platform.org/uc-doc/contributors/network

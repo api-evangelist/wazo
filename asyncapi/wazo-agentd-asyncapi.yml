@@ -1,0 +1,208 @@
+asyncapi: 2.0.0
+info:
+  title: wazo-agentd events
+  version: '26.08'
+servers:
+  production:
+    url: amqp://{username}:{password}@/localhost:{port}//
+    description: Local RabbitMQ messaging server for inter-service communication
+    protocol: amqp
+    protocolVersion: 0.9.1
+    variables:
+      username:
+        default: guest
+        description: Configurable through each service's config.yml file
+      password:
+        default: guest
+        description: Configurable through each service's config.yml file
+      port:
+        default: '5672'
+        description: Configurable through each service's config.yml file
+defaultContentType: application/json
+channels:
+  agent_paused:
+    subscribe:
+      summary: An agent was paused
+      tags:
+      - name: agentd
+      message:
+        name: agent-paused-payload
+        payload:
+          type: object
+          properties:
+            agent_id:
+              type: integer
+            agent_number:
+              type: string
+            queue:
+              type: string
+            reason:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: agent_paused
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.statuses.agents
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  agent_unpaused:
+    subscribe:
+      summary: An agent was unpaused
+      tags:
+      - name: agentd
+      message:
+        name: agent-unpaused-payload
+        payload:
+          type: object
+          properties:
+            agent_id:
+              type: integer
+            agent_number:
+              type: string
+            queue:
+              type: string
+            reason:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: agent_unpaused
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.statuses.agents
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  user_agent_queue_logged_in:
+    subscribe:
+      summary: ''
+      tags:
+      - name: agentd
+      message:
+        name: user-agent-queue-logged-in-payload
+        payload:
+          type: object
+          properties:
+            agent_id:
+              type: integer
+            queue_id:
+              type: integer
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: user_agent_queue_logged_in
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.statuses.agents
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  user_agent_queue_logged_off:
+    subscribe:
+      summary: ''
+      tags:
+      - name: agentd
+      message:
+        name: user-agent-queue-logged-off-payload
+        payload:
+          type: object
+          properties:
+            agent_id:
+              type: integer
+            queue_id:
+              type: integer
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: user_agent_queue_logged_off
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.statuses.agents
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+components:
+  schemas:
+    origin_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of the publishing WAZO service
+    timestamp:
+      type: string
+      format: date-time
+      description: Date and time this event was published
+    tenant_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of this resource's tenant
+    user_uuid:{uuid}:
+      type: boolean
+      description: User's unique identifier that this event is intended for. The format user_uuid:{uuid} allows multiple users to be the recipient
+        of this event

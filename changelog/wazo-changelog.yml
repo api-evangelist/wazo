@@ -1,0 +1,209 @@
+generated: '2026-08-17'
+method: searched
+source: https://wazo-platform.org/uc-doc/api_sdk/rest_api/changelog + CHANGELOG.md in each of the 13 service repositories
+scheme: YY.NN release train; each microservice keeps its own CHANGELOG.md keyed by that train
+current_stable: 26.08 (Wazo Pelican)
+in_development: '26.09'
+aggregate_note: Wazo has no single product changelog. The docs page at https://wazo-platform.org/uc-doc/api_sdk/rest_api/changelog
+  is an index that links out to the CHANGELOG.md of each service repository, so the entries below are the train headings
+  observed across those 13 files rather than one merged narrative.
+entry_count: 8
+entries:
+- version: '26.09'
+  services_with_changes:
+  - agentd
+  - amid
+  - auth
+  - call-logd
+  - calld
+  - chatd
+  - confd
+  - dird
+  - plugind
+  - provd
+  - setupd
+  - webhookd
+  count: 12
+- version: '26.08'
+  services_with_changes:
+  - agentd
+  - amid
+  - auth
+  - call-logd
+  - calld
+  - chatd
+  - confd
+  - dird
+  - webhookd
+  count: 9
+- version: '26.07'
+  services_with_changes:
+  - auth
+  - call-logd
+  - chatd
+  - dird
+  count: 4
+- version: '26.06'
+  services_with_changes:
+  - auth
+  count: 1
+- version: '26.05'
+  services_with_changes:
+  - agentd
+  - calld
+  - chatd
+  - confd
+  count: 4
+- version: '26.04'
+  services_with_changes:
+  - auth
+  - call-logd
+  count: 2
+- version: '26.03'
+  services_with_changes:
+  - auth
+  - confd
+  count: 2
+- version: '26.02'
+  services_with_changes:
+  - amid
+  - call-logd
+  - calld
+  - chatd
+  - dird
+  - plugind
+  - webhookd
+  count: 7
+per_service:
+  auth:
+    url: https://github.com/wazo-platform/wazo-auth/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '26.08'
+    - '26.07'
+    - '26.06'
+    - '26.04'
+    - '26.03'
+    - '25.14'
+    - '25.12'
+  confd:
+    url: https://github.com/wazo-platform/wazo-confd/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '26.08'
+    - '26.05'
+    - '26.03'
+    - '25.16'
+    - '25.15'
+    - '25.08'
+    - '25.04'
+  calld:
+    url: https://github.com/wazo-platform/wazo-calld/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '26.08'
+    - '26.05'
+    - '26.02'
+    - '25.16'
+    - '25.04'
+    - '25.02'
+    - '24.16'
+  call-logd:
+    url: https://github.com/wazo-platform/wazo-call-logd/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '26.08'
+    - '26.07'
+    - '26.04'
+    - '26.02'
+    - '25.12'
+    - '24.13'
+    - '24.12'
+  webhookd:
+    url: https://github.com/wazo-platform/wazo-webhookd/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '26.08'
+    - '26.02'
+    - '25.17'
+    - '25.12'
+    - '24.11'
+    - '23.14'
+    - '21.13'
+  dird:
+    url: https://github.com/wazo-platform/wazo-dird/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '26.08'
+    - '26.07'
+    - '26.02'
+    - '24.17'
+    - '23.14'
+    - '23.12'
+    - '23.11'
+  agentd:
+    url: https://github.com/wazo-platform/wazo-agentd/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '26.08'
+    - '26.05'
+    - '25.17'
+    - '25.10'
+    - '23.01'
+    - '22.14'
+    - '22.13'
+  chatd:
+    url: https://github.com/wazo-platform/wazo-chatd/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '26.08'
+    - '26.07'
+    - '26.05'
+    - '26.02'
+    - '23.01'
+    - '22.17'
+    - '22.16'
+  plugind:
+    url: https://github.com/wazo-platform/wazo-plugind/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '26.02'
+    - '25.08'
+    - '23.01'
+    - '22.14'
+    - '20.09'
+    - '18.03'
+    - '18.02'
+  provd:
+    url: https://github.com/wazo-platform/wazo-provd/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '23.17'
+    - '23.16'
+    - '23.15'
+    - '23.12'
+    - '20.09'
+    - '20.02'
+    - '19.12'
+  amid:
+    url: https://github.com/wazo-platform/wazo-amid/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '26.08'
+    - '26.02'
+    - '23.01'
+    - '20.05'
+  setupd:
+    url: https://github.com/wazo-platform/wazo-setupd/blob/master/CHANGELOG.md
+    recent_trains:
+    - '26.09'
+    - '23.01'
+    - '22.01'
+    - '20.09'
+    - '20.04'
+    - '20.02'
+    - '19.05'
+    - '18.14'
+  phoned:
+    url: https://github.com/wazo-platform/wazo-phoned/blob/master/CHANGELOG.md
+    recent_trains: []

@@ -1,0 +1,1387 @@
+swagger: '2.0'
+info:
+  title: wazo-call-logd
+  description: Consult call logs from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+schemes:
+- http
+basePath: /1.0
+produces:
+- application/json
+x-xivo-port: 9298
+x-xivo-name: call-logs
+securityDefinitions:
+  wazo_auth_token:
+    type: apiKey
+    name: X-Auth-Token
+    in: header
+security:
+- wazo_auth_token: []
+responses:
+  AnotherServiceUnavailable:
+    description: Another service is unavailable (e.g. wazo-auth, ...)
+    schema:
+      $ref: '#/definitions/Error'
+  NotFoundError:
+    description: The resource requested was not found on the server
+    schema:
+      $ref: '#/definitions/Error'
+  InvalidRequest:
+    description: Invalid request
+    schema:
+      $ref: '#/definitions/Error'
+  NotDoneYetError:
+    description: Not done yet
+    schema:
+      $ref: '#/definitions/Error'
+  Unauthorized:
+    description: Unauthorized
+definitions:
+  Error:
+    title: Error
+    description: Error message for the client
+    properties:
+      message:
+        description: Human readable explanation of the error
+        type: string
+      error_id:
+        description: Identifier of the type of error. It is more precise than the HTTP status code.
+        type: string
+      details:
+        description: Additional information about the error. The keys are specific to each error.
+        type: object
+      timestamp:
+        description: Time when the error occured
+        type: number
+        format: timestamp
+  call_status:
+    type: string
+    enum:
+    - answered
+    - blocked
+    - voicemail
+    - unknown
+  CDRList:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/CDR'
+      total:
+        type: integer
+      filtered:
+        type: integer
+  CDR:
+    type: object
+    properties:
+      id:
+        type: integer
+      start:
+        type: string
+        format: date-time
+      answer:
+        type: string
+        format: date-time
+      end:
+        type: string
+        format: date-time
+      source_name:
+        type: string
+      source_extension:
+        type: string
+      source_internal_extension:
+        type: string
+        description: the internal extension of the line that placed the call
+      source_internal_context:
+        type: string
+      source_internal_name:
+        type: string
+      source_internal_tenant_uuid:
+        type: string
+      source_user_uuid:
+        type: string
+      source_tenant_uuid:
+        type: string
+      source_line_id:
+        type: integer
+      requested_name:
+        type: string
+        description: name of the intended recipient as dialed
+      requested_extension:
+        type: string
+        description: extension dialed by the caller
+      requested_context:
+        type: string
+        description: dialplan context of the dialed extension
+      requested_tenant_uuid:
+        type: string
+      requested_internal_extension:
+        type: string
+        description: internal extension of the first line to ring
+      requested_internal_context:
+        type: string
+        description: internal context of the first line to ring
+      requested_internal_tenant_uuid:
+        type: string
+      requested_user_uuid:
+        type: string
+      destination_details:
+        type: object
+        description: Contains the `type` of the called destination; which can be either `user`, `conference`, `meeting`, `group`,
+          `voicemail` or `unknown` by default. Also contains useful information about the destination (`id` and `name`). A
+          call that was redirected to a voicemail and not answered reports `type` `voicemail`, even when the call was originally
+          placed to a user; the user remains available in `destination_user_uuid`.
+      destination_name:
+        type: string
+        description: name of the party that answered the call
+      destination_extension:
+        type: string
+        description: extension of the party that answered the call
+      destination_internal_extension:
+        type: string
+        description: internal extension of the line that answered the call, or the first line to ring if unanswered
+      destination_internal_context:
+        type: string
+        description: internal context of the line that answered the call, or the first line to ring if unanswered
+      destination_internal_tenant_uuid:
+        type: string
+      destination_user_uuid:
+        type: string
+      destination_tenant_uuid:
+        type: string
+      destination_line_id:
+        type: integer
+      duration:
+        type: integer
+        description: Duration of the call, in seconds.
+      answered:
+        type: boolean
+      call_direction:
+        type: string
+        enum:
+        - inbound
+        - internal
+        - outbound
+      conversation_id:
+        type: string
+      tags:
+        type: array
+        items:
+          type: string
+      recordings:
+        type: array
+        items:
+          $ref: '#/definitions/Recording'
+      call_status:
+        $ref: '#/definitions/call_status'
+  Recording:
+    type: object
+    properties:
+      uuid:
+        type: string
+      start_time:
+        type: string
+        format: date-time
+      end_time:
+        type: string
+        format: date-time
+      deleted:
+        type: boolean
+      filename:
+        type: string
+  ConfigPatchItem:
+    properties:
+      op:
+        type: string
+        description: 'Patch operation. Supported operations: `replace`.'
+      path:
+        type: string
+        description: 'JSON path to operate on. Supported paths: `/debug`.'
+      value:
+        type: object
+        description: The new value for the operation. Type of value is dependent of `path`
+  Export:
+    type: object
+    properties:
+      uuid:
+        type: string
+      tenant_uuid:
+        type: string
+      user_uuid:
+        type: string
+      requested_at:
+        type: string
+        format: date-time
+      filename:
+        type: string
+      status:
+        type: string
+        enum:
+        - pending
+        - processing
+        - finished
+        - deleted
+        - error
+  Retention:
+    type: object
+    properties:
+      cdr_days:
+        type: integer
+      export_days:
+        type: integer
+      recording_days:
+        type: integer
+      default_cdr_days:
+        type: integer
+        readOnly: true
+      default_export_days:
+        type: integer
+        readOnly: true
+      default_recording_days:
+        type: integer
+        readOnly: true
+  StatusSummary:
+    type: object
+    properties:
+      bus_consumer:
+        $ref: '#/definitions/ComponentWithStatus'
+      task_queue:
+        $ref: '#/definitions/ComponentWithStatus'
+      service_token:
+        $ref: '#/definitions/ComponentWithStatus'
+  ComponentWithStatus:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/StatusValue'
+  StatusValue:
+    type: string
+    enum:
+    - fail
+    - ok
+  AgentStatistics:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/AgentStatistic'
+      total:
+        type: integer
+  AgentsStatistics:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/AgentStatistic'
+      total:
+        type: integer
+  AgentStatistic:
+    type: object
+    properties:
+      from:
+        type: string
+        description: Start of the statistic interval.
+      until:
+        type: string
+        description: End of the statistic interval.
+      tenant_uuid:
+        type: string
+        format: uuid
+        description: Tenant UUID of the corresponding queue.
+      agent_id:
+        type: integer
+        description: ID of the corresponding agent.
+      agent_number:
+        type: string
+        description: The number of this agent
+      answered:
+        type: integer
+        description: The number of answered calls
+      conversation_time:
+        type: integer
+        description: The time spent in conversation in seconds
+      login_time:
+        type: integer
+        description: The time spent logged-in in seconds
+      pause_time:
+        type: integer
+        description: The time spent in pause in seconds
+      wrapup_time:
+        type: integer
+        description: The time spent in wrapup in seconds
+      queues:
+        type: array
+        description: Per-queue breakdown of agent activity over this interval
+        items:
+          $ref: '#/definitions/AgentQueueStatistic'
+  AgentQueueStatistic:
+    type: object
+    properties:
+      queue_id:
+        type: integer
+        description: ID of the queue.
+      answered:
+        type: integer
+        description: Number of calls this agent answered on this queue
+      conversation_time:
+        type: integer
+        description: Time this agent spent in conversation on this queue, in seconds
+      login_time:
+        type: integer
+        description: Time this agent was logged in to this queue, in seconds
+      pause_time:
+        type: integer
+        description: Time this agent spent in pause on this queue, in seconds
+      wrapup_time:
+        type: integer
+        description: Time this agent spent in wrap-up after calls on this queue, in seconds
+  QueuesStatistics:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/QueueStatistic'
+      total:
+        type: integer
+  QueueStatistics:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/QueueStatistic'
+      total:
+        type: integer
+  QueueStatistic:
+    type: object
+    properties:
+      from:
+        type: string
+        description: Start of the statistic interval.
+      until:
+        type: string
+        description: End of the statistic interval.
+      tenant_uuid:
+        type: string
+        format: uuid
+        description: Tenant UUID of the corresponding queue.
+      queue_id:
+        type: integer
+        description: ID of the corresponding queue.
+      queue_name:
+        type: string
+        description: Name of the corresponding queue.
+      received:
+        type: integer
+        description: Total number of calls received in the interval.
+      answered:
+        type: integer
+        description: Number of calls answered by an agent.
+      abandoned:
+        type: integer
+        description: Number of calls that were abandoned while they were waiting for an answer.
+      closed:
+        type: integer
+        description: Number of calls received when the queue was closed.
+      not_answered:
+        type: integer
+        description: Number of calls that reached the ring timeout delay.
+      saturated:
+        type: integer
+        description: Number of calls received when the queue was full or when one of the diversion parameter was reached.
+      blocked:
+        type: integer
+        description: Number of calls received when no agent was available, when there was no agent to take the call, when
+          the join an empty queue condition is reached, or when the drop callers if no agent condition is reached.
+      average_waiting_time:
+        type: integer
+        description: The average waiting time of calls
+      answered_rate:
+        type: number
+        format: float
+        description: The number of answered called over (received calls - closed calls)
+      quality_of_service:
+        type: number
+        format: float
+        description: Percentage based on the number of calls answered in less than the defined quality of service threshold
+          over the number of answered calls.
+  QueueQoSStatistics:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/QueueQoSStatistic'
+      total:
+        type: integer
+  QueueQoSStatistic:
+    type: object
+    properties:
+      from:
+        type: string
+        description: Start of the statistic interval.
+      until:
+        type: string
+        description: End of the statistic interval.
+      tenant_uuid:
+        type: string
+        format: uuid
+        description: Tenant UUID of the corresponding queue.
+      queue_id:
+        type: integer
+        description: ID of the corresponding queue.
+      queue_name:
+        type: string
+        description: Name of the corresponding queue.
+      quality_of_service:
+        type: array
+        items:
+          type: object
+          properties:
+            min:
+              type: integer
+              description: Minimum of the QoS interval
+            max:
+              type: integer
+              description: Maximum of the QoS interval
+            answered:
+              type: integer
+              description: Number of calls answered by an agent.
+            abandoned:
+              type: integer
+              description: Number of calls that were abandoned while they were waiting for an answer.
+  Transcription:
+    type: object
+    properties:
+      message_id:
+        type: string
+        description: The voicemail message ID
+      tenant_uuid:
+        type: string
+        format: uuid
+      voicemail_id:
+        type: integer
+        description: The voicemail ID (mailbox number)
+      transcription_text:
+        type: string
+        description: The transcription text
+      provider_id:
+        type: string
+        description: Transcription provider/model identifier
+      language:
+        type: string
+        description: Detected language code (ISO 639-1)
+      duration:
+        type: number
+        format: float
+        description: Voicemail duration in seconds
+      created_at:
+        type: string
+        format: date-time
+  TranscriptionList:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Transcription'
+      total:
+        type: integer
+      filtered:
+        type: integer
+parameters:
+  TokenID:
+    name: token
+    in: query
+    description: The token's ID
+    type: string
+  recurse:
+    name: recurse
+    in: query
+    type: boolean
+    description: Should the query include sub-tenants
+    default: false
+    required: false
+  tenantuuid:
+    name: Wazo-Tenant
+    type: string
+    in: header
+    description: The tenant's UUID, defining the ownership of a given resource.
+    required: false
+  format:
+    name: format
+    description: Overrides the Content-Type header. This is used to be able to have a downloadable link. Allowed values are
+      "csv" and "json"
+    in: query
+    type: string
+    required: false
+    enum:
+    - csv
+    - json
+  from:
+    name: from
+    description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+    in: query
+    type: string
+    format: date-time
+    required: false
+  until:
+    name: until
+    description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+    in: query
+    type: string
+    format: date-time
+    required: false
+  limit:
+    required: false
+    name: limit
+    in: query
+    type: integer
+    description: Maximum number of items to return in the list. Default to 1000 if not specified.
+  offset:
+    required: false
+    name: offset
+    in: query
+    type: integer
+    description: Number of items to skip over in the list. Useful for pagination.
+  order:
+    required: false
+    name: order
+    in: query
+    type: string
+    description: 'Name of the field to use for sorting the list of items returned. Unsupported values: ``end``.'
+    enum:
+    - created_at
+    - message_id
+  direction:
+    required: false
+    name: direction
+    in: query
+    type: string
+    enum:
+    - asc
+    - desc
+    description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+  search:
+    required: false
+    name: search
+    in: query
+    type: string
+    description: Filter list of items
+  call_direction:
+    required: false
+    name: call_direction
+    in: query
+    type: string
+    enum:
+    - internal
+    - inbound
+    - outbound
+    description: Filter list of items
+  distinct:
+    required: false
+    name: distinct
+    in: query
+    type: string
+    enum:
+    - peer_exten
+    description: Will only return one result for the selected field
+  number:
+    required: false
+    name: number
+    in: query
+    type: string
+    description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or
+      the end of the number.
+  tags:
+    required: false
+    name: tags
+    in: query
+    type: array
+    items:
+      type: string
+    description: Filter by tags. Each tag MUST be separated by a coma (,). Many tag will perform a logical AND.
+  user_uuid:
+    required: false
+    name: user_uuid
+    in: query
+    type: array
+    items:
+      type: string
+    description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will
+      perform a logical OR.
+  from_id:
+    name: from_id
+    description: Ignore CDR created before the given CDR ID.
+    in: query
+    type: integer
+    required: false
+  cdr_id:
+    name: cdr_id
+    description: ID of the CDR
+    required: true
+    type: integer
+    in: path
+  recording_uuid:
+    name: recording_uuid
+    description: UUID of the recording
+    required: true
+    type: string
+    in: path
+  recorded:
+    name: recorded
+    description: Filter by recorded status.
+    required: false
+    type: boolean
+    in: query
+  email:
+    name: email
+    description: E-mail address
+    type: string
+    in: query
+  requested_internal_extension:
+    name: requested_internal_extension
+    description: Filter by requested_internal_extension
+    required: false
+    type: string
+    in: query
+  requested_internal_context:
+    name: requested_internal_context
+    description: Filter by requested_internal_context
+    required: false
+    type: string
+    in: query
+  conversation_id:
+    name: conversation_id
+    description: Filter by conversation identifier
+    required: false
+    type: string
+    in: query
+  call_status:
+    name: call_status
+    description: Filter by call statuses (comma-separated status strings). Defaults to non-blocked calls.
+    required: false
+    type: string
+    enum:
+    - answered
+    - blocked
+    - voicemail
+    - unknown
+    in: query
+  ConfigPatch:
+    name: ConfigPatch
+    in: body
+    required: true
+    description: See https://en.wikipedia.org/wiki/JSON_Patch.
+    schema:
+      type: array
+      items:
+        $ref: '#/definitions/ConfigPatchItem'
+  export_uuid:
+    name: export_uuid
+    description: UUID of the given export
+    required: true
+    type: string
+    in: path
+  interval:
+    name: interval
+    description: Aggregation interval. An empty value means no interval, so an aggregation on all values.
+    in: query
+    type: string
+    enum:
+    - hour
+    - day
+    - month
+    required: false
+  qos_threshold:
+    name: qos_threshold
+    description: The number of seconds representing a good quality of service.
+    in: query
+    type: integer
+    required: false
+  qos_thresholds:
+    name: qos_thresholds
+    description: The steps of quality of service times used for the interval generation.
+    in: query
+    type: array
+    items:
+      type: integer
+      minimum: 1
+    uniqueItems: true
+    required: false
+  day_start_time:
+    name: day_start_time
+    description: The time at which a day starts, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+    in: query
+    type: string
+    required: false
+  day_end_time:
+    name: day_end_time
+    description: The time at which a day ends, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+    in: query
+    type: string
+    required: false
+  week_days:
+    name: week_days
+    description: The days of the week that should be included. A week starts on Monday (1) and ends on Sunday (7).
+    in: query
+    type: array
+    items:
+      type: integer
+      minimum: 1
+      maximum: 7
+    uniqueItems: true
+    default:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    required: false
+  timezone:
+    name: timezone
+    description: 'Name of the timezone to use for dates and times. Example: America/New_York. Valid timezones
+
+      are defined by the <a href="https://en.wikipedia.org/wiki/Tz_database">Time Zone Database</a>
+
+      version installed on the server.
+
+      '
+    in: query
+    type: string
+    default: UTC
+    required: false
+  voicemail_id:
+    name: voicemail_id
+    in: query
+    type: array
+    collectionFormat: csv
+    description: The voicemail ID of the message
+    items:
+      type: integer
+  search_text:
+    name: search_text
+    in: query
+    type: string
+    description: Full-text search in transcript content
+paths:
+  /cdr:
+    get:
+      summary: List CDR
+      description: '**Required ACL:** `call-logd.cdr.read`
+
+        This endpoint allow to use `?token={token_uuid}` and `?tenant={tenant_uuid}` query string to bypass headers
+
+        '
+      tags:
+      - cdr
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/from'
+      - $ref: '#/parameters/until'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/search'
+      - $ref: '#/parameters/call_direction'
+      - $ref: '#/parameters/number'
+      - $ref: '#/parameters/tags'
+      - $ref: '#/parameters/user_uuid'
+      - $ref: '#/parameters/from_id'
+      - $ref: '#/parameters/recurse'
+      - $ref: '#/parameters/distinct'
+      - $ref: '#/parameters/recorded'
+      - $ref: '#/parameters/format'
+      - $ref: '#/parameters/conversation_id'
+      - $ref: '#/parameters/call_status'
+      - $ref: '#/parameters/requested_internal_extension'
+      - $ref: '#/parameters/requested_internal_context'
+      responses:
+        '200':
+          description: List CDR
+          schema:
+            $ref: '#/definitions/CDRList'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+      produces:
+      - application/json
+      - text/csv; charset=utf-8
+  /cdr/recordings/media:
+    delete:
+      summary: Delete multiple CDRs recording media
+      description: '**Required ACL:** `call-logd.cdr.recordings.media.delete`'
+      tags:
+      - cdr
+      parameters:
+      - name: body
+        in: body
+        description: The CDR IDs list from which to delete recording media
+        required: true
+        schema:
+          type: object
+          properties:
+            cdr_ids:
+              type: array
+              items:
+                type: integer
+      responses:
+        '204':
+          description: The CDRs recording media were deleted successfully
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /cdr/recordings/media/export:
+    post:
+      summary: Create an export for the recording media of multiple CDRs
+      description: '**Required ACL:** `call-logd.cdr.recordings.media.export.create`
+
+
+        This endpoint creates a new export and returns its UUID.
+
+        '
+      tags:
+      - cdr
+      - exports
+      parameters:
+      - $ref: '#/parameters/from'
+      - $ref: '#/parameters/until'
+      - $ref: '#/parameters/search'
+      - $ref: '#/parameters/call_direction'
+      - $ref: '#/parameters/number'
+      - $ref: '#/parameters/tags'
+      - $ref: '#/parameters/user_uuid'
+      - $ref: '#/parameters/from_id'
+      - $ref: '#/parameters/recurse'
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/email'
+      - name: body
+        in: body
+        description: The CDR IDs list from which to create an export
+        required: false
+        schema:
+          type: object
+          properties:
+            cdr_ids:
+              type: array
+              items:
+                type: string
+      responses:
+        '202':
+          description: Creation of multiple recording media export started
+          schema:
+            type: object
+            properties:
+              export_uuid:
+                type: string
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /cdr/{cdr_id}:
+    get:
+      summary: Get a CDR by ID
+      description: '**Required ACL:** `call-logd.cdr.{cdr_id}.read`'
+      tags:
+      - cdr
+      parameters:
+      - $ref: '#/parameters/cdr_id'
+      responses:
+        '200':
+          description: Get a CDR by ID
+          schema:
+            $ref: '#/definitions/CDR'
+        '404':
+          $ref: '#/responses/NotFoundError'
+      produces:
+      - application/json
+      - text/csv; charset=utf-8
+  /cdr/{cdr_id}/recordings/{recording_uuid}/media:
+    get:
+      summary: Get a recording media
+      description: '**Required ACL:** `call-logd.cdr.{cdr_id}.recordings.{recording_uuid}.media.read`
+
+
+        This endpoint allow to use `?token={token_uuid}` and `?tenant={tenant_uuid}` query string to bypass headers
+
+        '
+      tags:
+      - cdr
+      parameters:
+      - $ref: '#/parameters/cdr_id'
+      - $ref: '#/parameters/recording_uuid'
+      - name: Range
+        description: 'Header requesting a chunk of media to be streamed (e.g: bytes=0-1023 to request the first 1024 bytes)
+
+          '
+        required: false
+        in: header
+        type: string
+        pattern: ^bytes=[0-9]+-[0-9]*$
+      responses:
+        '200':
+          description: Get a recording media
+        '206':
+          description: Partial chunk (stream) of a recording media (specified by Range header)
+        '404':
+          $ref: '#/responses/NotFoundError'
+        '416':
+          description: The requested Range is not satisfiable by the server (invalid value)
+      produces:
+      - audio/wav
+    delete:
+      summary: Delete a recording media
+      description: '**Required ACL:** `call-logd.cdr.{cdr_id}.recordings.{recording_uuid}.media.delete`'
+      tags:
+      - cdr
+      parameters:
+      - $ref: '#/parameters/cdr_id'
+      - $ref: '#/parameters/recording_uuid'
+      responses:
+        '204':
+          description: The recording was deleted successfully
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /users/{user_uuid}/cdr:
+    get:
+      summary: List CDR of the given user
+      description: '**Required ACL:** `call-logd.users.{user_uuid}.cdr.read`
+
+        This endpoint allow to use `?token={token_uuid}` and `?tenant={tenant_uuid}` query string to bypass headers
+
+        '
+      tags:
+      - cdr
+      - users
+      parameters:
+      - name: user_uuid
+        description: UUID of the given user
+        required: true
+        type: string
+        in: path
+      - $ref: '#/parameters/from'
+      - $ref: '#/parameters/until'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/search'
+      - $ref: '#/parameters/call_direction'
+      - $ref: '#/parameters/number'
+      - $ref: '#/parameters/from_id'
+      - $ref: '#/parameters/distinct'
+      - $ref: '#/parameters/recorded'
+      - $ref: '#/parameters/format'
+      - $ref: '#/parameters/conversation_id'
+      - $ref: '#/parameters/call_status'
+      - $ref: '#/parameters/requested_internal_extension'
+      - $ref: '#/parameters/requested_internal_context'
+      responses:
+        '200':
+          description: List CDR
+          schema:
+            $ref: '#/definitions/CDRList'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+      produces:
+      - application/json
+      - text/csv; charset=utf-8
+  /users/me/cdr:
+    get:
+      summary: List CDR of the authenticated user
+      description: '**Required ACL:** `call-logd.users.me.cdr.read`
+
+        This endpoint allow to use `?token={token_uuid}` and `?tenant={tenant_uuid}` query string to bypass headers
+
+        '
+      tags:
+      - cdr
+      - users
+      parameters:
+      - $ref: '#/parameters/from'
+      - $ref: '#/parameters/until'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/search'
+      - $ref: '#/parameters/call_direction'
+      - $ref: '#/parameters/number'
+      - $ref: '#/parameters/from_id'
+      - $ref: '#/parameters/user_uuid'
+      - $ref: '#/parameters/distinct'
+      - $ref: '#/parameters/recorded'
+      - $ref: '#/parameters/format'
+      - $ref: '#/parameters/conversation_id'
+      - $ref: '#/parameters/call_status'
+      - $ref: '#/parameters/requested_internal_extension'
+      - $ref: '#/parameters/requested_internal_context'
+      responses:
+        '200':
+          description: List CDR
+          schema:
+            $ref: '#/definitions/CDRList'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+      produces:
+      - application/json
+      - text/csv; charset=utf-8
+  /users/me/cdr/{cdr_id}/recordings/{recording_uuid}/media:
+    get:
+      summary: Get a recording media from a user
+      description: '**Required ACL:** `call-logd.users.me.cdr.{cdr_id}.recordings.{recording_uuid}.media.read`
+
+        '
+      tags:
+      - cdr
+      parameters:
+      - $ref: '#/parameters/cdr_id'
+      - $ref: '#/parameters/recording_uuid'
+      - name: Range
+        description: 'Header requesting a chunk of media to be streamed (e.g: bytes=0-1023 to request the first 1024 bytes)
+
+          '
+        required: false
+        in: header
+        type: string
+        pattern: ^bytes=[0-9]+-[0-9]*$
+      responses:
+        '200':
+          description: Get a recording media
+        '206':
+          description: Partial chunk (stream) of a recording media (specified by Range header)
+        '404':
+          $ref: '#/responses/NotFoundError'
+        '416':
+          description: The requested Range is not satisfiable by the server (invalid value)
+      produces:
+      - audio/wav
+  /config:
+    get:
+      produces:
+      - application/json
+      summary: Show the current configuration
+      description: '**Required ACL:** `call_logd.config.read`'
+      operationId: getConfig
+      tags:
+      - config
+      responses:
+        '200':
+          description: The configuration of the service
+    patch:
+      produces:
+      - application/json
+      summary: Update the current configuration.
+      description: '**Required ACL:** `call_logd.config.update`
+
+
+        Changes are not persistent across service restart.
+
+        '
+      operationId: patchConfig
+      tags:
+      - config
+      parameters:
+      - $ref: '#/parameters/ConfigPatch'
+      responses:
+        '200':
+          description: The updated configuration of the service
+        '400':
+          description: The given confiuration is invalid
+  /exports/{export_uuid}:
+    get:
+      summary: Get an export by the given UUID
+      description: '**Required ACL:** `call-logd.exports.{export_uuid}.read`'
+      tags:
+      - exports
+      parameters:
+      - $ref: '#/parameters/export_uuid'
+      responses:
+        '200':
+          description: Get an export by UUID
+          schema:
+            $ref: '#/definitions/Export'
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /exports/{export_uuid}/download:
+    get:
+      summary: Download an export as a ZIP archive by the given UUID
+      description: '**Required ACL:** `call-logd.exports.{export_uuid}.download.read`
+
+        This endpoint allow to use `?token={token_uuid}` and `?tenant={tenant_uuid}` query string to bypass headers
+
+        '
+      tags:
+      - exports
+      parameters:
+      - $ref: '#/parameters/export_uuid'
+      responses:
+        '200':
+          description: Download an export by UUID
+        '202':
+          $ref: '#/responses/NotDoneYetError'
+        '404':
+          $ref: '#/responses/NotFoundError'
+      produces:
+      - application/zip
+  /retention:
+    get:
+      summary: Retention configuration
+      description: '**Required ACL:** `call-logd.retention.read`'
+      tags:
+      - retention
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '200':
+          description: Retention
+          schema:
+            $ref: '#/definitions/Retention'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+    put:
+      summary: Update retention configuration
+      description: '**Required ACL:** `call-logd.retention.update`
+
+
+        **WARNING** This endpoint reset undefined keys to `null`.
+
+        '
+      tags:
+      - retention
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - name: body
+        in: body
+        description: The retention configuration to apply
+        required: true
+        schema:
+          $ref: '#/definitions/Retention'
+      responses:
+        '204':
+          description: Retention was updated successfully
+        '400':
+          $ref: '#/responses/InvalidRequest'
+  /status:
+    get:
+      summary: Print infos about internal status of wazo-call-logd
+      description: '**Required ACL:** `call-logd.status.read`'
+      tags:
+      - status
+      responses:
+        '200':
+          description: The internal infos of wazo-call-logd
+          schema:
+            $ref: '#/definitions/StatusSummary'
+  /agents/statistics:
+    get:
+      summary: Statistics for all agents
+      description: '**Required ACL:** `call-logd.agents.statistics.read`
+
+        Statistics are aggregated by agents over the period specified by the `from` and `until` query parameters.'
+      tags:
+      - agent_statistics
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/from'
+      - $ref: '#/parameters/until'
+      - $ref: '#/parameters/day_start_time'
+      - $ref: '#/parameters/day_end_time'
+      - $ref: '#/parameters/week_days'
+      - $ref: '#/parameters/timezone'
+      responses:
+        '200':
+          description: Get an agent statistics by ID
+          schema:
+            $ref: '#/definitions/AgentsStatistics'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+  /agents/{agent_id}/statistics:
+    get:
+      summary: Statistics for a specific agent
+      description: '**Required ACL:** `call-logd.agents.statistics.{agent_id}.read` Statistics for an agent are aggregated
+        by the `interval` query parameter, or if not specified or empty, as a unique result over the period. The period is
+        specified by the `from` and `until` query parameters. The last result returned by this route is always the aggregation
+        of all calls over the whole specified period.'
+      tags:
+      - agent_statistics
+      parameters:
+      - name: agent_id
+        description: ID of the agent.
+        required: true
+        type: integer
+        in: path
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/from'
+      - $ref: '#/parameters/until'
+      - $ref: '#/parameters/interval'
+      - $ref: '#/parameters/day_start_time'
+      - $ref: '#/parameters/day_end_time'
+      - $ref: '#/parameters/week_days'
+      - $ref: '#/parameters/timezone'
+      responses:
+        '200':
+          description: Get an agent statistics by ID
+          schema:
+            $ref: '#/definitions/AgentStatistics'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /queues/statistics:
+    get:
+      summary: Statistics for all queues
+      description: '**Required ACL:** `call-logd.queues.statistics.read`
+
+
+        Statistics are aggregated by queues over the period specified by the `from` and `until`
+
+        query parameters.
+
+
+        **Notice**: Statistics are generated every 6 hours
+
+        '
+      tags:
+      - queue_statistics
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/from'
+      - $ref: '#/parameters/until'
+      - $ref: '#/parameters/qos_threshold'
+      - $ref: '#/parameters/day_start_time'
+      - $ref: '#/parameters/day_end_time'
+      - $ref: '#/parameters/week_days'
+      - $ref: '#/parameters/timezone'
+      responses:
+        '200':
+          description: Get aggregated statistics for all queues.
+          schema:
+            $ref: '#/definitions/QueuesStatistics'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+  /queues/{queue_id}/statistics:
+    get:
+      summary: Statistics for a specific queue
+      description: '**Required ACL:** `call-logd.queues.statistics.{queue_id}.read`
+
+
+        Statistics for a queue are aggregated by the `interval` query parameter, or if not
+
+        specified or empty, as a unique result over the period. The period is specified by the
+
+        `from` and `until` query parameters. The last result returned by this route is always the
+
+        aggregation of all calls over the whole specified period.
+
+
+        **Notice**: Statistics are generated every 6 hours
+
+        '
+      tags:
+      - queue_statistics
+      parameters:
+      - name: queue_id
+        description: ID of the queue.
+        required: true
+        type: integer
+        in: path
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/from'
+      - $ref: '#/parameters/until'
+      - $ref: '#/parameters/interval'
+      - $ref: '#/parameters/qos_threshold'
+      - $ref: '#/parameters/day_start_time'
+      - $ref: '#/parameters/day_end_time'
+      - $ref: '#/parameters/week_days'
+      - $ref: '#/parameters/timezone'
+      responses:
+        '200':
+          description: Get a queue statistics by ID
+          schema:
+            $ref: '#/definitions/QueueStatistics'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /queues/{queue_id}/statistics/qos:
+    get:
+      summary: QoS statistics for a specific queue
+      description: '**Required ACL:** `call-logd.queues.statistics.{queue_id}.qos.read`
+
+
+        QoS thresholds implicitly include a starting 0 and ending to infinite (null).
+
+
+        Statistics for a queue are aggregated by the `interval` query parameter, or if not
+
+        specified or empty, as a unique result over the period. The period is specified by the
+
+        `from` and `until` query parameters. The last result returned by this route is always the
+
+        aggregation of all calls over the whole specified period.
+
+
+        **Notice**: Statistics are generated every 6 hours
+
+        '
+      tags:
+      - queue_statistics
+      parameters:
+      - name: queue_id
+        description: ID of the queue.
+        required: true
+        type: integer
+        in: path
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/from'
+      - $ref: '#/parameters/until'
+      - $ref: '#/parameters/interval'
+      - $ref: '#/parameters/qos_thresholds'
+      - $ref: '#/parameters/day_start_time'
+      - $ref: '#/parameters/day_end_time'
+      - $ref: '#/parameters/week_days'
+      - $ref: '#/parameters/timezone'
+      responses:
+        '200':
+          description: Get a queue QoS statistics by ID
+          schema:
+            $ref: '#/definitions/QueueQoSStatistics'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /voicemails/transcriptions:
+    get:
+      summary: List voicemail transcriptions
+      description: '**Required ACL:** `call-logd.voicemails.transcriptions.read`'
+      operationId: list_voicemail_transcriptions
+      tags:
+      - voicemail_transcriptions
+      parameters:
+      - $ref: '#/parameters/from'
+      - $ref: '#/parameters/until'
+      - $ref: '#/parameters/voicemail_id'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/search_text'
+      responses:
+        '200':
+          description: List of voicemail transcriptions
+          schema:
+            $ref: '#/definitions/TranscriptionList'
+        '401':
+          $ref: '#/responses/Unauthorized'

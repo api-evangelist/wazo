@@ -1,0 +1,13 @@
+generated: '2026-08-17'
+method: searched
+source: https://wazo-platform.org/uc-doc/api_sdk/rest_api/conventions, https://api.wazo.io/documentation/, openapi/ (932
+  operations)
+limit_count: 0
+limits: []
+headers: []
+exhaustion_status: null
+note: Wazo publishes no rate limits and no runtime rate-limit signal. The REST conventions page documents status codes 200/201/400/404/406/412/415/500
+  and never mentions throttling; not one of the 932 operations across the 13 contracts declares a 429 response, a Retry-After
+  header, or any X-RateLimit-*/RateLimit-* header. This is consistent with the deployment model — the API runs on the operator's
+  own stack behind their own nginx, so capacity is theirs to govern — but it means an agent has no published budget and
+  no runtime backoff signal to read.

@@ -1,0 +1,38 @@
+generated: '2026-08-17'
+method: searched
+source: https://developers.wazo.io/, https://www.npmjs.com/package/@wazo/euc-plugins-sdk, https://www.npmjs.com/package/@wazo/sdk
+docs: https://developers.wazo.io/
+families:
+- family: Embedded softphone
+  kind: embeddable hosted surface
+  docs: https://developers.wazo.io/docs/integrations/embedded-softphone/
+  api_docs: https://developers.wazo.io/docs/sdk-librairies/plugins-js-sdk/embedded-softphone-apis
+  description: Embed the Wazo softphone inside a third-party web application and drive it (place/answer/transfer calls)
+    through a JavaScript API.
+- family: E-UC UI plugins
+  kind: plugin/extension host
+  docs: https://developers.wazo.io/docs/plugins/ui/get-started/
+  loader: '@wazo/euc-plugins-sdk'
+  surfaces:
+  - application (desktop/web UC client)
+  - portal (admin/reseller portal)
+  - mobile
+  boilerplate: https://github.com/wazo-communication/euc-plugins-boilerplate
+  examples: https://github.com/wazo-communication/euc-plugins-full-example
+  description: React-based apps and panels injected into the Wazo E-UC application, portal and mobile clients; the SDK brokers
+    auth, context, i18n and host events.
+- family: WebRTC phone (client library)
+  kind: client-side library
+  loader: '@wazo/sdk'
+  repository: https://github.com/wazo-platform/wazo-js-sdk
+  description: SIP.js-based WebRTC calling plus a websocket event client, used to build a browser softphone rather than
+    embed a prebuilt one.
+- family: Deep links
+  kind: integration surface
+  docs: https://developers.wazo.io/docs/integrations/deeplink
+  description: URL scheme for launching calls and actions in the Wazo client from an external application (CRM click-to-call).
+loaders:
+- '@wazo/euc-plugins-sdk'
+- '@wazo/sdk'
+note: These are genuine client-side/embeddable surfaces published on developers.wazo.io, distinct from the server-side clients
+  in packages/.

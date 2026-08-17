@@ -1,0 +1,38 @@
+generated: '2026-08-17'
+method: searched
+source: https://api.wazo.io/documentation/console/authentication/, https://wazo-platform.org/uc-doc/api_sdk/rest_api/quickstart,
+  https://wazo-platform.org/uc-doc/installation/, https://github.com/wazo-platform/wazo-docker
+hosted_sandbox: false
+test_live_separation: false
+model: self-hosted trial stack; no vendor test mode and no test credentials
+surfaces:
+- kind: interactive API console
+  url: https://api.wazo.io/documentation/console/
+  per_service: true
+  description: A Swagger-style try-it console is published for each of 13 services (authentication, application, configuration,
+    contact, provisioning, webhook, cdr, plugins, agent, chat, setup, amid, router-confd). It is a client only — it issues
+    requests against a stack host and username:password that YOU supply; Wazo hosts no demo backend behind it. The docs
+    site ships https://example.com/api/<service>/<version>/api/api.yml as the placeholder spec URL.
+  placeholder_host: https://example.com
+- kind: local stack
+  repository: https://github.com/wazo-platform/wazo-docker
+  description: Docker composition for running a full Wazo stack locally, the practical substitute for a hosted sandbox.
+- kind: installer
+  url: https://wazo-platform.org/uc-doc/installation/
+  description: Debian install of a real stack from the Wazo apt repository.
+- kind: developer toolkit
+  package: wazo-sdk
+  command: wdk
+  description: Mounts local service checkouts into a running stack for development.
+- kind: token helper
+  url: https://auth.wazo.community/
+  description: Wazo-hosted page that helps an operator mint a temporary token against their OWN stack from the browser;
+    it is not a sandbox API.
+test_values: []
+test_values_note: No magic test values are published — no test extension range, no test SIP credentials, no fixture tokens.
+  The quickstart instead warns that a manually generated token "gives all permissions to anyone who knows it", i.e. the
+  sanctioned path is a real credential on a real stack.
+auth_for_console:
+  method: HTTP Basic username:password against your own stack, exchanged for an X-Auth-Token
+  user_purpose_required: external_api
+  source: https://wazo-platform.org/uc-doc/api_sdk/rest_api/quickstart

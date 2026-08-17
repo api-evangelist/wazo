@@ -1,0 +1,226 @@
+generated: '2026-08-17'
+method: searched
+source: https://wazo-platform.org/uc-doc/api_sdk/rest_api/changelog, per-service CHANGELOG.md in https://github.com/wazo-platform,
+  https://mirror.wazo.community/debian/dists/, openapi/
+versioning:
+  api_scheme: uri-path, independently versioned per microservice
+  api_versions:
+    auth: '0.1'
+    confd: '1.1'
+    calld: '1.0'
+    call-logd: '1.0'
+    webhookd: '1.0'
+    dird: '0.1'
+    agentd: '1.0'
+    chatd: '1.0'
+    plugind: '0.2'
+    provd: '0.2'
+    amid: '1.0'
+    setupd: '1.0'
+    phoned: '0.1'
+  platform_scheme: YY.NN release train (year . sprint number)
+  platform_current_stable:
+    train: '26.08'
+    release_name: Wazo Pelican
+    package: 26.08~20260626.135613.c64299f.deb12
+    published: '2026-06-26'
+    apt: deb https://mirror.wazo.community/debian pelican-bookworm main
+  platform_in_development: 26.09 (present as the newest heading in 11 of 13 service CHANGELOG.md files)
+  channels:
+  - name: pelican-bookworm
+    purpose: current stable release
+  - name: wazo-rc-bookworm
+    purpose: release candidate
+  - name: wazo-dev-bookworm
+    purpose: development
+  - name: phoenix
+    purpose: previous named release
+  docs: https://wazo-platform.org/uc-doc/api_sdk/rest_api/changelog
+deprecation:
+  policy_url: null
+  sunset_header: false
+  note: 'Wazo publishes no written deprecation or sunset policy, and no operation returns a Deprecation or Sunset header
+    (RFC 8594). Deprecation is signalled inside the contract instead: 12 operations carry deprecated: true, and the per-service
+    CHANGELOG.md files call out removals under the release train heading. No Deprecation pointer is emitted because there
+    is no policy page to point at.'
+  in_spec_marker: 'deprecated: true'
+  deprecated_operation_count: 12
+deprecated_operations:
+- service: dird
+  path: /tenants/{tenant}/phonebooks
+  methods:
+  - GET
+  - POST
+  replacement_note: superseded by the tenant-implicit /phonebooks endpoints
+- service: dird
+  path: /tenants/{tenant}/phonebooks/{phonebook_id}
+  methods:
+  - GET
+  - PUT
+  - DELETE
+- service: dird
+  path: /tenants/{tenant}/phonebooks/{phonebook_id}/contacts
+  methods:
+  - GET
+  - POST
+- service: dird
+  path: /tenants/{tenant}/phonebooks/{phonebook_id}/contacts/import
+  methods:
+  - POST
+- service: dird
+  path: /tenants/{tenant}/phonebooks/{phonebook_id}/contacts/{contact_id}
+  methods:
+  - GET
+  - PUT
+  - DELETE
+- service: phoned
+  path: /directories/lookup/{profile}/yealink
+  methods:
+  - GET
+  operationId: lookup_yealink
+sla:
+  url: null
+  uptime_target: null
+  note: 'No SLA is published. Wazo is self-hosted software: availability is the operator''s, so there is no vendor uptime
+    commitment to publish for the platform itself.'
+status_page: null
+status_page_note: No status page exists. status.wazo.io fails the TLS handshake (no certificate for that name), status.wazo.community
+  does not resolve, and https://wazo.io/status is only the SPA catch-all (not in https://wazo.io/sitemap.xml). No StatusPage
+  pointer is emitted.
+issue_tracker: https://wazo-dev.atlassian.net/
+support_lifecycle:
+  note: 'Debian base tracked: bookworm (12) current, with bullseye, buster and stretch channels retained in the mirror for
+    older trains.'
+service_changelogs:
+  auth:
+    url: https://github.com/wazo-platform/wazo-auth/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '26.08'
+    - '26.07'
+    - '26.06'
+    - '26.04'
+    - '26.03'
+    - '25.14'
+    - '25.12'
+  confd:
+    url: https://github.com/wazo-platform/wazo-confd/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '26.08'
+    - '26.05'
+    - '26.03'
+    - '25.16'
+    - '25.15'
+    - '25.08'
+    - '25.04'
+  calld:
+    url: https://github.com/wazo-platform/wazo-calld/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '26.08'
+    - '26.05'
+    - '26.02'
+    - '25.16'
+    - '25.04'
+    - '25.02'
+    - '24.16'
+  call-logd:
+    url: https://github.com/wazo-platform/wazo-call-logd/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '26.08'
+    - '26.07'
+    - '26.04'
+    - '26.02'
+    - '25.12'
+    - '24.13'
+    - '24.12'
+  webhookd:
+    url: https://github.com/wazo-platform/wazo-webhookd/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '26.08'
+    - '26.02'
+    - '25.17'
+    - '25.12'
+    - '24.11'
+    - '23.14'
+    - '21.13'
+  dird:
+    url: https://github.com/wazo-platform/wazo-dird/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '26.08'
+    - '26.07'
+    - '26.02'
+    - '24.17'
+    - '23.14'
+    - '23.12'
+    - '23.11'
+  agentd:
+    url: https://github.com/wazo-platform/wazo-agentd/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '26.08'
+    - '26.05'
+    - '25.17'
+    - '25.10'
+    - '23.01'
+    - '22.14'
+    - '22.13'
+  chatd:
+    url: https://github.com/wazo-platform/wazo-chatd/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '26.08'
+    - '26.07'
+    - '26.05'
+    - '26.02'
+    - '23.01'
+    - '22.17'
+    - '22.16'
+  plugind:
+    url: https://github.com/wazo-platform/wazo-plugind/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '26.02'
+    - '25.08'
+    - '23.01'
+    - '22.14'
+    - '20.09'
+    - '18.03'
+    - '18.02'
+  provd:
+    url: https://github.com/wazo-platform/wazo-provd/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '23.17'
+    - '23.16'
+    - '23.15'
+    - '23.12'
+    - '20.09'
+    - '20.02'
+    - '19.12'
+  amid:
+    url: https://github.com/wazo-platform/wazo-amid/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '26.08'
+    - '26.02'
+    - '23.01'
+    - '20.05'
+  setupd:
+    url: https://github.com/wazo-platform/wazo-setupd/blob/master/CHANGELOG.md
+    recent:
+    - '26.09'
+    - '23.01'
+    - '22.01'
+    - '20.09'
+    - '20.04'
+    - '20.02'
+    - '19.05'
+    - '18.14'
+  phoned:
+    url: https://github.com/wazo-platform/wazo-phoned/blob/master/CHANGELOG.md
+    recent: []

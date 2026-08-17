@@ -1,0 +1,75 @@
+generated: '2026-08-17'
+method: derived
+source: openapi/ (13 Swagger 2.0 contracts), https://wazo-platform.org/uc-doc/api_sdk/rest_api/conventions, https://github.com/wazo-platform
+standards:
+- id: swagger-2.0
+  conforms: true
+  evidence: 'all 13 service contracts declare swagger: "2.0"; wazo-platform.org credits openapis.org in its stack'
+- id: openapi-3.x
+  conforms: false
+  evidence: no service publishes an OpenAPI 3.x document; the contracts remain Swagger 2.0
+- id: oauth2
+  conforms: false
+  evidence: no oauth2 securityScheme in any of the 13 contracts; auth is an opaque X-Auth-Token plus HTTP Basic on the token
+    endpoint
+- id: oidc
+  conforms: false
+  evidence: no /.well-known/openid-configuration on any host; wazo-auth is not an OIDC provider
+- id: saml2
+  conforms: true
+  evidence: wazo-auth ships SAML SSO endpoints and a SAML session/logout surface (see openapi/wazo-auth-api-openapi.yml)
+- id: ldap
+  conforms: true
+  evidence: wazo-auth ldap backend + wazo-dird ldap directory source
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: no response declares application/problem+json; errors are plain application/json
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: /.well-known/security.txt returns 404 on api.wazo.io and wazo-platform.org and only the SPA shell on wazo.io
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: no Sunset/Deprecation response header in any contract
+- id: rfc8615-well-known
+  conforms: false
+  evidence: no /.well-known/ document served on any host
+- id: asyncapi
+  conforms: true
+  evidence: 'Wazo publishes a first-party AsyncAPI 2.0.0 generator (wazo-bus/contribs/documentation.py + asyncapi-template.yml)
+    that emits one document per microservice from the event classes; 12 documents / 388 channels harvested to asyncapi/.
+    Note: no AsyncAPI document is SERVED over HTTP from any Wazo host.'
+- id: sip
+  conforms: true
+  evidence: SIP/PJSIP endpoint management throughout wazo-confd; Asterisk and Kamailio are the media/signalling core
+- id: webrtc
+  conforms: true
+  evidence: WebRTC line configuration in wazo-confd, coturn TURN/STUN role, and the SIP.js-based softphone in @wazo/sdk
+- id: ami
+  conforms: true
+  evidence: wazo-amid exposes the Asterisk Manager Interface over REST
+- id: ari
+  conforms: true
+  evidence: wazo-calld drives Asterisk REST Interface / Stasis; python3-asterisk-ari is a platform dependency
+- id: amqp-0-9-1
+  conforms: true
+  evidence: RabbitMQ headers exchange "wazo-headers" is the platform event bus (wazo-bus)
+- id: gpl-3.0
+  conforms: true
+  evidence: 'every wazo-platform service repository is SPDX-License-Identifier: GPL-3.0-or-later'
+- id: pagination-offset-limit
+  conforms: true
+  evidence: limit/offset + {total, items} declared as shared parameters in every service base api.yml
+- id: idempotency
+  conforms: false
+  evidence: no Idempotency-Key header or parameter in any contract; the term does not appear in the published conventions
+- id: asyncapi-2.0.0
+  conforms: true
+  evidence: 'every generated document declares asyncapi: "2.0.0"; the template pins that version'
+- id: asyncapi-3.x
+  conforms: false
+  evidence: the generator template pins AsyncAPI 2.0.0; no 3.x document exists
+compliance_programs:
+  published: false
+  note: No certifications are published. There is no trust centre, no SOC 2 / ISO 27001 / PCI / HIPAA claim on wazo.io,
+    wazo-platform.org or api.wazo.io, and probe-security-programs.py found neither a disclosure programme nor a trust page.
+    No Compliance pointer is emitted.

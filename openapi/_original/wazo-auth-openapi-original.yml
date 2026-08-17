@@ -1,0 +1,3827 @@
+swagger: '2.0'
+info:
+  version: '0.1'
+  title: wazo-auth
+  description: Wazo's authentication service
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+x-xivo-port: 9497
+x-xivo-name: auth
+basePath: /0.1
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+securityDefinitions:
+  wazo_auth_basic:
+    type: basic
+  wazo_auth_token:
+    type: apiKey
+    name: X-Auth-Token
+    in: header
+parameters:
+  direction:
+    required: false
+    name: direction
+    in: query
+    type: string
+    enum:
+    - asc
+    - desc
+    description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+  limit:
+    name: limit
+    in: query
+    type: integer
+    description: The limit defines the number of individual objects that are returned
+    required: false
+  offset:
+    name: offset
+    in: query
+    type: integer
+    description: The offset defines the offsets the start by the number specified
+    default: 0
+    required: false
+  order:
+    required: false
+    name: order
+    in: query
+    type: string
+    description: Name of the field to use for sorting the list of items returned.
+  recurse:
+    name: recurse
+    in: query
+    type: boolean
+    description: Should the query include sub-tenants
+    default: false
+    required: false
+  search:
+    required: false
+    name: search
+    in: query
+    type: string
+    description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+  tenantuuid:
+    name: Wazo-Tenant
+    type: string
+    in: header
+    description: The tenant's UUID, defining the ownership of a given resource.
+    required: false
+  ConfigPatch:
+    name: ConfigPatch
+    in: body
+    required: true
+    description: See https://en.wikipedia.org/wiki/JSON_Patch.
+    schema:
+      type: array
+      items:
+        $ref: '#/definitions/ConfigPatchItem'
+  email_uuid:
+    name: email_uuid
+    in: path
+    type: string
+    description: The UUID of the email
+    required: true
+  email_confirm_token:
+    name: token
+    in: query
+    type: string
+    description: The UUID of the token used to confirm the email address
+    required: true
+  auth_type:
+    name: auth_type
+    in: path
+    type: string
+    description: External auth type name
+    required: true
+  group_uuid:
+    name: group_uuid
+    in: path
+    type: string
+    description: The UUID of the group
+    required: true
+  search_uuid:
+    name: uuid
+    in: query
+    type: string
+    description: The UUID of the group
+    required: false
+  search_name:
+    name: name
+    in: query
+    type: string
+    description: The name of the group
+    required: false
+  search_user_uuid:
+    name: user_uuid
+    in: query
+    type: string
+    description: The UUID of the user
+    required: false
+  search_read_only:
+    name: read_only
+    in: query
+    type: string
+    description: Is the group managed by the system?
+    required: false
+  search_policy_uuid:
+    name: policy_uuid
+    in: query
+    type: string
+    description: The UUID of the policy that the group must have.
+  search_policy_slug:
+    name: policy_slug
+    in: query
+    type: string
+    description: The slug of the policy that the group must have.
+  idp_type:
+    name: idp_type
+    in: path
+    type: string
+    description: The type of IDP
+    required: true
+  policy_uuid:
+    name: policy_uuid
+    in: path
+    type: string
+    description: The UUID or slug of the policy. The slug is unique within a tenant, hence the tenant must be specified.
+    required: true
+  access:
+    name: access
+    in: path
+    type: string
+    description: The access to add
+    required: true
+  session_uuid:
+    name: session_uuid
+    in: path
+    type: string
+    description: The UUID of the session
+    required: true
+  tenant_uuid:
+    name: tenant_uuid
+    in: path
+    type: string
+    description: The UUID of the tenant
+    required: true
+  parent_tenant_uuid:
+    name: parent_tenant_uuid
+    in: path
+    type: string
+    description: The UUID of the new parent tenant
+    required: true
+  scope:
+    name: scope
+    in: query
+    type: string
+    description: The required ACL
+    required: false
+  tenant:
+    name: tenant
+    in: query
+    type: string
+    description: A tenant UUID to check against
+    required: false
+  token:
+    name: token
+    in: path
+    type: string
+    description: The token to query
+    required: true
+  wazo_session_type:
+    name: Wazo-Session-Type
+    in: header
+    type: string
+    description: The session type
+    required: false
+    enum:
+    - mobile
+    - desktop
+  user_uuid_or_me:
+    name: user_uuid_or_me
+    in: path
+    type: string
+    description: The UUID of the user or `me` to refer to the user doing the query
+    required: true
+  client_id:
+    name: client_id
+    in: path
+    type: string
+    description: The client_id of the refresh token to revoke
+    required: true
+  user_uuid:
+    name: user_uuid
+    in: path
+    type: string
+    description: The UUID of the user
+    required: true
+  has_policy_uuid:
+    name: has_policy_uuid
+    in: query
+    type: string
+    description: The UUID of the policy that the user must have. This includes indirect associations (user in group has policy).
+  has_policy_slug:
+    name: has_policy_slug
+    in: query
+    type: string
+    description: The slug of the policy that the user must have. This includes indirect associations (user in group has policy).
+definitions:
+  APIError:
+    type: object
+    properties:
+      timestamp:
+        type: number
+      message:
+        type: string
+      resource:
+        type: string
+      details:
+        type: object
+  Error:
+    type: object
+    properties:
+      reason:
+        type: array
+        items:
+          type: string
+      timestamp:
+        type: array
+        items:
+          type: string
+      status_code:
+        type: integer
+  GoogleGetResult:
+    type: object
+    properties:
+      access_token:
+        type: string
+        description: Google token
+      scope:
+        type: string
+        description: Scope permissions given to the `access token`
+      token_expiration:
+        type: integer
+        description: Token expiration
+    required:
+    - access_token
+    - scope
+    - token_expiration
+  GooglePost:
+    type: object
+    properties:
+      scope:
+        description: Scope permissions requested
+        type: array
+        items:
+          type: string
+        default:
+        - https://www.googleapis.com/auth/userinfo.profile
+        - https://www.googleapis.com/auth/contacts
+  GooglePostResult:
+    type: object
+    required:
+    - verification_url
+    properties:
+      verification_url:
+        type: string
+        description: The URL to confirm the authorization
+  MicrosoftGetResult:
+    type: object
+    properties:
+      access_token:
+        type: string
+        description: Microsoft token
+      scope:
+        type: string
+        description: Scope permissions given to the `access token`
+      token_expiration:
+        type: integer
+        description: Token expiration
+    required:
+    - access_token
+    - scope
+    - token_expiration
+  MicrosoftPost:
+    type: object
+    properties:
+      scope:
+        description: Scope permissions requested
+        type: array
+        items:
+          type: string
+        default:
+        - offline_access
+        - Contacts.Read
+  MicrosoftPostResult:
+    type: object
+    required:
+    - verification_url
+    properties:
+      verification_url:
+        type: string
+        description: The URL to confirm the authorization
+  MobileData:
+    type: object
+    properties:
+      token:
+        type: string
+        description: FCM token
+      apns_token:
+        type: string
+        description: APNs VoIP device token. This field is deprecated and will be removed in a later version.
+      apns_notification_token:
+        type: string
+        description: APNs text alert notification device token.
+      apns_voip_token:
+        type: string
+        description: APNs VoIP device token.
+      apns_call_topic:
+        type: string
+        description: APNs topic for VoIP call notifications (e.g. com.example.app.voip). When set, overrides the server-wide
+          mobile_apns_call_topic configuration.
+      apns_default_topic:
+        type: string
+        description: APNs topic for non-call notifications such as messages, voicemails, and missed calls (e.g. com.example.app).
+          When set, overrides the server-wide mobile_apns_default_topic configuration.
+  BackendList:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: string
+  ConfigPatchItem:
+    properties:
+      op:
+        type: string
+        description: 'Patch operation. Supported operations: `replace`.'
+      path:
+        type: string
+        description: 'JSON path to operate on. Supported paths: `/debug`.'
+      value:
+        type: object
+        description: The new value for the operation. Type of value is dependent of `path`
+  ExternalAuthList:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of external auth.
+      filtered:
+        type: integer
+        description: The number of external auth matching the searched term.
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/ExternalAuth'
+        description: A paginated list of external auth
+    required:
+    - filtered
+    - total
+    - items
+  ExternalAuth:
+    type: object
+    properties:
+      type:
+        type: string
+        description: The external auth type name
+      enabled:
+        type: boolean
+      data:
+        type: object
+      plugin_info:
+        type: object
+  ExternalAuthUser:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid
+  ExternalAuthUserList:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of connected external auth users.
+        example: 3
+      filtered:
+        type: integer
+        description: The number of external auth matching the searched term.
+        example: 3
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/ExternalAuthUser'
+        description: A paginated list of connected external auth users
+        example:
+        - user_uuid: 210ef281-4201-4f95-952f-5f8d5211e085
+        - user_uuid: 28e6f253-a19d-458d-8b52-2ba6feb788bc
+        - user_uuid: e72fe53d-3981-4c51-a488-e06ca94fcbb1
+    required:
+    - filtered
+    - total
+    - items
+  ExternalConfig:
+    type: object
+    properties:
+      client_id:
+        description: 'Client ID for the given authentication type.
+
+          Required only for `google` and `microsoft` authentication types.
+
+          '
+        type: string
+        example: a-client-id
+      client_secret:
+        description: 'Client secret for the given authentication type.
+
+          Required only for `google` and `microsoft` authentication types.
+
+          '
+        type: string
+        example: a-client-secret
+      ios_apn_certificate:
+        description: Public certificate to use for Apple Push Notification Service
+        type: string
+      ios_apn_private:
+        description: Private key to use for Apple Push Notification Service
+        type: boolean
+      use_sandbox:
+        description: Whether to use sandbox for Apple Push Notification Service
+        type: boolean
+      fcm_sender_id:
+        description: The sender ID to use for Firebase Cloud Messaging
+        type: string
+      fcm_api_key:
+        description: (deprecated) The API key to use for Firebase Cloud Messaging (legacy)
+        type: string
+      fcm_service_account_info:
+        description: 'The service account info file to use for Firebase Cloud Messaging (v1). The
+
+          content must be a JSON-encoded string.
+
+          '
+        type: string
+  GetGroupsResult:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of groups.
+      filtered:
+        type: integer
+        description: The number of groups matching the searched term.
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/GroupResult'
+        description: A paginated list of groups
+    required:
+    - filtered
+    - total
+    - items
+  Group:
+    type: object
+    properties:
+      name:
+        type: string
+      slug:
+        type: string
+        default: <name>
+    required:
+    - name
+  GroupPut:
+    type: object
+    properties:
+      name:
+        type: string
+    required:
+    - name
+  GroupResult:
+    type: object
+    properties:
+      uuid:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+      tenant_uuid:
+        type: string
+      system_managed:
+        type: boolean
+        description: '*Deprecated* Please use `read_only`'
+      read_only:
+        type: boolean
+  IDPList:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of identity provider types
+      filtered:
+        type: integer
+        description: The number of identity provider types matching the searched term
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/IDP'
+        description: A paginated list of authentication methods
+  IDPUsers:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/IDPUser'
+        type: array
+    required:
+    - users
+  IDPUser:
+    properties:
+      uuid:
+        type: string
+    required:
+    - uuid
+  IDP:
+    type: object
+    properties:
+      type:
+        type: string
+        description: The type of identity provider
+  LDAPBackendConfig:
+    type: object
+    required:
+    - host
+    - port
+    - user_base_dn
+    - user_login_attribute
+    - user_email_attribute
+    properties:
+      tenant_uuid:
+        type: string
+        readOnly: true
+      host:
+        type: string
+        description: 'The host or IP address of the LDAP server.
+
+          '
+      port:
+        type: integer
+        description: The port on which to connect to the LDAP server.
+        example: 389
+      protocol_version:
+        type: integer
+        minimum: 2
+        maximum: 3
+        description: LDAP protocol version to use
+        default: 3
+      protocol_security:
+        type: string
+        description: The layer of security to use for the connection.
+        enum:
+        - ''
+        - tls
+        - ldaps
+        default: ''
+      bind_dn:
+        type: string
+        description: 'The DN to use to bind the `wazo-auth` service to the LDAP server. If
+
+          unspecified, `wazo-auth` will not bind with a service user but only with the
+
+          final user account. For this to work though, your users will need to have the
+
+          right to read their own information, particularly their email address.
+
+          '
+        example: CN=wazo-auth,DC=wazo-platform,DC=org
+      user_base_dn:
+        type: string
+        description: The base DN in which users are located
+        example: OU=people,DC=wazo-platform,DC=org
+      user_login_attribute:
+        type: string
+        description: 'The attribute that identifies users. It will be prepended to the
+
+          `user_base_dn`.
+
+          '
+        example: uid
+      user_email_attribute:
+        type: string
+        description: The attribute of the email address in the LDAP schema.
+        example: mail
+      search_filters:
+        type: string
+        description: 'Filters for finding a user DN given a service bind is used.
+
+          Available variables are `username`, `user_login_attribute` and
+
+          `user_email_attribute`. These variables come from the fields of the
+
+          same name from the API.
+
+          '
+        example: '{user_login_attribute}={username}'
+  LDAPBackendConfigEdit:
+    allOf:
+    - $ref: '#/definitions/LDAPBackendConfig'
+    - type: object
+      properties:
+        bind_password:
+          type: string
+          description: 'The password to use to bind the `wazo-auth` service to the LDAP server.
+
+            '
+  PostPasswordReset:
+    type: object
+    properties:
+      password:
+        type: string
+        description: The desired password
+    required:
+    - password
+  Policy:
+    type: object
+    properties:
+      name:
+        type: string
+      slug:
+        type: string
+        description: A unique, human readable identifier for this policy
+      description:
+        type: string
+      acl:
+        type: array
+        items:
+          type: string
+      shared:
+        type: boolean
+        description: 'Should be shared to sub-tenants or not. Cannot be changed after creation
+
+
+          When shared is `true`, then all tenants below this policy''s tenant
+
+          will see it as their own policy with the attribute `read_only: true`.
+
+
+          Using `shared` attribute will add uniqueness constraints for the slug
+
+          among all policies'' sub-tenants.
+
+          '
+    required:
+    - name
+  PolicyResult:
+    type: object
+    allOf:
+    - $ref: '#/definitions/Policy'
+    - properties:
+        uuid:
+          type: string
+        read_only:
+          type: boolean
+  GetPoliciesResult:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of policies matching the searched term
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/PolicyResult'
+        description: A paginated list of policies
+    required:
+    - total
+    - items
+  SAMLIdpResponse:
+    properties:
+      SAMLResponse:
+        description: Encoded SAML XML response
+        type: string
+      RelayState:
+        description: Relay state parameter
+        type: string
+    required:
+    - SAMLResponse
+    - RelayState
+    type: object
+  SAMLSSOResponse:
+    type: object
+    properties:
+      location:
+        description: 'The URL that the client should open to complete the authentication
+
+          request
+
+          '
+        type: string
+      saml_session_id:
+        type: string
+        description: 'The saml_session_id needs to be used to create a wazo-auth token
+
+          once the SAML authentication has been completed successfully
+
+          '
+  SAMLLoginContext:
+    properties:
+      redirect_url:
+        description: Where to redirect the browser once the login succeeded
+        type: string
+      domain:
+        description: The domain name of the tenant
+        type: string
+    required:
+    - redirect_url
+    - domain
+    type: object
+  SAMLLogoutRequest:
+    type: object
+    properties:
+      location:
+        description: 'The URL that the client should open to complete the logout.
+
+          '
+        type: string
+  SAMLBackendConfig:
+    properties:
+      domain_uuid:
+        type: string
+        description: The UUID of the domain to use for the SAML backend.
+      entity_id:
+        type: string
+        description: The name of the SAML Entity Id
+      acs_url:
+        type: string
+        description: The SAML ACS URL
+        format: uri
+    required:
+    - domain_uuid
+    - entity_id
+    - acs_url
+    type: object
+  SAMLAcsUrlTemplate:
+    properties:
+      acs_url:
+        type: string
+        description: The SAML ACS URL
+        format: uri
+    required:
+    - acs_url
+    type: object
+  GetSessionsResult:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of sessions.
+      filtered:
+        type: integer
+        description: The number of sessions matching the searched term.
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/SessionResult'
+        description: A paginated list of sessions
+    required:
+    - filtered
+    - total
+    - items
+  SessionResult:
+    type: object
+    properties:
+      uuid:
+        type: string
+      user_uuid:
+        type: string
+      tenant_uuid:
+        type: string
+      mobile:
+        type: boolean
+  TenantPostResponse:
+    type: object
+    properties:
+      name:
+        type: string
+      uuid:
+        type: string
+      parent_uuid:
+        type: string
+  TenantList:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of tenants
+      filtered:
+        type: integer
+        description: The number of tenants matching the searched term
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/TenantResult'
+        description: A paginated list of tenants
+  TenantBase:
+    type: object
+    properties:
+      name:
+        type: string
+        description: The tenant's name
+      contact:
+        type: string
+        description: The contact user's UUID
+      phone:
+        type: string
+        description: The tenant's contact phone number
+      domain_names:
+        type: array
+        description: A list containing human readeable unique domain names, associated with a specific tenant
+        uniqueItems: true
+        items:
+          type: string
+      address:
+        $ref: '#/definitions/TenantAddress'
+      default_authentication_method:
+        type: string
+        description: 'The `default_authentication_method` defines the authentication method that
+
+          is going to be used for users using the `authentication_method` `default`.
+
+          '
+        default: native
+        enum:
+        - native
+        - saml
+        - ldap
+  TenantResult:
+    type: object
+    allOf:
+    - $ref: '#/definitions/TenantBase'
+    - properties:
+        uuid:
+          type: string
+        slug:
+          type: string
+          description: A unique, human readeable identifier for this tenant
+  TenantCreate:
+    type: object
+    allOf:
+    - $ref: '#/definitions/TenantBase'
+    - properties:
+        uuid:
+          type: string
+          description: The tenant's UUID
+        slug:
+          type: string
+          description: A unique, human readeable identifier for this tenant. This field cannot be modified and will be auto-generated
+            if missing.
+  TenantEdit:
+    type: object
+    allOf:
+    - $ref: '#/definitions/TenantBase'
+  TenantAddress:
+    type: object
+    properties:
+      line_1:
+        type: string
+        description: The first line of the address
+      line_2:
+        type: string
+        description: The second line of the address
+      city:
+        type: string
+      state:
+        type: string
+      country:
+        type: string
+      zip_code:
+        type: string
+  TenantDomainsList:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of domains
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            uuid:
+              type: string
+        description: A non-paginated list of domains
+  RefreshToken:
+    type: object
+    properties:
+      client_id:
+        type: string
+        description: The `client_id` that was used to create this refresh token
+      created_at:
+        type: string
+        description: The time at which this token was created
+      mobile:
+        type: boolean
+        description: Indicate if that refresh token was created with a mobile session type
+      user_uuid:
+        type: string
+        description: The UUID of the user which created this refresh token
+      tenant_uuid:
+        type: string
+        description: The tenant UUID of the user which created this refresh token
+      metadata:
+        type: object
+        description: the persistent metadata tied to this refresh token
+  RefreshTokenList:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of refresh tokens for that user
+      filtered:
+        type: integer
+        description: The number of refresh token matching the searched terms
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/RefreshToken'
+        description: A paginated list of refresh tokens
+  ScopeCheckRequest:
+    type: object
+    properties:
+      tenant_uuid:
+        type: string
+        format: uuid
+        description: If provided, also checks the token against this tenant
+      scopes:
+        type: array
+        description: Scopes to check against
+        items:
+          type: string
+    required:
+    - scopes
+  Token:
+    type: object
+    properties:
+      data:
+        type: object
+        properties:
+          metadata:
+            type: object
+            description: Information owned by wazo-auth about this user
+          token:
+            type: string
+          expires_at:
+            type: string
+          utc_expires_at:
+            type: string
+          issued_at:
+            type: string
+          utc_issued_at:
+            type: string
+          auth_id:
+            type: string
+            description: The unique identifier retrieved from the backend
+          xivo_user_uuid:
+            type: string
+            description: 'The UUID of the matching wazo-confd user if there is one. This
+
+              field can be null.
+
+
+              This field should NOT be used anymore, the "pbx_user_uuid" in the
+
+              metadata field is the prefered method to access this information.
+
+              '
+          xivo_uuid:
+            type: string
+          acl:
+            type: array
+            items:
+              type: string
+            description: The list of allowed accesses for this token
+          session_uuid:
+            type: string
+  ScopeList:
+    type: object
+    properties:
+      scopes:
+        type: array
+        description: the scopes and their check result
+        items:
+          type: object
+          description: 'JSON object with scopes as keys and boolean values whether the token is valid for the given scope,
+            e.g. `{"confd.groups.create": true}`'
+  AdminUserEmailList:
+    type: object
+    properties:
+      emails:
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+            main:
+              type: boolean
+            confirmed:
+              type: boolean
+          required:
+          - addresses
+          - main
+  UserEmailList:
+    type: object
+    properties:
+      emails:
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+            main:
+              type: boolean
+          required:
+          - addresses
+          - main
+  UserRegister:
+    type: object
+    properties:
+      username:
+        type: string
+        description: The username that will identify that new username
+      password:
+        type: string
+        description: The password of the newly created username
+      firstname:
+        type: string
+        description: The user's firstname
+      lastname:
+        type: string
+        description: The user's lastname
+      email_address:
+        type: string
+        description: The main email address of the new username
+    required:
+    - username
+    - password
+    - email_address
+  PasswordChange:
+    type: object
+    properties:
+      old_password:
+        type: string
+        description: The old password
+      new_password:
+        type: string
+        description: The desired password
+    required:
+    - old_password
+    - new_password
+  UserBase:
+    type: object
+    properties:
+      username:
+        type: string
+        description: The username that will identify that new username
+      firstname:
+        type: string
+        description: The user's firstname
+      lastname:
+        type: string
+        description: The user's lastname
+      enabled:
+        type: boolean
+      purpose:
+        type: string
+        default: user
+        enum:
+        - user
+        - internal
+        - external_api
+      authentication_method:
+        type: string
+        default: default
+        description: The authentication method allowed for this user. Using "default" will use the tenant's default_authentication_method
+          value for this user.
+        enum:
+        - default
+        - native
+        - ldap
+        - saml
+  UserCreate:
+    allOf:
+    - $ref: '#/definitions/UserBase'
+    - type: object
+      properties:
+        uuid:
+          type: string
+          description: The user's UUID
+        password:
+          type: string
+          description: The password of the newly created username
+        email_address:
+          type: string
+          description: The main email address of the new username
+  UserEdit:
+    allOf:
+    - $ref: '#/definitions/UserBase'
+  UserEmail:
+    type: object
+    properties:
+      address:
+        type: string
+      main:
+        type: boolean
+      confirmed:
+        type: boolean
+  UserList:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of users
+      filtered:
+        type: integer
+        description: The number of users matching the searched term
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/UserResult'
+        description: A paginated list of users
+  UserPostResponse:
+    type: object
+    properties:
+      username:
+        type: string
+      emails:
+        type: array
+        items:
+          $ref: '#/definitions/UserEmail'
+      uuid:
+        type: string
+      purpose:
+        type: string
+        enum:
+        - user
+        - internal
+        - external_api
+      authentication_method:
+        type: string
+        default: default
+        description: The authentication method allowed for this user. Using "default" will use the tenant's default_authentication_method
+          value for this user.
+        enum:
+        - default
+        - native
+        - ldap
+        - saml
+  UserResult:
+    type: object
+    properties:
+      uuid:
+        type: string
+      username:
+        type: string
+      firstname:
+        type: string
+      lastname:
+        type: string
+      purpose:
+        type: string
+        enum:
+        - user
+        - internal
+        - external_api
+      tenant_uuid:
+        type: string
+      emails:
+        type: array
+        items:
+          $ref: '#/definitions/UserEmail'
+      enabled:
+        type: boolean
+paths:
+  /users/{user_uuid}/external/google:
+    get:
+      summary: Get a Google token
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.google.read`'
+      tags:
+      - users
+      - google
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '200':
+          description: The auth data
+          schema:
+            $ref: '#/definitions/GoogleGetResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/APIError'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/APIError'
+    post:
+      summary: Ask for a verification URL and store code to get token
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.google.create`.
+
+
+        More info on Google permissions: https://developers.google.com/identity/protocols/googlescopes"
+
+        '
+      tags:
+      - users
+      - google
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - name: body
+        in: body
+        schema:
+          $ref: '#/definitions/GooglePost'
+      responses:
+        '201':
+          description: Authentication url
+          schema:
+            $ref: '#/definitions/GooglePostResult'
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/APIError'
+    delete:
+      summary: Delete a Google token
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.google.delete`'
+      tags:
+      - users
+      - google
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '204':
+          description: External authentication deleted
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/APIError'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/APIError'
+  /users/{user_uuid}/external/microsoft:
+    get:
+      summary: Get a Microsoft token
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.microsoft.read`'
+      tags:
+      - users
+      - microsoft
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '200':
+          description: The auth data
+          schema:
+            $ref: '#/definitions/MicrosoftGetResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/APIError'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/APIError'
+    post:
+      summary: Ask for a verification URL and store code to get token
+      description: "**Required ACL**: `auth.users.{user_uuid}.external.microsoft.create`.\n\n More info on Microsoft permissions:\
+        \ https://docs.microsoft.com/en-us/graph/permissions-reference"
+      tags:
+      - users
+      - microsoft
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - name: body
+        in: body
+        schema:
+          $ref: '#/definitions/MicrosoftPost'
+      responses:
+        '201':
+          description: Authentication url
+          schema:
+            $ref: '#/definitions/MicrosoftPostResult'
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/APIError'
+    delete:
+      summary: Delete a Microsoft token
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.microsoft.delete`'
+      tags:
+      - users
+      - microsoft
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/APIError'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/APIError'
+  /users/{user_uuid}/external/mobile:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Get device tokens for push notifications
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.read`'
+      tags:
+      - users
+      - mobile
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '200':
+          description: The auth data
+          schema:
+            $ref: '#/definitions/MobileData'
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/APIError'
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Configure device tokens for push notifications
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.create`'
+      tags:
+      - users
+      - mobile
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/MobileData'
+      responses:
+        '200':
+          description: The auth data
+          schema:
+            $ref: '#/definitions/MobileData'
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/APIError'
+    put:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Update device tokens for push notifications
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.update`'
+      tags:
+      - users
+      - mobile
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/MobileData'
+      responses:
+        '200':
+          description: The updated mobile auth data
+          schema:
+            $ref: '#/definitions/MobileData'
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/APIError'
+    delete:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Delete device tokens for push notifications
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.delete`'
+      tags:
+      - users
+      - mobile
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '204':
+          description: the mobile auth data was successfully deleted
+  /users/{user_uuid}/external/mobile/sender_id:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Get your Mobile sender_id
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.sender_id.read`'
+      tags:
+      - users
+      - mobile
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '200':
+          description: The sender id
+          schema:
+            type: object
+            properties:
+              sender_id:
+                type: string
+                description: The sender id
+                x-nullable: true
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/APIError'
+  /backends:
+    get:
+      tags:
+      - backends
+      security:
+      - {}
+      description: Retrieves the list of activated wazo_auth.backends plugins
+      responses:
+        '200':
+          description: The list of activated backends
+          schema:
+            $ref: '#/definitions/BackendList'
+  /config:
+    get:
+      produces:
+      - application/json
+      summary: Show the current configuration
+      description: '**Required ACL:** `auth.config.read`'
+      operationId: getConfig
+      tags:
+      - config
+      responses:
+        '200':
+          description: The configuration of the service
+    patch:
+      produces:
+      - application/json
+      summary: Update the current configuration.
+      description: '**Required ACL:** `auth.config.update`
+
+
+        Changes are not persistent across service restart.
+
+        '
+      operationId: patchConfig
+      tags:
+      - config
+      parameters:
+      - $ref: '#/parameters/ConfigPatch'
+      responses:
+        '200':
+          description: The updated configuration of the service
+        '400':
+          description: The given confiuration is invalid
+  /emails/{email_uuid}/confirm:
+    put:
+      tags:
+      - emails
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.emails.{email_uuid}.confirm.update`'
+      summary: Confirm an email address
+      parameters:
+      - $ref: '#/parameters/email_uuid'
+      responses:
+        '204':
+          description: The email address has been confirmed
+        '404':
+          description: Email not found
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags:
+      - emails
+      description: '**Required ACL**: `auth.emails.{email_uuid}.confirm.update`
+
+
+        The token should be in the URL instead of being in the HTTP headers
+
+        '
+      summary: Confirm an email address
+      parameters:
+      - $ref: '#/parameters/email_uuid'
+      - $ref: '#/parameters/email_confirm_token'
+      responses:
+        '200':
+          description: The email address has been confirmed
+        '404':
+          description: Email not found
+          schema:
+            $ref: '#/definitions/Error'
+  /external/{auth_type}/config:
+    get:
+      description: '**Required ACL**: `auth.{auth_type}.external.config.read`'
+      summary: Retrieve the client id and client secret
+      tags:
+      - external
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/auth_type'
+      responses:
+        '200':
+          description: The requested config
+          schema:
+            $ref: '#/definitions/ExternalConfig'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      description: '**Required ACL**: `auth.{auth_type}.external.config.delete`'
+      summary: Delete the client id and client secret
+      tags:
+      - external
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/auth_type'
+      responses:
+        '204':
+          description: Deletion confirmed
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      description: '**Required ACL**: `auth.{auth_type}.external.config.create`'
+      summary: Add configuration for the given auth_type
+      tags:
+      - external
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/auth_type'
+      - in: body
+        description: JSON object holding configuration for the given authentication type
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/ExternalConfig'
+      responses:
+        '201':
+          description: Config created
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: Duplicate config
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      description: '**Required ACL**: `auth.{auth_type}.external.config.update`'
+      summary: Update configuration for the given auth_type
+      tags:
+      - external
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/auth_type'
+      - in: body
+        description: JSON object holding configuration for the given authentication type
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/ExternalConfig'
+      responses:
+        '201':
+          description: Config created
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/Error'
+  /external/{auth_type}/users:
+    get:
+      description: '**Required ACL**: `auth.{auth_type}.external.users`'
+      summary: Retrieves the list of connected users to this external source
+      tags:
+      - external
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/auth_type'
+      - $ref: '#/parameters/recurse'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      responses:
+        '200':
+          description: The list of external auth connected users
+          schema:
+            $ref: '#/definitions/ExternalAuthUserList'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/Error'
+  /users/{user_uuid}/external:
+    get:
+      tags:
+      - users
+      - external
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.read`
+
+
+        This list should not contain any sensible information
+
+        '
+      summary: Retrieves the list of the users external auth data
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      responses:
+        '200':
+          description: The list of external auth data
+          schema:
+            $ref: '#/definitions/ExternalAuthList'
+  /groups/{group_uuid}/policies:
+    get:
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.groups.{group_uuid}.policies.read`'
+      parameters:
+      - $ref: '#/parameters/group_uuid'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      summary: Retrieves the list of policies associated to a group
+      responses:
+        '200':
+          description: The group's policies
+          schema:
+            $ref: '#/definitions/GetPoliciesResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Policy not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+  /groups/{group_uuid}/policies/{policy_uuid}:
+    put:
+      tags:
+      - groups
+      - policies
+      security:
+      - wazo_auth_token: []
+      operationId: addGroupPolicy
+      description: '**Required ACL:** `auth.groups.{group_uuid}.policies.{policy_uuid}.create`'
+      summary: Associate a group to a policy
+      parameters:
+      - $ref: '#/parameters/group_uuid'
+      - $ref: '#/parameters/policy_uuid'
+      responses:
+        '204':
+          description: The policy has been assigned
+        '404':
+          description: Policy or Group not found
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+      - groups
+      - policies
+      security:
+      - wazo_auth_token: []
+      operationId: removeGroupPolicy
+      description: '**Required ACL:** `auth.groups.{group_uuid}.policies.{policy_uuid}.delete`'
+      summary: Dissociate a policy from a group
+      parameters:
+      - $ref: '#/parameters/group_uuid'
+      - $ref: '#/parameters/policy_uuid'
+      responses:
+        '204':
+          description: The policy has been unassigned
+        '404':
+          description: Policy or Group not found
+          schema:
+            $ref: '#/definitions/Error'
+  /groups:
+    get:
+      security:
+      - wazo_auth_token: []
+      produces:
+      - application/json
+      summary: List groups
+      description: '**Required ACL:** `auth.groups.read`'
+      operationId: listGroups
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/recurse'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      - $ref: '#/parameters/search_uuid'
+      - $ref: '#/parameters/search_name'
+      - $ref: '#/parameters/search_user_uuid'
+      - $ref: '#/parameters/search_read_only'
+      - $ref: '#/parameters/search_policy_slug'
+      - $ref: '#/parameters/search_policy_uuid'
+      responses:
+        '200':
+          description: A list of group
+          schema:
+            $ref: '#/definitions/GetGroupsResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      security:
+      - wazo_auth_token: []
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Create a new group
+      description: '**Required ACL:** `auth.groups.create`'
+      operationId: createGroups
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - name: body
+        in: body
+        description: The group creation parameters
+        required: true
+        schema:
+          $ref: '#/definitions/Group'
+      responses:
+        '200':
+          description: The created group's data
+          schema:
+            $ref: '#/definitions/GroupResult'
+        '401':
+          description: Invalid data has been supplied'
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: Duplicate Group
+          schema:
+            $ref: '#/definitions/Error'
+  /groups/{group_uuid}:
+    get:
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.groups.{group_uuid}.read'
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/group_uuid'
+      summary: Retrieves the details of a group
+      responses:
+        '200':
+          description: The group's data
+          schema:
+            $ref: '#/definitions/GroupResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Group not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      operationId: delete_group
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.groups.{group_uuid}.delete`'
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/group_uuid'
+      summary: Delete a group
+      responses:
+        '204':
+          description: The group has been removed
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Group not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      security:
+      - wazo_auth_token: []
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Modify a group
+      description: '**Required ACL:** `auth.groups.{group_uuid}.update`'
+      operationId: editGroups
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/group_uuid'
+      - name: body
+        in: body
+        description: The group parameters
+        required: true
+        schema:
+          $ref: '#/definitions/GroupPut'
+      responses:
+        '200':
+          description: The modified group's data
+          schema:
+            $ref: '#/definitions/GroupResult'
+        '401':
+          description: Invalid data has been supplied
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: Duplicate Group
+          schema:
+            $ref: '#/definitions/Error'
+  /idp:
+    get:
+      tags:
+      - idp
+      security:
+      - wazo_auth_token: []
+      description: 'Returns a list of valid identity provider types that are available
+
+        '
+      summary: List identity provider types
+      responses:
+        '200':
+          description: The identity provider type list
+          schema:
+            $ref: '#/definitions/IDPList'
+  /idp/{idp_type}/users:
+    put:
+      operationId: updateUsersIDP
+      summary: Associate multiple users to a IDP
+      tags:
+      - idp
+      parameters:
+      - $ref: '#/parameters/idp_type'
+      - name: body
+        in: body
+        description: Users to be associated
+        required: true
+        schema:
+          $ref: '#/definitions/IDPUsers'
+      responses:
+        '204':
+          description: Users are associated to the IDP
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: IDP or user not found
+          schema:
+            $ref: '#/definitions/Error'
+  /idp/{idp_type}/users/{user_uuid}:
+    put:
+      tags:
+      - users
+      - idp
+      security:
+      - wazo_auth_token: []
+      operationId: addUserIDP
+      description: '**Required ACL:** `auth.idp.{idp_type}.users.{user_uuid}.create`'
+      summary: Associate user to a IDP
+      parameters:
+      - $ref: '#/parameters/idp_type'
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '204':
+          description: The user has been assigned
+        '404':
+          description: User or IDP not found
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+      - users
+      - idp
+      security:
+      - wazo_auth_token: []
+      operationId: removeIDPUser
+      description: '**Required ACL:** `auth.idp.{idp_type}.users.{user_uuid}.delete`'
+      summary: Dissocuate a user from an IDP
+      parameters:
+      - $ref: '#/parameters/idp_type'
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '204':
+          description: The user has been unassigned
+        '404':
+          description: User or IDP not found
+          schema:
+            $ref: '#/definitions/Error'
+  /backends/ldap:
+    get:
+      security:
+      - wazo_auth_token: []
+      produces:
+      - application/json
+      summary: 'Get current tenant''s LDAP backend configuration. If there is no configuration,
+
+        all the fields will be `null`.
+
+        '
+      description: '**Required ACL:** `auth.backends.ldap.read`'
+      operationId: getLDAPBackendConfig
+      tags:
+      - backends
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The LDAP backend configuration
+          schema:
+            $ref: '#/definitions/LDAPBackendConfig'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      security:
+      - wazo_auth_token: []
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Update current tenant's LDAP backend configuration
+      description: '**Required ACL:** `auth.backends.ldap.update'
+      operationId: updateLDAPBackendConfig
+      tags:
+      - backends
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - name: body
+        in: body
+        description: The LDAP backend configuration
+        required: true
+        schema:
+          $ref: '#/definitions/LDAPBackendConfigEdit'
+      responses:
+        '200':
+          description: The LDAP backend configuration has been updated
+          schema:
+            $ref: '#/definitions/LDAPBackendConfig'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      security:
+      - wazo_auth_token: []
+      summary: Delete current tenant's LDAP backend configuration
+      description: '**Required ACL:** `auth.backends.ldap.delete`'
+      operationId: deleteLDAPBackendConfig
+      tags:
+      - backends
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The LDAP backend configuration has been deleted
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+  /users/password/reset:
+    get:
+      summary: Reset the user password
+      description: 'This action will send an email containing instructions to set a new password.
+
+
+        The login or username or email address should be supplied as query string to find the user
+
+        '
+      operationId: reset_password
+      tags:
+      - users
+      parameters:
+      - name: username
+        in: query
+        type: string
+        description: The user's username
+      - name: email
+        in: query
+        type: string
+        description: The user's email address
+      - name: login
+        in: query
+        type: string
+        description: The user's login (username or email)
+      responses:
+        '204':
+          description: A mail will be sent if the username or email were found
+        '405':
+          description: Unable to reset the password, e.g. because the authentication is handled externally.
+    post:
+      security:
+      - wazo_auth_token: []
+      summary: Set the user password
+      description: '**Required ACL**: `auth.users.password.reset.{user_uuid}.create`
+
+
+        Set a new password for the user after the user used the GET on the reset URL.
+
+
+        All active sessions (i.e. tokens) will be immediately revoked and can no longer be used.
+
+        Existing refresh tokens are not affected and remain valid.
+
+        '
+      operationId: reset_password_change
+      tags:
+      - users
+      parameters:
+      - name: user_uuid
+        in: query
+        type: string
+        description: The user's UUID
+        required: true
+      - name: body
+        in: body
+        description: The password change parameters
+        required: true
+        schema:
+          $ref: '#/definitions/PostPasswordReset'
+      responses:
+        '204':
+          description: Password changed
+        '405':
+          description: Unable to reset the password, e.g. because the authentication is handled externally.
+  /policies:
+    get:
+      security:
+      - wazo_auth_token: []
+      produces:
+      - application/json
+      summary: List ACL policies
+      description: '**Required ACL:** `auth.policies.read`'
+      operationId: listPolicies
+      tags:
+      - policies
+      parameters:
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/recurse'
+      responses:
+        '200':
+          description: A list of policies
+          schema:
+            $ref: '#/definitions/GetPoliciesResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      security:
+      - wazo_auth_token: []
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Create a new ACL policy
+      description: '**Required ACL:** `auth.policies.create`
+
+
+        Create a new ACL policy set that can be associated to a user, an administrator, a service or a backend.
+
+        An ACL policy is a list of ACL or ACL templates that is used to create a token
+
+        '
+      operationId: createPolicies
+      tags:
+      - policies
+      parameters:
+      - name: body
+        in: body
+        description: The policy creation parameters
+        required: true
+        schema:
+          $ref: '#/definitions/Policy'
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The created policy's data
+          schema:
+            $ref: '#/definitions/PolicyResult'
+        '401':
+          description: Invalid data has been supplied'
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: Duplicate Policy
+          schema:
+            $ref: '#/definitions/Error'
+  /policies/{policy_uuid}:
+    get:
+      tags:
+      - policies
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.policies.{policy_uuid}.read'
+      parameters:
+      - $ref: '#/parameters/policy_uuid'
+      - $ref: '#/parameters/tenantuuid'
+      summary: Retrieves the details of a policy
+      responses:
+        '200':
+          description: The policy's data
+          schema:
+            $ref: '#/definitions/PolicyResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Policy not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      operationId: delete_policy
+      tags:
+      - policies
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.policies.{policy_uuid}.delete`'
+      parameters:
+      - $ref: '#/parameters/policy_uuid'
+      - $ref: '#/parameters/tenantuuid'
+      summary: Delete a policy
+      responses:
+        '204':
+          description: The policy has been removed
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Policy not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      security:
+      - wazo_auth_token: []
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Modify an ACL policy
+      description: '**Required ACL:** `auth.policies.{policy_uuid}.update`'
+      operationId: editPolicies
+      tags:
+      - policies
+      parameters:
+      - $ref: '#/parameters/policy_uuid'
+      - $ref: '#/parameters/tenantuuid'
+      - name: body
+        in: body
+        description: The policy edition parameters
+        required: true
+        schema:
+          $ref: '#/definitions/Policy'
+      responses:
+        '200':
+          description: The modified policy's data
+          schema:
+            $ref: '#/definitions/PolicyResult'
+        '401':
+          description: Invalid data has been supplied'
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: Duplicate Policy
+          schema:
+            $ref: '#/definitions/Error'
+  /policies/{policy_uuid}/acl/{access}:
+    delete:
+      security:
+      - wazo_auth_token: []
+      operationId: deletePolicyAccess
+      tags:
+      - policies
+      description: '**Required ACL:** `auth.policies.{policy_uuid}.update`'
+      summary: Dissociate an access from a policy
+      parameters:
+      - $ref: '#/parameters/policy_uuid'
+      - $ref: '#/parameters/access'
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The policy has been modified
+        '404':
+          description: Policy or access not found
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      security:
+      - wazo_auth_token: []
+      operationId: addPolicyAccess
+      tags:
+      - policies
+      description: '**Required ACL:** `auth.policies.{policy_uuid}.update`'
+      summary: Associate an access to a policy
+      parameters:
+      - $ref: '#/parameters/policy_uuid'
+      - $ref: '#/parameters/access'
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The policy has been modified
+        '404':
+          description: Policy not found
+          schema:
+            $ref: '#/definitions/Error'
+  /saml/sso:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      description: 'Returns the information (SAML request and redirect location) that
+
+        the client needs to use to authenticate using the configured identity
+
+        provider. The redirection does not happen automatically, the client
+
+        has to use the `location` provided in the body of the response.
+
+        '
+      summary: Creates and returns context and redirects to IdP login page
+      operationId: samlSSO
+      tags:
+      - token
+      - saml
+      parameters:
+      - description: SAML SSO Login context
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/SAMLLoginContext'
+      responses:
+        '201':
+          description: 'The `Location` contains the URL of the identity provider that should be
+
+            used by the client to authenticate. The provided `saml_session_id` must
+
+            be used by the application when requesting the token following the login.
+
+            '
+          schema:
+            $ref: '#/definitions/SAMLSSOResponse'
+        '400':
+          description: Missing or wrong parameters.
+        '500':
+          description: 'Failed to initialize SAML SSO. Please check your stack configuration.
+
+            '
+  /saml/acs:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 'Receives the SAML response created by the identity provider.
+
+
+        The internal cache allows to retrieve the context and redirect the browser
+
+        to process the login.
+
+        '
+      summary: 'Processes the IdP response and redirects to requested URL, even if the authentication
+
+        failed to allow further processing by the frontend application.
+
+        '
+      operationId: processACS
+      tags:
+      - token
+      - saml
+      parameters:
+      - name: body
+        in: body
+        description: The SAML response
+        required: true
+        schema:
+          $ref: '#/definitions/SAMLIdpResponse'
+      responses:
+        '303':
+          description: 'Redirect browser to process the login result. The `Location` header contains the
+
+            URL that should be used by the client to complete the authentication. For failed authentication,
+
+            the `Location` header URL contains an error code in the `login_failure_code` query parameter.
+
+            | Code | Description            |
+
+            |------|------------------------|
+
+            | 401  | Unauthorized           |
+
+            | 403  | Forbidden              |
+
+            | 500  | Internal Server Error  |
+
+            '
+          headers:
+            Location:
+              description: The URL to redirect the browser to.
+              type: string
+        '400':
+          description: Missing or wrong parameters.
+        '404':
+          description: Context of the response not found, unable to redirect
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Error while processing the SAML response
+          schema:
+            $ref: '#/definitions/Error'
+  /saml/logout:
+    get:
+      description: 'Returns the SAML logout request and redirect location, which is the IdP.
+
+        The client must use the indicated location and forward the logout request
+
+        to the IdP and forward the response to the wazo-auth. Wazo-auth will process
+
+        the answer and confirm to the requester the logout was processed or notify
+
+        an error.
+
+        '
+      summary: Creates and returns data required to process the logout by the IdP
+      security:
+      - wazo_auth_token: []
+      operationId: samlLogout
+      tags:
+      - token
+      - saml
+      responses:
+        '201':
+          description: 'SAML encoded Logout request to be forwarded to the provided redirect URL.
+
+            '
+          schema:
+            $ref: '#/definitions/SAMLLogoutRequest'
+        '400':
+          description: Missing or wrong parameters.
+        '500':
+          description: 'Failed to initialize SAML SSO. Please check your stack configuration.
+
+            '
+  /saml/sls:
+    get:
+      description: 'Processes the IdP response to logout request and confirms the logout by
+
+        a redirect to the `redirect_url` provided during the login phase
+
+        with logout confirmation in the URL''s query param.
+
+        '
+      summary: Handles the logout response from the IDP
+      operationId: samlLogoutResponse
+      tags:
+      - token
+      - saml
+      parameters:
+      - in: query
+        required: true
+        name: SAMLResponse
+        type: string
+        description: Encoded SAML XML response to logout request
+      - in: query
+        required: true
+        name: RelayState
+        type: string
+        description: Relay state parameter
+      responses:
+        '201':
+          description: 'Logout successfully processed.
+
+            '
+        '400':
+          description: Missing or wrong parameters.
+        '500':
+          description: 'Failed to initialize SAML SSO. Please check your stack configuration.
+
+            '
+  /backends/saml:
+    delete:
+      description: '**Required ACL:** `auth.backends.saml.delete`'
+      operationId: deleteSAMLBackendConfig
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The SAML backend configuration has been deleted
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Configuration for the tenant not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+      - wazo_auth_token: []
+      summary: Delete current tenant's SAML backend configuration
+      tags:
+      - backends
+    get:
+      description: '**Required ACL:** `auth.backends.saml.read`'
+      operationId: getSAMLBackendConfig
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: The SAML backend configuration.
+          schema:
+            $ref: '#/definitions/SAMLBackendConfig'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+      - wazo_auth_token: []
+      summary: 'Get current tenant''s SAML backend configuration. If there is no configuration,
+
+        all the fields will be `null`.
+
+        '
+      tags:
+      - backends
+    post:
+      description: '**Required ACL:** `auth.backends.saml.create'
+      operationId: createSAMLBackendConfig
+      consumes:
+      - multipart/form-data
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - in: formData
+        name: metadata
+        type: file
+        description: The IDP metadata file in XML format.
+        x-mimetype: application/xml
+        required: true
+      - in: formData
+        name: domain_uuid
+        type: string
+        description: The UUID of the domain to use for the SAML backend.
+        required: true
+      - in: formData
+        name: entity_id
+        type: string
+        description: The name of the SAML Entity.
+        required: true
+      - in: formData
+        name: acs_url
+        type: string
+        format: uri
+        description: The SAML ACS URL configured in the IdP.
+        required: true
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: The SAML backend configuration.
+          schema:
+            $ref: '#/definitions/SAMLBackendConfig'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+      - wazo_auth_token: []
+      summary: Returns the created SAML configuration.
+      tags:
+      - backends
+    put:
+      description: '**Required ACL:** `auth.backends.saml.update'
+      operationId: updateSAMLBackendConfig
+      consumes:
+      - multipart/form-data
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - in: formData
+        name: metadata
+        type: file
+        description: The IDP metadata file in XML format.
+        x-mimetype: application/xml
+        required: false
+      - in: formData
+        name: domain_uuid
+        type: string
+        description: The UUID of the domain to use for the SAML backend.
+        required: false
+      - in: formData
+        name: entity_id
+        type: string
+        description: The name of the SAML Entity.
+        required: false
+      - in: formData
+        name: acs_url
+        type: string
+        format: uri
+        description: The SAML ACS URL configured in the IdP.
+        required: false
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: The SAML backend configuration has been updated
+          schema:
+            $ref: '#/definitions/SAMLBackendConfig'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+      - wazo_auth_token: []
+      summary: Updates current tenant's SAML backend configuration
+      tags:
+      - backends
+  /backends/saml/metadata:
+    get:
+      description: '**Required ACL:** `auth.backends.saml.read`
+
+
+        This endpoint allow to download tenant metadata file.
+
+        '
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '200':
+          description: Download the tenant SAML metadata XML file.
+          schema:
+            description: The  metadata file in XML format.
+            type: file
+            x-mimetype: application/xml
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: No metadata file found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Download the tenant's SAML metadata XML file.
+      tags:
+      - backends
+  /backends/saml/acs_url_template:
+    get:
+      description: '**Required ACL:** `auth.backends.saml.read` This endpoint provides the tenant Assertion Consumer Service
+        URL template. The `{{STACK_URL}}` must be replaced by the public URL of the stack, wazo-confd ingress can be used
+        to retrieve previously configured data. '
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Returns the URL to be used while configuring the Identity provider.
+          schema:
+            $ref: '#/definitions/SAMLAcsUrlTemplate'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: SAML backend is not enabled
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get tenant's ACS URL template to use in the IDP configuration
+      tags:
+      - backends
+  /sessions:
+    get:
+      security:
+      - wazo_auth_token: []
+      produces:
+      - application/json
+      summary: List sessions
+      description: '**Required ACL:** `auth.sessions.read`'
+      operationId: listSessions
+      tags:
+      - sessions
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/recurse'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      responses:
+        '200':
+          description: A list of session
+          schema:
+            $ref: '#/definitions/GetSessionsResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+  /sessions/{session_uuid}:
+    delete:
+      operationId: delete_session
+      tags:
+      - sessions
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.sessions.{session_uuid}.delete`'
+      parameters:
+      - $ref: '#/parameters/session_uuid'
+      summary: Delete a session
+      responses:
+        '204':
+          description: The session has been removed
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+  /status:
+    head:
+      summary: Check if wazo-auth is OK
+      description: This endpoint is not authenticated
+      tags:
+      - status
+      responses:
+        '200':
+          description: wazo-auth is OK
+        '503':
+          description: wazo-auth is missing a requirement
+  /tenants:
+    get:
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.tenants.read`
+
+
+        Tenants can be filtered by domain name using the `domain_name` query string to do an exact match on one of its domain
+        names or using the `search` query string for a fuzzy match.
+
+        '
+      summary: Retrieves the list of tenants
+      parameters:
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The list of tenant
+          schema:
+            $ref: '#/definitions/TenantList'
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Creates a new tenant
+      description: '**Required ACL:** `auth.tenants.create`'
+      operationId: createTenant
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - name: body
+        in: body
+        description: The tenant creation parameters
+        required: false
+        schema:
+          $ref: '#/definitions/TenantCreate'
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The new tenant
+          schema:
+            $ref: '#/definitions/TenantPostResponse'
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/APIError'
+  /tenants/{tenant_uuid}:
+    delete:
+      operationId: delete_tenant
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.tenants.{tenant_uuid}.delete`'
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      summary: Delete a tenant
+      responses:
+        '204':
+          description: The tenant has been removed
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Tenant not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.tenants.{tenant_uuid}.read`'
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      summary: Retrieves the details of a tenant
+      responses:
+        '200':
+          description: The tenant's data
+          schema:
+            $ref: '#/definitions/TenantResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Tenant not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Modify a tenant
+      description: '**Required ACL:** `auth.tenants.{tenant_uuid}.update`'
+      operationId: updateTenant
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - name: body
+        in: body
+        description: The tenant parameters
+        required: true
+        schema:
+          $ref: '#/definitions/TenantEdit'
+      responses:
+        '200':
+          description: The new tenant
+          schema:
+            $ref: '#/definitions/TenantPostResponse'
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/APIError'
+        '404':
+          description: Tenant not found
+          schema:
+            $ref: '#/definitions/Error'
+  /tenants/{tenant_uuid}/domains:
+    get:
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.tenants.{tenant_uuid}.domains.read`'
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      summary: Retrieves the domains names with uuids of a tenant
+      responses:
+        '200':
+          description: The tenant's domains data
+          schema:
+            $ref: '#/definitions/TenantDomainsList'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Tenant not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+  /tenants/{tenant_uuid}/parent/{parent_tenant_uuid}:
+    put:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Update tenant's parent
+      description: '**Required ACL:** `auth.tenants.{tenant_uuid}.parent.{parent_tenant_uuid}.update`'
+      operationId: updateTenantParent
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - $ref: '#/parameters/tenant_uuid'
+      - $ref: '#/parameters/parent_tenant_uuid'
+      responses:
+        '204':
+          description: Parent updated
+        '404':
+          description: Tenant or Parent not found
+          schema:
+            $ref: '#/definitions/Error'
+  /token:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Creates a token
+      description: 'Creates a valid token for the supplied username and password combination or refresh_token
+
+        using the configured authentication method.
+
+
+        The user''s email address can be used instead of the username if the email address is confirmed.
+
+
+        Creating  a token with the `access_type` *offline* will also create a refresh token which can be used
+
+        to create a new token without specifying the username and password.
+
+
+        The username/password and refresh_token method of authentication are mutually exclusive
+
+
+        For more details about the backends, see http://documentation.wazo.community/en/latest/system/wazo-auth/stock_plugins.html#backends-plugins
+
+        '
+      operationId: createToken
+      tags:
+      - token
+      security:
+      - wazo_auth_basic: []
+      parameters:
+      - $ref: '#/parameters/wazo_session_type'
+      - name: body
+        in: body
+        description: The token creation parameters
+        required: false
+        schema:
+          type: object
+          properties:
+            domain_name:
+              type: string
+              description: 'The `domain_name` must match a tenant''s domain_name entry to find the appropriate ldap configuration.
+
+                '
+            expiration:
+              type: integer
+              default: 7200
+              maximum: 315360000
+              description: Expiration time in seconds.
+            access_type:
+              type: string
+              description: 'The `access_type` indicates whether your application can refresh the tokens when the user is not
+
+                present at the browser. Valid parameter values are *online*, which is the default value, and *offline*
+
+
+                Only one refresh token will be created for a given user with a given `client_id`. The old refresh
+
+                for `client_id` will be revoken when creating a new one.
+
+
+                The *client_id* field is required when using the `access_type` *offline*
+
+                '
+              default: online
+              enum:
+              - online
+              - offline
+            client_id:
+              type: string
+              description: 'The `client_id` is used in conjunction with the `access_type` *offline* to known for which application
+
+                a refresh token has been emitted.
+
+
+                *Required when using `access_type: offline`*
+
+                '
+            refresh_token:
+              type: string
+              description: 'The `refresh_token` can be used to get a new access token without using the username/password.
+
+                This is useful for client application that should not store the username and password once the
+
+                user has logged in a first time.
+
+                '
+            saml_session_id:
+              type: string
+              description: 'The `saml_session_id` can be used to get a new access token or refresh token instead of using
+
+                the username/password. It can be created using the `/saml/sso` and `/saml/acs` resources. A token
+
+                created this way has the same properties as another token created using this API.
+
+                '
+      responses:
+        '200':
+          description: The created token's data
+          schema:
+            $ref: '#/definitions/Token'
+          headers:
+            Wazo-Sessions-Revoked:
+              description: Number of pre-existing sessions revoked as a side effect of this login.
+              type: integer
+        '400':
+          description: Invalid expiration or missing field
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related token generation error
+          schema:
+            $ref: '#/definitions/Error'
+  /token/{token}:
+    get:
+      summary: Retrieves token data
+      description: Checks if a token is valid in a given context and return the token data.  If a scope is given, the token
+        must have the necessary permissions for the ACL. If a tenant is given, the token must have that tenant in its sub-tenant
+        subtree.
+      tags:
+      - token
+      security:
+      - {}
+      parameters:
+      - $ref: '#/parameters/token'
+      - $ref: '#/parameters/scope'
+      - $ref: '#/parameters/tenant'
+      responses:
+        '200':
+          description: The token's data
+          schema:
+            $ref: '#/definitions/Token'
+        '403':
+          description: This token cannot acces the required ACL
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Token not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related token error
+          schema:
+            $ref: '#/definitions/Error'
+    head:
+      summary: Checks if a token is valid
+      description: Checks if a token is valid in a given context.  If a scope is given, the token must have the necessary
+        permissions for the ACL. If a tenant is given, the token must have that tenant in its sub-tenant subtree.
+      tags:
+      - token
+      security:
+      - {}
+      parameters:
+      - $ref: '#/parameters/token'
+      - $ref: '#/parameters/scope'
+      - $ref: '#/parameters/tenant'
+      responses:
+        '204':
+          description: No data
+        '403':
+          description: This token cannot acces the required ACL
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Token not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related token error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      summary: Revoke a token
+      tags:
+      - token
+      security:
+      - {}
+      parameters:
+      - $ref: '#/parameters/token'
+      responses:
+        '200':
+          description: Success message
+        '500':
+          description: System related token error
+          schema:
+            $ref: '#/definitions/Error'
+  /token/{token}/scopes/check:
+    post:
+      summary: Check a token against scopes
+      description: Checks if a token is valid for given scopes.
+      tags:
+      - token
+      security:
+      - {}
+      parameters:
+      - $ref: '#/parameters/token'
+      - name: body
+        in: body
+        description: The token scopes check parameters
+        required: true
+        schema:
+          $ref: '#/definitions/ScopeCheckRequest'
+      responses:
+        '200':
+          description: Provided scope list checked against the token
+          schema:
+            $ref: '#/definitions/ScopeList'
+        '400':
+          description: The provided scope list is invalid
+          schema:
+            $ref: '#/definitions/Error'
+        '403':
+          description: This token is not valid for the provided tenant
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Token not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related token error
+          schema:
+            $ref: '#/definitions/Error'
+  /tokens:
+    get:
+      operationId: listRefreshTokens
+      summary: Retrieve a list of refresh tokens that have been created on the system
+      description: '**Required ACL**: `auth.tokens.read`
+
+
+        Finds all refresh tokens and return the list. Access tokens are not included in the result.
+
+        '
+      tags:
+      - token
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/recurse'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      responses:
+        '200':
+          description: A refresh token list
+          schema:
+            $ref: '#/definitions/RefreshTokenList'
+        '400':
+          description: Invalid parameters
+          schema:
+            $ref: '#/definitions/APIError'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/APIError'
+        '500':
+          description: System related token error
+          schema:
+            $ref: '#/definitions/APIError'
+  /users/{user_uuid_or_me}/tokens:
+    get:
+      operationId: listUserRefreshTokens
+      summary: Retrieve a user's refresh token list
+      description: '**Required ACL**: `auth.users.{user_uuid}.tokens.read`
+
+
+        Finds all of a user''s refresh token and return the list. Access tokens are not included in the result.
+
+
+        Doing a query with the `user_uuid` `me` will result in the current user''s token being used.
+
+        '
+      tags:
+      - token
+      - users
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - $ref: '#/parameters/user_uuid_or_me'
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      responses:
+        '200':
+          description: A refresh token list
+          schema:
+            $ref: '#/definitions/RefreshTokenList'
+        '400':
+          description: Invalid parameters
+          schema:
+            $ref: '#/definitions/APIError'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/APIError'
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/APIError'
+        '500':
+          description: System related token error
+          schema:
+            $ref: '#/definitions/APIError'
+  /users/{user_uuid_or_me}/tokens/{client_id}:
+    delete:
+      operationId: deleteRefreshTokens
+      summary: Delete a user's refresh token
+      description: '**Required ACL**: `auth.users.{user_uuid}.tokens.{client_id}.delete`
+
+
+        Remove a given refresh token. This only prevent this refresh token from creating new
+
+        access tokens. Any tokens that are currently issued are still usable and should be
+
+        revoked if needed.
+
+        '
+      tags:
+      - token
+      - users
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - $ref: '#/parameters/user_uuid_or_me'
+      - $ref: '#/parameters/client_id'
+      responses:
+        '204':
+          description: The refresh token has been deleted
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/APIError'
+        '404':
+          description: User or refresh token not found
+          schema:
+            $ref: '#/definitions/APIError'
+        '500':
+          description: System related token error
+          schema:
+            $ref: '#/definitions/APIError'
+  /admin/users/{user_uuid}/emails:
+    put:
+      tags:
+      - admin
+      - users
+      - emails
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.admin.users.{user_uuid}.emails.update`
+
+        Update all of the users email address at the same time.
+
+        If an existing address is missing from the list, it will be removed. An empty list will remove all addresses. If addresses
+        are defined, one and only one address should be main. If the confirmed field is set to none or ommited the existing
+        value will be reused if it exists, otherwise the address will not be confirmed. '
+      summary: Update email addresses
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - name: body
+        in: body
+        description: EmailAddressList
+        required: true
+        schema:
+          $ref: '#/definitions/AdminUserEmailList'
+      responses:
+        '200':
+          description: The updated email list
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/Error'
+  /users/{user_uuid}/emails:
+    put:
+      tags:
+      - users
+      - emails
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.emails.update`
+
+        Update all of the users email address at the same time.
+
+        If an existing address is missing from the list, it will be removed. An empty list will remove all addresses. If addresses
+        are defined, one and only one address should be main. All new address are created unconfirmed. '
+      summary: Update email addresses
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - name: body
+        in: body
+        description: EmailAddressList
+        required: true
+        schema:
+          $ref: '#/definitions/UserEmailList'
+      responses:
+        '200':
+          description: The updated email list
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/Error'
+  /users/{user_uuid}/emails/{email_uuid}/confirm:
+    get:
+      tags:
+      - users
+      - emails
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.emails.{email_uuid}.confirm.read`'
+      summary: Ask a new confirmation email
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - $ref: '#/parameters/email_uuid'
+      responses:
+        '204':
+          description: The new email confirmation email has been sent
+        '404':
+          description: User or Email not found
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: Already confirmed
+  /groups/{group_uuid}/users:
+    get:
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.groups.{group_uuid}.users.read`'
+      parameters:
+      - $ref: '#/parameters/group_uuid'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      summary: Retrieves the list of users associated to a group
+      responses:
+        '200':
+          description: The group's users
+          schema:
+            $ref: '#/definitions/UserList'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Group not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+  /groups/{group_uuid}/users/{user_uuid}:
+    put:
+      tags:
+      - groups
+      - users
+      security:
+      - wazo_auth_token: []
+      operationId: addUserGroup
+      description: '**Required ACL:** `auth.groups.{group_uuid}.users.{user_uuid}.create`'
+      summary: Associate a group to a user
+      parameters:
+      - $ref: '#/parameters/group_uuid'
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '204':
+          description: The user has been assigned
+        '404':
+          description: User or Group not found
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+      - groups
+      - users
+      security:
+      - wazo_auth_token: []
+      operationId: removeUserGroup
+      description: '**Required ACL:** `auth.groups.{group_uuid}.users.{user_uuid}.delete`'
+      summary: Dissociate a user from a group
+      parameters:
+      - $ref: '#/parameters/group_uuid'
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '204':
+          description: The user has been unassigned
+        '404':
+          description: User or Group not found
+          schema:
+            $ref: '#/definitions/Error'
+  /users/{user_uuid}/groups:
+    get:
+      tags:
+      - users
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.groups.read`'
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      summary: Retrieves the list of groups associated to a user
+      responses:
+        '200':
+          description: The groups of the user
+          schema:
+            $ref: '#/definitions/GetGroupsResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+  /users/{user_uuid}/policies:
+    get:
+      tags:
+      - users
+      - policies
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.policies.read`'
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      summary: Retrieves the list of policies associated to a user
+      responses:
+        '200':
+          description: The user's policies
+          schema:
+            $ref: '#/definitions/GetPoliciesResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+  /users/{user_uuid}/policies/{policy_uuid}:
+    put:
+      tags:
+      - users
+      - policies
+      security:
+      - wazo_auth_token: []
+      operationId: addUserPolicy
+      description: '**Required ACL:** `auth.users.{user_uuid}.policies.{policy_uuid}.create`'
+      summary: Associate a policy to a user
+      parameters:
+      - $ref: '#/parameters/policy_uuid'
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '204':
+          description: The policy has been assigned
+        '404':
+          description: User or Policy not found
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+      - users
+      - policies
+      security:
+      - wazo_auth_token: []
+      operationId: removeUserPolicy
+      description: '**Required ACL:** `auth.users.{user_uuid}.policies.{policy_uuid}.delete`'
+      summary: Dissociate a policy from a user
+      parameters:
+      - $ref: '#/parameters/policy_uuid'
+      - $ref: '#/parameters/user_uuid'
+      responses:
+        '204':
+          description: The policy has been unassigned
+        '404':
+          description: User or Policy not found
+          schema:
+            $ref: '#/definitions/Error'
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Create a user
+      description: Creates a new user that can be used to retrieve a token.
+      operationId: registerUser
+      tags:
+      - users
+      parameters:
+      - name: body
+        in: body
+        description: The user creation parameters
+        required: true
+        schema:
+          $ref: '#/definitions/UserRegister'
+      responses:
+        '200':
+          description: The new user data without the password
+          schema:
+            $ref: '#/definitions/UserPostResponse'
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/APIError'
+  /users/{user_uuid}/sessions:
+    get:
+      tags:
+      - users
+      - sessions
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.sessions.read`'
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      summary: Retrieves the list of sessions associated to a user
+      responses:
+        '200':
+          description: The sessions of the user
+          schema:
+            $ref: '#/definitions/GetSessionsResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+  /users/{user_uuid}/sessions/{session_uuid}:
+    delete:
+      operationId: user_delete_session
+      tags:
+      - users
+      - sessions
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.sessions.{session_uuid}.delete`'
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - $ref: '#/parameters/session_uuid'
+      summary: Delete a session
+      responses:
+        '204':
+          description: The session has been removed
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+  /users:
+    get:
+      tags:
+      - users
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.read`'
+      summary: Retrieves the list of users
+      parameters:
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/search'
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/recurse'
+      - $ref: '#/parameters/has_policy_slug'
+      - $ref: '#/parameters/has_policy_uuid'
+      - $ref: '#/parameters/search_policy_slug'
+      - $ref: '#/parameters/search_policy_uuid'
+      responses:
+        '200':
+          description: The list of user
+          schema:
+            $ref: '#/definitions/UserList'
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Create a user
+      description: '**Required ACL**: `auth.users.create`
+
+
+        Creates a new user that can be used to retrieve a token. The UUID can be used to link this user the a
+
+        wazo-confd user by using the same UUID
+
+        '
+      operationId: createUser
+      tags:
+      - users
+      parameters:
+      - name: body
+        in: body
+        description: The user creation parameters
+        schema:
+          $ref: '#/definitions/UserCreate'
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The new user data without the password
+          schema:
+            $ref: '#/definitions/UserPostResponse'
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/APIError'
+  /users/{user_uuid}:
+    get:
+      tags:
+      - users
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.read`'
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      summary: Retrieves the details of a user
+      responses:
+        '200':
+          description: The user's data
+          schema:
+            $ref: '#/definitions/UserResult'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      operationId: delete_user
+      tags:
+      - users
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.delete`'
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      summary: Delete a user
+      responses:
+        '204':
+          description: The user has been removed
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: not found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      summary: Update an existing user
+      description: '**Required ACL**: `auth.users.{user_uuid}.update`
+
+
+        When disabling a user (`enabled: false`), all active sessions (i.e.
+
+        tokens) will be immediately revoked and can no longer be used.
+
+        '
+      operationId: updateUser
+      tags:
+      - users
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - name: body
+        in: body
+        description: The user parameters
+        required: true
+        schema:
+          $ref: '#/definitions/UserEdit'
+      responses:
+        '200':
+          description: The new user data without the password
+          schema:
+            $ref: '#/definitions/UserPostResponse'
+        '400':
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/APIError'
+        '404':
+          description: not found
+          schema:
+            $ref: '#/definitions/Error'
+  /users/{user_uuid}/password:
+    put:
+      consumes:
+      - application/json
+      tags:
+      - users
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.password.update`
+
+
+        All active sessions (i.e. tokens) will be immediately revoked and can no longer be used.
+
+        Existing refresh tokens are not affected and remain valid.
+
+        '
+      summary: Change the user's password
+      parameters:
+      - $ref: '#/parameters/user_uuid'
+      - name: body
+        in: body
+        description: The user creation parameters
+        required: true
+        schema:
+          $ref: '#/definitions/PasswordChange'
+      responses:
+        '204':
+          description: Password changed
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/Error'
+        '405':
+          description: Not allowed, for example unable to update password for user with SAML authentication.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: System related error
+          schema:
+            $ref: '#/definitions/Error'

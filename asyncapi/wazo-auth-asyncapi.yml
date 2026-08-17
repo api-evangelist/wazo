@@ -1,0 +1,608 @@
+asyncapi: 2.0.0
+info:
+  title: wazo-auth events
+  version: '26.08'
+servers:
+  production:
+    url: amqp://{username}:{password}@/localhost:{port}//
+    description: Local RabbitMQ messaging server for inter-service communication
+    protocol: amqp
+    protocolVersion: 0.9.1
+    variables:
+      username:
+        default: guest
+        description: Configurable through each service's config.yml file
+      password:
+        default: guest
+        description: Configurable through each service's config.yml file
+      port:
+        default: '5672'
+        description: Configurable through each service's config.yml file
+defaultContentType: application/json
+channels:
+  auth_external_auth_added:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-external-auth-added-payload
+        payload:
+          type: object
+          properties:
+            external_auth_name:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_external_auth_added
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.tenants.{tenant_uuid}.external.{external_auth_name}.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  auth_external_auth_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-external-auth-deleted-payload
+        payload:
+          type: object
+          properties:
+            external_auth_name:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_external_auth_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.tenants.{tenant_uuid}.external.{external_auth_name}.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  auth_external_auth_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-external-auth-updated-payload
+        payload:
+          type: object
+          properties:
+            external_auth_name:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_external_auth_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.tenants.{tenant_uuid}.external.{external_auth_name}.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  auth_refresh_token_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-refresh-token-created-payload
+        payload:
+          type: object
+          properties:
+            client_id:
+              type: string
+            is_mobile:
+              type: boolean
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_refresh_token_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.users.{user_uuid}.tokens.{client_id}.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  auth_refresh_token_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-refresh-token-deleted-payload
+        payload:
+          type: object
+          properties:
+            client_id:
+              type: string
+            is_mobile:
+              type: boolean
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_refresh_token_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.users.{user_uuid}.tokens.{client_id}.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  auth_session_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-session-created-payload
+        payload:
+          type: object
+          properties:
+            session_uuid:
+              type: string
+              format: uuid
+            is_mobile:
+              type: boolean
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_session_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.sessions.{session_uuid}.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  auth_session_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-session-deleted-payload
+        payload:
+          type: object
+          properties:
+            session_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_session_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.sessions.{session_uuid}.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  auth_session_expire_soon:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-session-expire-soon-payload
+        payload:
+          type: object
+          properties:
+            session_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_session_expire_soon
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.users.{user_uuid}.sessions.{session_uuid}.expire_soon
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  auth_tenant_added:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-tenant-added-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            name:
+              type: string
+            slug:
+              type: string
+            domain_names:
+              type: array
+              items:
+                type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_tenant_added
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.tenants.{tenant_uuid}.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  auth_tenant_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-tenant-deleted-payload
+        payload:
+          type: object
+          properties: {}
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_tenant_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.tenants.{tenant_uuid}.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  auth_tenant_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-tenant-updated-payload
+        payload:
+          type: object
+          properties:
+            name:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_tenant_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.tenants.{tenant_uuid}.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  auth_user_external_auth_added:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-user-external-auth-added-payload
+        payload:
+          type: object
+          properties:
+            external_auth_name:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_user_external_auth_added
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.users.{user_uuid}.external.{external_auth_name}.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  auth_user_external_auth_authorized:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-user-external-auth-authorized-payload
+        payload:
+          type: object
+          properties:
+            external_auth_name:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_user_external_auth_authorized
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.users.{user_uuid}.external.{external_auth_name}.authorized
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  auth_user_external_auth_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-user-external-auth-deleted-payload
+        payload:
+          type: object
+          properties:
+            external_auth_name:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_user_external_auth_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.users.{user_uuid}.external.{external_auth_name}.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  auth_user_external_auth_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: auth
+      message:
+        name: auth-user-external-auth-updated-payload
+        payload:
+          type: object
+          properties:
+            external_auth_name:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: auth_user_external_auth_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.auth.users.{user_uuid}.external.{external_auth_name}.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+components:
+  schemas:
+    origin_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of the publishing WAZO service
+    timestamp:
+      type: string
+      format: date-time
+      description: Date and time this event was published
+    tenant_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of this resource's tenant
+    user_uuid:{uuid}:
+      type: boolean
+      description: User's unique identifier that this event is intended for. The format user_uuid:{uuid} allows multiple users to be the recipient
+        of this event

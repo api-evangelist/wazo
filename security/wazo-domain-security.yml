@@ -1,0 +1,27 @@
+generated: '2026-08-17'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: wazo.io
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Nov  1 13:33:52 2026 GMT
+  hsts: true
+  hsts_max_age: 31536000
+- host: developers.wazo.io
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct  4 18:06:50 2026 GMT
+  hsts: false
+- host: api.wazo.io
+  https: true
+  tls_version: TLSv1.2
+  cert_expires: Nov 15 02:15:14 2026 GMT
+  hsts: false
+domains:
+- domain: wazo.io
+  dnssec: false
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: reject

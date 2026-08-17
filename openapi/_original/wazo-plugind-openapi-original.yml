@@ -1,0 +1,400 @@
+swagger: '2.0'
+info:
+  version: '0.2'
+  title: wazo-plugind
+  description: Wazo's plugin management service
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  license:
+    name: GPLv3
+    url: http://www.gnu.org/licenses/gpl-3.0.html
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+x-xivo-port: 9503
+x-xivo-name: plugind
+basePath: /0.2
+schemes:
+- https
+consumes:
+- application/json
+produces:
+- application/json
+securityDefinitions:
+  wazo_auth_token:
+    type: apiKey
+    name: X-Auth-Token
+    in: header
+security:
+- wazo_auth_token: []
+paths:
+  /config:
+    get:
+      produces:
+      - application/json
+      summary: Show the current configuration
+      description: '**Required ACL:** `plugind.config.read`'
+      operationId: getConfig
+      tags:
+      - config
+      responses:
+        '200':
+          description: The configuration of the service
+  /status:
+    get:
+      produces:
+      - application/json
+      summary: Returns the current status of wazo-plugind
+      description: '**Required ACL:** `plugind.status.read`'
+      operationId: getStatus
+      tags:
+      - status
+      responses:
+        '200':
+          description: the current status of wazo-plugind
+          schema:
+            $ref: '#/definitions/StatusSummary'
+  /market:
+    get:
+      tags:
+      - plugin
+      - market
+      summary: List plugins available on the configured market
+      description: '**Required ACL:** `plugind.market.read`
+
+
+        Allow the administrator to get a list of available plugins
+
+        '
+      parameters:
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
+      - $ref: '#/parameters/search'
+      - $ref: '#/parameters/namespace_filter'
+      - $ref: '#/parameters/name_filter'
+      - $ref: '#/parameters/installed_filter'
+      responses:
+        '200':
+          description: The plugin list
+          schema:
+            $ref: '#/definitions/GetMarketResult'
+  /market/{namespace}/{name}:
+    get:
+      tags:
+      - plugin
+      - market
+      summary: Fetch the information about a plugin from the market
+      description: '**Required ACL:** `plugind.market.read`
+
+
+        Allow the administrator to view a plugins information from the market.
+
+        ---
+
+        '
+      parameters:
+      - $ref: '#/parameters/namespace'
+      - $ref: '#/parameters/name'
+      responses:
+        '200':
+          description: The plugin's information
+          schema:
+            $ref: '#/definitions/MarketPluginList'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+  /plugins:
+    get:
+      tags:
+      - plugin
+      summary: List installed plugins
+      description: '**Required ACL:** `plugind.plugins.read`
+
+
+        Allow the administrator to get a list of all installed plugins
+
+        '
+      responses:
+        '200':
+          description: The plugin list
+          schema:
+            $ref: '#/definitions/GetPluginsResult'
+    post:
+      tags:
+      - plugin
+      summary: Install a plugin
+      description: '**Required ACL:** `plugind.plugins.create`
+
+
+        Allow the administrator to install a plugin on the server.
+
+        '
+      parameters:
+      - name: reinstall
+        required: false
+        in: query
+        type: boolean
+        description: With this option the plugin will be reinstalled if it is already installed
+      - name: body
+        required: true
+        in: body
+        description: The plugins' installation parameters
+        schema:
+          $ref: '#/definitions/PluginInstallParameters'
+      responses:
+        '200':
+          description: Installation started
+          schema:
+            $ref: '#/definitions/InstallResponse'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+  /plugins/{namespace}/{name}:
+    get:
+      tags:
+      - plugin
+      summary: Fetch the information about a plugin that has been installed
+      description: '**Required ACL:** `plugind.plugins.{namespace}.{name}.read`
+
+
+        Allow the administrator to view a plugins metadata file.
+
+        ---
+
+        '
+      parameters:
+      - $ref: '#/parameters/namespace'
+      - $ref: '#/parameters/name'
+      responses:
+        '200':
+          description: The plugin's metadata
+          schema:
+            $ref: '#/definitions/PluginMetadata'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+    delete:
+      tags:
+      - plugin
+      summary: Uninstall a plugin
+      description: '**Required ACL:** `plugind.plugins.{namespace}.{name}.delete`
+
+
+        Allow the administrator to uninstall a plugin.
+
+        ---
+
+        '
+      parameters:
+      - $ref: '#/parameters/namespace'
+      - $ref: '#/parameters/name'
+      responses:
+        '204':
+          description: Uninstallation started
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFoundError'
+parameters:
+  direction:
+    required: false
+    name: direction
+    in: query
+    type: string
+    enum:
+    - asc
+    - desc
+    description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+  limit:
+    required: false
+    name: limit
+    in: query
+    type: integer
+    description: Maximum number of items to return in the list
+  name:
+    required: true
+    type: string
+    name: name
+    in: path
+    description: The plugin's name
+  namespace:
+    required: true
+    type: string
+    name: namespace
+    in: path
+    description: The plugin's namespace
+  offset:
+    required: false
+    name: offset
+    in: query
+    type: integer
+    description: Number of items to skip over in the list. Useful for pagination.
+  order:
+    required: false
+    name: order
+    in: query
+    type: string
+    description: Name of the field to use for sorting the list of items returned.
+  search:
+    required: false
+    name: search
+    in: query
+    type: string
+    description: Filter list of items, this search is applied to all fields and is not strict (eba matches Sébastien)
+  namespace_filter:
+    required: false
+    name: namespace
+    in: query
+    type: string
+    description: Search by namespace
+  name_filter:
+    required: false
+    name: name
+    in: query
+    type: string
+    description: Search by name
+  installed_filter:
+    required: false
+    name: installed
+    in: query
+    type: boolean
+    description: Filter installed plugins
+definitions:
+  Error:
+    title: Error
+    description: Error message for the client
+    properties:
+      message:
+        description: Human readable explanation of the error
+        type: string
+      resource:
+        description: Name of the resource
+        type: string
+      error_id:
+        description: Identifier of the type of error. It is more precise than the HTTP status code.
+        type: string
+      details:
+        description: Additional information about the error. The keys are specific to each error.
+        type: object
+      timestamp:
+        description: Time when the error occured
+        type: number
+        format: timestamp
+  GetMarketResult:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of plugins available on the market
+      filtered:
+        type: integer
+        description: The number of plugins matching the given search
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/MarketPluginList'
+        description: A list of plugins
+  GetPluginsResult:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: The number of plugins installed on the system
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/PluginMetadata'
+        description: A list of plugins
+  InstallResponse:
+    type: object
+    properties:
+      uuid:
+        type: string
+        description: A UUID associated to this plugin installation
+  MarketPluginList:
+    type: object
+    properties:
+      namespace:
+        type: string
+        description: The namespace of the plugin
+      name:
+        type: string
+        description: The name of the plugin
+      versions:
+        type: array
+        items:
+          $ref: '#/definitions/VersionInfo'
+        description: Version specific information
+  PluginInstallParameters:
+    type: object
+    properties:
+      method:
+        type: string
+        description: The method used to fetch this plugin
+        enum:
+        - git
+      options:
+        type: object
+        description: Method dependant installation options
+    required:
+    - method
+  PluginMetadata:
+    type: object
+    properties:
+      namespace:
+        type: string
+        description: The namespace of the plugin
+      name:
+        type: string
+        description: The name of the plugin
+      version:
+        type: string
+        description: The version of the installed version
+  VersionInfo:
+    type: object
+    properties:
+      version:
+        type: string
+        description: The plugin version
+      max_wazo_version:
+        type: string
+        description: The maximum Wazo version with which this plugin works
+      min_wazo_version:
+        type: string
+        description: The minimum Wazo version with which this plugin works
+      upgradable:
+        type: boolean
+        description: An indication wether installing this version would be an upgrade on not. Unstalled plugins are marked
+          as upgradable.
+  StatusSummary:
+    type: object
+    properties:
+      master_tenant:
+        $ref: '#/definitions/ComponentWithStatus'
+      rest_api:
+        $ref: '#/definitions/ComponentWithStatus'
+  ComponentWithStatus:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/StatusValue'
+  StatusValue:
+    type: string
+    enum:
+    - fail
+    - ok
+responses:
+  InvalidRequest:
+    description: Invalid request
+    schema:
+      $ref: '#/definitions/Error'
+  NotFoundError:
+    description: Plugin not found
+    schema:
+      $ref: '#/definitions/Error'

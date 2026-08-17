@@ -1,0 +1,454 @@
+asyncapi: 2.0.0
+info:
+  title: wazo-chatd events
+  version: '26.08'
+servers:
+  production:
+    url: amqp://{username}:{password}@/localhost:{port}//
+    description: Local RabbitMQ messaging server for inter-service communication
+    protocol: amqp
+    protocolVersion: 0.9.1
+    variables:
+      username:
+        default: guest
+        description: Configurable through each service's config.yml file
+      password:
+        default: guest
+        description: Configurable through each service's config.yml file
+      port:
+        default: '5672'
+        description: Configurable through each service's config.yml file
+defaultContentType: application/json
+channels:
+  chatd_message_delivery_status:
+    subscribe:
+      summary: ''
+      tags:
+      - name: chatd
+      message:
+        name: chatd-message-delivery-status-payload
+        payload:
+          type: object
+          properties:
+            delivery_data:
+              type: object
+              properties:
+                message_uuid:
+                  type: string
+                  format: uuid
+                recipient_identity:
+                  type: string
+                status:
+                  type: string
+                timestamp:
+                  type: string
+                backend:
+                  type: string
+            room_uuid:
+              type: string
+              format: uuid
+            message_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: chatd_message_delivery_status
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.chat.message.{message_uuid}.{user_uuid}.delivery
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  chatd_presence_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: chatd
+      message:
+        name: chatd-presence-updated-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            tenant_uuid:
+              type: string
+              format: uuid
+            state:
+              type: string
+            status:
+              type: string
+            last_activity:
+              type: string
+            line_state:
+              type: string
+            mobile:
+              type: boolean
+            do_not_disturb:
+              type: boolean
+            connected:
+              type: boolean
+            lines:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  state:
+                    type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: chatd_presence_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.chatd.users.{uuid}.presences.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  chatd_user_identity_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: chatd
+      message:
+        name: chatd-user-identity-created-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            backend:
+              type: string
+            type:
+              type: string
+            identity:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: chatd_user_identity_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.chatd.users.{user_uuid}.identities.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  chatd_user_identity_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: chatd
+      message:
+        name: chatd-user-identity-deleted-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            backend:
+              type: string
+            type:
+              type: string
+            identity:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: chatd_user_identity_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.chatd.users.{user_uuid}.identities.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  chatd_user_identity_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: chatd
+      message:
+        name: chatd-user-identity-updated-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            backend:
+              type: string
+            type:
+              type: string
+            identity:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: chatd_user_identity_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.chatd.users.{user_uuid}.identities.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  chatd_user_room_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: chatd
+      message:
+        name: chatd-user-room-created-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            tenant_uuid:
+              type: string
+              format: uuid
+            name:
+              type: string
+            users:
+              type: array
+              items:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    format: uuid
+                  tenant_uuid:
+                    type: string
+                    format: uuid
+                  wazo_uuid:
+                    type: string
+                    format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: chatd_user_room_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.chatd.users.{user_uuid}.rooms.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  chatd_user_room_message_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: chatd
+      message:
+        name: chatd-user-room-message-created-payload
+        payload:
+          type: object
+          properties:
+            message_data:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                content:
+                  type: string
+                alias:
+                  type: string
+                delivery:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    backend:
+                      type: string
+                    recipients:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          identity:
+                            type: string
+                          status:
+                            type: string
+                          updated_at:
+                            type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+                tenant_uuid:
+                  type: string
+                  format: uuid
+                wazo_uuid:
+                  type: string
+                  format: uuid
+                created_at:
+                  type: string
+                room:
+                  type: object
+                  properties:
+                    uuid:
+                      type: string
+                      format: uuid
+                    tenant_uuid:
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+                    users:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          uuid:
+                            type: string
+                            format: uuid
+                          tenant_uuid:
+                            type: string
+                            format: uuid
+                          wazo_uuid:
+                            type: string
+                            format: uuid
+            room_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: chatd_user_room_message_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.chatd.users.{user_uuid}.rooms.{room_uuid}.messages.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+components:
+  schemas:
+    origin_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of the publishing WAZO service
+    timestamp:
+      type: string
+      format: date-time
+      description: Date and time this event was published
+    tenant_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of this resource's tenant
+    user_uuid:{uuid}:
+      type: boolean
+      description: User's unique identifier that this event is intended for. The format user_uuid:{uuid} allows multiple users to be the recipient
+        of this event

@@ -1,0 +1,437 @@
+asyncapi: 2.0.0
+info:
+  title: wazo-webhookd events
+  version: '26.08'
+servers:
+  production:
+    url: amqp://{username}:{password}@/localhost:{port}//
+    description: Local RabbitMQ messaging server for inter-service communication
+    protocol: amqp
+    protocolVersion: 0.9.1
+    variables:
+      username:
+        default: guest
+        description: Configurable through each service's config.yml file
+      password:
+        default: guest
+        description: Configurable through each service's config.yml file
+      port:
+        default: '5672'
+        description: Configurable through each service's config.yml file
+defaultContentType: application/json
+channels:
+  voicemail_transcription_completed:
+    subscribe:
+      summary: ''
+      tags:
+      - name: webhookd
+      message:
+        name: voicemail-transcription-completed-payload
+        payload:
+          type: object
+          properties:
+            message_id:
+              type: string
+            tenant_uuid:
+              type: string
+              format: uuid
+            voicemail_id:
+              type: integer
+            transcription_text:
+              type: string
+            provider_id:
+              type: string
+            language:
+              type: string
+            duration:
+              type: number
+              format: float
+            completed_at:
+              type: string
+              format: date-time
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: voicemail_transcription_completed
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.voicemails.transcriptions.completed
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  webhookd_subscription_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: webhookd
+      message:
+        name: webhookd-subscription-created-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            name:
+              type: string
+            url:
+              type: string
+            events:
+              type: array
+              items:
+                type: string
+            service:
+              type: string
+            config:
+              type: object
+              properties: {}
+            metadata:
+              type: object
+              properties: {}
+            events_user_uuid:
+              type: string
+            events_wazo_uuid:
+              type: string
+            owner_user_uuid:
+              type: string
+            owner_tenant_uuid:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: webhookd_subscription_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.webhookd.subscription.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  webhookd_subscription_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: webhookd
+      message:
+        name: webhookd-subscription-deleted-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            name:
+              type: string
+            url:
+              type: string
+            events:
+              type: array
+              items:
+                type: string
+            service:
+              type: string
+            config:
+              type: object
+              properties: {}
+            metadata:
+              type: object
+              properties: {}
+            events_user_uuid:
+              type: string
+            events_wazo_uuid:
+              type: string
+            owner_user_uuid:
+              type: string
+            owner_tenant_uuid:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: webhookd_subscription_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.webhookd.subscription.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  webhookd_subscription_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: webhookd
+      message:
+        name: webhookd-subscription-updated-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            name:
+              type: string
+            url:
+              type: string
+            events:
+              type: array
+              items:
+                type: string
+            service:
+              type: string
+            config:
+              type: object
+              properties: {}
+            metadata:
+              type: object
+              properties: {}
+            events_user_uuid:
+              type: string
+            events_wazo_uuid:
+              type: string
+            owner_user_uuid:
+              type: string
+            owner_tenant_uuid:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: webhookd_subscription_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.webhookd.subscription.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  webhookd_user_subscription_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: webhookd
+      message:
+        name: webhookd-user-subscription-created-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            name:
+              type: string
+            url:
+              type: string
+            events:
+              type: array
+              items:
+                type: string
+            service:
+              type: string
+            config:
+              type: object
+              properties: {}
+            metadata:
+              type: object
+              properties: {}
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: webhookd_user_subscription_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.webhookd.users.{user_uuid}.subscription.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  webhookd_user_subscription_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: webhookd
+      message:
+        name: webhookd-user-subscription-deleted-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            name:
+              type: string
+            url:
+              type: string
+            events:
+              type: array
+              items:
+                type: string
+            service:
+              type: string
+            config:
+              type: object
+              properties: {}
+            metadata:
+              type: object
+              properties: {}
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: webhookd_user_subscription_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.webhookd.users.{user_uuid}.subscription.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  webhookd_user_subscription_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: webhookd
+      message:
+        name: webhookd-user-subscription-updated-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            name:
+              type: string
+            url:
+              type: string
+            events:
+              type: array
+              items:
+                type: string
+            service:
+              type: string
+            config:
+              type: object
+              properties: {}
+            metadata:
+              type: object
+              properties: {}
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: webhookd_user_subscription_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.webhookd.users.{user_uuid}.subscription.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+components:
+  schemas:
+    origin_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of the publishing WAZO service
+    timestamp:
+      type: string
+      format: date-time
+      description: Date and time this event was published
+    tenant_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of this resource's tenant
+    user_uuid:{uuid}:
+      type: boolean
+      description: User's unique identifier that this event is intended for. The format user_uuid:{uuid} allows multiple users to be the recipient
+        of this event

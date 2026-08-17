@@ -1,0 +1,78 @@
+generated: '2026-08-17'
+method: searched
+source: openapi/ (13 Swagger 2.0 contracts) + https://wazo-platform.org/uc-doc/api_sdk/rest_api/conventions + https://wazo-platform.org/uc-doc/api_sdk/rest_api/quickstart
+  + https://api.wazo.io/documentation/api/authentication.html
+summary:
+  types:
+  - apiKey
+  - http
+  api_key_in:
+  - header
+schemes:
+- name: wazo_auth_token
+  type: apiKey
+  in: header
+  parameter: X-Auth-Token
+  sources:
+  - openapi/wazo-agentd-api-openapi.yml
+  - openapi/wazo-amid-api-openapi.yml
+  - openapi/wazo-auth-api-openapi.yml
+  - openapi/wazo-call-logd-api-openapi.yml
+  - openapi/wazo-calld-api-openapi.yml
+  - openapi/wazo-chatd-api-openapi.yml
+  - openapi/wazo-confd-api-openapi.yml
+  - openapi/wazo-dird-api-openapi.yml
+  - openapi/wazo-phoned-api-openapi.yml
+  - openapi/wazo-plugind-api-openapi.yml
+  - openapi/wazo-provd-api-openapi.yml
+  - openapi/wazo-setupd-api-openapi.yml
+  - openapi/wazo-webhookd-api-openapi.yml
+- name: wazo_auth_basic
+  type: http
+  scheme: basic
+  sources:
+  - openapi/wazo-auth-api-openapi.yml
+docs: https://api.wazo.io/documentation/overview/authentication.html
+model:
+  style: opaque bearer token in a custom header, issued by a first-party token service
+  header: X-Auth-Token
+  oauth2: false
+  oidc: false
+  token_endpoint: POST https://{wazo_stack}/api/auth/0.1/token
+  token_endpoint_auth: HTTP Basic username:password (the wazo_auth_basic scheme), or an existing refresh token
+  recommended_user_purpose: external_api
+  token_expiration: requested per token via the expiration field (seconds); tokens expire and must be renewed
+  introspection:
+  - HEAD /token/{token} — validity
+  - GET /token/{token} — metadata incl. ACL list
+  - POST /token/{token}/scopes/check — pre-flight an ACL
+  revocation: DELETE /token/{token}
+  refresh_tokens: GET /tokens lists refresh tokens created for the caller
+  warning: The quickstart states that a manually generated token "gives all permissions to anyone who knows it" — Wazo ships
+    no default least-privilege token. Scoping requires creating an ACL policy (POST /policies) and attaching it.
+authorization:
+  model: acl
+  catalog: scopes/wazo-acl-permissions.yml
+  permission_count: 788
+  declaration: each operation states "**Required ACL:** `<string>`" in its own description
+  wildcards:
+    one_segment: '*'
+    remainder: '#'
+  multi_tenancy:
+    header: Wazo-Tenant
+    recurse_param: recurse
+identity_backends:
+  first_party:
+  - wazo_user (username/password)
+  federated:
+  - LDAP — POST/GET /backends/ldap
+  - SAML 2.0 — /saml/sso, /saml/acs, /saml/logout, /saml/sls, /backends/saml, /backends/saml/metadata
+  external_auth:
+  - Google
+  - Microsoft
+  - mobile push (FCM/APNs registration)
+  source: openapi/wazo-auth-api-openapi.yml
+mutual_tls: false
+api_keys: false
+api_keys_note: There is no long-lived API key. Programmatic access means minting a short-lived token from user credentials,
+  or holding a refresh token.

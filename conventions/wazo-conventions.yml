@@ -1,0 +1,91 @@
+generated: '2026-08-17'
+method: searched
+source: https://wazo-platform.org/uc-doc/api_sdk/rest_api/conventions, https://wazo-platform.org/uc-doc/api_sdk/rest_api/quickstart,
+  openapi/
+docs: https://wazo-platform.org/uc-doc/api_sdk/rest_api/conventions
+base_url:
+  pattern: https://{wazo_stack}/api/{service}/{version}
+  templated: true
+  note: There is no public multi-tenant Wazo API host. The docs give the base as https://<YOUR_WAZO_IP> or a stack hostname
+    (the docs use https://mystack.example); the service and version segments are routed by wazo-nginx, e.g. /api/auth/0.1,
+    /api/confd/1.1, /api/calld/1.0, /api/call-logd/1.0. Verified against each service repo's etc/nginx/locations/https-available/
+    file.
+authentication:
+  style: opaque bearer token in a custom header
+  header: X-Auth-Token
+  issuer: wazo-auth POST /api/auth/0.1/token
+  http_basic: username:password Basic auth on the token endpoint only
+  authorization: per-operation ACL string ("Required ACL:" in every operation description) checked against the token policy
+  artifact: authentication/wazo-authentication.yml
+  acl_catalog: scopes/wazo-acl-permissions.yml
+idempotency:
+  supported: false
+  note: No idempotency contract. Searched all 13 contracts for an Idempotency-Key header/parameter and for the string "idempoten"
+    — zero matches — and the published REST conventions page does not mention idempotency or retry-safety. No Idempotency
+    pointer is emitted for this repo.
+pagination:
+  style: offset
+  params:
+  - name: limit
+    in: query
+    type: integer
+    description: Number of items to return
+  - name: offset
+    in: query
+    type: integer
+    default: 0
+    description: Number of items to skip
+  response_fields:
+    total: integer — total matching items
+    items: array — the page of objects
+  note: Uniform across services; declared as shared top-level parameters in every service base api.yml.
+sorting:
+  params:
+  - name: order
+    in: query
+    description: Field name to sort by
+  - name: direction
+    in: query
+    enum:
+    - asc
+    - desc
+filtering:
+  params:
+  - name: search
+    in: query
+    description: Filter items whose fields contain the term
+  - name: recurse
+    in: query
+    type: boolean
+    description: Include sub-tenants in the result (multi-tenant listing)
+multi_tenancy:
+  header: Wazo-Tenant
+  note: Most confd/auth operations accept a Wazo-Tenant header to scope the request to a sub-tenant; combined with recurse=true
+    for hierarchical listing.
+content_types:
+  request: application/json
+  accept: application/json
+methods:
+  create: POST to the collection root
+  replace_or_update: PUT /<id> — only the modified properties need be sent
+  delete: DELETE /<id>
+versioning:
+  scheme: uri-path per service
+  note: Each microservice carries its own independent version segment (auth 0.1, confd 1.1, calld 1.0, call-logd 1.0, dird
+    0.1, provd 0.2, plugind 0.2, agentd 1.0, chatd 1.0, webhookd 1.0, setupd 1.0, amid 1.0, phoned 0.1). Platform releases
+    are a separate YY.NN train.
+  artifact: lifecycle/wazo-lifecycle.yml
+error_envelope:
+  artifact: errors/wazo-problem-types.yml
+  rfc9457: false
+rate_limits:
+  documented: false
+  artifact: rate-limits/wazo-rate-limits.yml
+request_tracing:
+  header: null
+  note: No request-id/correlation-id header is documented or declared in any contract. Several services return an "error_id"
+    field on failures, which is a classifier, not a trace id.
+events:
+  artifact: asyncapi/wazo-events-webhooks.yml
+  webhooks: true
+  websocket: true

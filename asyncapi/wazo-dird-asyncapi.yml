@@ -1,0 +1,126 @@
+asyncapi: 2.0.0
+info:
+  title: wazo-dird events
+  version: '26.08'
+servers:
+  production:
+    url: amqp://{username}:{password}@/localhost:{port}//
+    description: Local RabbitMQ messaging server for inter-service communication
+    protocol: amqp
+    protocolVersion: 0.9.1
+    variables:
+      username:
+        default: guest
+        description: Configurable through each service's config.yml file
+      password:
+        default: guest
+        description: Configurable through each service's config.yml file
+      port:
+        default: '5672'
+        description: Configurable through each service's config.yml file
+defaultContentType: application/json
+channels:
+  favorite_added:
+    subscribe:
+      summary: ''
+      tags:
+      - name: dird
+      message:
+        name: favorite-added-payload
+        payload:
+          type: object
+          properties:
+            source_name:
+              type: string
+            entry_id:
+              type: string
+            wazo_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: favorite_added
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.directory.{user_uuid}.favorite.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  favorite_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: dird
+      message:
+        name: favorite-deleted-payload
+        payload:
+          type: object
+          properties:
+            source_name:
+              type: string
+            entry_id:
+              type: string
+            wazo_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: favorite_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.directory.{user_uuid}.favorite.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+components:
+  schemas:
+    origin_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of the publishing WAZO service
+    timestamp:
+      type: string
+      format: date-time
+      description: Date and time this event was published
+    tenant_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of this resource's tenant
+    user_uuid:{uuid}:
+      type: boolean
+      description: User's unique identifier that this event is intended for. The format user_uuid:{uuid} allows multiple users to be the recipient
+        of this event

@@ -1,0 +1,76 @@
+# Wazo
+
+> Wazo Communication Inc. builds the Wazo Platform, an open-source (GPL-3.0) programmable unified-communications and contact-centre platform assembled from Asterisk, Kamailio, RabbitMQ, PostgreSQL and nginx. MSPs, carriers, telecom integrators and enterprises self-host it or resell it white-label as UCaaS. Thirteen HTTP microservices each publish their own Swagger 2.0 contract — 932 operations in total — behind one X-Auth-Token bearer model governed by 788 fine-grained ACL permission strings, and the platform emits 327 named events onto a RabbitMQ bus that wazo-webhookd relays as HTTP webhooks and wazo-websocketd streams over WebSocket.
+
+## Read this first
+
+- There is NO public Wazo API host. Every base URL is the operator's own stack: `https://<wazo_stack>/api/<service>/<version>` (for example `/api/auth/0.1`, `/api/confd/1.1`, `/api/calld/1.0`, `/api/call-logd/1.0`). If you do not have the stack hostname, ask for it — do not guess one.
+- Authentication is a single custom header, `X-Auth-Token`, issued by `POST /api/auth/0.1/token` with HTTP Basic credentials. There is no OAuth 2.0 and no OpenID Connect anywhere in the platform.
+- Authorization is an ACL/policy model, not scopes. Each operation declares the permission it needs in its own description, e.g. `confd.users.create`.
+- There is NO idempotency contract. No `Idempotency-Key` exists in any of the 932 operations. A retried POST can place a second real phone call or create a duplicate user — read the collection before retrying a create.
+- There are NO published rate limits and no runtime rate-limit signal: no 429 response, no `Retry-After`, no `X-RateLimit-*` header anywhere.
+- Errors are plain `application/json`, not RFC 9457 `application/problem+json`. wazo-confd returns error messages as a JSON list even when there is only one.
+- Lists are `limit`/`offset` paginated and return `{ "total": n, "items": [...] }`, with `order`, `direction` and `search`. Multi-tenant calls take a `Wazo-Tenant` header and an optional `recurse=true`.
+
+## APIs
+
+- [Authentication — wazo-auth 0.1](https://api.wazo.io/documentation/api/authentication.html): tokens, tenants, users, groups, policies, ACLs, sessions, refresh tokens, LDAP, SAML 2.0, Google/Microsoft external auth. 93 operations.
+- [Configuration — wazo-confd 1.1](https://api.wazo.io/documentation/api/configuration.html): the whole PBX object graph — users, lines, extensions, SIP/IAX/SCCP endpoints, devices, contexts, groups, queues, agents, IVRs, conferences, meetings, schedules, voicemails, trunks, function keys. 420 operations, the largest contract.
+- [Call control / Application — wazo-calld 1.0](https://api.wazo.io/documentation/api/application.html): originate, answer, hold, mute, transfer, relocate, record, hang up; adhoc conferences, faxes, voicemail, switchboards, parking, and the Stasis Application API. 128 operations.
+- [Call Detail Records — wazo-call-logd 1.0](https://api.wazo.io/documentation/api/cdr.html): CDR query and export, recordings, voicemail transcription, retention, contact-centre statistics. 22 operations.
+- [Directories & Contacts — wazo-dird 0.1](https://api.wazo.io/documentation/api/contact.html): unified lookup/reverse lookup across CSV, LDAP, confd, Google and Microsoft 365 sources; displays, profiles, phonebooks, favourites. 106 operations.
+- [Phone provisioning — wazo-provd 0.2](https://api.wazo.io/documentation/api/provisioning.html): device plugins, templates, registrations and DHCP integration for Aastra/Mitel, Cisco, Fanvil, Gigaset, Htek, Polycom, Snom and Yealink handsets. 58 operations.
+- [Webhooks — wazo-webhookd 1.0](https://api.wazo.io/documentation/api/webhook.html): subscribe an HTTP endpoint to named platform events, per tenant or per user, with delivery logs. 16 operations.
+- [Presence & Chat — wazo-chatd 1.0](https://api.wazo.io/documentation/api/chat.html): user/line/refresh-token presence, Microsoft Teams presence federation, rooms and messages. 23 operations.
+- [Call-centre agents — wazo-agentd 1.0](https://api.wazo.io/documentation/api/agent.html): log agents in/out of queues by id, number or extension; pause, unpause, relog, status. 23 operations.
+- [Phone directory service — wazo-phoned 0.1](https://github.com/wazo-platform/wazo-phoned): vendor XML/HTML directory lookups and phone service actions consumed directly by handsets. 27 operations.
+- [Plugin management — wazo-plugind 0.2](https://api.wazo.io/documentation/api/plugins.html): install, upgrade and remove plugins from the market or a git source. 8 operations.
+- [Asterisk Manager — wazo-amid 1.0](https://api.wazo.io/documentation/api/amid.html): REST facade over AMI actions and the Asterisk CLI. Internal-platform surface. 5 operations.
+- [Initial setup — wazo-setupd 1.0](https://api.wazo.io/documentation/api/setup.html): one-time bootstrap of a freshly installed stack. 3 operations.
+- [Websocket event stream — wazo-websocketd](https://api.wazo.io/documentation/overview/websocket.html): `wss://<wazo_stack>/api/websocketd/` — subscribe to the same 327 named events in real time. No REST contract.
+
+## Specs and artifacts
+
+- [Swagger 2.0 contracts (13, harvested verbatim)](https://github.com/api-evangelist/wazo/tree/main/openapi)
+- [Authentication profile](https://github.com/api-evangelist/wazo/blob/main/authentication/wazo-authentication.yml)
+- [ACL permission catalogue — 788 strings](https://github.com/api-evangelist/wazo/blob/main/scopes/wazo-acl-permissions.yml)
+- [API conventions](https://github.com/api-evangelist/wazo/blob/main/conventions/wazo-conventions.yml)
+- [Error catalogue](https://github.com/api-evangelist/wazo/blob/main/errors/wazo-problem-types.yml)
+- [Event / webhook catalogue — 327 events](https://github.com/api-evangelist/wazo/blob/main/asyncapi/wazo-events-webhooks.yml)
+- [AsyncAPI 2.0.0 documents (12 services, 388 channels)](https://github.com/api-evangelist/wazo/tree/main/asyncapi)
+- [Data model](https://github.com/api-evangelist/wazo/blob/main/data-model/wazo-data-model.yml)
+- [Lifecycle and versioning](https://github.com/api-evangelist/wazo/blob/main/lifecycle/wazo-lifecycle.yml)
+- [Packages and SDKs](https://github.com/api-evangelist/wazo/blob/main/packages/wazo-packages.yml)
+- [Agent skills](https://github.com/api-evangelist/wazo/tree/main/skills)
+
+## Docs
+
+- [Wazo API developer portal](https://api.wazo.io/)
+- [Platform documentation](https://wazo-platform.org/uc-doc/)
+- [REST API quickstart](https://wazo-platform.org/uc-doc/api_sdk/rest_api/quickstart)
+- [REST API conventions](https://wazo-platform.org/uc-doc/api_sdk/rest_api/conventions)
+- [REST API examples](https://wazo-platform.org/uc-doc/api_sdk/rest_api/examples)
+- [Interactive API consoles](https://api.wazo.io/documentation/console/authentication/)
+- [Developers centre — plugins, embedded softphone, deep links](https://developers.wazo.io/)
+- [Blog](https://wazo-platform.org/blog/)
+- [Community forum](https://wazo-platform.discourse.group/)
+- [Mattermost chat](https://mm.wazo.community/wazo-platform/)
+- [Issue tracker](https://wazo-dev.atlassian.net/)
+
+## SDKs and tooling
+
+- [@wazo/sdk (npm) — JavaScript/TypeScript, WebRTC softphone + REST + websocket](https://www.npmjs.com/package/@wazo/sdk)
+- [@wazo/euc-plugins-sdk (npm) — build UI plugins for the E-UC portal and application](https://www.npmjs.com/package/@wazo/euc-plugins-sdk)
+- 16 first-party Python client libraries, distributed through the Wazo apt repository only — `deb https://mirror.wazo.community/debian pelican-bookworm main`. None of them is on PyPI.
+- Per-service operator CLIs installed on the stack: wazo-auth-cli, wazo-confd-cli, wazo-agentd-cli, wazo-provd-cli, wazo-plugind-cli, plus wazo-debug and wazo-upgrade. There is no unified remote CLI.
+- [Source — wazo-platform (194 repositories)](https://github.com/wazo-platform)
+- [Source — wazo-communication (25 repositories)](https://github.com/wazo-communication)
+
+## What Wazo does not publish
+
+- No OpenAPI 3.x — the contracts remain Swagger 2.0.
+- No AsyncAPI document served over HTTP — but Wazo DOES publish a first-party AsyncAPI 2.0.0 generator (wazo-bus/contribs/documentation.py + asyncapi-template.yml) that emits one document per microservice from its event classes. 12 documents covering 388 channels are harvested to https://github.com/api-evangelist/wazo/tree/main/asyncapi.
+- No MCP server, no A2A agent card, no `/llms.txt`, and no `/.well-known/` document of any kind on any Wazo host.
+- No status page, no SLA, no written deprecation or sunset policy (12 operations are marked `deprecated: true` in-contract instead).
+- No published pricing — the open-source platform is free from the apt repository and the commercial white-label offer routes through https://wazo.io/contact.
+- No security.txt, no vulnerability disclosure programme, and no trust centre or named certifications.

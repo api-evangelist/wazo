@@ -1,0 +1,138 @@
+asyncapi: 2.0.0
+info:
+  title: wazo-plugind events
+  version: '26.08'
+servers:
+  production:
+    url: amqp://{username}:{password}@/localhost:{port}//
+    description: Local RabbitMQ messaging server for inter-service communication
+    protocol: amqp
+    protocolVersion: 0.9.1
+    variables:
+      username:
+        default: guest
+        description: Configurable through each service's config.yml file
+      password:
+        default: guest
+        description: Configurable through each service's config.yml file
+      port:
+        default: '5672'
+        description: Configurable through each service's config.yml file
+defaultContentType: application/json
+channels:
+  plugin_install_progress:
+    subscribe:
+      summary: ''
+      tags:
+      - name: plugind
+      message:
+        name: plugin-install-progress-payload
+        payload:
+          type: object
+          properties:
+            plugin_uuid:
+              type: string
+              format: uuid
+            status:
+              type: string
+            errors:
+              type: object
+              properties:
+                error_id:
+                  type: string
+                message:
+                  type: string
+                resource:
+                  type: string
+                  const: plugins
+                details:
+                  type: object
+                  properties: {}
+              nullable: true
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: plugin_install_progress
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.plugin.install.{uuid}.{status}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+  plugin_uninstall_progress:
+    subscribe:
+      summary: ''
+      tags:
+      - name: plugind
+      message:
+        name: plugin-uninstall-progress-payload
+        payload:
+          type: object
+          properties:
+            plugin_uuid:
+              type: string
+              format: uuid
+            status:
+              type: string
+            errors:
+              type: object
+              properties:
+                error_id:
+                  type: string
+                message:
+                  type: string
+                resource:
+                  type: string
+                  const: plugins
+                details:
+                  type: object
+                  properties: {}
+              nullable: true
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: plugin_uninstall_progress
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.plugin.uninstall.{uuid}.{status}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+components:
+  schemas:
+    origin_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of the publishing WAZO service
+    timestamp:
+      type: string
+      format: date-time
+      description: Date and time this event was published
+    tenant_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of this resource's tenant
+    user_uuid:{uuid}:
+      type: boolean
+      description: User's unique identifier that this event is intended for. The format user_uuid:{uuid} allows multiple users to be the recipient
+        of this event

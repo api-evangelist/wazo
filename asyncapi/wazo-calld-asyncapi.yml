@@ -1,0 +1,5077 @@
+asyncapi: 2.0.0
+info:
+  title: wazo-calld events
+  version: '26.08'
+servers:
+  production:
+    url: amqp://{username}:{password}@/localhost:{port}//
+    description: Local RabbitMQ messaging server for inter-service communication
+    protocol: amqp
+    protocolVersion: 0.9.1
+    variables:
+      username:
+        default: guest
+        description: Configurable through each service's config.yml file
+      password:
+        default: guest
+        description: Configurable through each service's config.yml file
+      port:
+        default: '5672'
+        description: Configurable through each service's config.yml file
+defaultContentType: application/json
+channels:
+  agent_status_update:
+    subscribe:
+      summary: An agent status has changed
+      tags:
+      - name: calld
+      message:
+        name: agent-status-update-payload
+        payload:
+          type: object
+          properties:
+            agent_id:
+              type: integer
+            status:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: agent_status_update
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.statuses.agents
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  application_call_answered:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-call-answered-payload
+        payload:
+          type: object
+          properties:
+            application_call:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                conversation_id:
+                  type: string
+                creation_time:
+                  type: string
+                  format: date-time
+                status:
+                  type: string
+                on_hold:
+                  type: boolean
+                is_caller:
+                  type: boolean
+                dialed_extension:
+                  type: string
+                variables:
+                  type: object
+                  properties: {}
+                node_uuid:
+                  type: string
+                  format: uuid
+                moh_uuid:
+                  type: string
+                  format: uuid
+                muted:
+                  type: boolean
+                snoops:
+                  type: object
+                  properties: {}
+                user_uuid:
+                  type: string
+                  format: uuid
+                tenant_uuid:
+                  type: string
+                  format: uuid
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_call_answered
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.calls.{call[id]}.answered
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  application_call_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-call-deleted-payload
+        payload:
+          type: object
+          properties:
+            application_call:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                conversation_id:
+                  type: string
+                creation_time:
+                  type: string
+                  format: date-time
+                status:
+                  type: string
+                on_hold:
+                  type: boolean
+                is_caller:
+                  type: boolean
+                dialed_extension:
+                  type: string
+                variables:
+                  type: object
+                  properties: {}
+                node_uuid:
+                  type: string
+                  format: uuid
+                moh_uuid:
+                  type: string
+                  format: uuid
+                muted:
+                  type: boolean
+                snoops:
+                  type: object
+                  properties: {}
+                user_uuid:
+                  type: string
+                  format: uuid
+                tenant_uuid:
+                  type: string
+                  format: uuid
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_call_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.calls.{call[id]}.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  application_call_dtmf_received:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-call-dtmf-received-payload
+        payload:
+          type: object
+          properties:
+            call_id:
+              type: string
+            conversation_id:
+              type: string
+            dtmf:
+              type: string
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_call_dtmf_received
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.calls.{call_id}.dtmf.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  application_call_entered:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-call-entered-payload
+        payload:
+          type: object
+          properties:
+            application_call:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                conversation_id:
+                  type: string
+                creation_time:
+                  type: string
+                  format: date-time
+                status:
+                  type: string
+                on_hold:
+                  type: boolean
+                is_caller:
+                  type: boolean
+                dialed_extension:
+                  type: string
+                variables:
+                  type: object
+                  properties: {}
+                node_uuid:
+                  type: string
+                  format: uuid
+                moh_uuid:
+                  type: string
+                  format: uuid
+                muted:
+                  type: boolean
+                snoops:
+                  type: object
+                  properties: {}
+                user_uuid:
+                  type: string
+                  format: uuid
+                tenant_uuid:
+                  type: string
+                  format: uuid
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_call_entered
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.calls.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  application_call_initiated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-call-initiated-payload
+        payload:
+          type: object
+          properties:
+            application_call:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                conversation_id:
+                  type: string
+                creation_time:
+                  type: string
+                  format: date-time
+                status:
+                  type: string
+                on_hold:
+                  type: boolean
+                is_caller:
+                  type: boolean
+                dialed_extension:
+                  type: string
+                variables:
+                  type: object
+                  properties: {}
+                node_uuid:
+                  type: string
+                  format: uuid
+                moh_uuid:
+                  type: string
+                  format: uuid
+                muted:
+                  type: boolean
+                snoops:
+                  type: object
+                  properties: {}
+                user_uuid:
+                  type: string
+                  format: uuid
+                tenant_uuid:
+                  type: string
+                  format: uuid
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_call_initiated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.calls.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  application_call_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-call-updated-payload
+        payload:
+          type: object
+          properties:
+            application_call:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                conversation_id:
+                  type: string
+                creation_time:
+                  type: string
+                  format: date-time
+                status:
+                  type: string
+                on_hold:
+                  type: boolean
+                is_caller:
+                  type: boolean
+                dialed_extension:
+                  type: string
+                variables:
+                  type: object
+                  properties: {}
+                node_uuid:
+                  type: string
+                  format: uuid
+                moh_uuid:
+                  type: string
+                  format: uuid
+                muted:
+                  type: boolean
+                snoops:
+                  type: object
+                  properties: {}
+                user_uuid:
+                  type: string
+                  format: uuid
+                tenant_uuid:
+                  type: string
+                  format: uuid
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_call_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.calls.{call[id]}.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  application_destination_node_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-destination-node-created-payload
+        payload:
+          type: object
+          properties:
+            node:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                calls:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_destination_node_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.nodes.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  application_node_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-node-created-payload
+        payload:
+          type: object
+          properties:
+            node:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                calls:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_node_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.nodes.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  application_node_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-node-deleted-payload
+        payload:
+          type: object
+          properties:
+            node:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                calls:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_node_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.nodes.{node[uuid]}.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  application_node_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-node-updated-payload
+        payload:
+          type: object
+          properties:
+            node:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                calls:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_node_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.nodes.{node[uuid]}.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  application_playback_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-playback-created-payload
+        payload:
+          type: object
+          properties:
+            playback:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                uri:
+                  type: string
+                language:
+                  type: string
+            application_uuid:
+              type: string
+              format: uuid
+            call_id:
+              type: string
+            conversation_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_playback_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.playbacks.{playback[uuid]}.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  application_playback_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-playback-deleted-payload
+        payload:
+          type: object
+          properties:
+            playback:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                uri:
+                  type: string
+                language:
+                  type: string
+            application_uuid:
+              type: string
+              format: uuid
+            call_id:
+              type: string
+            conversation_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_playback_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.playbacks.{playback[uuid]}.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  application_progress_started:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-progress-started-payload
+        payload:
+          type: object
+          properties:
+            application_call:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                conversation_id:
+                  type: string
+                creation_time:
+                  type: string
+                  format: date-time
+                status:
+                  type: string
+                on_hold:
+                  type: boolean
+                is_caller:
+                  type: boolean
+                dialed_extension:
+                  type: string
+                variables:
+                  type: object
+                  properties: {}
+                node_uuid:
+                  type: string
+                  format: uuid
+                moh_uuid:
+                  type: string
+                  format: uuid
+                muted:
+                  type: boolean
+                snoops:
+                  type: object
+                  properties: {}
+                user_uuid:
+                  type: string
+                  format: uuid
+                tenant_uuid:
+                  type: string
+                  format: uuid
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_progress_started
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.calls.{call[id]}.progress.started
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  application_progress_stopped:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-progress-stopped-payload
+        payload:
+          type: object
+          properties:
+            application_call:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                conversation_id:
+                  type: string
+                creation_time:
+                  type: string
+                  format: date-time
+                status:
+                  type: string
+                on_hold:
+                  type: boolean
+                is_caller:
+                  type: boolean
+                dialed_extension:
+                  type: string
+                variables:
+                  type: object
+                  properties: {}
+                node_uuid:
+                  type: string
+                  format: uuid
+                moh_uuid:
+                  type: string
+                  format: uuid
+                muted:
+                  type: boolean
+                snoops:
+                  type: object
+                  properties: {}
+                user_uuid:
+                  type: string
+                  format: uuid
+                tenant_uuid:
+                  type: string
+                  format: uuid
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_progress_stopped
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.calls.{call[id]}.progress.stopped
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  application_snoop_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-snoop-created-payload
+        payload:
+          type: object
+          properties:
+            snoop:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                snooped_call_id:
+                  type: string
+                snooping_call_id:
+                  type: string
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_snoop_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.snoops.{snoop[uuid]}.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  application_snoop_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-snoop-deleted-payload
+        payload:
+          type: object
+          properties:
+            snoop:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                snooped_call_id:
+                  type: string
+                snooping_call_id:
+                  type: string
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_snoop_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.snoops.{snoop[uuid]}.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  application_snoop_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-snoop-updated-payload
+        payload:
+          type: object
+          properties:
+            snoop:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                snooped_call_id:
+                  type: string
+                snooping_call_id:
+                  type: string
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_snoop_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.snoops.{snoop[uuid]}.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  application_user_outgoing_call_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: application-user-outgoing-call-created-payload
+        payload:
+          type: object
+          properties:
+            call:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                conversation_id:
+                  type: string
+                creation_time:
+                  type: string
+                  format: date-time
+                status:
+                  type: string
+                on_hold:
+                  type: boolean
+                is_caller:
+                  type: boolean
+                dialed_extension:
+                  type: string
+                variables:
+                  type: object
+                  properties: {}
+                node_uuid:
+                  type: string
+                  format: uuid
+                moh_uuid:
+                  type: string
+                  format: uuid
+                muted:
+                  type: boolean
+                snoops:
+                  type: object
+                  properties: {}
+                user_uuid:
+                  type: string
+                  format: uuid
+                tenant_uuid:
+                  type: string
+                  format: uuid
+            application_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: application_user_outgoing_call_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.applications.{application_uuid}.user_outgoing_call.{call[id]}.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  call_answered:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: call-answered-payload
+        payload:
+          type: object
+          properties:
+            bridges:
+              type: array
+              items:
+                type: string
+            call_id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_number:
+              type: string
+            conversation_id:
+              type: string
+            peer_caller_id_name:
+              type: string
+            peer_caller_id_number:
+              type: string
+            creation_time:
+              type: string
+            status:
+              type: string
+            on_hold:
+              type: boolean
+            muted:
+              type: boolean
+            record_state:
+              type: string
+            talking_to:
+              type: object
+              properties: {}
+            user_uuid:
+              type: string
+              format: uuid
+            is_caller:
+              type: boolean
+            is_video:
+              type: boolean
+            dialed_extension:
+              type: string
+            line_id:
+              type: integer
+            answer_time:
+              type: string
+            hangup_time:
+              type: string
+            direction:
+              type: string
+            parked:
+              type: boolean
+            sip_call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_answered
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  call_cancel_push_notification:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: call-cancel-push-notification-payload
+        payload:
+          type: object
+          properties:
+            peer_caller_id_number:
+              type: string
+            peer_caller_id_name:
+              type: string
+            call_id:
+              type: string
+            video:
+              type: boolean
+            ring_timeout:
+              type: integer
+            sip_call_id:
+              type: string
+            mobile_wakeup_timestamp:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_cancel_push_notification
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  call_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: call-created-payload
+        payload:
+          type: object
+          properties:
+            bridges:
+              type: array
+              items:
+                type: string
+            call_id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_number:
+              type: string
+            conversation_id:
+              type: string
+            peer_caller_id_name:
+              type: string
+            peer_caller_id_number:
+              type: string
+            creation_time:
+              type: string
+            status:
+              type: string
+            on_hold:
+              type: boolean
+            muted:
+              type: boolean
+            record_state:
+              type: string
+            talking_to:
+              type: object
+              properties: {}
+            user_uuid:
+              type: string
+              format: uuid
+            is_caller:
+              type: boolean
+            is_video:
+              type: boolean
+            dialed_extension:
+              type: string
+            line_id:
+              type: integer
+            answer_time:
+              type: string
+            hangup_time:
+              type: string
+            direction:
+              type: string
+            parked:
+              type: boolean
+            sip_call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  call_dtmf_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: call-dtmf-created-payload
+        payload:
+          type: object
+          properties:
+            call_id:
+              type: string
+            digit_number:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_dtmf_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  call_ended:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: call-ended-payload
+        payload:
+          type: object
+          properties:
+            bridges:
+              type: array
+              items:
+                type: string
+            call_id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_number:
+              type: string
+            conversation_id:
+              type: string
+            peer_caller_id_name:
+              type: string
+            peer_caller_id_number:
+              type: string
+            creation_time:
+              type: string
+            status:
+              type: string
+            on_hold:
+              type: boolean
+            muted:
+              type: boolean
+            record_state:
+              type: string
+            talking_to:
+              type: object
+              properties: {}
+            user_uuid:
+              type: string
+              format: uuid
+            is_caller:
+              type: boolean
+            is_video:
+              type: boolean
+            dialed_extension:
+              type: string
+            line_id:
+              type: integer
+            answer_time:
+              type: string
+            hangup_time:
+              type: string
+            direction:
+              type: string
+            parked:
+              type: boolean
+            sip_call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_ended
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  call_held:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: call-held-payload
+        payload:
+          type: object
+          properties:
+            call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_held
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  call_parked:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: call-parked-payload
+        payload:
+          type: object
+          properties:
+            parking_id:
+              type: integer
+            call_id:
+              type: string
+            conversation_id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_num:
+              type: string
+            parker_caller_id_name:
+              type: string
+            parker_caller_id_num:
+              type: string
+            slot:
+              type: string
+            parked_at:
+              type: string
+              format: date-time
+            timeout_at:
+              type: string
+              format: date-time
+              nullable: true
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_parked
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.parkings.{parking_id}.calls.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  call_push_notification:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: call-push-notification-payload
+        payload:
+          type: object
+          properties:
+            peer_caller_id_number:
+              type: string
+            peer_caller_id_name:
+              type: string
+            call_id:
+              type: string
+            video:
+              type: boolean
+            ring_timeout:
+              type: integer
+            sip_call_id:
+              type: string
+            mobile_wakeup_timestamp:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_push_notification
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  call_resumed:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: call-resumed-payload
+        payload:
+          type: object
+          properties:
+            call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_resumed
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  call_unparked:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: call-unparked-payload
+        payload:
+          type: object
+          properties:
+            parking_id:
+              type: integer
+            call_id:
+              type: string
+            conversation_id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_num:
+              type: string
+            parker_caller_id_name:
+              type: string
+            parker_caller_id_num:
+              type: string
+            slot:
+              type: string
+            parked_at:
+              type: string
+              format: date-time
+            timeout_at:
+              type: string
+              format: date-time
+              nullable: true
+            retriever_call_id:
+              type: string
+            retriever_caller_id_name:
+              type: string
+            retriever_caller_id_num:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_unparked
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.parkings.{parking_id}.calls.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  call_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: call-updated-payload
+        payload:
+          type: object
+          properties:
+            bridges:
+              type: array
+              items:
+                type: string
+            call_id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_number:
+              type: string
+            conversation_id:
+              type: string
+            peer_caller_id_name:
+              type: string
+            peer_caller_id_number:
+              type: string
+            creation_time:
+              type: string
+            status:
+              type: string
+            on_hold:
+              type: boolean
+            muted:
+              type: boolean
+            record_state:
+              type: string
+            talking_to:
+              type: object
+              properties: {}
+            user_uuid:
+              type: string
+              format: uuid
+            is_caller:
+              type: boolean
+            is_video:
+              type: boolean
+            dialed_extension:
+              type: string
+            line_id:
+              type: integer
+            answer_time:
+              type: string
+            hangup_time:
+              type: string
+            direction:
+              type: string
+            parked:
+              type: boolean
+            sip_call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_adhoc_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-adhoc-created-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_adhoc_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.users.{user_uuid}.adhoc.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_adhoc_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-adhoc-deleted-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_adhoc_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.users.{user_uuid}.adhoc.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_adhoc_participant_joined:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-adhoc-participant-joined-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_adhoc_participant_joined
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.users.{user_uuid}.adhoc.participants.joined
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_adhoc_participant_left:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-adhoc-participant-left-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_adhoc_participant_left
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.users.{user_uuid}.adhoc.participants.left
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_participant_joined:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-participant-joined-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                muted:
+                  type: boolean
+                join_time:
+                  type: integer
+                admin:
+                  type: boolean
+                language:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_participant_joined
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.{conference_id}.participants.joined
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_participant_left:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-participant-left-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                muted:
+                  type: boolean
+                join_time:
+                  type: integer
+                admin:
+                  type: boolean
+                language:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_participant_left
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.{conference_id}.participants.left
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_participant_muted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-participant-muted-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                muted:
+                  type: boolean
+                join_time:
+                  type: integer
+                admin:
+                  type: boolean
+                language:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_participant_muted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.{conference_id}.participants.mute
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  conference_participant_talk_started:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-participant-talk-started-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                muted:
+                  type: boolean
+                join_time:
+                  type: integer
+                admin:
+                  type: boolean
+                language:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_participant_talk_started
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.{conference_id}.participants.talk
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_participant_talk_stopped:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-participant-talk-stopped-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                muted:
+                  type: boolean
+                join_time:
+                  type: integer
+                admin:
+                  type: boolean
+                language:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_participant_talk_stopped
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.{conference_id}.participants.talk
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_participant_unmuted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-participant-unmuted-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                muted:
+                  type: boolean
+                join_time:
+                  type: integer
+                admin:
+                  type: boolean
+                language:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_participant_unmuted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.{conference_id}.particpants.mute
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  conference_record_started:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-record-started-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_record_started
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.{id}.record
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  conference_record_stopped:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-record-stopped-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_record_stopped
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.{id}.record
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  conference_user_participant_joined:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-user-participant-joined-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                muted:
+                  type: boolean
+                join_time:
+                  type: integer
+                admin:
+                  type: boolean
+                language:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_user_participant_joined
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.users.{user_uuid}.participants.joined
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_user_participant_left:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-user-participant-left-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                muted:
+                  type: boolean
+                join_time:
+                  type: integer
+                admin:
+                  type: boolean
+                language:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_user_participant_left
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.users.{user_uuid}.participants.left
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_user_participant_talk_started:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-user-participant-talk-started-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                muted:
+                  type: boolean
+                join_time:
+                  type: integer
+                admin:
+                  type: boolean
+                language:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_user_participant_talk_started
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.users.{user_uuid}.participants.talk
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  conference_user_participant_talk_stopped:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: conference-user-participant-talk-stopped-payload
+        payload:
+          type: object
+          properties:
+            conference_id:
+              type: integer
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                muted:
+                  type: boolean
+                join_time:
+                  type: integer
+                admin:
+                  type: boolean
+                language:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: conference_user_participant_talk_stopped
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.conferences.users.{user_uuid}.participants.talk
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  fax_outbound_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: fax-outbound-created-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            call_id:
+              type: string
+            extension:
+              type: string
+            context:
+              type: string
+            caller_id:
+              type: string
+            ivr_extension:
+              type: string
+            wait_time:
+              type: integer
+            user_uuid:
+              type: string
+              format: uuid
+            tenant_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: fax_outbound_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.faxes.outbound.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  fax_outbound_failed:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: fax-outbound-failed-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            call_id:
+              type: string
+            extension:
+              type: string
+            context:
+              type: string
+            caller_id:
+              type: string
+            ivr_extension:
+              type: string
+            wait_time:
+              type: integer
+            user_uuid:
+              type: string
+              format: uuid
+            tenant_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: fax_outbound_failed
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.faxes.outbound.{id}.failed
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  fax_outbound_succeeded:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: fax-outbound-succeeded-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            call_id:
+              type: string
+            extension:
+              type: string
+            context:
+              type: string
+            caller_id:
+              type: string
+            ivr_extension:
+              type: string
+            wait_time:
+              type: integer
+            user_uuid:
+              type: string
+              format: uuid
+            tenant_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: fax_outbound_succeeded
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.faxes.outbound.{id}.succeeded
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  fax_outbound_user_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: fax-outbound-user-created-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            call_id:
+              type: string
+            extension:
+              type: string
+            context:
+              type: string
+            caller_id:
+              type: string
+            ivr_extension:
+              type: string
+            wait_time:
+              type: integer
+            user_uuid:
+              type: string
+              format: uuid
+            tenant_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: fax_outbound_user_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.faxes.outbound.users.{user_uuid}.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  fax_outbound_user_failed:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: fax-outbound-user-failed-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            call_id:
+              type: string
+            extension:
+              type: string
+            context:
+              type: string
+            caller_id:
+              type: string
+            ivr_extension:
+              type: string
+            wait_time:
+              type: integer
+            user_uuid:
+              type: string
+              format: uuid
+            tenant_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: fax_outbound_user_failed
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.faxes.outbound.users.{user_uuid}.failed
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  fax_outbound_user_succeeded:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: fax-outbound-user-succeeded-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            call_id:
+              type: string
+            extension:
+              type: string
+            context:
+              type: string
+            caller_id:
+              type: string
+            ivr_extension:
+              type: string
+            wait_time:
+              type: integer
+            user_uuid:
+              type: string
+              format: uuid
+            tenant_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: fax_outbound_user_succeeded
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.faxes.outbound.users.{user_uuid}.succeeded
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  global_voicemail_message_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: global-voicemail-message-created-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_num:
+              type: string
+            duration:
+              type: integer
+            timestamp:
+              type: integer
+            folder:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                accesstype:
+                  type: string
+            voicemail:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                accesstype:
+                  type: string
+                  enum:
+                  - global
+                  - personal
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: global_voicemail_message_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.voicemails.global.messages.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  global_voicemail_message_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: global-voicemail-message-deleted-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_num:
+              type: string
+            duration:
+              type: integer
+            timestamp:
+              type: integer
+            folder:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                accesstype:
+                  type: string
+            voicemail:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                accesstype:
+                  type: string
+                  enum:
+                  - global
+                  - personal
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: global_voicemail_message_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.voicemails.global.messages.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  global_voicemail_message_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: global-voicemail-message-updated-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_num:
+              type: string
+            duration:
+              type: integer
+            timestamp:
+              type: integer
+            folder:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                accesstype:
+                  type: string
+            voicemail:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                accesstype:
+                  type: string
+                  enum:
+                  - global
+                  - personal
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: global_voicemail_message_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.voicemails.global.messages.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  global_voicemail_transcription_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: global-voicemail-transcription-created-payload
+        payload:
+          type: object
+          properties:
+            message_id:
+              type: string
+            tenant_uuid:
+              type: string
+              format: uuid
+            voicemail_id:
+              type: integer
+            transcription_text:
+              type: string
+            provider_id:
+              type: string
+            language:
+              type: string
+            duration:
+              type: number
+              format: float
+            created_at:
+              type: string
+              format: date-time
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: global_voicemail_transcription_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.voicemails.global.transcriptions.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  global_voicemail_transcription_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: global-voicemail-transcription-deleted-payload
+        payload:
+          type: object
+          properties:
+            message_id:
+              type: string
+            tenant_uuid:
+              type: string
+              format: uuid
+            voicemail_id:
+              type: integer
+            transcription_text:
+              type: string
+            provider_id:
+              type: string
+            language:
+              type: string
+            duration:
+              type: number
+              format: float
+            created_at:
+              type: string
+              format: date-time
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: global_voicemail_transcription_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.voicemails.global.transcriptions.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  line_status_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: line-status-updated-payload
+        payload:
+          type: object
+          properties:
+            line_id:
+              type: integer
+            technology:
+              type: string
+            endpoint_name:
+              type: string
+            endpoint_registered:
+              type: boolean
+            endpoint_current_call_count:
+              type: integer
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: line_status_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.lines.{id}.status.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  meeting_participant_joined:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: meeting-participant-joined-payload
+        payload:
+          type: object
+          properties:
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+                  nullable: true
+            meeting_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: meeting_participant_joined
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.meetings.{meeting_uuid}.participants.joined
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  meeting_participant_left:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: meeting-participant-left-payload
+        payload:
+          type: object
+          properties:
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+                  nullable: true
+            meeting_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: meeting_participant_left
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.meetings.{meeting_uuid}.participants.left
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  meeting_user_participant_joined:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: meeting-user-participant-joined-payload
+        payload:
+          type: object
+          properties:
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+                  nullable: true
+            meeting_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: meeting_user_participant_joined
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.users.{user_uuid}.meetings.participants.joined
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  meeting_user_participant_left:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: meeting-user-participant-left-payload
+        payload:
+          type: object
+          properties:
+            participant:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_number:
+                  type: string
+                call_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+                  nullable: true
+            meeting_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: meeting_user_participant_left
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.users.{user_uuid}.meetings.participants.left
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  parked_call_hungup:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: parked-call-hungup-payload
+        payload:
+          type: object
+          properties:
+            parking_id:
+              type: integer
+            call_id:
+              type: string
+            conversation_id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_num:
+              type: string
+            parker_caller_id_name:
+              type: string
+            parker_caller_id_num:
+              type: string
+            slot:
+              type: string
+            parked_at:
+              type: string
+              format: date-time
+            timeout_at:
+              type: string
+              format: date-time
+              nullable: true
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: parked_call_hungup
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.parkings.{parking_id}.calls.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  parked_call_timed_out:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: parked-call-timed-out-payload
+        payload:
+          type: object
+          properties:
+            parking_id:
+              type: integer
+            call_id:
+              type: string
+            conversation_id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_num:
+              type: string
+            parker_caller_id_name:
+              type: string
+            parker_caller_id_num:
+              type: string
+            slot:
+              type: string
+            parked_at:
+              type: string
+              format: date-time
+            timeout_at:
+              type: string
+              format: date-time
+              nullable: true
+            dialed_extension:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: parked_call_timed_out
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.parkings.{parking_id}.calls.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  recording_paused:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: recording-paused-payload
+        payload:
+          type: object
+          properties:
+            call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: recording_paused
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  recording_resumed:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: recording-resumed-payload
+        payload:
+          type: object
+          properties:
+            call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: recording_resumed
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  recording_started:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: recording-started-payload
+        payload:
+          type: object
+          properties:
+            call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: recording_started
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  recording_stopped:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: recording-stopped-payload
+        payload:
+          type: object
+          properties:
+            call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: recording_stopped
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  relocate_answered:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: relocate-answered-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            relocated_call:
+              type: string
+            initiator_call:
+              type: string
+            recipient_call:
+              type: string
+            completions:
+              type: array
+              items:
+                type: string
+            initiator:
+              type: string
+            timeout:
+              type: integer
+            auto_answer:
+              type: boolean
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: relocate_answered
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.relocates.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  relocate_completed:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: relocate-completed-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            relocated_call:
+              type: string
+            initiator_call:
+              type: string
+            recipient_call:
+              type: string
+            completions:
+              type: array
+              items:
+                type: string
+            initiator:
+              type: string
+            timeout:
+              type: integer
+            auto_answer:
+              type: boolean
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: relocate_completed
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.relocates.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  relocate_ended:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: relocate-ended-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            relocated_call:
+              type: string
+            initiator_call:
+              type: string
+            recipient_call:
+              type: string
+            completions:
+              type: array
+              items:
+                type: string
+            initiator:
+              type: string
+            timeout:
+              type: integer
+            auto_answer:
+              type: boolean
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: relocate_ended
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.relocates.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  relocate_initiated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: relocate-initiated-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            relocated_call:
+              type: string
+            initiator_call:
+              type: string
+            recipient_call:
+              type: string
+            completions:
+              type: array
+              items:
+                type: string
+            initiator:
+              type: string
+            timeout:
+              type: integer
+            auto_answer:
+              type: boolean
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: relocate_initiated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.relocates.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  switchboard_held_call_answered:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: switchboard-held-call-answered-payload
+        payload:
+          type: object
+          properties:
+            operator_call_id:
+              type: string
+            held_call_id:
+              type: string
+            switchboard_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: switchboard_held_call_answered
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.switchboards.{switchboard_uuid}.calls.held.{held_call_id}.answer.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  switchboard_held_calls_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: switchboard-held-calls-updated-payload
+        payload:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  caller_id_name:
+                    type: string
+                  caller_id_number:
+                    type: string
+            switchboard_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: switchboard_held_calls_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.switchboards.{switchboard_uuid}.calls.held.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  switchboard_queued_call_answered:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: switchboard-queued-call-answered-payload
+        payload:
+          type: object
+          properties:
+            operator_call_id:
+              type: string
+            queued_call_id:
+              type: string
+            switchboard_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: switchboard_queued_call_answered
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.switchboards.{switchboard_uuid}.calls.queued.{queued_call_id}.answer.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  switchboard_queued_calls_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: switchboard-queued-calls-updated-payload
+        payload:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  caller_id_name:
+                    type: string
+                  caller_id_number:
+                    type: string
+            switchboard_uuid:
+              type: string
+              format: uuid
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: switchboard_queued_calls_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.switchboards.{switchboard_uuid}.calls.queued.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  transfer_abandoned:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: transfer-abandoned-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            initiator_uuid:
+              type: string
+              format: uuid
+            initiator_tenant_uuid:
+              type: string
+              format: uuid
+            transferred_call:
+              type: string
+            initiator_call:
+              type: string
+            recipient_call:
+              type: string
+            status:
+              type: string
+            flow:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: transfer_abandoned
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.transfers.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  transfer_answered:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: transfer-answered-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            initiator_uuid:
+              type: string
+              format: uuid
+            initiator_tenant_uuid:
+              type: string
+              format: uuid
+            transferred_call:
+              type: string
+            initiator_call:
+              type: string
+            recipient_call:
+              type: string
+            status:
+              type: string
+            flow:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: transfer_answered
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.transfers.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  transfer_cancelled:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: transfer-cancelled-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            initiator_uuid:
+              type: string
+              format: uuid
+            initiator_tenant_uuid:
+              type: string
+              format: uuid
+            transferred_call:
+              type: string
+            initiator_call:
+              type: string
+            recipient_call:
+              type: string
+            status:
+              type: string
+            flow:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: transfer_cancelled
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.transfers.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  transfer_completed:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: transfer-completed-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            initiator_uuid:
+              type: string
+              format: uuid
+            initiator_tenant_uuid:
+              type: string
+              format: uuid
+            transferred_call:
+              type: string
+            initiator_call:
+              type: string
+            recipient_call:
+              type: string
+            status:
+              type: string
+            flow:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: transfer_completed
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.transfers.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  transfer_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: transfer-created-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            initiator_uuid:
+              type: string
+              format: uuid
+            initiator_tenant_uuid:
+              type: string
+              format: uuid
+            transferred_call:
+              type: string
+            initiator_call:
+              type: string
+            recipient_call:
+              type: string
+            status:
+              type: string
+            flow:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: transfer_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.transfers.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  transfer_ended:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: transfer-ended-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            initiator_uuid:
+              type: string
+              format: uuid
+            initiator_tenant_uuid:
+              type: string
+              format: uuid
+            transferred_call:
+              type: string
+            initiator_call:
+              type: string
+            recipient_call:
+              type: string
+            status:
+              type: string
+            flow:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: transfer_ended
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.transfers.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  transfer_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: transfer-updated-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: string
+            initiator_uuid:
+              type: string
+              format: uuid
+            initiator_tenant_uuid:
+              type: string
+              format: uuid
+            transferred_call:
+              type: string
+            initiator_call:
+              type: string
+            recipient_call:
+              type: string
+            status:
+              type: string
+            flow:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: transfer_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.transfers.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  trunk_status_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: trunk-status-updated-payload
+        payload:
+          type: object
+          properties:
+            trunk_id:
+              type: integer
+            technology:
+              type: string
+            endpoint_name:
+              type: string
+            endpoint_registered:
+              type: boolean
+            endpoint_current_call_count:
+              type: integer
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: trunk_status_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.trunks.{id}.status.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  user_missed_call:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: user-missed-call-payload
+        payload:
+          type: object
+          properties:
+            bridges:
+              type: array
+              items:
+                type: string
+            call_id:
+              type: string
+            caller_id_name:
+              type: string
+            caller_id_number:
+              type: string
+            conversation_id:
+              type: string
+            peer_caller_id_name:
+              type: string
+            peer_caller_id_number:
+              type: string
+            creation_time:
+              type: string
+            status:
+              type: string
+            on_hold:
+              type: boolean
+            muted:
+              type: boolean
+            record_state:
+              type: string
+            talking_to:
+              type: object
+              properties: {}
+            user_uuid:
+              type: string
+              format: uuid
+            is_caller:
+              type: boolean
+            is_video:
+              type: boolean
+            dialed_extension:
+              type: string
+            line_id:
+              type: integer
+            answer_time:
+              type: string
+            hangup_time:
+              type: string
+            direction:
+              type: string
+            parked:
+              type: boolean
+            sip_call_id:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: user_missed_call
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.calls.{user_uuid}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  user_voicemail_message_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: user-voicemail-message-created-payload
+        payload:
+          type: object
+          properties:
+            message_id:
+              type: string
+            voicemail_id:
+              type: integer
+            message:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_num:
+                  type: string
+                duration:
+                  type: integer
+                timestamp:
+                  type: integer
+                folder:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    accesstype:
+                      type: string
+                voicemail:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    accesstype:
+                      type: string
+                      enum:
+                      - global
+                      - personal
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: user_voicemail_message_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.users.{user_uuid}.voicemails
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  user_voicemail_message_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: user-voicemail-message-deleted-payload
+        payload:
+          type: object
+          properties:
+            message_id:
+              type: string
+            voicemail_id:
+              type: integer
+            message:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_num:
+                  type: string
+                duration:
+                  type: integer
+                timestamp:
+                  type: integer
+                folder:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    accesstype:
+                      type: string
+                voicemail:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    accesstype:
+                      type: string
+                      enum:
+                      - global
+                      - personal
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: user_voicemail_message_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.users.{user_uuid}.voicemails
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  user_voicemail_message_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: user-voicemail-message-updated-payload
+        payload:
+          type: object
+          properties:
+            message_id:
+              type: string
+            voicemail_id:
+              type: integer
+            message:
+              type: object
+              properties:
+                id:
+                  type: string
+                caller_id_name:
+                  type: string
+                caller_id_num:
+                  type: string
+                duration:
+                  type: integer
+                timestamp:
+                  type: integer
+                folder:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    accesstype:
+                      type: string
+                voicemail:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    accesstype:
+                      type: string
+                      enum:
+                      - global
+                      - personal
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: user_voicemail_message_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.users.{user_uuid}.voicemails
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  user_voicemail_transcription_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: user-voicemail-transcription-created-payload
+        payload:
+          type: object
+          properties:
+            message_id:
+              type: string
+            tenant_uuid:
+              type: string
+              format: uuid
+            voicemail_id:
+              type: integer
+            transcription_text:
+              type: string
+            provider_id:
+              type: string
+            language:
+              type: string
+            duration:
+              type: number
+              format: float
+            created_at:
+              type: string
+              format: date-time
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: user_voicemail_transcription_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.users.{user_uuid}.voicemails.transcriptions.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  user_voicemail_transcription_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: calld
+      message:
+        name: user-voicemail-transcription-deleted-payload
+        payload:
+          type: object
+          properties:
+            message_id:
+              type: string
+            tenant_uuid:
+              type: string
+              format: uuid
+            voicemail_id:
+              type: integer
+            transcription_text:
+              type: string
+            provider_id:
+              type: string
+            language:
+              type: string
+            duration:
+              type: number
+              format: float
+            created_at:
+              type: string
+              format: date-time
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: user_voicemail_transcription_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.events.users.{user_uuid}.voicemails.transcriptions.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+components:
+  schemas:
+    origin_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of the publishing WAZO service
+    timestamp:
+      type: string
+      format: date-time
+      description: Date and time this event was published
+    tenant_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of this resource's tenant
+    user_uuid:{uuid}:
+      type: boolean
+      description: User's unique identifier that this event is intended for. The format user_uuid:{uuid} allows multiple users to be the recipient
+        of this event

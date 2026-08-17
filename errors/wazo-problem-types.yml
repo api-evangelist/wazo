@@ -1,0 +1,191 @@
+generated: '2026-08-17'
+method: derived
+source: openapi/ 4xx/5xx responses across 13 Swagger 2.0 contracts (932 operations); status-code semantics from https://wazo-platform.org/uc-doc/api_sdk/rest_api/conventions
+format: json-list
+format_note: Wazo does NOT use RFC 9457 application/problem+json — no spec response declares that media type. Errors come
+  back as application/json. The documented convention for wazo-confd is that error messages arrive as a JSON list even when
+  there is a single message; other services return an object with a "message" (and often "error_id", "details", "timestamp",
+  "resource") field.
+envelope:
+  confd: '["message", ...]'
+  others:
+    message: string
+    error_id: string
+    details: object
+    timestamp: number
+    resource: string
+documented_status_codes:
+- 200
+- 201
+- 400
+- 404
+- 406
+- 412
+- 415
+- 500
+documented_status_source: https://wazo-platform.org/uc-doc/api_sdk/rest_api/conventions
+rate_limit_status: null
+rate_limit_note: No operation in any of the 13 contracts declares a 429 response; Wazo documents no rate limiting.
+problem_count: 12
+problems:
+- status: 400
+  title: Bad request
+  occurrences: 451
+  remediation: The request body or query string failed validation. wazo-confd returns the validation messages as a JSON
+    list even when there is only one.
+  examples:
+  - service: auth
+    operation: POST /users/{user_uuid}/external/google
+    spec_description: Invalid body
+  - service: confd
+    operation: create_access_feature
+    spec_description: ''
+  - service: calld
+    operation: POST /users/me/conferences/adhoc
+    spec_description: ''
+  - service: call-logd
+    operation: GET /cdr
+    spec_description: ''
+- status: 401
+  title: Unauthorized
+  occurrences: 66
+  remediation: The X-Auth-Token header is missing, expired, or the token does not carry the ACL required by the operation.
+  examples:
+  - service: auth
+    operation: GET /users/{user_uuid}/external/google
+    spec_description: Unauthorized
+  - service: call-logd
+    operation: list_voicemail_transcriptions
+    spec_description: ''
+  - service: webhookd
+    operation: postMobileNotification
+    spec_description: Unauthorized
+  - service: dird
+    operation: list_conference_contacts_from_source
+    spec_description: Unauthorized
+- status: 403
+  title: Forbidden
+  occurrences: 20
+  remediation: The token is valid but lacks the required ACL for this resource, or the resource belongs to another tenant.
+  examples:
+  - service: auth
+    operation: GET /token/{token}
+    spec_description: This token cannot acces the required ACL
+  - service: confd
+    operation: pass_wizard
+    spec_description: ''
+  - service: calld
+    operation: PUT /calls/{call_id}/record/start
+    spec_description: On demand call recording is not enabled
+  - service: webhookd
+    operation: postMobileNotification
+    spec_description: Invalid or insufficient autorization
+- status: 404
+  title: Not found
+  occurrences: 584
+  remediation: No resource matches the identifier in the path, or it is outside the token tenant scope.
+  examples:
+  - service: auth
+    operation: GET /users/{user_uuid}/external/google
+    spec_description: Not found
+  - service: confd
+    operation: get_access_feature
+    spec_description: ''
+  - service: calld
+    operation: DELETE /users/me/conferences/adhoc/{conference_id}
+    spec_description: ''
+  - service: call-logd
+    operation: DELETE /cdr/recordings/media
+    spec_description: ''
+- status: 405
+  title: Method not allowed
+  occurrences: 4
+  remediation: The resource does not implement this HTTP method.
+  examples:
+  - service: auth
+    operation: reset_password
+    spec_description: Unable to reset the password, e.g. because the authentication is handled externally.
+  - service: confd
+    operation: update_users_csv
+    spec_description: This method is not supported for this resource
+- status: 409
+  title: Conflict
+  occurrences: 61
+  remediation: The resource already exists, or the change violates a uniqueness/association constraint in the PBX object
+    graph.
+  examples:
+  - service: auth
+    operation: POST /external/{auth_type}/config
+    spec_description: Duplicate config
+  - service: calld
+    operation: POST /users/me/conferences/adhoc
+    spec_description: ''
+  - service: dird
+    operation: create_conference_source
+    spec_description: Duplicate Source
+  - service: agentd
+    operation: login_agent_by_id
+    spec_description: Agent is already logged or another agent is already logged on this extension and context
+- status: 415
+  title: Unsupported media type
+  occurrences: 16
+  remediation: Content-Type must be application/json for request bodies.
+  examples:
+  - service: provd
+    operation: PUT /configure/{param_id}
+    spec_description: ''
+- status: 416
+  title: Requested range not satisfiable
+  occurrences: 2
+  remediation: The requested byte/page range is outside the available data.
+  examples:
+  - service: call-logd
+    operation: GET /cdr/{cdr_id}/recordings/{recording_uuid}/media
+    spec_description: The requested Range is not satisfiable by the server (invalid value)
+- status: 500
+  title: Internal server error
+  occurrences: 36
+  remediation: Unhandled server error.
+  examples:
+  - service: auth
+    operation: GET /groups/{group_uuid}/policies
+    spec_description: System related error
+  - service: provd
+    operation: PUT /dev_mgr/devices/{device_id}
+    spec_description: ''
+  - service: setupd
+    operation: create
+    spec_description: ''
+- status: 501
+  title: Not implemented
+  occurrences: 1
+  remediation: The operation exists in the contract but is not implemented by this deployment/plugin.
+  examples:
+  - service: chatd
+    operation: list_connector_identities
+    spec_description: Connector does not support listing identities
+- status: 502
+  title: Bad gateway
+  occurrences: 1
+  remediation: An upstream component (Asterisk, a directory backend) returned an invalid response.
+  examples:
+  - service: chatd
+    operation: list_connector_identities
+    spec_description: Connector failed to list identities
+- status: 503
+  title: Service unavailable
+  occurrences: 195
+  remediation: A dependency is unreachable — most commonly Asterisk/ARI for wazo-calld, or a directory backend for wazo-dird.
+  examples:
+  - service: auth
+    operation: HEAD /status
+    spec_description: wazo-auth is missing a requirement
+  - service: calld
+    operation: POST /users/me/conferences/adhoc
+    spec_description: ''
+  - service: webhookd
+    operation: list_subscriptions
+    spec_description: ''
+  - service: dird
+    operation: list_conference_contacts_from_source
+    spec_description: Another service is unavailable (e.g. wazo-auth, wazo-confd, ...)

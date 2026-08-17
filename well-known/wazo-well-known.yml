@@ -1,0 +1,122 @@
+generated: '2026-08-17'
+method: probed
+source: live GET of each path on every Wazo host in apis.yml
+hosts:
+- https://wazo.io
+- https://api.wazo.io
+- https://wazo-platform.org
+- https://developers.wazo.io
+hits: 0
+documents:
+- host: https://wazo.io
+  path: /.well-known/security.txt
+  status: 200
+  hit: false
+  note: 200 but the body is the React SPA shell (2,481 bytes of index.html, identical for every path) — not a document.
+    Counted as a miss.
+- host: https://wazo.io
+  path: /.well-known/openid-configuration
+  status: 200
+  hit: false
+  note: 200 but the body is the React SPA shell (2,481 bytes of index.html, identical for every path) — not a document.
+    Counted as a miss.
+- host: https://wazo.io
+  path: /.well-known/oauth-authorization-server
+  status: 200
+  hit: false
+  note: 200 but the body is the React SPA shell (2,481 bytes of index.html, identical for every path) — not a document.
+    Counted as a miss.
+- host: https://wazo.io
+  path: /.well-known/oauth-protected-resource
+  status: 200
+  hit: false
+  note: 200 but the body is the React SPA shell (2,481 bytes of index.html, identical for every path) — not a document.
+    Counted as a miss.
+- host: https://wazo.io
+  path: /.well-known/api-catalog
+  status: 200
+  hit: false
+  note: 200 but the body is the React SPA shell (2,481 bytes of index.html, identical for every path) — not a document.
+    Counted as a miss.
+- host: https://wazo.io
+  path: /.well-known/ai-plugin.json
+  status: 200
+  hit: false
+  note: 200 but the body is the React SPA shell (2,481 bytes of index.html, identical for every path) — not a document.
+    Counted as a miss.
+- host: https://api.wazo.io
+  path: /.well-known/security.txt
+  status: 404
+  hit: false
+- host: https://api.wazo.io
+  path: /.well-known/openid-configuration
+  status: 404
+  hit: false
+- host: https://api.wazo.io
+  path: /.well-known/oauth-authorization-server
+  status: 404
+  hit: false
+- host: https://api.wazo.io
+  path: /.well-known/oauth-protected-resource
+  status: 404
+  hit: false
+- host: https://api.wazo.io
+  path: /.well-known/api-catalog
+  status: 404
+  hit: false
+- host: https://api.wazo.io
+  path: /.well-known/ai-plugin.json
+  status: 404
+  hit: false
+- host: https://wazo-platform.org
+  path: /.well-known/security.txt
+  status: 404
+  hit: false
+- host: https://wazo-platform.org
+  path: /.well-known/openid-configuration
+  status: 404
+  hit: false
+- host: https://wazo-platform.org
+  path: /.well-known/oauth-authorization-server
+  status: 404
+  hit: false
+- host: https://wazo-platform.org
+  path: /.well-known/oauth-protected-resource
+  status: 404
+  hit: false
+- host: https://wazo-platform.org
+  path: /.well-known/api-catalog
+  status: 404
+  hit: false
+- host: https://wazo-platform.org
+  path: /.well-known/ai-plugin.json
+  status: 404
+  hit: false
+- host: https://developers.wazo.io
+  path: /.well-known/security.txt
+  status: 404
+  hit: false
+- host: https://developers.wazo.io
+  path: /.well-known/openid-configuration
+  status: 404
+  hit: false
+- host: https://developers.wazo.io
+  path: /.well-known/oauth-authorization-server
+  status: 404
+  hit: false
+- host: https://developers.wazo.io
+  path: /.well-known/oauth-protected-resource
+  status: 404
+  hit: false
+- host: https://developers.wazo.io
+  path: /.well-known/api-catalog
+  status: 404
+  hit: false
+- host: https://developers.wazo.io
+  path: /.well-known/ai-plugin.json
+  status: 404
+  hit: false
+note: No /.well-known/ document is served on any Wazo host. wazo.io answers HTTP 200 to every path because it is a single-page
+  React app with a catch-all route; the payload is the same 2,481-byte index.html every time, so those 200s are recorded
+  as misses. api.wazo.io and wazo-platform.org return real nginx 404s. No WellKnown or SecurityTxt pointer is emitted from
+  this file — it documents an absence, not a presence.

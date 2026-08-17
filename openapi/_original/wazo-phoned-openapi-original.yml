@@ -1,0 +1,1233 @@
+swagger: '2.0'
+info:
+  title: wazo-phoned
+  description: Wazo Phone Daemon
+  version: '1.0'
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+schemes:
+- https
+basePath: /0.1
+consumes:
+- application/json
+produces:
+- application/json
+x-xivo-port:
+- 9499
+x-xivo-name: phoned
+securityDefinitions:
+  wazo_auth_token:
+    type: apiKey
+    name: X-Auth-Token
+    in: header
+security:
+- wazo_auth_token: []
+responses:
+  AnotherServiceUnavailable:
+    description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+    schema:
+      $ref: '#/definitions/Error'
+  NotFoundError:
+    description: The resource requested was not found on the server
+    schema:
+      $ref: '#/definitions/APIError'
+  InvalidRequest:
+    description: Invalid request
+    schema:
+      $ref: '#/definitions/APIError'
+  LimitOffsetInvalid:
+    description: The limit or offset should be positive
+    schema:
+      $ref: '#/definitions/Error'
+  ProfileInvalid:
+    description: The profile does not exist
+    schema:
+      $ref: '#/definitions/Error'
+  InvalidDataError:
+    description: Data provided is invalid or a field is missing
+    schema:
+      $ref: '#/definitions/Error'
+  NoSuchUser:
+    description: The user does not exist
+    schema:
+      $ref: '#/definitions/Error'
+  NoSuchEndpoint:
+    description: The endpoint does not exist
+    schema:
+      $ref: '#/definitions/Error'
+  NowhereToRouteEndpoint:
+    description: Nowhere to route the requested endpoint
+    schema:
+      $ref: '#/definitions/Error'
+parameters:
+  AcceptLanguage:
+    name: Accept-Language
+    in: header
+    type: string
+    required: false
+    description: The language to translate the query results in
+  Destination:
+    name: destination
+    in: query
+    type: string
+    description: The extension of the user service destination
+    required: false
+  Limit:
+    name: limit
+    in: query
+    type: integer
+    description: The limit defines the number of individual objects that are returned
+    required: false
+  Limit8:
+    name: limit
+    in: query
+    type: integer
+    description: The limit defines the number of individual objects that are returned
+    default: 8
+    required: false
+  Limit16:
+    name: limit
+    in: query
+    type: integer
+    description: The limit defines the number of individual objects that are returned
+    default: 16
+    required: false
+  Offset:
+    name: offset
+    in: query
+    type: integer
+    description: The offset defines the offsets the start by the number specified
+    default: 0
+    required: false
+  Profile:
+    name: profile
+    in: path
+    type: string
+    description: The profile defines the list of directories to query and how the results are displayed. The profile is the
+      context name of the user who started the contact lookup, e.g. `default`.
+    required: true
+  Term:
+    name: term
+    in: query
+    type: string
+    description: A search term to look for
+    required: true
+  XivoUserUUID:
+    name: xivo_user_uuid
+    in: query
+    type: string
+    description: The user UUID of the user doing that query
+    required: true
+  UserUUID:
+    name: user_uuid
+    in: path
+    type: string
+    description: The user UUID of the user doing that query
+    required: true
+  EndpointName:
+    name: endpoint_name
+    in: path
+    type: string
+    description: The endpoint name
+    required: true
+  ConfigPatch:
+    name: ConfigPatch
+    in: body
+    required: true
+    description: See https://en.wikipedia.org/wiki/JSON_Patch.
+    schema:
+      type: array
+      items:
+        $ref: '#/definitions/ConfigPatchItem'
+  set_first:
+    name: set_first
+    in: query
+    type: string
+    description: A search term to look for
+  count:
+    name: count
+    in: query
+    type: integer
+    description: The limit defines the number of individual objects that are returned
+  first:
+    name: first
+    in: query
+    type: integer
+    description: The offset defines the offsets the start by the number specified
+definitions:
+  APIError:
+    type: object
+    allOf:
+    - $ref: '#/definitions/Error'
+    - properties:
+        resource:
+          description: Resource name of the error
+          type: string
+  Error:
+    type: object
+    title: Error
+    description: Error message for the client
+    properties:
+      message:
+        description: Human readable explanation of the error
+        type: string
+      error_id:
+        description: Identifier of the type of error. It is more precise than the HTTP status code.
+        type: string
+      details:
+        description: Additional information about the error. The keys are specific to each error.
+        type: object
+      timestamp:
+        description: Time when the error occured
+        type: number
+        format: timestamp
+  AastraIPPhoneInputScreen:
+    properties:
+      Title:
+        type: string
+      Prompt:
+        type: string
+      URL:
+        type: string
+      Parameter:
+        type: string
+  AastraIPPhoneTextMenu:
+    properties:
+      style:
+        type: string
+        xml:
+          attribute: true
+      destroyOnExit:
+        type: string
+        xml:
+          attribute: true
+      MenuItem:
+        type: array
+        items:
+          $ref: '#/definitions/AastraMenuItem'
+  AastraMenuItem:
+    properties:
+      Prompt:
+        type: string
+      URI:
+        type: string
+  CiscoIPPhoneDirectory:
+    properties:
+      DirectoryEntry:
+        type: array
+        items:
+          $ref: '#/definitions/CiscoDirectoryEntry'
+      SoftKeyItem:
+        type: array
+        items:
+          $ref: '#/definitions/CiscoSoftKeyItem'
+  CiscoDirectoryEntry:
+    properties:
+      Name:
+        type: string
+      Telephone:
+        type: string
+  CiscoSoftKeyItem:
+    properties:
+      Name:
+        type: string
+      URL:
+        type: string
+      position:
+        type: integer
+  CiscoIPPhoneMenu:
+    properties:
+      MenuItem:
+        $ref: '#/definitions/CiscoMenuItem'
+  CiscoMenuItem:
+    properties:
+      Name:
+        type: string
+      URL:
+        type: string
+  CiscoIPPhoneInput:
+    properties:
+      Title:
+        type: string
+      Prompt:
+        type: string
+      URL:
+        type: string
+      InputItem:
+        $ref: '#/definitions/CiscoInputItem'
+  CiscoInputItem:
+    properties:
+      DisplayName:
+        type: string
+      QueryStringParam:
+        type: string
+      DefaultValue:
+        type: string
+      InputFlags:
+        type: string
+  ConfigPatchItem:
+    properties:
+      op:
+        type: string
+        description: 'Patch operation. Supported operations: `replace`.'
+      path:
+        type: string
+        description: 'JSON path to operate on. Supported paths: `/debug`.'
+      value:
+        type: object
+        description: The new value for the operation. Type of value is dependent of `path`
+  PhoneBook:
+    properties:
+      DirectoryEntry:
+        type: array
+        items:
+          $ref: '#/definitions/FanvilDirectoryEntryV2'
+  FanvilDirectoryEntryV2:
+    properties:
+      Name:
+        type: string
+      Telephone:
+        type: string
+      Mobile:
+        type: string
+      Other:
+        type: string
+      Ring:
+        type: string
+      Group:
+        type: string
+  FanvilIPPhoneDirectory:
+    properties:
+      DirectoryEntry:
+        type: array
+        items:
+          $ref: '#/definitions/FanvilDirectoryEntry'
+      SoftKeyItem:
+        type: array
+        items:
+          $ref: '#/definitions/FanvilSoftKeyItem'
+  FanvilDirectoryEntry:
+    properties:
+      Name:
+        type: string
+      Telephone:
+        type: string
+  FanvilSoftKeyItem:
+    properties:
+      Name:
+        type: string
+      URL:
+        type: string
+      position:
+        type: integer
+  FanvilIPPhoneInput:
+    properties:
+      Title:
+        type: string
+      Prompt:
+        type: string
+      URL:
+        type: string
+      InputItem:
+        $ref: '#/definitions/FanvilInputItem'
+  FanvilInputItem:
+    properties:
+      DisplayName:
+        type: string
+      QueryStringParam:
+        type: string
+      DefaultValue:
+        type: string
+      InputFlags:
+        type: string
+  list:
+    properties:
+      response:
+        type: string
+        xml:
+          attribute: true
+        example:
+        - get_list
+      type:
+        type: string
+        xml:
+          attribute: true
+        example:
+        - pr
+      total:
+        type: integer
+        xml:
+          attribute: true
+        example:
+        - 1
+      first:
+        type: integer
+        xml:
+          attribute: true
+        example:
+        - 1
+      last:
+        type: integer
+        xml:
+          attribute: true
+        example:
+        - 1
+      entry:
+        type: array
+        items:
+          $ref: '#/definitions/entry'
+  entry:
+    properties:
+      id:
+        type: integer
+        xml:
+          attribute: true
+        example:
+        - 1001
+      fn:
+        type: string
+      hm:
+        type: string
+  PhoneDirectory:
+    properties:
+      DirectoryEntry:
+        type: array
+        items:
+          $ref: '#/definitions/DirectoryEntry'
+  DirectoryEntry:
+    properties:
+      Name:
+        type: string
+      Telephone:
+        type: string
+  PolycomIPPhoneDirectory:
+    type: string
+  PolycomIPPhoneInput:
+    type: string
+  SnomIPPhoneInput:
+    properties:
+      Title:
+        type: string
+      Prompt:
+        type: string
+      URL:
+        type: string
+      InputItem:
+        $ref: '#/definitions/SnomInputItem'
+  SnomInputItem:
+    properties:
+      DisplayName:
+        type: string
+      QueryStringParam:
+        type: string
+      DefaultValue:
+        type: string
+      InputFlags:
+        type: string
+  SnomIPPhoneMenu:
+    properties:
+      MenuItem:
+        type: array
+        items:
+          $ref: '#/definitions/SnomMenuItem'
+      SoftKeyItem:
+        type: array
+        items:
+          $ref: '#/definitions/SnomSoftKeyItem'
+  SnomMenuItem:
+    properties:
+      name:
+        type: string
+        xml:
+          attribute: true
+      Url:
+        type: string
+  SnomSoftKeyItem:
+    properties:
+      Label:
+        type: string
+      URL:
+        type: string
+      Name:
+        type: integer
+  StatusSummary:
+    type: object
+    properties:
+      service_token:
+        type: string
+        enum:
+        - ok
+        - fail
+      bus_consumer:
+        type: string
+        enum:
+        - ok
+        - fail
+  ThomsonPhoneBook:
+    properties:
+      DirectoryEntry:
+        type: array
+        items:
+          $ref: '#/definitions/ThomsonDirectoryEntry'
+  ThomsonDirectoryEntry:
+    properties:
+      Name:
+        type: string
+      Telephone:
+        type: string
+  YealinkIPPhoneDirectory:
+    properties:
+      DirectoryEntry:
+        type: array
+        items:
+          $ref: '#/definitions/YealinkDirectoryEntry'
+  YealinkDirectoryEntry:
+    properties:
+      Name:
+        type: string
+      Telephone:
+        type: string
+paths:
+  /directories/input/{profile}/aastra:
+    get:
+      summary: Given informations about how make request lookup for Aastra Phones
+      description: 'The `input` query will return a XML to give informations about how make request
+
+        lookup for Aastra Phones.
+
+        '
+      operationId: aastra_input
+      tags:
+      - aastra
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: XML to make request lookup
+          schema:
+            $ref: '#/definitions/AastraIPPhoneInputScreen'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+  /directories/lookup/{profile}/aastra:
+    get:
+      summary: Search for contacts with Aastra Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formatted for Aastra phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: aastra_lookup
+      tags:
+      - aastra
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: A list of contacts
+          schema:
+            $ref: '#/definitions/AastraIPPhoneTextMenu'
+        '400':
+          $ref: '#/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/responses/ProfileInvalid'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/Term'
+      - $ref: '#/parameters/Limit16'
+      - $ref: '#/parameters/Offset'
+  /directories/menu/{profile}/cisco:
+    get:
+      summary: Extends the directories menu for Cisco Unified IP Phones
+      description: 'The `menu` query will return a XML to extend the directories menu for Cisco
+
+        Unified IP Phones.
+
+        '
+      operationId: cisco_menu
+      tags:
+      - cisco
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: XML to extend the directories menu
+          schema:
+            $ref: '#/definitions/CiscoIPPhoneMenu'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/AcceptLanguage'
+  /directories/input/{profile}/cisco:
+    get:
+      summary: Given informations about how make request lookup for Cisco Unified IP Phones
+      description: 'The `input` query will return a XML to give informations about how make request
+
+        lookup for Cisco Unified IP Phones.
+
+        '
+      operationId: cisco_input
+      tags:
+      - cisco
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: XML to make request lookup
+          schema:
+            $ref: '#/definitions/CiscoIPPhoneInput'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/AcceptLanguage'
+  /directories/lookup/{profile}/cisco:
+    get:
+      summary: Search for contacts with Cisco Unified IP Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Cisco Unified IP Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: cisco_lookup
+      tags:
+      - cisco
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: A list of contacts
+          schema:
+            $ref: '#/definitions/CiscoIPPhoneDirectory'
+        '400':
+          $ref: '#/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/responses/ProfileInvalid'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/Term'
+      - $ref: '#/parameters/Limit16'
+      - $ref: '#/parameters/Offset'
+      - $ref: '#/parameters/AcceptLanguage'
+  /config:
+    get:
+      produces:
+      - application/json
+      summary: Show the current configuration
+      description: '**Required ACL:** `phoned.config.read`'
+      operationId: getConfig
+      tags:
+      - config
+      responses:
+        '200':
+          description: The configuration of the service
+    patch:
+      produces:
+      - application/json
+      summary: Update the current configuration.
+      description: '**Required ACL:** `phoned.config.update`
+
+        Changes are not persistent across service restart.
+
+        '
+      operationId: patchConfig
+      tags:
+      - config
+      parameters:
+      - $ref: '#/parameters/ConfigPatch'
+      responses:
+        '200':
+          description: The updated configuration of the service
+        '400':
+          description: The given configuration is invalid
+  /endpoints/{endpoint_name}/hold/start:
+    put:
+      summary: Start hold for a particular endpoint.
+      description: '**Required ACL:** `phoned.endpoints.{endpoint_name}.hold.start`
+
+        The endpoint plugin will search for a matching plugin and use its
+
+        service to send the correct SIP INFO to the endpoint.
+
+        '
+      operationId: endpoint_hold_start
+      tags:
+      - endpoint
+      - hold
+      produces:
+      - text/json
+      responses:
+        '204':
+          description: Hold was started
+        '400':
+          $ref: '#/responses/NowhereToRouteEndpoint'
+        '404':
+          $ref: '#/responses/NoSuchEndpoint'
+      parameters:
+      - $ref: '#/parameters/EndpointName'
+  /endpoints/{endpoint_name}/hold/stop:
+    put:
+      summary: Stop hold for a particular endpoint.
+      description: '**Required ACL:** `phoned.endpoints.{endpoint_name}.hold.stop`
+
+        The endpoint plugin will search for a matching plugin and use its
+
+        service to send the correct SIP INFO to the endpoint.
+
+        '
+      operationId: endpoint_hold_stop
+      tags:
+      - endpoint
+      - hold
+      produces:
+      - text/json
+      responses:
+        '204':
+          description: Hold was stopped
+        '400':
+          $ref: '#/responses/NowhereToRouteEndpoint'
+        '404':
+          $ref: '#/responses/NoSuchEndpoint'
+      parameters:
+      - $ref: '#/parameters/EndpointName'
+  /endpoints/{endpoint_name}/answer:
+    put:
+      summary: Answer call on a particular endpoint.
+      description: '**Required ACL:** `phoned.endpoints.{endpoint_name}.answer`
+
+        The endpoint plugin will search for a matching plugin and use its
+
+        service to send the correct SIP INFO to the endpoint.
+
+        '
+      operationId: endpoint_answer
+      tags:
+      - endpoint
+      - answer
+      produces:
+      - text/json
+      responses:
+        '204':
+          description: Answered command was sent
+        '400':
+          $ref: '#/responses/NowhereToRouteEndpoint'
+        '404':
+          $ref: '#/responses/NoSuchEndpoint'
+      parameters:
+      - $ref: '#/parameters/EndpointName'
+  /directories/input/{profile}/fanvil:
+    get:
+      summary: Given informations about how make request lookup for Fanvil Unified IP Phones
+      description: 'The `input` query will return a XML to give informations about how make request
+
+        lookup for Fanvil Unified IP Phones.
+
+        '
+      operationId: fanvil_input
+      tags:
+      - fanvil
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: XML to make request lookup
+          schema:
+            $ref: '#/definitions/FanvilIPPhoneInput'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/AcceptLanguage'
+  /directories/lookup/{profile}/fanvil:
+    get:
+      summary: Search for contacts with Fanvil Unified IP Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Fanvil Unified IP Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: fanvil_lookup
+      tags:
+      - fanvil
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: A list of contacts
+          schema:
+            $ref: '#/definitions/FanvilIPPhoneDirectory'
+        '400':
+          $ref: '#/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/responses/ProfileInvalid'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/Term'
+      - $ref: '#/parameters/Limit16'
+      - $ref: '#/parameters/Offset'
+      - $ref: '#/parameters/AcceptLanguage'
+  /directories/lookup/{profile}/fanvil-v2:
+    get:
+      summary: Search for contacts with Fanvil Unified IP Phones for V2
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Fanvil Unified IP Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: fanvil_lookup_v2
+      tags:
+      - fanvil
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: A list of contacts
+          schema:
+            $ref: '#/definitions/PhoneBook'
+        '400':
+          $ref: '#/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/responses/ProfileInvalid'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/Term'
+      - $ref: '#/parameters/Offset'
+      - $ref: '#/parameters/AcceptLanguage'
+  /fanvil/users/{user_uuid}/services/dnd/enable:
+    get:
+      summary: Enable the DND service for a particular user.
+      description: 'This `dnd` service endpoint will enable the user DND service through
+
+        `wazo-confd`.
+
+        '
+      operationId: fanvil_user_service_dnd_enable
+      tags:
+      - fanvil
+      - services
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: The status was changed
+        '400':
+          description: Provided data is incorrect or a required field is missing
+          schema:
+            $ref: '#/responses/InvalidDataError'
+        '404':
+          $ref: '#/responses/NoSuchUser'
+      parameters:
+      - $ref: '#/parameters/UserUUID'
+  /fanvil/users/{user_uuid}/services/dnd/disable:
+    get:
+      summary: Disable the DND service for a particular user.
+      description: 'This `dnd` service endpoint will disable the user DND service through
+
+        `wazo-confd`.
+
+        '
+      operationId: fanvil_user_service_dnd_disable
+      tags:
+      - fanvil
+      - services
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: The status was changed
+        '400':
+          description: Provided data is incorrect or a required field is missing
+          schema:
+            $ref: '#/responses/InvalidDataError'
+        '404':
+          $ref: '#/responses/NoSuchUser'
+      parameters:
+      - $ref: '#/parameters/UserUUID'
+  /directories/lookup/{profile}/gigaset/{user_uuid}:
+    get:
+      summary: Search for contacts with Gigaset Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Gigaset Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: gigaset_lookup
+      tags:
+      - gigaset
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: A list of contacts
+          schema:
+            $ref: '#/definitions/list'
+        '400':
+          $ref: '#/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/responses/ProfileInvalid'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/UserUUID'
+      - $ref: '#/parameters/set_first'
+      - $ref: '#/parameters/count'
+      - $ref: '#/parameters/first'
+      - $ref: '#/parameters/AcceptLanguage'
+  /directories/lookup/{profile}/htek:
+    get:
+      summary: Search for contacts with Htek Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Htek Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: htek_lookup
+      tags:
+      - htek
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: A list of contacts
+          schema:
+            $ref: '#/definitions/PhoneDirectory'
+        '400':
+          $ref: '#/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/responses/ProfileInvalid'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/Term'
+      - $ref: '#/parameters/Limit'
+      - $ref: '#/parameters/Offset'
+      - $ref: '#/parameters/AcceptLanguage'
+  /directories/input/{profile}/polycom:
+    get:
+      summary: Given informations about how make request lookup for Polycom Phones
+      description: 'The `input` query will return a XML to give informations about how make request
+
+        lookup for Polycom Phones.
+
+        '
+      operationId: polycom_input
+      tags:
+      - polycom
+      - directories
+      produces:
+      - text/html
+      responses:
+        '200':
+          description: HTML to make request lookup
+          schema:
+            $ref: '#/definitions/PolycomIPPhoneInput'
+          examples:
+            text/html: <html> <head> <title>Wazo Search</title> </head> <body> <form action='https://base-url' method='get'
+              accept-charset='utf-8'> <span class='fm-desc clearboth'> <label id='lb-name' for='it-name'>Name or number:</label>
+              </span> <input type='text' name='term' id='it-term' size='15' value='' /> <input type='hidden' name='xivo_user_uuid'
+              value='000000-0000' /> <input type='submit' name='submit' id='it-submit' class='itb-submit' value='Search' />
+              </form> </body> </html>
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/AcceptLanguage'
+  /directories/lookup/{profile}/polycom:
+    get:
+      summary: Search for contacts with Polycom Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Polycom Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: polycom_lookup
+      tags:
+      - polycom
+      - directories
+      produces:
+      - text/html
+      responses:
+        '200':
+          description: A list of contacts
+          schema:
+            $ref: '#/definitions/PolycomIPPhoneDirectory'
+          examples:
+            text/html: <html> <head> <title>Wazo Search</title> </head> <body> <ol> <li>[<a href='https://wazo-dird:9489/0.1/directories/lookup/default_phone/polycom?xivo_user_uuid=000000-0000-0000-0000-000000000000&amp;term=Alice&amp;limit=1&amp;offset=1'
+              title='Previous'>Previous</a>]<br /></li> <li><a href='tel://5555555555'>Alice</a><br /></li>  <li>[<a href='https://wazo-dird:9489/0.1/directories/lookup/default_phone/cisco?xivo_user_uuid=000000-0000-0000-0000-000000000000&amp;term=Alice&amp;limit=1&amp;offset=2'
+              title='Next'>Next</a>]<br /></li> </ol> </body> </html>
+        '400':
+          $ref: '#/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/responses/ProfileInvalid'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/Term'
+      - $ref: '#/parameters/Limit16'
+      - $ref: '#/parameters/Offset'
+      - $ref: '#/parameters/AcceptLanguage'
+  /directories/input/{profile}/snom:
+    get:
+      summary: Given informations about how make request lookup for Snom Phones
+      description: 'The `input` query will return a XML to give informations about how make request
+
+        lookup for Snom Phones.
+
+        '
+      operationId: snom_input
+      tags:
+      - snom
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: XML to make request lookup
+          schema:
+            $ref: '#/definitions/SnomIPPhoneInput'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/AcceptLanguage'
+  /directories/lookup/{profile}/snom:
+    get:
+      summary: Search for contacts with Snom Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Snom Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: snom_lookup
+      tags:
+      - snom
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: A list of contacts
+          schema:
+            $ref: '#/definitions/SnomIPPhoneMenu'
+        '400':
+          $ref: '#/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/responses/ProfileInvalid'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/Term'
+      - $ref: '#/parameters/Limit16'
+      - $ref: '#/parameters/Offset'
+      - $ref: '#/parameters/AcceptLanguage'
+  /status:
+    get:
+      summary: Print infos about internal status of wazo-phoned
+      description: ''
+      tags:
+      - status
+      responses:
+        '200':
+          description: The internal infos of wazo-phoned
+          schema:
+            $ref: '#/definitions/StatusSummary'
+  /directories/lookup/{profile}/thomson:
+    get:
+      summary: Search for contacts with Thomson Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Thomson Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: thomson_lookup
+      tags:
+      - thomson
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: A list of contacts
+          schema:
+            $ref: '#/definitions/ThomsonPhoneBook'
+        '400':
+          $ref: '#/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/responses/ProfileInvalid'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/Term'
+      - $ref: '#/parameters/Limit8'
+      - $ref: '#/parameters/Offset'
+      - $ref: '#/parameters/AcceptLanguage'
+  /directories/lookup/{profile}/yealink:
+    get:
+      summary: Search for contacts with Yealink Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Yealink Phones. The result will be retrieved from a lookup query
+
+        to wazo-dird.
+
+        '
+      operationId: lookup_yealink
+      deprecated: true
+      tags:
+      - yealink
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: A list of contacts
+          schema:
+            $ref: '#/definitions/YealinkIPPhoneDirectory'
+        '400':
+          $ref: '#/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/responses/ProfileInvalid'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/Term'
+      - $ref: '#/parameters/Limit'
+      - $ref: '#/parameters/Offset'
+      - $ref: '#/parameters/AcceptLanguage'
+  /yealink/directories/lookup/{profile}:
+    get:
+      summary: Search for contacts with Yealink Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Yealink Phones. The result will be retrieved from a lookup query
+
+        to wazo-dird.
+
+        '
+      operationId: yealink_lookup
+      tags:
+      - yealink
+      - directories
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: A list of contacts
+          schema:
+            $ref: '#/definitions/YealinkIPPhoneDirectory'
+        '400':
+          $ref: '#/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/responses/ProfileInvalid'
+        '503':
+          $ref: '#/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/parameters/Profile'
+      - $ref: '#/parameters/XivoUserUUID'
+      - $ref: '#/parameters/Term'
+      - $ref: '#/parameters/Limit'
+      - $ref: '#/parameters/Offset'
+      - $ref: '#/parameters/AcceptLanguage'
+  /yealink/users/{user_uuid}/services/dnd/enable:
+    get:
+      summary: Enable the DND service for a particular user.
+      description: 'This `dnd` service endpoint will enable the user DND service through
+
+        `wazo-confd`.
+
+        '
+      operationId: yealink_user_service_dnd_enable
+      tags:
+      - yealink
+      - services
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: The status was changed
+        '400':
+          description: Provided data is incorrect or a required field is missing
+          schema:
+            $ref: '#/responses/InvalidDataError'
+        '404':
+          $ref: '#/responses/NoSuchUser'
+      parameters:
+      - $ref: '#/parameters/UserUUID'
+  /yealink/users/{user_uuid}/services/dnd/disable:
+    get:
+      summary: Disable the DND service for a particular user.
+      description: 'This `dnd` service endpoint will disable the user DND service through
+
+        `wazo-confd`.
+
+        '
+      operationId: yealink_user_service_dnd_disable
+      tags:
+      - yealink
+      - services
+      produces:
+      - text/xml
+      responses:
+        '200':
+          description: The status was changed
+        '400':
+          description: Provided data is incorrect or a required field is missing
+          schema:
+            $ref: '#/responses/InvalidDataError'
+        '404':
+          $ref: '#/responses/NoSuchUser'
+      parameters:
+      - $ref: '#/parameters/UserUUID'

@@ -1,0 +1,570 @@
+asyncapi: 2.0.0
+info:
+  title: wazo-call_logd events
+  version: '26.08'
+servers:
+  production:
+    url: amqp://{username}:{password}@/localhost:{port}//
+    description: Local RabbitMQ messaging server for inter-service communication
+    protocol: amqp
+    protocolVersion: 0.9.1
+    variables:
+      username:
+        default: guest
+        description: Configurable through each service's config.yml file
+      password:
+        default: guest
+        description: Configurable through each service's config.yml file
+      port:
+        default: '5672'
+        description: Configurable through each service's config.yml file
+defaultContentType: application/json
+channels:
+  call_log_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: call_logd
+      message:
+        name: call-log-created-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: integer
+            tenant_uuid:
+              type: string
+              format: uuid
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+            answered:
+              type: boolean
+            duration:
+              type: number
+              format: float
+            call_drection:
+              type: string
+            conversation_id:
+              type: string
+            destination_details:
+              type: object
+              properties:
+                conference:
+                  type: object
+                  properties:
+                    conference_id:
+                      type: integer
+                meeting:
+                  type: object
+                  properties:
+                    meeting_uuid:
+                      type: string
+                      format: uuid
+                    meeting_name:
+                      type: string
+                user:
+                  type: object
+                  properties:
+                    user_uuid:
+                      type: string
+                      format: uuid
+                    user_name:
+                      type: string
+                unknown:
+                  type: object
+                  properties: {}
+            destination_extension:
+              type: string
+            destination_internal_context:
+              type: string
+            destination_internal_extension:
+              type: string
+            destination_line_id:
+              type: integer
+            destination_name:
+              type: string
+            destination_user_uuid:
+              type: string
+              format: uuid
+            requested_name:
+              type: string
+            requested_context:
+              type: string
+            requested_extension:
+              type: string
+            requested_internal_context:
+              type: string
+            requested_internal_extension:
+              type: string
+            source_extension:
+              type: string
+            source_internal_context:
+              type: string
+            source_internal_name:
+              type: string
+            source_internal_extension:
+              type: string
+            source_line_id:
+              type: integer
+            source_name:
+              type: string
+            source_user_uuid:
+              type: string
+              format: uuid
+            tags:
+              type: array
+              items:
+                type: string
+            recordings:
+              type: array
+              items:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    format: uuid
+                  start_time:
+                    type: string
+                  end_time:
+                    type: string
+                  deleted:
+                    type: boolean
+                  filename:
+                    type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_log_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.call_log.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  call_log_user_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: call_logd
+      message:
+        name: call-log-user-created-payload
+        payload:
+          type: object
+          properties:
+            id:
+              type: integer
+            tenant_uuid:
+              type: string
+              format: uuid
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+            answered:
+              type: boolean
+            duration:
+              type: number
+              format: float
+            call_drection:
+              type: string
+            conversation_id:
+              type: string
+            destination_details:
+              type: object
+              properties:
+                conference:
+                  type: object
+                  properties:
+                    conference_id:
+                      type: integer
+                meeting:
+                  type: object
+                  properties:
+                    meeting_uuid:
+                      type: string
+                      format: uuid
+                    meeting_name:
+                      type: string
+                user:
+                  type: object
+                  properties:
+                    user_uuid:
+                      type: string
+                      format: uuid
+                    user_name:
+                      type: string
+                unknown:
+                  type: object
+                  properties: {}
+            destination_extension:
+              type: string
+            destination_internal_context:
+              type: string
+            destination_internal_extension:
+              type: string
+            destination_line_id:
+              type: integer
+            destination_name:
+              type: string
+            destination_user_uuid:
+              type: string
+              format: uuid
+            requested_name:
+              type: string
+            requested_context:
+              type: string
+            requested_extension:
+              type: string
+            requested_internal_context:
+              type: string
+            requested_internal_extension:
+              type: string
+            source_extension:
+              type: string
+            source_internal_context:
+              type: string
+            source_internal_name:
+              type: string
+            source_internal_extension:
+              type: string
+            source_line_id:
+              type: integer
+            source_name:
+              type: string
+            source_user_uuid:
+              type: string
+              format: uuid
+            tags:
+              type: array
+              items:
+                type: string
+            recordings:
+              type: array
+              items:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    format: uuid
+                  start_time:
+                    type: string
+                  end_time:
+                    type: string
+                  deleted:
+                    type: boolean
+                  filename:
+                    type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_log_user_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.call_log.user.{user_uuid}.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  call_logd_export_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: call_logd
+      message:
+        name: call-logd-export-created-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            tenant_uuid:
+              type: string
+              format: uuid
+            user_uuid:
+              type: string
+              format: uuid
+            requested_at:
+              type: string
+              format: date-time
+            filename:
+              type: string
+            status:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_logd_export_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.call_logd.export.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  call_logd_export_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: call_logd
+      message:
+        name: call-logd-export-updated-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            tenant_uuid:
+              type: string
+              format: uuid
+            user_uuid:
+              type: string
+              format: uuid
+            requested_at:
+              type: string
+              format: date-time
+            filename:
+              type: string
+            status:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_logd_export_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.call_logd.export.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  call_logd_retention_updated:
+    subscribe:
+      summary: ''
+      tags:
+      - name: call_logd
+      message:
+        name: call-logd-retention-updated-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            tenant_uuid:
+              type: string
+              format: uuid
+            user_uuid:
+              type: string
+              format: uuid
+            requested_at:
+              type: string
+              format: date-time
+            filename:
+              type: string
+            status:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_logd_retention_updated
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.call_logd.retention.updated
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  call_logd_voicemail_transcription_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: call_logd
+      message:
+        name: call-logd-voicemail-transcription-created-payload
+        payload:
+          type: object
+          properties:
+            message_id:
+              type: string
+            tenant_uuid:
+              type: string
+              format: uuid
+            voicemail_id:
+              type: integer
+            transcription_text:
+              type: string
+            provider_id:
+              type: string
+            language:
+              type: string
+            duration:
+              type: number
+              format: float
+            created_at:
+              type: string
+              format: date-time
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_logd_voicemail_transcription_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.call_logd.voicemail_transcription.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+  call_logd_voicemail_transcription_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: call_logd
+      message:
+        name: call-logd-voicemail-transcription-deleted-payload
+        payload:
+          type: object
+          properties:
+            message_id:
+              type: string
+            tenant_uuid:
+              type: string
+              format: uuid
+            voicemail_id:
+              type: integer
+            transcription_text:
+              type: string
+            provider_id:
+              type: string
+            language:
+              type: string
+            duration:
+              type: number
+              format: float
+            created_at:
+              type: string
+              format: date-time
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: call_logd_voicemail_transcription_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.call_logd.voicemail_transcription.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+components:
+  schemas:
+    origin_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of the publishing WAZO service
+    timestamp:
+      type: string
+      format: date-time
+      description: Date and time this event was published
+    tenant_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of this resource's tenant
+    user_uuid:{uuid}:
+      type: boolean
+      description: User's unique identifier that this event is intended for. The format user_uuid:{uuid} allows multiple users to be the recipient
+        of this event

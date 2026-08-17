@@ -1,0 +1,200 @@
+generated: '2026-08-17'
+method: searched
+source: https://registry.npmjs.org/, https://mirror.wazo.community/debian/dists/pelican-bookworm/main/binary-amd64/Packages.gz,
+  https://github.com/wazo-platform
+distribution:
+  npm: 2 first-party packages under the @wazo scope
+  apt: the primary distribution channel — 16 first-party Python client libraries plus the platform itself, from mirror.wazo.community
+  pypi: none — wazo-auth-client, wazo-confd-client, wazo-calld-client, wazo-lib-rest-client and 12 sibling names all return
+    404 on pypi.org/pypi/<name>/json
+  apt_repository: deb https://mirror.wazo.community/debian pelican-bookworm main
+  current_release:
+    name: Wazo Pelican
+    train: '26.08'
+    platform_package: 26.08~20260626.135613.c64299f.deb12
+    platform_published: '2026-06-26'
+package_count: 18
+official_count: 18
+packages:
+- language: javascript
+  registry: npm
+  name: '@wazo/sdk'
+  url: https://www.npmjs.com/package/@wazo/sdk
+  install: npm install @wazo/sdk
+  official: true
+  version: 0.49.4
+  published: '2026-07-23'
+  repository: https://github.com/wazo-platform/wazo-js-sdk
+  note: 'Wazo''s JavaScript/TypeScript SDK: REST clients for every Wazo microservice plus WebRTC (SIP.js) softphone and
+    websocket event client.'
+- language: javascript
+  registry: npm
+  name: '@wazo/euc-plugins-sdk'
+  url: https://www.npmjs.com/package/@wazo/euc-plugins-sdk
+  install: npm install @wazo/euc-plugins-sdk
+  official: true
+  version: 1.1.1
+  published: '2026-05-26'
+  repository: https://github.com/wazo-communication/euc-plugins-js-sdk
+  note: SDK for building UI plugins/apps embedded in the Wazo E-UC portal and application. Published by Wazo Communication
+    Inc.
+- language: python
+  registry: apt
+  name: wazo-auth-client-python3
+  url: https://github.com/wazo-platform/wazo-auth-client
+  install: apt-get install wazo-auth-client-python3
+  official: true
+  version: 26.03~20260213.204703.ac53664.deb12
+  published: '2026-02-13'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-confd-client-python3
+  url: https://github.com/wazo-platform/wazo-confd-client
+  install: apt-get install wazo-confd-client-python3
+  official: true
+  version: 26.05~20260324.212701.a435b41.deb12
+  published: '2026-03-24'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-calld-client-python3
+  url: https://github.com/wazo-platform/wazo-calld-client
+  install: apt-get install wazo-calld-client-python3
+  official: true
+  version: 26.05~20260430.192521.64a5a03.deb12
+  published: '2026-04-30'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-call-logd-client-python3
+  url: https://github.com/wazo-platform/wazo-call-logd-client
+  install: apt-get install wazo-call-logd-client-python3
+  official: true
+  version: 26.04~20260317.144509.a908371.deb12
+  published: '2026-03-17'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-dird-client-python3
+  url: https://github.com/wazo-platform/wazo-dird-client
+  install: apt-get install wazo-dird-client-python3
+  official: true
+  version: 26.02~20260119.161218.98e7cc1.deb12
+  published: '2026-01-19'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-agentd-client-python3
+  url: https://github.com/wazo-platform/wazo-agentd-client
+  install: apt-get install wazo-agentd-client-python3
+  official: true
+  version: 26.05~20260430.144021.7c92f33.deb12
+  published: '2026-04-30'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-chatd-client-python3
+  url: https://github.com/wazo-platform/wazo-chatd-client
+  install: apt-get install wazo-chatd-client-python3
+  official: true
+  version: 26.07~20260617.154242.b57c795.deb12
+  published: '2026-06-17'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-webhookd-client-python3
+  url: https://github.com/wazo-platform/wazo-webhookd-client
+  install: apt-get install wazo-webhookd-client-python3
+  official: true
+  version: 26.02~20260119.160506.5b1f212.deb12
+  published: '2026-01-19'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-plugind-client-python3
+  url: https://github.com/wazo-platform/wazo-plugind-client
+  install: apt-get install wazo-plugind-client-python3
+  official: true
+  version: 25.15~20251015.125250.9c9f970.deb12
+  published: '2025-10-15'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-provd-client-python3
+  url: https://github.com/wazo-platform/wazo-provd-client
+  install: apt-get install wazo-provd-client-python3
+  official: true
+  version: 25.15~20251015.125855.2470cdb.deb12
+  published: '2025-10-15'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-amid-client-python3
+  url: https://github.com/wazo-platform/wazo-amid-client
+  install: apt-get install wazo-amid-client-python3
+  official: true
+  version: 25.17~20251205.185655.4c2fbc3.deb12
+  published: '2025-12-05'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-setupd-client-python3
+  url: https://github.com/wazo-platform/wazo-setupd-client
+  install: apt-get install wazo-setupd-client-python3
+  official: true
+  version: 25.15~20251015.152516.5490392.deb12
+  published: '2025-10-15'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-websocketd-client-python3
+  url: https://github.com/wazo-platform/wazo-websocketd-client
+  install: apt-get install wazo-websocketd-client-python3
+  official: true
+  version: 26.02~20260115.205320.ce23b80.deb12
+  published: '2026-01-15'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-sysconfd-client-python3
+  url: https://github.com/wazo-platform/wazo-sysconfd-client
+  install: apt-get install wazo-sysconfd-client-python3
+  official: true
+  version: 25.15~20251015.130145.66f21a9.deb12
+  published: '2025-10-15'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-market-client-python3
+  url: https://github.com/wazo-platform/wazo-market-client
+  install: apt-get install wazo-market-client-python3
+  official: true
+  version: 25.15~20251015.125024.7a2ae89.deb12
+  published: '2025-10-15'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.
+- language: python
+  registry: apt
+  name: wazo-lib-rest-client-python3
+  url: https://github.com/wazo-platform/wazo-lib-rest-client
+  install: apt-get install wazo-lib-rest-client-python3
+  official: true
+  version: 26.02~20260115.124145.301b6a9.deb12
+  published: '2026-01-15'
+  note: Distributed only through the Wazo Debian repository (deb https://mirror.wazo.community/debian pelican-bookworm main)
+    — NOT published to PyPI; every PyPI probe for these names returned 404.

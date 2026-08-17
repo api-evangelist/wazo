@@ -1,0 +1,36 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for wazo-phoned
+  version: 1.0.0
+extends: openapi/wazo-phoned-api-openapi.yml
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: wazo
+    x-apievangelist-service: wazo-phoned
+    x-apievangelist-surface: Phone Directory
+    x-apievangelist-source-repository: https://github.com/wazo-platform/wazo-phoned
+    x-apievangelist-assembly: base plugin api.yml deep-merged with plugin api.yml fragments, reproducing the document the
+      running service serves at /api/phoned/0.1/api/api.yml
+    x-apievangelist-operations: 27
+    x-apievangelist-tags: 16
+    x-apievangelist-operations-missing-operationid: 1
+    x-apievangelist-acl-permissions: 5
+    x-apievangelist-authorization-model: acl
+    x-apievangelist-idempotency: false
+    x-apievangelist-rate-limits-published: false
+    x-apievangelist-error-format: application/json (not RFC 9457)
+    x-apievangelist-license: GPL-3.0-or-later
+- target: $
+  update:
+    x-apievangelist-base-url-template: https://{wazo_stack}/api/phoned/0.1
+    x-apievangelist-base-url-note: 'Self-hosted: no public multi-tenant host exists. Route verified against the service
+      repository etc/nginx/locations/https-available/ file.'
+    x-apievangelist-artifacts:
+      authentication: authentication/wazo-authentication.yml
+      acl_permissions: scopes/wazo-acl-permissions.yml
+      conventions: conventions/wazo-conventions.yml
+      errors: errors/wazo-problem-types.yml
+      lifecycle: lifecycle/wazo-lifecycle.yml
+      events: asyncapi/wazo-events-webhooks.yml
+      data_model: data-model/wazo-data-model.yml

@@ -1,0 +1,261 @@
+asyncapi: 2.0.0
+info:
+  title: undefined events
+  version: '26.08'
+servers:
+  production:
+    url: amqp://{username}:{password}@/localhost:{port}//
+    description: Local RabbitMQ messaging server for inter-service communication
+    protocol: amqp
+    protocolVersion: 0.9.1
+    variables:
+      username:
+        default: guest
+        description: Configurable through each service's config.yml file
+      password:
+        default: guest
+        description: Configurable through each service's config.yml file
+      port:
+        default: '5672'
+        description: Configurable through each service's config.yml file
+defaultContentType: application/json
+channels:
+  service_deregistered:
+    subscribe:
+      summary: ''
+      tags:
+      - name: undefined
+      message:
+        name: service-deregistered-payload
+        payload:
+          type: object
+          properties:
+            service_name:
+              type: string
+            service_id:
+              type: string
+            tags:
+              type: array
+              items:
+                type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: service_deregistered
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.service.registered.{service_name}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+  service_registered:
+    subscribe:
+      summary: ''
+      tags:
+      - name: undefined
+      message:
+        name: service-registered-payload
+        payload:
+          type: object
+          properties:
+            service_name:
+              type: string
+            service_id:
+              type: string
+            advertise_address:
+              type: string
+            advertise_port:
+              type: integer
+            tags:
+              type: array
+              items:
+                type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: service_registered
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.service.registered.{service_name}
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+  user_blocklist_number_created:
+    subscribe:
+      summary: ''
+      tags:
+      - name: undefined
+      message:
+        name: user-blocklist-number-created-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+            user_uuid:
+              type: string
+            number:
+              type: string
+            label:
+              type: string
+              nullable: true
+            blocklist_uuid:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: user_blocklist_number_created
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.confd.users.{user_uuid}.blocklist.created
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  user_blocklist_number_deleted:
+    subscribe:
+      summary: ''
+      tags:
+      - name: undefined
+      message:
+        name: user-blocklist-number-deleted-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+            user_uuid:
+              type: string
+            number:
+              type: string
+            label:
+              type: string
+              nullable: true
+            blocklist_uuid:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: user_blocklist_number_deleted
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.confd.users.{user_uuid}.blocklist.deleted
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+  user_blocklist_number_edited:
+    subscribe:
+      summary: ''
+      tags:
+      - name: undefined
+      message:
+        name: user-blocklist-number-edited-payload
+        payload:
+          type: object
+          properties:
+            uuid:
+              type: string
+            user_uuid:
+              type: string
+            number:
+              type: string
+            label:
+              type: string
+              nullable: true
+            blocklist_uuid:
+              type: string
+        headers:
+          type: object
+          properties:
+            name:
+              type: string
+              const: user_blocklist_number_edited
+              description: Name of the event (used for routing the message)
+            required_acl:
+              type: string
+              const: events.confd.users.{user_uuid}.blocklist.edited
+              description: Necessary user access required to read this event
+            origin_uuid:
+              $ref: '#/components/schemas/origin_uuid'
+            timestamp:
+              $ref: '#/components/schemas/timestamp'
+            tenant_uuid:
+              $ref: '#/components/schemas/tenant_uuid'
+            user_uuid:{uuid}:
+              $ref: '#/components/schemas/user_uuid:{uuid}'
+          required:
+          - name
+          - required_acl
+          - origin_uuid
+          - timestamp
+          - tenant_uuid
+          - user_uuid:{uuid}
+components:
+  schemas:
+    origin_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of the publishing WAZO service
+    timestamp:
+      type: string
+      format: date-time
+      description: Date and time this event was published
+    tenant_uuid:
+      type: string
+      format: uuid
+      description: Unique identifier of this resource's tenant
+    user_uuid:{uuid}:
+      type: boolean
+      description: User's unique identifier that this event is intended for. The format user_uuid:{uuid} allows multiple users to be the recipient
+        of this event

@@ -1,0 +1,19 @@
+generated: '2026-08-17'
+method: derived
+source: openapi/ (13 Swagger 2.0 service contracts, 932 operations)
+status: candidate
+deployment:
+  mode: none
+  auth: unknown
+  verified: searched
+  note: 'Wazo publishes no MCP server. Searched the wazo-platform and wazo-communication GitHub orgs (219 repos), npm under
+    the @wazo scope, the api.wazo.io and developers.wazo.io documentation, and the web: no hosted endpoint and no stdio
+    package exists. No endpoint or install command is recorded because none exists — do not infer one.'
+candidate_basis:
+  openapi_services: 13
+  openapi_operations: 932
+  note: 'A Wazo MCP server is derivable per deployment rather than centrally: because every Wazo base URL is the customer''s
+    own self-hosted stack (https://<stack>/api/<service>/<version>), a hosted multi-tenant MCP server has no single host
+    to point at. The natural shape is a local-stdio server configured with a stack host and an X-Auth-Token, wrapping the
+    calld (call control), confd (configuration), dird (directory) and call-logd (CDR) contracts.'
+tools: []
