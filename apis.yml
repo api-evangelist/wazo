@@ -17,6 +17,27 @@ specificationVersion: '0.23'
 created: '2026-08-17'
 modified: '2026-08-17'
 tags:
+- Telephony
+- VoIP
+- Unified Communications
+- UCaaS
+- Contact Center
+- SIP
+- asterisk
+- WebRTC
+- Open-Source
+- Self-Hosted
+- White Label
+- PBX
+- MSP
+- Call Center
+- Provisioning
+- Webhook
+- Event-Driven
+- Chat
+- Presence
+- CDR
+tags_raw:
 - telephony
 - voip
 - unified-communications
@@ -46,6 +67,19 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
+  - asterisk
+  - Authentication
+  - Authorization
+  - Identity
+  - LDAP
+  - Multi-Tenant
+  - SAML
+  - SIP
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  tags_raw:
   - asterisk
   - authentication
   - authorization
@@ -89,6 +123,17 @@ apis:
   baseURL: https://{wazo_stack}/api/confd/1.1
   tags:
   - asterisk
+  - Configuration
+  - PBX
+  - Provisioning
+  - SIP
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - User Management
+  - VoIP
+  tags_raw:
+  - asterisk
   - configuration
   - pbx
   - provisioning
@@ -126,6 +171,18 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/application.html
   baseURL: https://{wazo_stack}/api/calld/1.0
   tags:
+  - asterisk
+  - Call Control
+  - Conferencing
+  - Fax
+  - Real-Time
+  - SIP
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - Voicemail
+  - VoIP
+  tags_raw:
   - asterisk
   - call-control
   - conferencing
@@ -165,6 +222,18 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/cdr.html
   baseURL: https://{wazo_stack}/api/call-logd/1.0
   tags:
+  - Analytics
+  - asterisk
+  - Call Detail Records
+  - CDR
+  - Contact Center
+  - Reporting
+  - SIP
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  tags_raw:
   - analytics
   - asterisk
   - call-detail-records
@@ -205,6 +274,18 @@ apis:
   baseURL: https://{wazo_stack}/api/dird/0.1
   tags:
   - asterisk
+  - Contacts
+  - Directory
+  - LDAP
+  - phonebook
+  - Search
+  - SIP
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  tags_raw:
+  - asterisk
   - contacts
   - directory
   - ldap
@@ -244,6 +325,17 @@ apis:
   baseURL: https://{wazo_stack}/api/provd/0.2
   tags:
   - asterisk
+  - Device Management
+  - Provisioning
+  - SIP
+  - sip-phones
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  - Zero Touch
+  tags_raw:
+  - asterisk
   - device-management
   - provisioning
   - sip
@@ -279,6 +371,17 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/webhook.html
   baseURL: https://{wazo_stack}/api/webhookd/1.0
   tags:
+  - asterisk
+  - Event-Driven
+  - Event
+  - Push Notifications
+  - SIP
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  - Webhook
+  tags_raw:
   - asterisk
   - event-driven
   - events
@@ -319,6 +422,16 @@ apis:
   baseURL: https://{wazo_stack}/api/plugind/0.2
   tags:
   - asterisk
+  - Extensibility
+  - Package Management
+  - Plugins
+  - SIP
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  tags_raw:
+  - asterisk
   - extensibility
   - package-management
   - plugins
@@ -354,6 +467,17 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/agent.html
   baseURL: https://{wazo_stack}/api/agentd/1.0
   tags:
+  - Agents
+  - asterisk
+  - Call Center
+  - Contact Center
+  - Queues
+  - SIP
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  tags_raw:
   - agents
   - asterisk
   - call-center
@@ -391,6 +515,17 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/chat.html
   baseURL: https://{wazo_stack}/api/chatd/1.0
   tags:
+  - asterisk
+  - Chat
+  - Collaboration
+  - Messaging
+  - Presence
+  - SIP
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  tags_raw:
   - asterisk
   - chat
   - collaboration
@@ -430,6 +565,17 @@ apis:
   baseURL: http://{wazo_stack}:9498/0.1
   tags:
   - asterisk
+  - Directory
+  - Provisioning
+  - SIP
+  - sip-phones
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  - xml-directory
+  tags_raw:
+  - asterisk
   - directory
   - provisioning
   - sip
@@ -460,6 +606,16 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/setup.html
   baseURL: https://{wazo_stack}/api/setupd/1.0
   tags:
+  - asterisk
+  - Bootstrap
+  - Provisioning
+  - Setup
+  - SIP
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  tags_raw:
   - asterisk
   - bootstrap
   - provisioning
@@ -494,6 +650,15 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/amid.html
   baseURL: https://{wazo_stack}/api/amid/1.0
   tags:
+  - AMI
+  - asterisk
+  - Internal
+  - SIP
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  tags_raw:
   - ami
   - asterisk
   - internal
@@ -531,6 +696,14 @@ apis:
   humanURL: https://api.wazo.io/documentation/overview/websocket.html
   baseURL: wss://{wazo_stack}/api/websocketd/
   tags:
+  - WebSocket
+  - Event
+  - Event-Driven
+  - Real-Time
+  - Telephony
+  - Pub-Sub
+  - Streaming
+  tags_raw:
   - websocket
   - events
   - event-driven
