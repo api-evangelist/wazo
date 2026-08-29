@@ -9,6 +9,19 @@ description: 'Wazo Communication Inc. builds the Wazo Platform, an open-source (
   governed by 788 fine-grained ACL permissions, and emit 327 named events onto a RabbitMQ bus that wazo-webhookd relays
   as HTTP webhooks and wazo-websocketd streams over WebSocket. There is no public multi-tenant API host: every base URL
   is the customer''s own stack.'
+deliveryModel:
+  model: unknown
+  open_source: unknown
+  commercial: true
+  callable_host: false
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - openapi
+  - pricing
+  - repository-unlicensed
+  generated: '2026-08-28'
+  method: derived
 image: https://wazo-platform.org/images/logo-black.svg
 url: https://raw.githubusercontent.com/api-evangelist/wazo/refs/heads/main/apis.yml
 x-type: company
