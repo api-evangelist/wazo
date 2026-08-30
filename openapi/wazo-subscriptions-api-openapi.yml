@@ -1,0 +1,537 @@
+openapi: 3.2.0
+info:
+  title: wazo-webhookd Subscriptions API
+  description: Control your webhooks from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: subscriptions
+paths:
+  /subscriptions/services:
+    get:
+      summary: Show the available subscription services
+      description: '**Required ACL:** `webhookd.subscriptions.services.read`'
+      operationId: getSubscriptionsServices
+      tags:
+      - subscriptions
+      responses:
+        '200':
+          description: The available services
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Services'
+  /subscriptions:
+    get:
+      summary: List subscriptions to HTTP callbacks
+      description: '**Required ACL:** `webhookd.subscriptions.read`'
+      operationId: list_subscriptions
+      tags:
+      - subscriptions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/SearchMetadata'
+      responses:
+        '200':
+          description: List of the subscriptions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    post:
+      summary: Subscribe to a HTTP callback (webhook)
+      description: '**Required ACL:** `webhookd.subscriptions.create`
+
+
+        For more information: https://wazo-platform.org/documentation/api/webhook.html'
+      operationId: create_subscription
+      parameters:
+      - $ref: '#/components/parameters/SubscriptionBody'
+      tags:
+      - subscriptions
+      responses:
+        '201':
+          description: The subscription has been completed
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /subscriptions/{subscription_uuid}:
+    get:
+      summary: Get a subscription
+      description: '**Required ACL:** `webhookd.subscriptions.{subscription_uuid}.read`'
+      operationId: get_subscription
+      parameters:
+      - $ref: '#/components/parameters/SubscriptionUUID'
+      tags:
+      - subscriptions
+      responses:
+        '200':
+          description: Details of the requested subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    put:
+      summary: Edit a subscription
+      description: '**Required ACL:** `webhookd.subscriptions.{subscription_uuid}.update`'
+      operationId: update_subscription
+      parameters:
+      - $ref: '#/components/parameters/SubscriptionUUID'
+      - $ref: '#/components/parameters/SubscriptionBody'
+      tags:
+      - subscriptions
+      responses:
+        '200':
+          description: The requested subscription was edited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    delete:
+      summary: Delete a subscription
+      description: '**Required ACL:** `webhookd.subscriptions.{subscription_uuid}.delete`'
+      operationId: delete_subscription
+      parameters:
+      - $ref: '#/components/parameters/SubscriptionUUID'
+      tags:
+      - subscriptions
+      responses:
+        '204':
+          description: The requested subscription was deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/subscriptions:
+    get:
+      summary: List subscriptions of a user to HTTP callbacks
+      description: '**Required ACL:** `webhookd.users.me.subscriptions.read`'
+      operationId: list_user_subscriptions
+      parameters:
+      - $ref: '#/components/parameters/SearchMetadata'
+      tags:
+      - subscriptions
+      responses:
+        '200':
+          description: List of the subscriptions of the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    post:
+      summary: Subscribe to a HTTP callback (webhook) as a user
+      description: '**Required ACL:** `webhookd.users.me.subscriptions.create`
+
+
+        For more information: https://wazo-platform.org/documentation/api/webhook.html'
+      operationId: create_user_subscription
+      parameters:
+      - $ref: '#/components/parameters/UserSubscriptionBody'
+      tags:
+      - subscriptions
+      responses:
+        '201':
+          description: The subscription has been completed
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/subscriptions/{subscription_uuid}:
+    get:
+      summary: Get a user subscription
+      description: '**Required ACL:** `webhookd.users.me.subscriptions.{subscription_uuid}.read`'
+      operationId: get_user_subscription
+      parameters:
+      - $ref: '#/components/parameters/SubscriptionUUID'
+      tags:
+      - subscriptions
+      responses:
+        '200':
+          description: Details of the requested subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    put:
+      summary: Update a user subscription
+      description: '**Required ACL:** `webhookd.users.me.subscriptions.{subscription_uuid}.update`'
+      operationId: update_user_subscription
+      parameters:
+      - $ref: '#/components/parameters/SubscriptionUUID'
+      - $ref: '#/components/parameters/SubscriptionBody'
+      tags:
+      - subscriptions
+      responses:
+        '200':
+          description: Details of the updated subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    delete:
+      summary: Delete a user subscription
+      description: '**Required ACL:** `webhookd.users.me.subscriptions.{subscription_uuid}.delete`'
+      operationId: delete_user_subscription
+      parameters:
+      - $ref: '#/components/parameters/SubscriptionUUID'
+      tags:
+      - subscriptions
+      responses:
+        '204':
+          description: The requested subscription was deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /subscriptions/{subscription_uuid}/logs:
+    get:
+      summary: Get hook logs
+      description: '**Required ACL:** `webhookd.subscriptions.{subscription_uuid}.logs.read`'
+      operationId: get_subscription_logs
+      parameters:
+      - $ref: '#/components/parameters/SubscriptionUUID'
+      tags:
+      - subscriptions
+      responses:
+        '200':
+          description: Details of the requested subscription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionLog'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+components:
+  schemas:
+    ServiceConfig:
+      type: object
+      additionalProperties:
+        type: string
+    UserSubscriptionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        service:
+          type: string
+          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
+
+            '
+        config:
+          $ref: '#/components/schemas/HTTPServiceConfig'
+        events:
+          type: array
+          items:
+            type: string
+        tags:
+          $ref: '#/components/schemas/SubscriptionMetadata'
+      required:
+      - name
+      - service
+      - config
+      - events
+    SubscriptionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        service:
+          type: string
+          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
+
+            '
+        config:
+          $ref: '#/components/schemas/HTTPServiceConfig'
+        events:
+          type: array
+          items:
+            type: string
+        events_user_uuid:
+          type: string
+          description: 'Only trigger webhook when an event occurs related to this user. Not compatible with all events. For more details, see: https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/user_filter.'
+        events_wazo_uuid:
+          type: string
+          description: Only trigger webhook when an event occurs on this Wazo.
+        tags:
+          type: object
+      required:
+      - name
+      - service
+      - config
+      - events
+    HTTPServiceLog:
+      type: object
+      properties:
+        request_method:
+          type: string
+        request_url:
+          type: string
+        request_headers:
+          type: object
+          additionalProperties:
+            type: string
+        request_body:
+          type: string
+        response_method:
+          type: string
+        response_url:
+          type: string
+        response_headers:
+          type: object
+          additionalProperties:
+            type: string
+        response_body:
+          type: string
+    SubscriptionLog:
+      type: object
+      properties:
+        uuid:
+          type: string
+        status:
+          type: string
+          enum:
+          - success
+          - failure
+          - error
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+        attempts:
+          type: integer
+          description: The current attempts
+        max_attempts:
+          type: integer
+          description: Limit of number of attempts
+        event:
+          type: string
+        detail:
+          description: output of the service
+          $ref: '#/components/schemas/HTTPServiceLog'
+    SubscriptionList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+          readOnly: true
+        total:
+          type: integer
+          readOnly: true
+    Subscription:
+      type: object
+      properties:
+        uuid:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        service:
+          type: string
+        config:
+          $ref: '#/components/schemas/ServiceConfig'
+        events:
+          type: array
+          items:
+            type: string
+        events_user_uuid:
+          type: string
+          description: 'Only trigger webhook when an event occurs related to this user. Not compatible with all events. For more details, see: https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/user_filter'
+        owner_user_uuid:
+          type: string
+          readOnly: true
+          description: The user who owns this subscription. Admin-created subscriptions are not owned.
+      required:
+      - name
+      - service
+      - config
+      - events
+    Services:
+      type: object
+      properties:
+        services:
+          description: The keys are the service names.
+          type: object
+    HTTPServiceConfig:
+      type: object
+      properties:
+        url:
+          type: string
+          description: Jinja2 template, where variables come from the event triggering the webhook. For more details, see https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/templates
+        method:
+          type: string
+          enum:
+          - head
+          - get
+          - post
+          - put
+          - delete
+        body:
+          type: string
+          description: Jinja2 template, where variables come from the event triggering the webhook. For more details, see https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/templates. **Default:** the complete event data, JSON-encoded.
+        verify_certificate:
+          description: May be `true`, `false` or a path to the certificate bundle
+          type: string
+          default: 'true'
+        content_type:
+          description: Content-Type of the body
+          type: string
+      required:
+      - url
+      - method
+    SubscriptionMetadata:
+      type: object
+      description: Arbitrary key-value storage for this subscription. May be used to tag subscriptions. PUT replaces all metadata.
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    SubscriptionUUID:
+      name: subscription_uuid
+      description: The UUID of the subscription
+      in: path
+      required: true
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    SearchMetadata:
+      name: search_metadata
+      in: query
+      description: A search term formatted like "key:value" that will only match subscriptions having a metadata entry "key=value". May be given multiple times to filter more precisely on different metadata keys.
+      schema:
+        type: string
+    SubscriptionBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/SubscriptionRequest'
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    UserSubscriptionBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/UserSubscriptionRequest'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9300
+x-xivo-name: webhookd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-webhookd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/webhookd/1.0/api/api.yml (see wazo_webhookd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

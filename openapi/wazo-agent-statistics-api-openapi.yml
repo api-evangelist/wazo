@@ -1,0 +1,282 @@
+openapi: 3.2.0
+info:
+  title: wazo-call-logd Agent Statistics API
+  description: Consult call logs from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: agent_statistics
+paths:
+  /agents/statistics:
+    get:
+      summary: Statistics for all agents
+      description: '**Required ACL:** `call-logd.agents.statistics.read`
+
+        Statistics are aggregated by agents over the period specified by the `from` and `until` query parameters.'
+      tags:
+      - agent_statistics
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/from'
+      - $ref: '#/components/parameters/until'
+      - $ref: '#/components/parameters/day_start_time'
+      - $ref: '#/components/parameters/day_end_time'
+      - $ref: '#/components/parameters/week_days'
+      - $ref: '#/components/parameters/timezone'
+      responses:
+        '200':
+          description: Get an agent statistics by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentsStatistics'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+  /agents/{agent_id}/statistics:
+    get:
+      summary: Statistics for a specific agent
+      description: '**Required ACL:** `call-logd.agents.statistics.{agent_id}.read` Statistics for an agent are aggregated by the `interval` query parameter, or if not specified or empty, as a unique result over the period. The period is specified by the `from` and `until` query parameters. The last result returned by this route is always the aggregation of all calls over the whole specified period.'
+      tags:
+      - agent_statistics
+      parameters:
+      - name: agent_id
+        description: ID of the agent.
+        required: true
+        in: path
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/from'
+      - $ref: '#/components/parameters/until'
+      - $ref: '#/components/parameters/interval'
+      - $ref: '#/components/parameters/day_start_time'
+      - $ref: '#/components/parameters/day_end_time'
+      - $ref: '#/components/parameters/week_days'
+      - $ref: '#/components/parameters/timezone'
+      responses:
+        '200':
+          description: Get an agent statistics by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentStatistics'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  schemas:
+    AgentQueueStatistic:
+      type: object
+      properties:
+        queue_id:
+          type: integer
+          description: ID of the queue.
+        answered:
+          type: integer
+          description: Number of calls this agent answered on this queue
+        conversation_time:
+          type: integer
+          description: Time this agent spent in conversation on this queue, in seconds
+        login_time:
+          type: integer
+          description: Time this agent was logged in to this queue, in seconds
+        pause_time:
+          type: integer
+          description: Time this agent spent in pause on this queue, in seconds
+        wrapup_time:
+          type: integer
+          description: Time this agent spent in wrap-up after calls on this queue, in seconds
+    AgentStatistics:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentStatistic'
+        total:
+          type: integer
+    AgentsStatistics:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentStatistic'
+        total:
+          type: integer
+    AgentStatistic:
+      type: object
+      properties:
+        from:
+          type: string
+          description: Start of the statistic interval.
+        until:
+          type: string
+          description: End of the statistic interval.
+        tenant_uuid:
+          type: string
+          format: uuid
+          description: Tenant UUID of the corresponding queue.
+        agent_id:
+          type: integer
+          description: ID of the corresponding agent.
+        agent_number:
+          type: string
+          description: The number of this agent
+        answered:
+          type: integer
+          description: The number of answered calls
+        conversation_time:
+          type: integer
+          description: The time spent in conversation in seconds
+        login_time:
+          type: integer
+          description: The time spent logged-in in seconds
+        pause_time:
+          type: integer
+          description: The time spent in pause in seconds
+        wrapup_time:
+          type: integer
+          description: The time spent in wrapup in seconds
+        queues:
+          type: array
+          description: Per-queue breakdown of agent activity over this interval
+          items:
+            $ref: '#/components/schemas/AgentQueueStatistic'
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    day_end_time:
+      name: day_end_time
+      description: The time at which a day ends, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+      in: query
+      required: false
+      schema:
+        type: string
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    from:
+      name: from
+      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    interval:
+      name: interval
+      description: Aggregation interval. An empty value means no interval, so an aggregation on all values.
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+        - hour
+        - day
+        - month
+    day_start_time:
+      name: day_start_time
+      description: The time at which a day starts, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+      in: query
+      required: false
+      schema:
+        type: string
+    week_days:
+      name: week_days
+      description: The days of the week that should be included. A week starts on Monday (1) and ends on Sunday (7).
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: integer
+          minimum: 1
+          maximum: 7
+        default:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        uniqueItems: true
+    timezone:
+      name: timezone
+      description: 'Name of the timezone to use for dates and times. Example: America/New_York. Valid timezones
+
+        are defined by the <a href="https://en.wikipedia.org/wiki/Tz_database">Time Zone Database</a>
+
+        version installed on the server.
+
+        '
+      in: query
+      required: false
+      schema:
+        type: string
+        default: UTC
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9298
+x-xivo-name: call-logs
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-call-logd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/call-logd/1.0/api/api.yml (see wazo_call_logd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

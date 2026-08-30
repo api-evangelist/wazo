@@ -1,0 +1,54 @@
+openapi: 3.2.0
+info:
+  title: wazo-dird Work In Progress API
+  description: "Contacts and directories in Wazo are managed by the wazo-dird daemon. This service provides a public API that can be used to query the directories that are configured on a Wazo. \n\n\nA contact can contain various information such as a person's phone number, number, office number, department, office number, etc. The information displayed is selected via a profile. Directories can be aggregated using multiple data sources such as an LDAP server, a CSV file, another Wazo server, etc.\n\n\nPlease refer to [the documentation](https://wazo-platform.org/uc-doc) for further details.\n\n\nNote: The 0.1 API is currently in development. Major changes could still happen and new resources will be added over time."
+  version: '0.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+security:
+- wazo_auth_token: []
+tags:
+- name: work_in_progress
+paths:
+  /graphql:
+    get:
+      operationId: graphiql
+      summary: Show GraphiQL test interface for GraphQL in a browser. This is not a REST endpoint.
+      tags:
+      - work_in_progress
+      responses:
+        '200':
+          description: the web page for GraphiQL
+    post:
+      operationId: graphql_query
+      summary: Execute a GraphQL query. This is a GraphQL endpoint, not a REST endpoint.
+      description: '**Required ACL:** `dird.graphql.{root_field_name}`, e.g. `dird.graphql.hello`'
+      tags:
+      - work_in_progress
+      responses:
+        '200':
+          description: the response for the GraphQL query
+components:
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9489
+x-xivo-name: dird
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-dird
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/dird/0.1/api/api.yml (see wazo_dird/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

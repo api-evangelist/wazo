@@ -1,0 +1,122 @@
+openapi: 3.2.0
+info:
+  title: wazo-webhookd Notifications API
+  description: Control your webhooks from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: notifications
+paths:
+  /mobile/notifications:
+    post:
+      summary: Send a push notification to a user
+      description: '**Required ACL:** `webhookd.mobile.notifications.send`'
+      operationId: postMobileNotification
+      parameters:
+      - $ref: '#/components/parameters/TenantUuidHeader'
+      - $ref: '#/components/parameters/NotificationBody'
+      tags:
+      - notifications
+      responses:
+        '204':
+          description: An attempt to send the notification has been made
+        '400':
+          description: At least one field is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid or insufficient autorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    Notification:
+      type: object
+      properties:
+        notification_type:
+          type: string
+          pattern: (?!^(messageReceived|voicemailReceived|incomingCall|cancelIncomingCall)$)(^[a-z0-9_]+$)
+          description: A name without special characters to differenciate the notification from others
+          example: myCustomNotification
+          minLength: 1
+          maxLength: 100
+        user_uuid:
+          type: string
+          minLength: 36
+          maxLength: 36
+        title:
+          type: string
+          maxLength: 128
+        body:
+          type: string
+          maxLength: 250
+        extra:
+          type: object
+      required:
+      - notification_type
+      - user_uuid
+      - title
+      - body
+  parameters:
+    NotificationBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/Notification'
+    TenantUuidHeader:
+      name: Wazo-Tenant
+      in: header
+      description: The User's tenant UUID, defining the ownership of a given resource.
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9300
+x-xivo-name: webhookd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-webhookd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/webhookd/1.0/api/api.yml (see wazo_webhookd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

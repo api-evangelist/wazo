@@ -1,0 +1,761 @@
+openapi: 3.2.0
+info:
+  title: Wazo Conferences API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged conferences across 2 of this provider''s published API definitions: wazo-calld-api-openapi.yml, wazo-confd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /1.0
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: conferences
+paths:
+  /conferences/{conference_id}/participants:
+    get:
+      summary: List participants of a conference
+      description: '**Required ACL:** `calld.conferences.{conference_id}.participants.read`'
+      parameters:
+      - $ref: '#/components/parameters/ConferenceID'
+      tags:
+      - conferences
+      responses:
+        '200':
+          description: The list of participant is returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParticipantList'
+        '404':
+          $ref: '#/components/responses/NoSuchConference'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /users/me/conferences/{conference_id}/participants:
+    get:
+      summary: List participants of a conference as a user
+      description: '**Required ACL:** `calld.users.me.conferences.{conference_id}.participants.read`'
+      parameters:
+      - $ref: '#/components/parameters/ConferenceID'
+      tags:
+      - conferences
+      responses:
+        '200':
+          description: The list of participant is returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParticipantList'
+        '404':
+          $ref: '#/components/responses/NoSuchConference'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /conferences/{conference_id}/participants/{participant_id}:
+    delete:
+      summary: Kick participant from a conference
+      description: '**Required ACL:** `calld.conferences.{conference_id}.participants.{participant_id}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/ConferenceID'
+      - $ref: '#/components/parameters/ParticipantID'
+      tags:
+      - conferences
+      responses:
+        '204':
+          description: The participant was kicked from the conference
+        '404':
+          $ref: '#/components/responses/NoSuchConference'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /conferences/{conference_id}/participants/{participant_id}/mute:
+    put:
+      summary: Mute a participant in a conference
+      description: '**Required ACL:** `calld.conferences.{conference_id}.participants.{participant_id}.mute.update`'
+      parameters:
+      - $ref: '#/components/parameters/ConferenceID'
+      - $ref: '#/components/parameters/ParticipantID'
+      tags:
+      - conferences
+      responses:
+        '204':
+          description: The participant was muted
+        '404':
+          $ref: '#/components/responses/NoSuchConference'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /conferences/{conference_id}/participants/{participant_id}/unmute:
+    put:
+      summary: Unmute a participant in a conference
+      description: '**Required ACL:** `calld.conferences.{conference_id}.participants.{participant_id}.unmute.update`'
+      parameters:
+      - $ref: '#/components/parameters/ConferenceID'
+      - $ref: '#/components/parameters/ParticipantID'
+      tags:
+      - conferences
+      responses:
+        '204':
+          description: The participant was unmuted
+        '404':
+          $ref: '#/components/responses/NoSuchConference'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /conferences/{conference_id}/record:
+    post:
+      summary: Record a conference
+      description: '**Required ACL:** `calld.conferences.{conference_id}.record.create`'
+      parameters:
+      - $ref: '#/components/parameters/ConferenceID'
+      tags:
+      - conferences
+      responses:
+        '204':
+          description: The conference recording started
+        '400':
+          description: The conference is already being recorded or there are no participants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NoSuchConference'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    delete:
+      summary: Stop recording a conference
+      description: '**Required ACL:** `calld.conferences.{conference_id}.record.delete`'
+      parameters:
+      - $ref: '#/components/parameters/ConferenceID'
+      tags:
+      - conferences
+      responses:
+        '204':
+          description: The conference recording stopped
+        '400':
+          description: The conference is already not being recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NoSuchConference'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /asterisk/confbridge/wazo_default_bridge:
+    get:
+      operationId: list_asterisk_confbridge_wazo_default_bridge
+      summary: List ConfBridge wazo_default_bridge options
+      description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_bridge.read`'
+      tags:
+      - conferences
+      responses:
+        '200':
+          description: ConfBridge wazo_default_bridge
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfBridgeConfiguration'
+    put:
+      operationId: update_asterisk_confbridge_wazo_default_bridge
+      summary: Update ConfBridge wazo_default_bridge option
+      description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_bridge.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that
+
+        are not defined.
+
+
+        All available configuration options are listed in the
+
+        [sample](https://raw.githubusercontent.com/asterisk/asterisk/master/configs/samples/confbridge.conf.sample)
+
+        Asterisk configuration file.
+
+        '
+      tags:
+      - conferences
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfBridgeConfiguration'
+        required: true
+    servers:
+    - url: /1.1
+  /asterisk/confbridge/wazo_default_user:
+    get:
+      operationId: list_asterisk_confbridge_wazo_default_user
+      summary: List ConfBridge wazo_default_user options
+      description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_user.read`'
+      tags:
+      - conferences
+      responses:
+        '200':
+          description: ConfBridge wazo_default_user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfBridgeConfiguration'
+    put:
+      operationId: update_asterisk_confbridge_wazo_default_user
+      summary: Update ConfBridge wazo_default_user option
+      description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_user.update`
+
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that
+
+        are not defined.
+
+
+        All available configuration options are listed in the
+
+        [sample](https://raw.githubusercontent.com/asterisk/asterisk/master/configs/samples/confbridge.conf.sample)
+
+        Asterisk configuration file.
+
+        '
+      tags:
+      - conferences
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfBridgeConfiguration'
+        required: true
+    servers:
+    - url: /1.1
+  /conferences:
+    get:
+      operationId: list_conferences
+      summary: List conference
+      description: '**Required ACL:** `confd.conferences.read`'
+      tags:
+      - conferences
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Conferences list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConferenceItems'
+    post:
+      operationId: create_conference
+      summary: Create conference
+      description: '**Required ACL:** `confd.conferences.create`
+
+
+        All conferences have the same menu. Please consult the asterisk
+
+        [documentation](https://raw.githubusercontent.com/asterisk/asterisk/master/configs/samples/confbridge.conf.sample)
+
+        for definitions:
+
+        ```
+
+        * = playback_and_continue
+
+        1 = toggle_mute
+
+        4 = decrease_listening_volume
+
+        5 = reset_listening_volume
+
+        6 = increase_listening_volume
+
+        7 = decrease_talking_volume
+
+        8 = reset_talking_volume
+
+        9 = increase_talking_volume
+
+        ```
+
+
+        And the following options are added to the admin user:
+
+        ```
+
+        2 = admin_toggle_conference_lock
+
+        3 = admin_kick_last
+
+        0 = admin_toggle_mute_participants''
+
+        ```
+
+        '
+      tags:
+      - conferences
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Conference created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conference'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conference'
+        description: Conference to create
+    servers:
+    - url: /1.1
+  /conferences/{conference_id}:
+    get:
+      operationId: get_conference
+      summary: Get conference
+      description: '**Required ACL:** `confd.conferences.{conference_id}.read`'
+      tags:
+      - conferences
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/conferenceid'
+      responses:
+        '200':
+          description: Conference
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conference'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_conference
+      summary: Update conference
+      description: '**Required ACL:** `confd.conferences.{conference_id}.update`'
+      tags:
+      - conferences
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/conferenceid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conference'
+        required: true
+    delete:
+      operationId: delete_conference
+      summary: Delete conference
+      description: '**Required ACL:** `confd.conferences.{conference_id}.delete`'
+      tags:
+      - conferences
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/conferenceid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /conferences/{conference_id}/extensions/{extension_id}:
+    put:
+      operationId: associate_conference_extension
+      summary: Associate conference and extension
+      description: '**Required ACL:** `confd.conferences.{conference_id}.extensions.{extension_id}.update`'
+      tags:
+      - conferences
+      parameters:
+      - $ref: '#/components/parameters/conferenceid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Conference and Extension associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_conference_extension
+      summary: Dissociate conference and extension
+      description: '**Required ACL:** `confd.conferences.{conference_id}.extensions.{extension_id}.delete`'
+      tags:
+      - conferences
+      parameters:
+      - $ref: '#/components/parameters/conferenceid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Conference and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+components:
+  parameters:
+    ConferenceID:
+      name: conference_id
+      in: path
+      description: Unique identifier of the conference
+      required: true
+      schema:
+        type: string
+    ParticipantID:
+      name: participant_id
+      in: path
+      description: Unique identifier of the participant
+      required: true
+      schema:
+        type: string
+    conferenceid:
+      required: true
+      name: conference_id
+      in: path
+      description: Conference's ID
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoSuchConference:
+      description: The specified conference does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+  schemas:
+    ParticipantList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Participant'
+    Participant:
+      type: object
+      properties:
+        id:
+          description: The participant's ID
+          type: string
+        caller_id_name:
+          description: The participant's name
+          type: string
+        caller_id_num:
+          description: The participant's number
+          type: string
+        muted:
+          description: Is the participant muted?
+          type: boolean
+        join_time:
+          description: Elapsed seconds since the participant joined the conference
+          type: integer
+        admin:
+          description: Is the participant an admin of the conference?
+          type: boolean
+        language:
+          description: The participant's language
+          type: string
+        call_id:
+          description: The ID of the participant's call
+          type: string
+        user_uuid:
+          description: The UUID of the participant's user. `null` when there is no user.
+          type: string
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    ConferenceRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    ConfBridgeConfiguration:
+      title: ConfBridgeConfiguration
+      description: 'This configuration will be in the file ''confbridge.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
+      properties:
+        options:
+          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    IncallRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    ConferenceRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: name to identify the conference
+    Conference:
+      title: Conference
+      allOf:
+      - $ref: '#/components/schemas/ConferenceRelationBase'
+      - properties:
+          preprocess_subroutine:
+            type: string
+            description: Name of the subroutine to execute in asterisk before entering the conference
+          pin:
+            type: string
+            description: Pin to enter in the conference
+          admin_pin:
+            type: string
+            description: Administrator pin to enter in the conference
+          quiet_join_leave:
+            type: boolean
+            description: Play 'beep' notification when join/leave a conference
+            default: false
+          announce_join_leave:
+            type: boolean
+            description: Record name and announce join/leave
+            default: false
+          announce_user_count:
+            type: boolean
+            description: Announce the number of participants
+            default: false
+          announce_only_user:
+            type: boolean
+            description: Announce when a participant is alone in conference
+            default: true
+          music_on_hold:
+            type: string
+            description: Name of the MOH category to use for music on hold
+          max_users:
+            type: integer
+            description: Maximum users allowed in the conference. This exclude admin.
+          record:
+            type: boolean
+            description: Record the conference
+            default: false
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+      - $ref: '#/components/schemas/ConferenceRelationExtensions'
+      - $ref: '#/components/schemas/ConferenceRelationIncalls'
+    ConferenceRelationIncall:
+      allOf:
+      - $ref: '#/components/schemas/IncallRelationBase'
+      - $ref: '#/components/schemas/IncallRelationExtensions'
+    ExtensionRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Extension ID
+          readOnly: true
+        context:
+          type: string
+        exten:
+          type: string
+    ConferenceItems:
+      title: ConferenceItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Conference'
+        total:
+          type: integer
+      required:
+      - total
+    Error_2:
+      type: array
+      items:
+        type: string
+    ConferenceRelationIncalls:
+      properties:
+        incalls:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ConferenceRelationIncall'
+    IncallRelationBase:
+      title: IncallRelation
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the incoming call
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-calld-api-openapi.yml
+- wazo-confd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

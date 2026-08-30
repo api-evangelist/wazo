@@ -1,0 +1,880 @@
+openapi: 3.2.0
+info:
+  version: '0.1'
+  title: wazo-auth Token API
+  description: Wazo's authentication service
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+tags:
+- name: token
+paths:
+  /saml/sso:
+    post:
+      description: 'Returns the information (SAML request and redirect location) that
+
+        the client needs to use to authenticate using the configured identity
+
+        provider. The redirection does not happen automatically, the client
+
+        has to use the `location` provided in the body of the response.
+
+        '
+      summary: Creates and returns context and redirects to IdP login page
+      operationId: samlSSO
+      tags:
+      - token
+      responses:
+        '201':
+          description: 'The `Location` contains the URL of the identity provider that should be
+
+            used by the client to authenticate. The provided `saml_session_id` must
+
+            be used by the application when requesting the token following the login.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SAMLSSOResponse'
+        '400':
+          description: Missing or wrong parameters.
+        '500':
+          description: 'Failed to initialize SAML SSO. Please check your stack configuration.
+
+            '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SAMLLoginContext'
+        description: SAML SSO Login context
+        required: true
+  /saml/acs:
+    post:
+      description: 'Receives the SAML response created by the identity provider.
+
+
+        The internal cache allows to retrieve the context and redirect the browser
+
+        to process the login.
+
+        '
+      summary: 'Processes the IdP response and redirects to requested URL, even if the authentication
+
+        failed to allow further processing by the frontend application.
+
+        '
+      operationId: processACS
+      tags:
+      - token
+      responses:
+        '303':
+          description: 'Redirect browser to process the login result. The `Location` header contains the
+
+            URL that should be used by the client to complete the authentication. For failed authentication,
+
+            the `Location` header URL contains an error code in the `login_failure_code` query parameter.
+
+            | Code | Description            |
+
+            |------|------------------------|
+
+            | 401  | Unauthorized           |
+
+            | 403  | Forbidden              |
+
+            | 500  | Internal Server Error  |
+
+            '
+          headers:
+            Location:
+              description: The URL to redirect the browser to.
+              schema:
+                type: string
+        '400':
+          description: Missing or wrong parameters.
+        '404':
+          description: Context of the response not found, unable to redirect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error while processing the SAML response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SAMLIdpResponse'
+        description: The SAML response
+        required: true
+  /saml/logout:
+    get:
+      description: 'Returns the SAML logout request and redirect location, which is the IdP.
+
+        The client must use the indicated location and forward the logout request
+
+        to the IdP and forward the response to the wazo-auth. Wazo-auth will process
+
+        the answer and confirm to the requester the logout was processed or notify
+
+        an error.
+
+        '
+      summary: Creates and returns data required to process the logout by the IdP
+      security:
+      - wazo_auth_token: []
+      operationId: samlLogout
+      tags:
+      - token
+      responses:
+        '201':
+          description: 'SAML encoded Logout request to be forwarded to the provided redirect URL.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SAMLLogoutRequest'
+        '400':
+          description: Missing or wrong parameters.
+        '500':
+          description: 'Failed to initialize SAML SSO. Please check your stack configuration.
+
+            '
+  /saml/sls:
+    get:
+      description: 'Processes the IdP response to logout request and confirms the logout by
+
+        a redirect to the `redirect_url` provided during the login phase
+
+        with logout confirmation in the URL''s query param.
+
+        '
+      summary: Handles the logout response from the IDP
+      operationId: samlLogoutResponse
+      tags:
+      - token
+      parameters:
+      - in: query
+        required: true
+        name: SAMLResponse
+        description: Encoded SAML XML response to logout request
+        schema:
+          type: string
+      - in: query
+        required: true
+        name: RelayState
+        description: Relay state parameter
+        schema:
+          type: string
+      responses:
+        '201':
+          description: 'Logout successfully processed.
+
+            '
+        '400':
+          description: Missing or wrong parameters.
+        '500':
+          description: 'Failed to initialize SAML SSO. Please check your stack configuration.
+
+            '
+  /token:
+    post:
+      summary: Creates a token
+      description: 'Creates a valid token for the supplied username and password combination or refresh_token
+
+        using the configured authentication method.
+
+
+        The user''s email address can be used instead of the username if the email address is confirmed.
+
+
+        Creating  a token with the `access_type` *offline* will also create a refresh token which can be used
+
+        to create a new token without specifying the username and password.
+
+
+        The username/password and refresh_token method of authentication are mutually exclusive
+
+
+        For more details about the backends, see http://documentation.wazo.community/en/latest/system/wazo-auth/stock_plugins.html#backends-plugins
+
+        '
+      operationId: createToken
+      tags:
+      - token
+      security:
+      - wazo_auth_basic: []
+      parameters:
+      - $ref: '#/components/parameters/wazo_session_type'
+      responses:
+        '200':
+          description: The created token's data
+          headers:
+            Wazo-Sessions-Revoked:
+              description: Number of pre-existing sessions revoked as a side effect of this login.
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: Invalid expiration or missing field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related token generation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_name:
+                  type: string
+                  description: 'The `domain_name` must match a tenant''s domain_name entry to find the appropriate ldap configuration.
+
+                    '
+                expiration:
+                  type: integer
+                  default: 7200
+                  maximum: 315360000
+                  description: Expiration time in seconds.
+                access_type:
+                  type: string
+                  description: 'The `access_type` indicates whether your application can refresh the tokens when the user is not
+
+                    present at the browser. Valid parameter values are *online*, which is the default value, and *offline*
+
+
+                    Only one refresh token will be created for a given user with a given `client_id`. The old refresh
+
+                    for `client_id` will be revoken when creating a new one.
+
+
+                    The *client_id* field is required when using the `access_type` *offline*
+
+                    '
+                  default: online
+                  enum:
+                  - online
+                  - offline
+                client_id:
+                  type: string
+                  description: 'The `client_id` is used in conjunction with the `access_type` *offline* to known for which application
+
+                    a refresh token has been emitted.
+
+
+                    *Required when using `access_type: offline`*
+
+                    '
+                refresh_token:
+                  type: string
+                  description: 'The `refresh_token` can be used to get a new access token without using the username/password.
+
+                    This is useful for client application that should not store the username and password once the
+
+                    user has logged in a first time.
+
+                    '
+                saml_session_id:
+                  type: string
+                  description: 'The `saml_session_id` can be used to get a new access token or refresh token instead of using
+
+                    the username/password. It can be created using the `/saml/sso` and `/saml/acs` resources. A token
+
+                    created this way has the same properties as another token created using this API.
+
+                    '
+        description: The token creation parameters
+  /token/{token}:
+    get:
+      summary: Retrieves token data
+      description: Checks if a token is valid in a given context and return the token data.  If a scope is given, the token must have the necessary permissions for the ACL. If a tenant is given, the token must have that tenant in its sub-tenant subtree.
+      tags:
+      - token
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/token'
+      - $ref: '#/components/parameters/scope'
+      - $ref: '#/components/parameters/tenant'
+      responses:
+        '200':
+          description: The token's data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '403':
+          description: This token cannot acces the required ACL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related token error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    head:
+      summary: Checks if a token is valid
+      description: Checks if a token is valid in a given context.  If a scope is given, the token must have the necessary permissions for the ACL. If a tenant is given, the token must have that tenant in its sub-tenant subtree.
+      tags:
+      - token
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/token'
+      - $ref: '#/components/parameters/scope'
+      - $ref: '#/components/parameters/tenant'
+      responses:
+        '204':
+          description: No data
+        '403':
+          description: This token cannot acces the required ACL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related token error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Revoke a token
+      tags:
+      - token
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/token'
+      responses:
+        '200':
+          description: Success message
+        '500':
+          description: System related token error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /token/{token}/scopes/check:
+    post:
+      summary: Check a token against scopes
+      description: Checks if a token is valid for given scopes.
+      tags:
+      - token
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/token'
+      responses:
+        '200':
+          description: Provided scope list checked against the token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScopeList'
+        '400':
+          description: The provided scope list is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: This token is not valid for the provided tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related token error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScopeCheckRequest'
+        description: The token scopes check parameters
+        required: true
+  /tokens:
+    get:
+      operationId: listRefreshTokens
+      summary: Retrieve a list of refresh tokens that have been created on the system
+      description: '**Required ACL**: `auth.tokens.read`
+
+
+        Finds all refresh tokens and return the list. Access tokens are not included in the result.
+
+        '
+      tags:
+      - token
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: A refresh token list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenList'
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '500':
+          description: System related token error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+  /users/{user_uuid_or_me}/tokens:
+    get:
+      operationId: listUserRefreshTokens
+      summary: Retrieve a user's refresh token list
+      description: '**Required ACL**: `auth.users.{user_uuid}.tokens.read`
+
+
+        Finds all of a user''s refresh token and return the list. Access tokens are not included in the result.
+
+
+        Doing a query with the `user_uuid` `me` will result in the current user''s token being used.
+
+        '
+      tags:
+      - token
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - $ref: '#/components/parameters/user_uuid_or_me'
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: A refresh token list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenList'
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '500':
+          description: System related token error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+  /users/{user_uuid_or_me}/tokens/{client_id}:
+    delete:
+      operationId: deleteRefreshTokens
+      summary: Delete a user's refresh token
+      description: '**Required ACL**: `auth.users.{user_uuid}.tokens.{client_id}.delete`
+
+
+        Remove a given refresh token. This only prevent this refresh token from creating new
+
+        access tokens. Any tokens that are currently issued are still usable and should be
+
+        revoked if needed.
+
+        '
+      tags:
+      - token
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - $ref: '#/components/parameters/user_uuid_or_me'
+      - $ref: '#/components/parameters/client_id'
+      responses:
+        '204':
+          description: The refresh token has been deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '404':
+          description: User or refresh token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '500':
+          description: System related token error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+components:
+  schemas:
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
+    RefreshToken:
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: The `client_id` that was used to create this refresh token
+        created_at:
+          type: string
+          description: The time at which this token was created
+        mobile:
+          type: boolean
+          description: Indicate if that refresh token was created with a mobile session type
+        user_uuid:
+          type: string
+          description: The UUID of the user which created this refresh token
+        tenant_uuid:
+          type: string
+          description: The tenant UUID of the user which created this refresh token
+        metadata:
+          type: object
+          description: the persistent metadata tied to this refresh token
+    SAMLIdpResponse:
+      properties:
+        SAMLResponse:
+          description: Encoded SAML XML response
+          type: string
+        RelayState:
+          description: Relay state parameter
+          type: string
+      required:
+      - SAMLResponse
+      - RelayState
+      type: object
+    ScopeCheckRequest:
+      type: object
+      properties:
+        tenant_uuid:
+          type: string
+          format: uuid
+          description: If provided, also checks the token against this tenant
+        scopes:
+          type: array
+          description: Scopes to check against
+          items:
+            type: string
+      required:
+      - scopes
+    ScopeList:
+      type: object
+      properties:
+        scopes:
+          type: array
+          description: the scopes and their check result
+          items:
+            type: object
+            description: 'JSON object with scopes as keys and boolean values whether the token is valid for the given scope, e.g. `{"confd.groups.create": true}`'
+    SAMLLogoutRequest:
+      type: object
+      properties:
+        location:
+          description: 'The URL that the client should open to complete the logout.
+
+            '
+          type: string
+    SAMLLoginContext:
+      properties:
+        redirect_url:
+          description: Where to redirect the browser once the login succeeded
+          type: string
+        domain:
+          description: The domain name of the tenant
+          type: string
+      required:
+      - redirect_url
+      - domain
+      type: object
+    Token:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            metadata:
+              type: object
+              description: Information owned by wazo-auth about this user
+            token:
+              type: string
+            expires_at:
+              type: string
+            utc_expires_at:
+              type: string
+            issued_at:
+              type: string
+            utc_issued_at:
+              type: string
+            auth_id:
+              type: string
+              description: The unique identifier retrieved from the backend
+            xivo_user_uuid:
+              type: string
+              description: 'The UUID of the matching wazo-confd user if there is one. This
+
+                field can be null.
+
+
+                This field should NOT be used anymore, the "pbx_user_uuid" in the
+
+                metadata field is the prefered method to access this information.
+
+                '
+            xivo_uuid:
+              type: string
+            acl:
+              type: array
+              items:
+                type: string
+              description: The list of allowed accesses for this token
+            session_uuid:
+              type: string
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    RefreshTokenList:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of refresh tokens for that user
+        filtered:
+          type: integer
+          description: The number of refresh token matching the searched terms
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefreshToken'
+          description: A paginated list of refresh tokens
+    SAMLSSOResponse:
+      type: object
+      properties:
+        location:
+          description: 'The URL that the client should open to complete the authentication
+
+            request
+
+            '
+          type: string
+        saml_session_id:
+          type: string
+          description: 'The saml_session_id needs to be used to create a wazo-auth token
+
+            once the SAML authentication has been completed successfully
+
+            '
+  parameters:
+    tenant:
+      name: tenant
+      in: query
+      description: A tenant UUID to check against
+      required: false
+      schema:
+        type: string
+    user_uuid_or_me:
+      name: user_uuid_or_me
+      in: path
+      description: The UUID of the user or `me` to refer to the user doing the query
+      required: true
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    client_id:
+      name: client_id
+      in: path
+      description: The client_id of the refresh token to revoke
+      required: true
+      schema:
+        type: string
+    wazo_session_type:
+      name: Wazo-Session-Type
+      in: header
+      description: The session type
+      required: false
+      schema:
+        type: string
+        enum:
+        - mobile
+        - desktop
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    scope:
+      name: scope
+      in: query
+      description: The required ACL
+      required: false
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    token:
+      name: token
+      in: path
+      description: The token to query
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9497
+x-xivo-name: auth
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-auth
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/auth/0.1/api/api.yml (see wazo_auth/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

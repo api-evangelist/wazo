@@ -1,0 +1,1384 @@
+openapi: 3.2.0
+info:
+  title: Wazo Applications API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged applications across 2 of this provider''s published API definitions: wazo-calld-api-openapi.yml, wazo-confd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /1.0
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: applications
+paths:
+  /applications/{application_uuid}:
+    get:
+      summary: Show an application
+      description: '**Required ACL:** `calld.applications.{application_uuid}.read`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      tags:
+      - applications
+      responses:
+        '200':
+          description: Application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '404':
+          description: No such application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    put:
+      operationId: update_application
+      summary: Update application
+      description: '**Required ACL:** `confd.applications.{application_uuid}.update`'
+      tags:
+      - applications
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/application_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Application_2'
+        required: true
+    delete:
+      operationId: delete_application
+      summary: Delete application
+      description: '**Required ACL:** `confd.applications.{application_uuid}.delete`'
+      tags:
+      - applications
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/application_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls:
+    get:
+      summary: List calls from the application
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.read`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      tags:
+      - applications
+      responses:
+        '200':
+          description: Application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationCalls'
+        '404':
+          description: No such application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    post:
+      summary: Make a new call to the application
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.create`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      tags:
+      - applications
+      responses:
+        '201':
+          description: The new call ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationCall'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCallRequestToExten'
+        description: node parameters
+        required: true
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}:
+    delete:
+      summary: Hangup a call from the application
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: Call has been hung up
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/hold/start:
+    put:
+      summary: Place a call on hold
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.hold.start.update`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: The call is now on hold
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/hold/stop:
+    put:
+      summary: Resume a call that has been placed on hold
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.hold.stop.update'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: The call has been resumed
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/moh/{moh_uuid}/start:
+    put:
+      summary: Starts playing a music on hold
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.moh.{moh_uuid}.start.update`
+
+
+        Starts playing a music on hold on a call. If the music on hold is interrupted for a playback or another
+
+        action, the music on hold will not restart automatically after the interruption.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      - $ref: '#/components/parameters/ApplicationMOHUUID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: The MOH has been started
+        '404':
+          description: No such application, call or moh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/moh/stop:
+    put:
+      summary: Stops playing a music on hold
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.moh.{moh_uuid}.stop.update'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: The MOH has been stopped
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/mute/start:
+    put:
+      summary: Mute a call
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.mute.start.update`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: The call is now muted
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/mute/stop:
+    put:
+      summary: Unmute a call
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.mute.stop.update`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: The call is now unmuted
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/answer:
+    put:
+      summary: Answer a call
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.answer.update`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: The call is now answered
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/progress/start:
+    put:
+      summary: Play the progress ringing tone
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.progress.start.update`
+
+
+        The progress ringing tone is the sound heard by a caller while the other party is ringing.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: The call is now playing the progress ringing tone
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/progress/stop:
+    put:
+      summary: Stop playing the progress ringing tone.
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.progress.stop.update`
+
+
+        The progress ringing tone is the sound heard by a caller while the other party is ringing.
+
+
+        Limitation: this only works when the ringing tone is played by Wazo
+
+        through audio media (e.g. when using `/progress` after `/answer`). If
+
+        the phone is emitting the ringing tone directly to the user, then it
+
+        cannot be stopped, and the response code will still be 204.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: The call has stopped playing the progress ringing tone
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/playbacks:
+    post:
+      summary: Play file to the call
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.playbacks.create`
+
+
+        URI examples:
+
+
+        * sound:tt-weasels
+
+        * digits:4188001234
+
+        * number:321
+
+        * characters:abc
+
+        * tone:ring
+
+        * recording:my-recording
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '200':
+          description: Play has been sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationPlayback'
+        '400':
+          description: No such playback
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationPlayback'
+        description: playback parameters
+        required: true
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/snoops:
+    post:
+      summary: Start snooping on a call
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.snoops.create`
+
+
+        The whisper mode indicate which part of the snooped channel can hear the snooper.
+
+
+        Given Alice calls Bob and Charles snoops on Bob
+
+
+        * none: No one can hear the snooper
+
+        * both: Alice and Bob can hear Charles
+
+        * in: Alice can hear Charles
+
+        * out: Bob can hear Charles
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '201':
+          description: Snoop started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationSnoop'
+        '400':
+          description: No such call or Invalid whisper mode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationSnoop'
+        description: snoop parameters
+        required: true
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/calls/{call_id}/dtmf:
+    put:
+      summary: Simulate a user pressing DTMF keys
+      description: '**Required ACL:** `calld.applications.{application_uuid}.calls.{call_id}.dtmf.update'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      - $ref: '#/components/parameters/DTMFDigits'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: The digits have been sent
+        '404':
+          description: No such application or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/nodes:
+    get:
+      summary: List nodes from the application
+      description: '**Required ACL:** `calld.applications.{application_uuid}.nodes.read`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      tags:
+      - applications
+      responses:
+        '200':
+          description: Application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationNodes'
+        '404':
+          description: No such application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    post:
+      summary: Make a new node and add calls
+      description: '**Required ACL:** `calld.applications.{application_uuid}.nodes.create`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      tags:
+      - applications
+      responses:
+        '201':
+          description: The new node ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationNode'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationNodeRequest'
+        description: node parameters
+        required: true
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/nodes/{node_uuid}:
+    get:
+      summary: Show a node
+      description: '**Required ACL:** `calld.applications.{application_uuid}.nodes.{node_uuid}.read`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationNodeUUID'
+      tags:
+      - applications
+      responses:
+        '200':
+          description: ApplicationNode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationNode'
+        '404':
+          description: No such application or node
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    delete:
+      summary: Delete node and hangup all calls
+      description: '**Required ACL:** `calld.applications.{application_uuid}.nodes.{node_uuid}.delete`
+
+
+        **Not implemented**
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationNodeUUID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: Call has been hung up
+        '404':
+          description: No such application or node
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/nodes/{node_uuid}/calls:
+    post:
+      summary: Make a new call to the node
+      description: '**Required ACL:** `calld.applications.{application_uuid}.nodes.{node_uuid}.calls.create`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationNodeUUID'
+      tags:
+      - applications
+      responses:
+        '201':
+          description: The new call ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationCall'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such application or node
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCallRequestToExten'
+        description: Call parameters
+        required: true
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/nodes/{node_uuid}/calls/user:
+    post:
+      summary: Initiate a call to a user and insert it in the node
+      description: '**Required ACL:** `calld.applications.{application_uuid}.nodes.{node_uuid}.calls.user.create`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationNodeUUID'
+      tags:
+      - applications
+      responses:
+        '201':
+          description: The new call ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationCall'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such application or node
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCallRequestToUser'
+        description: Parameters for the new call
+        required: true
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/nodes/{node_uuid}/calls/{call_id}:
+    put:
+      summary: Insert call to the node
+      description: '**Required ACL:** `calld.applications.{application_uuid}.nodes.{node_uuid}.calls.{call_id}.update`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationNodeUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: Call has been added to the node
+        '404':
+          description: No such application or node or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    delete:
+      summary: Remove call from the node
+      description: '**Required ACL:** `calld.applications.{application_uuid}.nodes.{node_uuid}.calls.{call_id}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationNodeUUID'
+      - $ref: '#/components/parameters/ApplicationCallID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: Call has been removed from the node
+        '404':
+          description: No such application or node or call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/playbacks/{playback_uuid}:
+    delete:
+      summary: Stop and remove playback
+      description: '**Required ACL:** `calld.applications.{application_uuid}.playbacks.{playback_uuid}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationPlaybackUUID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: Playback has been stopped and removed
+        '404':
+          description: No such application or playback
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/snoops:
+    get:
+      summary: List active snoops
+      description: '**Required ACL:** `calld.applications.{application_uuid}.snoops.read`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      tags:
+      - applications
+      responses:
+        '200':
+          description: Snoop list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationSnoops'
+        '404':
+          description: No such application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications/{application_uuid}/snoops/{snoop_uuid}:
+    get:
+      summary: View snooping parameters
+      description: '**Required ACL:** `calld.applications.{application_uuid}.snoops.{snoop_uuid}.read`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationSnoopUUID'
+      tags:
+      - applications
+      responses:
+        '200':
+          description: Snoop parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationSnoop'
+        '404':
+          description: No such application or snoop
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    put:
+      summary: Change snooping parameters
+      description: '**Required ACL:** `calld.applications.{application_uuid}.snoops.{snoop_uuid}.update`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationSnoopUUID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: Snooping has been modifier
+        '404':
+          description: No such application or snoop
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationSnoopPut'
+        description: snoop parameters
+        required: true
+    delete:
+      summary: Stop snooping
+      description: '**Required ACL:** `calld.applications.{application_uuid}.snoops.{snoop_uuid}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/ApplicationUUID'
+      - $ref: '#/components/parameters/ApplicationSnoopUUID'
+      tags:
+      - applications
+      responses:
+        '204':
+          description: Snooping has been stopped
+        '404':
+          description: No such application or snoop
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /applications:
+    get:
+      operationId: list_applications
+      summary: List application
+      description: '**Required ACL:** `confd.applications.read`'
+      tags:
+      - applications
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Applications list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationItems'
+    post:
+      operationId: create_application
+      summary: Create application
+      description: '**Required ACL:** `confd.applications.create`'
+      tags:
+      - applications
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The Application has been created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application_2'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Application_2'
+        description: Application parameters
+        required: true
+    servers:
+    - url: /1.1
+  /lines/{line_id}/applications/{application_uuid}:
+    put:
+      operationId: associate_line_application
+      summary: Associate line and application
+      description: '''**Required ACL:** `confd.lines.{line_id}.applications.{application_uuid}.update`''
+
+
+        **WARNING**: Association will disable the effect of the line `context` field
+
+        '
+      tags:
+      - applications
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/application_uuid'
+      responses:
+        '204':
+          description: Line and application associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_line_application
+      summary: Dissociate line and application
+      description: '**Required ACL:** `confd.lines.{line_id}.applications.{application_uuid}.delete`'
+      tags:
+      - applications
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/application_uuid'
+      responses:
+        '204':
+          description: Line and application dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+components:
+  parameters:
+    DTMFDigits:
+      name: digits
+      in: query
+      description: Digits to send via DTMF. Must contain only `0-9*#ABCD` (letters are case insensitive).
+      required: true
+      schema:
+        type: string
+    ApplicationPlaybackUUID:
+      name: playback_uuid
+      in: path
+      description: ID of the playback
+      required: true
+      schema:
+        type: string
+    ApplicationCallID:
+      name: call_id
+      in: path
+      description: ID of the call
+      required: true
+      schema:
+        type: string
+    ApplicationMOHUUID:
+      name: moh_uuid
+      in: path
+      description: UUID of the music on hold
+      required: true
+      schema:
+        type: string
+    ApplicationNodeUUID:
+      name: node_uuid
+      in: path
+      description: UUID of the node
+      required: true
+      schema:
+        type: string
+    ApplicationSnoopUUID:
+      name: snoop_uuid
+      in: path
+      description: UUID of the snoop
+      required: true
+      schema:
+        type: string
+    ApplicationUUID:
+      name: application_uuid
+      in: path
+      description: UUID of the application
+      required: true
+      schema:
+        type: string
+    application_uuid:
+      required: true
+      name: application_uuid
+      in: path
+      description: Application's UUID
+      schema:
+        type: integer
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+  schemas:
+    ApplicationNodes:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationNode'
+    ApplicationCallRequestToUser:
+      type: object
+      properties:
+        autoanswer:
+          type: boolean
+          default: false
+        variables:
+          type: object
+          description: channel variables that should be assigned on this new channel
+        displayed_caller_id_name:
+          type: string
+        displayed_caller_id_number:
+          type: string
+        user_uuid:
+          type: string
+      required:
+      - user_uuid
+    ApplicationSnoop:
+      type: object
+      properties:
+        uuid:
+          type: string
+          readOnly: true
+        snooped_call_id:
+          type: string
+          readOnly: true
+        snooping_call_id:
+          type: string
+        whisper_mode:
+          type: string
+          enum:
+          - in
+          - out
+          - none
+          - both
+      required:
+      - snooping_call_id
+      - whisper_mode
+    ApplicationPlayback:
+      type: object
+      properties:
+        uuid:
+          type: string
+          readOnly: true
+        uri:
+          type: string
+        language:
+          type: string
+        state:
+          type: string
+    ApplicationNode:
+      type: object
+      properties:
+        uuid:
+          type: string
+        calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationCall'
+    ApplicationCallRequestToExten:
+      type: object
+      properties:
+        exten:
+          type: string
+        context:
+          type: string
+        autoanswer:
+          type: boolean
+          default: false
+        variables:
+          type: object
+          description: channel variables that should be assigned on this new channel
+        displayed_caller_id_name:
+          type: string
+        displayed_caller_id_number:
+          type: string
+      required:
+      - exten
+      - context
+    ApplicationNodeRequest:
+      type: object
+      properties:
+        calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationNodeCallRequest'
+    ApplicationCall:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          description: '* Down: the call is not connected to anything yet
+
+            * Ring: the call just came in the application
+
+            * Progress: the call is playing a progress ringing tone
+
+            * Up: the call is answered and media can be sent/received
+
+            * Ringing: the call is ringing the phone
+
+            '
+        caller_id_name:
+          type: string
+        caller_id_number:
+          type: string
+        conversation_id:
+          type: string
+        creation_time:
+          type: string
+        node_uuid:
+          type: string
+        on_hold:
+          type: boolean
+        is_caller:
+          type: boolean
+        dialed_extension:
+          type: string
+        variables:
+          type: object
+        snoops:
+          type: object
+    ApplicationSnoopPut:
+      type: object
+      properties:
+        whisper_mode:
+          type: string
+          enum:
+          - in
+          - out
+          - none
+          - both
+    ApplicationNodeCallRequest:
+      type: object
+      properties:
+        id:
+          type: string
+    ApplicationCalls:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationCall'
+    ApplicationSnoops:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationSnoop'
+    Application:
+      type: object
+      properties:
+        destination_node_uuid:
+          type: string
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    ApplicationDestinationNode:
+      type: object
+      properties:
+        music_on_hold:
+          type: string
+          description: Name of the MOH category to use for music on hold
+        answer:
+          type: boolean
+          description: Automatically answer the call when the call enters the destination node
+        type:
+          type: string
+          description: type of the default node
+          enum:
+          - holding
+    ApplicationItems:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Application_2'
+    ApplicationRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: Application UUID
+          readOnly: true
+        name:
+          type: string
+          description: Application name
+    ApplicationRelationLines:
+      properties:
+        lines:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    Application_2:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/ApplicationRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          destination:
+            type: string
+            description: Destination where the call entering in the application will be sent
+            enum:
+            - node
+          destination_options:
+            $ref: '#/components/schemas/ApplicationDestinationNode'
+      - $ref: '#/components/schemas/ApplicationRelationLines'
+    Error_2:
+      type: array
+      items:
+        type: string
+    LineRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        name:
+          type: string
+          description: The name of the line
+          readOnly: true
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-calld-api-openapi.yml
+- wazo-confd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

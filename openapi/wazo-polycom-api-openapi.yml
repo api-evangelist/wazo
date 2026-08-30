@@ -1,0 +1,178 @@
+openapi: 3.2.0
+info:
+  title: wazo-phoned Polycom API
+  description: Wazo Phone Daemon
+  version: '1.0'
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+security:
+- wazo_auth_token: []
+tags:
+- name: polycom
+paths:
+  /directories/input/{profile}/polycom:
+    get:
+      summary: Given informations about how make request lookup for Polycom Phones
+      description: 'The `input` query will return a XML to give informations about how make request
+
+        lookup for Polycom Phones.
+
+        '
+      operationId: polycom_input
+      tags:
+      - polycom
+      responses:
+        '200':
+          description: HTML to make request lookup
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/PolycomIPPhoneInput'
+              example: <html> <head> <title>Wazo Search</title> </head> <body> <form action='https://base-url' method='get' accept-charset='utf-8'> <span class='fm-desc clearboth'> <label id='lb-name' for='it-name'>Name or number:</label> </span> <input type='text' name='term' id='it-term' size='15' value='' /> <input type='hidden' name='xivo_user_uuid' value='000000-0000' /> <input type='submit' name='submit' id='it-submit' class='itb-submit' value='Search' /> </form> </body> </html>
+      parameters:
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/XivoUserUUID'
+      - $ref: '#/components/parameters/AcceptLanguage'
+  /directories/lookup/{profile}/polycom:
+    get:
+      summary: Search for contacts with Polycom Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Polycom Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: polycom_lookup
+      tags:
+      - polycom
+      responses:
+        '200':
+          description: A list of contacts
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/PolycomIPPhoneDirectory'
+              example: <html> <head> <title>Wazo Search</title> </head> <body> <ol> <li>[<a href='https://wazo-dird:9489/0.1/directories/lookup/default_phone/polycom?xivo_user_uuid=000000-0000-0000-0000-000000000000&amp;term=Alice&amp;limit=1&amp;offset=1' title='Previous'>Previous</a>]<br /></li> <li><a href='tel://5555555555'>Alice</a><br /></li>  <li>[<a href='https://wazo-dird:9489/0.1/directories/lookup/default_phone/cisco?xivo_user_uuid=000000-0000-0000-0000-000000000000&amp;term=Alice&amp;limit=1&amp;offset=2' title='Next'>Next</a>]<br /></li> </ol> </body> </html>
+        '400':
+          $ref: '#/components/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/components/responses/ProfileInvalid'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/XivoUserUUID'
+      - $ref: '#/components/parameters/Term'
+      - $ref: '#/components/parameters/Limit16'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/AcceptLanguage'
+components:
+  schemas:
+    PolycomIPPhoneInput:
+      type: string
+    PolycomIPPhoneDirectory:
+      type: string
+    Error:
+      type: object
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  parameters:
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
+      required: true
+      schema:
+        type: string
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
+    Limit16:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+        default: 16
+    XivoUserUUID:
+      name: xivo_user_uuid
+      in: query
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+  responses:
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    LimitOffsetInvalid:
+      description: The limit or offset should be positive
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port:
+- 9499
+x-xivo-name: phoned
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-phoned
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/phoned/0.1/api/api.yml (see wazo_phoned/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,140 @@
+openapi: 3.2.0
+info:
+  title: wazo-phoned Endpoint API
+  description: Wazo Phone Daemon
+  version: '1.0'
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+security:
+- wazo_auth_token: []
+tags:
+- name: endpoint
+paths:
+  /endpoints/{endpoint_name}/hold/start:
+    put:
+      summary: Start hold for a particular endpoint.
+      description: '**Required ACL:** `phoned.endpoints.{endpoint_name}.hold.start`
+
+        The endpoint plugin will search for a matching plugin and use its
+
+        service to send the correct SIP INFO to the endpoint.
+
+        '
+      operationId: endpoint_hold_start
+      tags:
+      - endpoint
+      responses:
+        '204':
+          description: Hold was started
+        '400':
+          $ref: '#/components/responses/NowhereToRouteEndpoint'
+        '404':
+          $ref: '#/components/responses/NoSuchEndpoint'
+      parameters:
+      - $ref: '#/components/parameters/EndpointName'
+  /endpoints/{endpoint_name}/hold/stop:
+    put:
+      summary: Stop hold for a particular endpoint.
+      description: '**Required ACL:** `phoned.endpoints.{endpoint_name}.hold.stop`
+
+        The endpoint plugin will search for a matching plugin and use its
+
+        service to send the correct SIP INFO to the endpoint.
+
+        '
+      operationId: endpoint_hold_stop
+      tags:
+      - endpoint
+      responses:
+        '204':
+          description: Hold was stopped
+        '400':
+          $ref: '#/components/responses/NowhereToRouteEndpoint'
+        '404':
+          $ref: '#/components/responses/NoSuchEndpoint'
+      parameters:
+      - $ref: '#/components/parameters/EndpointName'
+  /endpoints/{endpoint_name}/answer:
+    put:
+      summary: Answer call on a particular endpoint.
+      description: '**Required ACL:** `phoned.endpoints.{endpoint_name}.answer`
+
+        The endpoint plugin will search for a matching plugin and use its
+
+        service to send the correct SIP INFO to the endpoint.
+
+        '
+      operationId: endpoint_answer
+      tags:
+      - endpoint
+      responses:
+        '204':
+          description: Answered command was sent
+        '400':
+          $ref: '#/components/responses/NowhereToRouteEndpoint'
+        '404':
+          $ref: '#/components/responses/NoSuchEndpoint'
+      parameters:
+      - $ref: '#/components/parameters/EndpointName'
+components:
+  schemas:
+    Error:
+      type: object
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  responses:
+    NowhereToRouteEndpoint:
+      description: Nowhere to route the requested endpoint
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoSuchEndpoint:
+      description: The endpoint does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    EndpointName:
+      name: endpoint_name
+      in: path
+      description: The endpoint name
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port:
+- 9499
+x-xivo-name: phoned
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-phoned
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/phoned/0.1/api/api.yml (see wazo_phoned/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

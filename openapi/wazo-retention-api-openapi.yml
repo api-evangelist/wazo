@@ -1,0 +1,125 @@
+openapi: 3.2.0
+info:
+  title: wazo-call-logd Retention API
+  description: Consult call logs from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: retention
+paths:
+  /retention:
+    get:
+      summary: Retention configuration
+      description: '**Required ACL:** `call-logd.retention.read`'
+      tags:
+      - retention
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: Retention
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Retention'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+    put:
+      summary: Update retention configuration
+      description: '**Required ACL:** `call-logd.retention.update`
+
+
+        **WARNING** This endpoint reset undefined keys to `null`.
+
+        '
+      tags:
+      - retention
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: Retention was updated successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Retention'
+        description: The retention configuration to apply
+        required: true
+components:
+  schemas:
+    Retention:
+      type: object
+      properties:
+        cdr_days:
+          type: integer
+        export_days:
+          type: integer
+        recording_days:
+          type: integer
+        default_cdr_days:
+          type: integer
+          readOnly: true
+        default_export_days:
+          type: integer
+          readOnly: true
+        default_recording_days:
+          type: integer
+          readOnly: true
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  responses:
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9298
+x-xivo-name: call-logs
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-call-logd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/call-logd/1.0/api/api.yml (see wazo_call_logd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

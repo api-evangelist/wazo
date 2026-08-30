@@ -1,0 +1,193 @@
+openapi: 3.2.0
+info:
+  title: wazo-phoned Gigaset API
+  description: Wazo Phone Daemon
+  version: '1.0'
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+security:
+- wazo_auth_token: []
+tags:
+- name: gigaset
+paths:
+  /directories/lookup/{profile}/gigaset/{user_uuid}:
+    get:
+      summary: Search for contacts with Gigaset Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Gigaset Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: gigaset_lookup
+      tags:
+      - gigaset
+      responses:
+        '200':
+          description: A list of contacts
+          content:
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/list'
+        '400':
+          $ref: '#/components/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/components/responses/ProfileInvalid'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/UserUUID'
+      - $ref: '#/components/parameters/set_first'
+      - $ref: '#/components/parameters/count'
+      - $ref: '#/components/parameters/first'
+      - $ref: '#/components/parameters/AcceptLanguage'
+components:
+  schemas:
+    entry:
+      properties:
+        id:
+          type: integer
+          xml:
+            attribute: true
+          example:
+          - 1001
+        fn:
+          type: string
+        hm:
+          type: string
+    list:
+      properties:
+        response:
+          type: string
+          xml:
+            attribute: true
+          example:
+          - get_list
+        type:
+          type: string
+          xml:
+            attribute: true
+          example:
+          - pr
+        total:
+          type: integer
+          xml:
+            attribute: true
+          example:
+          - 1
+        first:
+          type: integer
+          xml:
+            attribute: true
+          example:
+          - 1
+        last:
+          type: integer
+          xml:
+            attribute: true
+          example:
+          - 1
+        entry:
+          type: array
+          items:
+            $ref: '#/components/schemas/entry'
+    Error:
+      type: object
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  parameters:
+    set_first:
+      name: set_first
+      in: query
+      description: A search term to look for
+      schema:
+        type: string
+    UserUUID:
+      name: user_uuid
+      in: path
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
+    count:
+      name: count
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      schema:
+        type: integer
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
+    first:
+      name: first
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      schema:
+        type: integer
+  responses:
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    LimitOffsetInvalid:
+      description: The limit or offset should be positive
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port:
+- 9499
+x-xivo-name: phoned
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-phoned
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/phoned/0.1/api/api.yml (see wazo_phoned/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

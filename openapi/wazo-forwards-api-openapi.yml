@@ -1,0 +1,157 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Forwards API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: forwards
+paths:
+  /users/{user_id}/forwards:
+    get:
+      operationId: list_user_forwards
+      summary: List forwards for a user
+      description: '**Required ACL:** `confd.users.{user_id}.forwards.read`'
+      tags:
+      - forwards
+      parameters:
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '200':
+          description: User-Forwards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserForwards'
+    put:
+      operationId: update_user_forwards
+      summary: Update all forwards for a user
+      description: '**Required ACL:** `confd.users.{user_id}.forwards.update`'
+      tags:
+      - forwards
+      parameters:
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserForwards'
+        required: true
+  /users/{user_id}/forwards/{forward_name}:
+    get:
+      operationId: get_user_forward
+      summary: Get forward for a user
+      description: '**Required ACL:** `confd.users.{user_id}.forwards.{forward_name}.read`'
+      tags:
+      - forwards
+      parameters:
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/forward'
+      responses:
+        '200':
+          description: User-Forward
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserForward'
+    put:
+      operationId: update_user_forward
+      summary: Update a forward for a user
+      description: '**Required ACL:** `confd.users.{user_id}.forwards.{forward_name}.update`'
+      tags:
+      - forwards
+      parameters:
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/forward'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserForward'
+        required: true
+components:
+  responses:
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+  parameters:
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    forward:
+      required: true
+      name: forward_name
+      in: path
+      description: the forward name
+      schema:
+        type: string
+        enum:
+        - busy
+        - noanswer
+        - unconditional
+  schemas:
+    UserForward:
+      title: UserForward
+      properties:
+        enabled:
+          type: boolean
+        destination:
+          type: string
+    UserForwards:
+      title: UserForwards
+      properties:
+        busy:
+          $ref: '#/components/schemas/UserForward'
+        noanswer:
+          $ref: '#/components/schemas/UserForward'
+        unconditional:
+          $ref: '#/components/schemas/UserForward'
+    Error:
+      type: array
+      items:
+        type: string
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

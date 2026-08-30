@@ -1,0 +1,1368 @@
+openapi: 3.2.0
+info:
+  title: Wazo Agents API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged agents across 2 of this provider''s published API definitions: wazo-agentd-api-openapi.yml, wazo-confd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /1.0
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: agents
+paths:
+  /agents/by-id/{agent_id}:
+    get:
+      summary: Get agent status.
+      description: '**Required ACL:** `agentd.agents.by-id.{agent_id}.read`'
+      operationId: get_agent_by_id
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentID'
+      responses:
+        '200':
+          description: The agent status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentStatus'
+        '404':
+          description: Agent does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /agents/by-number/{agent_number}:
+    get:
+      summary: Get agent status.
+      description: '**Required ACL:** `agentd.agents.by-number.{agent_number}.read`'
+      operationId: get_agent_by_number
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentNumber'
+      responses:
+        '200':
+          description: The agent status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentStatus'
+        '404':
+          description: Agent does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /agents/by-id/{agent_id}/login:
+    post:
+      summary: Log an agent.
+      description: '**Required ACL:** `agentd.agents.by-id.{agent_id}.login.create`'
+      operationId: login_agent_by_id
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentID'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '400':
+          description: The context and extension are not in the same tenant as the agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Agent, extension, context or endpoint does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is already logged or another agent is already logged on this extension and context
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInfo'
+        description: The extension and context on which to log the agent
+        required: true
+    servers:
+    - url: /1.0
+  /agents/by-number/{agent_number}/login:
+    post:
+      summary: Log an agent.
+      description: '**Required ACL:** `agentd.agents.by-number.{agent_number}.login.create`'
+      operationId: login_agent_by_number
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentNumber'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '400':
+          description: The context and extension are not in the same tenant as the agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Agent, extension, context or endpoint does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is already logged or another agent is already logged on this extension and context
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInfo'
+        description: The extension and context on which to log the agent
+        required: true
+    servers:
+    - url: /1.0
+  /users/me/agents:
+    get:
+      summary: Get agent status of the user holding the authentication token.
+      description: '**Required ACL:** `agentd.users.me.agents.read`'
+      operationId: get_user_agent
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The agent status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentStatus'
+        '404':
+          description: Agent does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /users/me/agents/login:
+    post:
+      summary: Log the agent of the user holding the authentication token
+      description: '**Required ACL:** `agentd.users.me.agents.login.create`'
+      operationId: login_user_agent
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '400':
+          description: The user does not own the line; or the token has no user; or wrong tenant; or the user has no agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is already logged or another agent is already logged on this line
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAgentLoginInfo'
+        description: The line on which to log the agent
+        required: true
+    servers:
+    - url: /1.0
+  /agents/by-id/{agent_id}/logoff:
+    post:
+      summary: Logoff an agent.
+      description: '**Required ACL:** `agentd.agents.by-id.{agent_id}.logoff.create`'
+      operationId: logoff_agent_by_id
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentID'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '409':
+          description: Agent does not exist or is not logged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /agents/by-number/{agent_number}/logoff:
+    post:
+      summary: Logoff an agent.
+      description: '**Required ACL:** `agentd.agents.by-number.{agent_number}.logoff.create`'
+      operationId: logoff_agent_by_number
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentNumber'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '409':
+          description: Agent does not exist or is not logged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /users/me/agents/logoff:
+    post:
+      summary: Logoff the agent of the user holding the authentication token
+      description: '**Required ACL:** `agentd.users.me.agents.logoff.create`'
+      operationId: logoff_user_agent
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '400':
+          description: The token has no user; or wrong tenant; or the user has no agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is already logged or another agent is already logged on this line
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /agents/by-number/{agent_number}/pause:
+    post:
+      summary: Pause an agent.
+      description: '**Required ACL:** `agentd.agents.by-number.{agent_number}.pause.create`'
+      operationId: pause_agent_by_number
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentNumber'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '404':
+          description: Agent does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is not logged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentPauseReason'
+        description: The reason for pausing the agent
+    servers:
+    - url: /1.0
+  /users/me/agents/pause:
+    post:
+      summary: Pause the agent of the user holding the authentication token
+      description: '**Required ACL:** `agentd.users.me.agents.pause.create`'
+      operationId: pause_user_agent
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '400':
+          description: The token has no user; or wrong tenant; or the user has no agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is already logged or another agent is already logged on this line
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentPauseReason'
+        description: The reason for pausing the agent
+    servers:
+    - url: /1.0
+  /agents/by-number/{agent_number}/unpause:
+    post:
+      summary: Unpause an agent.
+      description: '**Required ACL:** `agentd.agents.by-number.{agent_number}.unpause.create`'
+      operationId: unpause_agent_by_number
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentNumber'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '404':
+          description: Agent does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is not logged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /users/me/agents/unpause:
+    post:
+      summary: Unpause the agent of the user holding the authentication token
+      description: '**Required ACL:** `agentd.users.me.agents.unpause.create`'
+      operationId: unpause_user_agent
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '400':
+          description: The token has no user; or wrong tenant; or the user has no agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is already logged or another agent is already logged on this line
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /agents/by-id/{agent_id}/add:
+    post:
+      summary: Add agent to a queue.
+      description: '**Required ACL:** `agentd.agents.by-id.{agent_id}.add.create`'
+      operationId: add_agent_by_id
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentID'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '400':
+          description: The agent and the queue are not in the same tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Agent or queue does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is already a member of the queue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Queue'
+        description: The queue to add the agent to
+        required: true
+    servers:
+    - url: /1.0
+  /agents/by-id/{agent_id}/remove:
+    post:
+      summary: Remove agent from a queue.
+      description: '**Required ACL:** `agentd.agents.by-id.{agent_id}.remove.create`'
+      operationId: remove_agent_by_id
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentID'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '404':
+          description: Agent or queue does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is not a member of the queue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Queue'
+        description: The queue to remove the agent from
+        required: true
+    servers:
+    - url: /1.0
+  /agents/{agent_id}/queues/{queue_id}/login:
+    put:
+      summary: Login agent to queue
+      description: '**Required ACL:** `agentd.agents.{agent_id}.queues.{queue_id}.login.update`'
+      operationId: login_agent_to_queue
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentID'
+      - $ref: '#/components/parameters/QueueID'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '400':
+          description: The agent and the queue are not in the same tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Agent or queue does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is not logged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /users/me/agents/queues/{queue_id}/login:
+    put:
+      summary: Login user agent to queue
+      description: '**Required ACL:** `agentd.users.me.agents.queues.{queue_id}.login.update`'
+      operationId: user_agent_login_to_queue
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/QueueID'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '400':
+          description: The token has no user; or wrong tenant; or the user has no agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Agent or queue does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is not logged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /agents/{agent_id}/queues/{queue_id}/logoff:
+    put:
+      summary: Logoff agent from queue
+      description: '**Required ACL:** `agentd.agents.{agent_id}.queues.{queue_id}.logoff.update`'
+      operationId: logoff_agent_from_queue
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/AgentID'
+      - $ref: '#/components/parameters/QueueID'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '400':
+          description: The agent and the queue are not in the same tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Agent or queue does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is not logged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /users/me/agents/queues/{queue_id}/logoff:
+    put:
+      summary: Logoff user agent from queue
+      description: '**Required ACL:** `agentd.users.me.agents.queues.{queue_id}.logoff.update`'
+      operationId: user_agent_logoff_from_queue
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/QueueID'
+      responses:
+        '204':
+          description: The operation was performed successfully
+        '400':
+          description: The token has no user; or wrong tenant; or the user has no agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Agent or queue does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Agent is not logged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /1.0
+  /agents:
+    get:
+      summary: Get the status of all agents.
+      description: '**Required ACL:** `agentd.agents.read`'
+      operationId: get_agents
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      responses:
+        '200':
+          description: A list of agent status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentStatus'
+    post:
+      operationId: create_agent
+      summary: Create agent
+      description: '**Required ACL:** `confd.agents.create`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Agent created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agent'
+        description: Agent to create
+        required: true
+    servers:
+    - url: /1.0
+  /agents/logoff:
+    post:
+      summary: Logoff all agents.
+      description: '**Required ACL:** `agentd.agents.logoff.create`'
+      operationId: logoff_agents
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The operation was performed succesfully
+    servers:
+    - url: /1.0
+  /agents/relog:
+    post:
+      summary: Relog all agents.
+      description: '**Required ACL:** `agentd.agents.relog.create`
+
+
+        Relog all agents which are currently logged.'
+      operationId: relog_agents
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - name: all_queues
+        in: query
+        description: If true, relog each agent into all of its assigned queues, restoring membership for queues from which the agent was previously logged off individually.
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '204':
+          description: The operation was performed succesfully
+    servers:
+    - url: /1.0
+  /agents/{agent_id}:
+    get:
+      operationId: get_agent
+      summary: Get agent
+      description: '**Required ACL:** `confd.agents.{agent_id}.read`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/agentid'
+      responses:
+        '200':
+          description: Agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_agent
+      summary: Update agent
+      description: '**Required ACL:** `confd.agents.{agent_id}.update`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/agentid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agent'
+        required: true
+    delete:
+      operationId: delete_agent
+      summary: Delete agent
+      description: '**Required ACL:** `confd.agents.{agent_id}.delete`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/agentid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /agents/{agent_id}/skills/{skill_id}:
+    put:
+      operationId: associate_agent_skill
+      summary: Associate agent and skill
+      description: '**Required ACL:** `confd.agents.{agent_id}.skills.{skill_id}.update`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/agentid'
+      - $ref: '#/components/parameters/skillid'
+      responses:
+        '204':
+          description: Association updated
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentSkill'
+    delete:
+      operationId: dissociate_agent_skill
+      summary: Dissociate agent and skill
+      description: '**Required ACL:** `confd.agents.{agent_id}.skills.{skill_id}.delete`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/agentid'
+      - $ref: '#/components/parameters/skillid'
+      responses:
+        '204':
+          description: Skill and Agent dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /queues/{queue_id}/members/agents/{agent_id}:
+    put:
+      operationId: update_agent_queue_association
+      summary: Update Agent-Queue association
+      description: '**Required ACL:** `confd.queues.{queue_id}.members.agents.{agent_id}.update`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/agentid'
+      responses:
+        '204':
+          description: Association updated
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueueMemberAgent'
+    delete:
+      operationId: dissociate_agent_queue
+      summary: Dissociate agent and queue
+      description: '**Required ACL:** `confd.queues.{queue_id}.members.agents.{agent_id}.delete`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/agentid'
+      responses:
+        '204':
+          description: Agent and Queue dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /agents/skills:
+    get:
+      operationId: list_skills
+      summary: List skill
+      description: '**Required ACL:** `confd.agents.skills.read`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Skills list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillItems'
+    post:
+      operationId: create_skill
+      summary: Create skill
+      description: '**Required ACL:** `confd.agents.skills.create`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Skill created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Skill'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Skill'
+        description: Skill to create
+        required: true
+    servers:
+    - url: /1.1
+  /agents/skills/{skill_id}:
+    get:
+      operationId: get_skill
+      summary: Get skill
+      description: '**Required ACL:** `confd.agents.skills.{skill_id}.read`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/skillid'
+      responses:
+        '200':
+          description: Skill
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Skill'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /users/{user_id}/agents:
+    delete:
+      operationId: dissociate_user_agent
+      summary: Dissociate user and agent
+      description: '**Required ACL:** `confd.users.{user_id}.agents.delete`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '204':
+          description: The user and agent have been dissociated.
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /users/{user_id}/agents/{agent_id}:
+    put:
+      operationId: associate_user_agent
+      summary: Associate user and agent
+      description: '**Required ACL:** `confd.users.{user_id}.agents.{agent_id}.update`'
+      tags:
+      - agents
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/agentid'
+      responses:
+        '204':
+          description: The user and agent have been associated.
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+components:
+  schemas:
+    AgentPauseReason:
+      title: Pause reason information
+      properties:
+        reason:
+          type: string
+          description: Pause Reason
+    LoginInfo:
+      title: Login information
+      properties:
+        extension:
+          type: string
+          description: Extension
+        context:
+          type: string
+          description: Context
+        endpoint:
+          type: string
+          description: Name of the endpoint, in the format `interface/name` e.g `PJSIP/alice`. Must be a valid endpoint for the extension and context.
+    AgentStatus:
+      title: Agent status
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Agent's ID
+        tenant_uuid:
+          type: string
+          format: uuid
+          description: Tenant's UUID
+        origin_uuid:
+          type: string
+          format: uuid
+          description: Wazo's UUID
+        number:
+          type: string
+          description: Agent's number
+        logged:
+          type: boolean
+          description: True if the agent is logged, else false
+        paused:
+          type: boolean
+          description: True if the agent is paused, else false
+        paused_reason:
+          type: string
+          description: The reason of the agent pause
+        extension:
+          type: string
+          description: The extension on which the agent is logged, or null if the agent is not logged
+        context:
+          type: string
+          description: The context on which the agent is logged, or null if the agent is not logged
+        state_interface:
+          type: string
+          description: The interface (e.g. SIP/alice) to determine if the agent is in use or not
+        queues:
+          type: array
+          description: The agent status for each queue
+          items:
+            $ref: '#/components/schemas/AgentQueueStatus'
+    UserAgentLoginInfo:
+      title: Login information
+      properties:
+        line_id:
+          type: integer
+          description: ID of the line where the agent should be logged
+    AgentQueueStatus:
+      properties:
+        id:
+          type: integer
+          description: Queue's ID
+        name:
+          type: string
+          description: Queue's name
+        display_name:
+          type: string
+          description: Queue's display name
+        logged:
+          type: boolean
+          description: True if the agent is logged on this queue, else false
+        paused:
+          type: boolean
+          description: True if the agent is paused on this queue, else false
+        paused_reason:
+          type: string
+          description: The reason of the agent pause
+    Error:
+      title: Error
+      properties:
+        error:
+          type: string
+          description: Error identifier
+    Queue:
+      title: Queue
+      properties:
+        queue_id:
+          type: integer
+          description: Queue's ID
+    Skill:
+      title: Skill
+      allOf:
+      - $ref: '#/components/schemas/SkillRelationBase'
+      - properties:
+          description:
+            type: string
+      - $ref: '#/components/schemas/SkillRelationAgents'
+      - required:
+        - name
+    SkillRelationAgents:
+      properties:
+        agents:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/SkillRelationAgent'
+    SkillRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the skill
+    AgentRelationUser:
+      allOf:
+      - $ref: '#/components/schemas/UserRelationBase'
+    SkillRelationAgent:
+      allOf:
+      - $ref: '#/components/schemas/AgentRelationBase'
+      - $ref: '#/components/schemas/AgentSkillRelationBase'
+    AgentSkill:
+      title: AgentSkill
+      allOf:
+      - $ref: '#/components/schemas/AgentSkillRelationBase'
+    AgentRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the agent
+        firstname:
+          type: string
+        lastname:
+          type: string
+        number:
+          type: string
+          description: Agent number. Cannot be modified after creation
+    AgentRelationSkills:
+      properties:
+        skills:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/AgentRelationSkill'
+    AgentRelationQueues:
+      properties:
+        queues:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/AgentRelationQueue'
+    AgentItems:
+      title: AgentItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+        total:
+          type: integer
+      required:
+      - total
+    QueueMemberAgent:
+      title: QueueMemberAgent
+      description: An association between an agent and a queue. Agents associated to a Queue will receive calls when they are logged in.
+      allOf:
+      - $ref: '#/components/schemas/QueueMemberAgentRelationBase'
+    QueueMemberAgentRelationBase:
+      properties:
+        penalty:
+          type: integer
+          description: Agent's penalty. A priority used for distributing calls.
+        priority:
+          type: integer
+          description: Priority of agent in the queue. Only used for linear ring strategy
+    QueueRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the queue
+        name:
+          type: string
+          description: The name of the queue. Cannot be modified
+        label:
+          type: string
+          description: The label of the queue
+    AgentRelationQueue:
+      allOf:
+      - $ref: '#/components/schemas/QueueRelationBase'
+      - properties:
+          penalty:
+            type: integer
+            description: Agent's penalty. A priority used for distributing calls.
+    AgentRelationUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/AgentRelationUser'
+    AgentSkillRelationBase:
+      properties:
+        skill_weight:
+          type: integer
+          description: Skill's weight.
+    AgentRelationSkill:
+      allOf:
+      - $ref: '#/components/schemas/SkillRelationBase'
+      - $ref: '#/components/schemas/AgentSkillRelationBase'
+    Agent:
+      title: Agent
+      allOf:
+      - $ref: '#/components/schemas/AgentRelationBase'
+      - properties:
+          password:
+            type: string
+            description: Numeric password used to log agent.
+          language:
+            type: string
+            description: Language used for the agent menu prompt
+          preprocess_subroutine:
+            type: string
+            description: Name of the subroutine to execute in asterisk before receiving a call
+          description:
+            type: string
+            description: Additional information about the agent
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+      - $ref: '#/components/schemas/AgentRelationQueues'
+      - $ref: '#/components/schemas/AgentRelationUsers'
+      - $ref: '#/components/schemas/AgentRelationSkills'
+      - required:
+        - number
+    Error_2:
+      type: array
+      items:
+        type: string
+    SkillItems:
+      title: SkillItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+        total:
+          type: integer
+      required:
+      - total
+    UserRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
+  parameters:
+    AgentID:
+      name: agent_id
+      in: path
+      required: true
+      description: Agent's ID
+      schema:
+        type: integer
+    AgentNumber:
+      name: agent_number
+      in: path
+      description: Agent's number
+      required: true
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    QueueID:
+      name: queue_id
+      in: path
+      required: true
+      description: Queue's ID
+      schema:
+        type: integer
+    agentid:
+      required: true
+      name: agent_id
+      in: path
+      description: Agent’s ID
+      schema:
+        type: integer
+    queueid:
+      required: true
+      name: queue_id
+      in: path
+      description: Queue’s ID
+      schema:
+        type: integer
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    skillid:
+      required: true
+      name: skill_id
+      in: path
+      description: Skill's ID
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-agentd-api-openapi.yml
+- wazo-confd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,260 @@
+openapi: 3.2.0
+info:
+  title: wazo-chatd Presences API
+  description: Control your message and presence from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: presences
+paths:
+  /users/presences:
+    get:
+      operationId: list_presences
+      summary: List presences
+      description: '**Required ACL:** `chatd.users.presences.read`'
+      tags:
+      - presences
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/user_uuid_query'
+      responses:
+        '200':
+          description: Presences list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresenceList'
+  /users/{user_uuid}/presences:
+    get:
+      operationId: get_user_presence
+      summary: Get user presence
+      description: '**Required ACL:** `chatd.users.{user_uuid}.presences.read`'
+      tags:
+      - presences
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '200':
+          description: Presence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Presence'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_user_presence
+      summary: Update user presence
+      description: '**Required ACL:** `chatd.users.{user_uuid}.presences.update`'
+      tags:
+      - presences
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Presence'
+        required: true
+components:
+  parameters:
+    user_uuid_query:
+      required: false
+      name: user_uuid
+      in: query
+      description: Filter by user_uuid. Many uuid can be specified. A logical AND is used for filtering. Each uuid MUST be separated by a comma (,).
+      schema:
+        type: array
+        items:
+          type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    tenant_uuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+  schemas:
+    APIError:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
+    Presence:
+      title: Presence
+      properties:
+        uuid:
+          type: string
+          description: The UUID of the user
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant of the user
+          readOnly: true
+        state:
+          type: string
+          description: The presence state of the user.
+          enum:
+          - available
+          - away
+          - unavailable
+          - invisible
+        status:
+          type: string
+          description: An extended description of the user presence.
+        do_not_disturb:
+          type: boolean
+          description: The "do not disturb" status of the user.
+          readOnly: true
+        last_activity:
+          type: string
+          description: The date time in UTC of the user's last activity. The value is updated when the user changes his state explicitly. The value is NULL for new user.
+          readOnly: true
+        line_state:
+          type: string
+          description: 'The current state of the most prioritize state line. The prioritization of each state is the following: ringing > progressing > holding > talking > available > unavailable'
+          readOnly: true
+          enum:
+          - available
+          - holding
+          - ringing
+          - progressing
+          - talking
+          - unavailable
+        lines:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/Line'
+        mobile:
+          type: boolean
+          readOnly: true
+          description: 'If the user uses a mobile application and can be considered reachable.
+
+
+            mobile will be true in the following situations
+
+
+            * The user has a mobile refresh token
+
+            * The user has a mobile session
+
+            '
+        connected:
+          type: boolean
+          readOnly: true
+          description: If the user has active connections.
+      required:
+      - state
+    Line:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        state:
+          type: string
+          description: The current state of the line.
+          readOnly: true
+          enum:
+          - available
+          - holding
+          - ringing
+          - progressing
+          - talking
+          - unavailable
+    PresenceList:
+      title: PresenceList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Presence'
+        filtered:
+          type: integer
+          description: The number of result matching the searched terms
+        total:
+          type: integer
+          description: The number of results without filter
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9304
+x-xivo-name: chatd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-chatd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/chatd/1.0/api/api.yml (see wazo_chatd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

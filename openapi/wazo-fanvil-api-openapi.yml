@@ -1,0 +1,335 @@
+openapi: 3.2.0
+info:
+  title: wazo-phoned Fanvil API
+  description: Wazo Phone Daemon
+  version: '1.0'
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+security:
+- wazo_auth_token: []
+tags:
+- name: fanvil
+paths:
+  /directories/input/{profile}/fanvil:
+    get:
+      summary: Given informations about how make request lookup for Fanvil Unified IP Phones
+      description: 'The `input` query will return a XML to give informations about how make request
+
+        lookup for Fanvil Unified IP Phones.
+
+        '
+      operationId: fanvil_input
+      tags:
+      - fanvil
+      responses:
+        '200':
+          description: XML to make request lookup
+          content:
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/FanvilIPPhoneInput'
+      parameters:
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/XivoUserUUID'
+      - $ref: '#/components/parameters/AcceptLanguage'
+  /directories/lookup/{profile}/fanvil:
+    get:
+      summary: Search for contacts with Fanvil Unified IP Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Fanvil Unified IP Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: fanvil_lookup
+      tags:
+      - fanvil
+      responses:
+        '200':
+          description: A list of contacts
+          content:
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/FanvilIPPhoneDirectory'
+        '400':
+          $ref: '#/components/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/components/responses/ProfileInvalid'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/XivoUserUUID'
+      - $ref: '#/components/parameters/Term'
+      - $ref: '#/components/parameters/Limit16'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/AcceptLanguage'
+  /directories/lookup/{profile}/fanvil-v2:
+    get:
+      summary: Search for contacts with Fanvil Unified IP Phones for V2
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Fanvil Unified IP Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: fanvil_lookup_v2
+      tags:
+      - fanvil
+      responses:
+        '200':
+          description: A list of contacts
+          content:
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/PhoneBook'
+        '400':
+          $ref: '#/components/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/components/responses/ProfileInvalid'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/XivoUserUUID'
+      - $ref: '#/components/parameters/Term'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/AcceptLanguage'
+  /fanvil/users/{user_uuid}/services/dnd/enable:
+    get:
+      summary: Enable the DND service for a particular user.
+      description: 'This `dnd` service endpoint will enable the user DND service through
+
+        `wazo-confd`.
+
+        '
+      operationId: fanvil_user_service_dnd_enable
+      tags:
+      - fanvil
+      responses:
+        '200':
+          description: The status was changed
+        '400':
+          description: Provided data is incorrect or a required field is missing
+          content:
+            text/xml:
+              schema:
+                $ref: '#/components/responses/InvalidDataError'
+        '404':
+          $ref: '#/components/responses/NoSuchUser'
+      parameters:
+      - $ref: '#/components/parameters/UserUUID'
+  /fanvil/users/{user_uuid}/services/dnd/disable:
+    get:
+      summary: Disable the DND service for a particular user.
+      description: 'This `dnd` service endpoint will disable the user DND service through
+
+        `wazo-confd`.
+
+        '
+      operationId: fanvil_user_service_dnd_disable
+      tags:
+      - fanvil
+      responses:
+        '200':
+          description: The status was changed
+        '400':
+          description: Provided data is incorrect or a required field is missing
+          content:
+            text/xml:
+              schema:
+                $ref: '#/components/responses/InvalidDataError'
+        '404':
+          $ref: '#/components/responses/NoSuchUser'
+      parameters:
+      - $ref: '#/components/parameters/UserUUID'
+components:
+  schemas:
+    FanvilDirectoryEntryV2:
+      properties:
+        Name:
+          type: string
+        Telephone:
+          type: string
+        Mobile:
+          type: string
+        Other:
+          type: string
+        Ring:
+          type: string
+        Group:
+          type: string
+    FanvilIPPhoneDirectory:
+      properties:
+        DirectoryEntry:
+          type: array
+          items:
+            $ref: '#/components/schemas/FanvilDirectoryEntry'
+        SoftKeyItem:
+          type: array
+          items:
+            $ref: '#/components/schemas/FanvilSoftKeyItem'
+    FanvilDirectoryEntry:
+      properties:
+        Name:
+          type: string
+        Telephone:
+          type: string
+    PhoneBook:
+      properties:
+        DirectoryEntry:
+          type: array
+          items:
+            $ref: '#/components/schemas/FanvilDirectoryEntryV2'
+    FanvilInputItem:
+      properties:
+        DisplayName:
+          type: string
+        QueryStringParam:
+          type: string
+        DefaultValue:
+          type: string
+        InputFlags:
+          type: string
+    FanvilSoftKeyItem:
+      properties:
+        Name:
+          type: string
+        URL:
+          type: string
+        position:
+          type: integer
+    FanvilIPPhoneInput:
+      properties:
+        Title:
+          type: string
+        Prompt:
+          type: string
+        URL:
+          type: string
+        InputItem:
+          $ref: '#/components/schemas/FanvilInputItem'
+    Error:
+      type: object
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  responses:
+    NoSuchUser:
+      description: The user does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    LimitOffsetInvalid:
+      description: The limit or offset should be positive
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidDataError:
+      description: Data provided is invalid or a field is missing
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    Offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    Limit16:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+        default: 16
+    UserUUID:
+      name: user_uuid
+      in: path
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
+      required: true
+      schema:
+        type: string
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
+    XivoUserUUID:
+      name: xivo_user_uuid
+      in: query
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port:
+- 9499
+x-xivo-name: phoned
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-phoned
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/phoned/0.1/api/api.yml (see wazo_phoned/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,410 @@
+openapi: 3.2.0
+info:
+  title: wazo-call-logd Queue Statistics API
+  description: Consult call logs from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: queue_statistics
+paths:
+  /queues/statistics:
+    get:
+      summary: Statistics for all queues
+      description: '**Required ACL:** `call-logd.queues.statistics.read`
+
+
+        Statistics are aggregated by queues over the period specified by the `from` and `until`
+
+        query parameters.
+
+
+        **Notice**: Statistics are generated every 6 hours
+
+        '
+      tags:
+      - queue_statistics
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/from'
+      - $ref: '#/components/parameters/until'
+      - $ref: '#/components/parameters/qos_threshold'
+      - $ref: '#/components/parameters/day_start_time'
+      - $ref: '#/components/parameters/day_end_time'
+      - $ref: '#/components/parameters/week_days'
+      - $ref: '#/components/parameters/timezone'
+      responses:
+        '200':
+          description: Get aggregated statistics for all queues.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueuesStatistics'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+  /queues/{queue_id}/statistics:
+    get:
+      summary: Statistics for a specific queue
+      description: '**Required ACL:** `call-logd.queues.statistics.{queue_id}.read`
+
+
+        Statistics for a queue are aggregated by the `interval` query parameter, or if not
+
+        specified or empty, as a unique result over the period. The period is specified by the
+
+        `from` and `until` query parameters. The last result returned by this route is always the
+
+        aggregation of all calls over the whole specified period.
+
+
+        **Notice**: Statistics are generated every 6 hours
+
+        '
+      tags:
+      - queue_statistics
+      parameters:
+      - name: queue_id
+        description: ID of the queue.
+        required: true
+        in: path
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/from'
+      - $ref: '#/components/parameters/until'
+      - $ref: '#/components/parameters/interval'
+      - $ref: '#/components/parameters/qos_threshold'
+      - $ref: '#/components/parameters/day_start_time'
+      - $ref: '#/components/parameters/day_end_time'
+      - $ref: '#/components/parameters/week_days'
+      - $ref: '#/components/parameters/timezone'
+      responses:
+        '200':
+          description: Get a queue statistics by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueueStatistics'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /queues/{queue_id}/statistics/qos:
+    get:
+      summary: QoS statistics for a specific queue
+      description: '**Required ACL:** `call-logd.queues.statistics.{queue_id}.qos.read`
+
+
+        QoS thresholds implicitly include a starting 0 and ending to infinite (null).
+
+
+        Statistics for a queue are aggregated by the `interval` query parameter, or if not
+
+        specified or empty, as a unique result over the period. The period is specified by the
+
+        `from` and `until` query parameters. The last result returned by this route is always the
+
+        aggregation of all calls over the whole specified period.
+
+
+        **Notice**: Statistics are generated every 6 hours
+
+        '
+      tags:
+      - queue_statistics
+      parameters:
+      - name: queue_id
+        description: ID of the queue.
+        required: true
+        in: path
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/from'
+      - $ref: '#/components/parameters/until'
+      - $ref: '#/components/parameters/interval'
+      - $ref: '#/components/parameters/qos_thresholds'
+      - $ref: '#/components/parameters/day_start_time'
+      - $ref: '#/components/parameters/day_end_time'
+      - $ref: '#/components/parameters/week_days'
+      - $ref: '#/components/parameters/timezone'
+      responses:
+        '200':
+          description: Get a queue QoS statistics by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueueQoSStatistics'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  schemas:
+    QueueStatistics:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/QueueStatistic'
+        total:
+          type: integer
+    QueueQoSStatistics:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/QueueQoSStatistic'
+        total:
+          type: integer
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    QueueStatistic:
+      type: object
+      properties:
+        from:
+          type: string
+          description: Start of the statistic interval.
+        until:
+          type: string
+          description: End of the statistic interval.
+        tenant_uuid:
+          type: string
+          format: uuid
+          description: Tenant UUID of the corresponding queue.
+        queue_id:
+          type: integer
+          description: ID of the corresponding queue.
+        queue_name:
+          type: string
+          description: Name of the corresponding queue.
+        received:
+          type: integer
+          description: Total number of calls received in the interval.
+        answered:
+          type: integer
+          description: Number of calls answered by an agent.
+        abandoned:
+          type: integer
+          description: Number of calls that were abandoned while they were waiting for an answer.
+        closed:
+          type: integer
+          description: Number of calls received when the queue was closed.
+        not_answered:
+          type: integer
+          description: Number of calls that reached the ring timeout delay.
+        saturated:
+          type: integer
+          description: Number of calls received when the queue was full or when one of the diversion parameter was reached.
+        blocked:
+          type: integer
+          description: Number of calls received when no agent was available, when there was no agent to take the call, when the join an empty queue condition is reached, or when the drop callers if no agent condition is reached.
+        average_waiting_time:
+          type: integer
+          description: The average waiting time of calls
+        answered_rate:
+          type: number
+          format: float
+          description: The number of answered called over (received calls - closed calls)
+        quality_of_service:
+          type: number
+          format: float
+          description: Percentage based on the number of calls answered in less than the defined quality of service threshold over the number of answered calls.
+    QueuesStatistics:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/QueueStatistic'
+        total:
+          type: integer
+    QueueQoSStatistic:
+      type: object
+      properties:
+        from:
+          type: string
+          description: Start of the statistic interval.
+        until:
+          type: string
+          description: End of the statistic interval.
+        tenant_uuid:
+          type: string
+          format: uuid
+          description: Tenant UUID of the corresponding queue.
+        queue_id:
+          type: integer
+          description: ID of the corresponding queue.
+        queue_name:
+          type: string
+          description: Name of the corresponding queue.
+        quality_of_service:
+          type: array
+          items:
+            type: object
+            properties:
+              min:
+                type: integer
+                description: Minimum of the QoS interval
+              max:
+                type: integer
+                description: Maximum of the QoS interval
+              answered:
+                type: integer
+                description: Number of calls answered by an agent.
+              abandoned:
+                type: integer
+                description: Number of calls that were abandoned while they were waiting for an answer.
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    qos_thresholds:
+      name: qos_thresholds
+      description: The steps of quality of service times used for the interval generation.
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: integer
+          minimum: 1
+        uniqueItems: true
+    qos_threshold:
+      name: qos_threshold
+      description: The number of seconds representing a good quality of service.
+      in: query
+      required: false
+      schema:
+        type: integer
+    day_end_time:
+      name: day_end_time
+      description: The time at which a day ends, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+      in: query
+      required: false
+      schema:
+        type: string
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    from:
+      name: from
+      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    interval:
+      name: interval
+      description: Aggregation interval. An empty value means no interval, so an aggregation on all values.
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+        - hour
+        - day
+        - month
+    day_start_time:
+      name: day_start_time
+      description: The time at which a day starts, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+      in: query
+      required: false
+      schema:
+        type: string
+    week_days:
+      name: week_days
+      description: The days of the week that should be included. A week starts on Monday (1) and ends on Sunday (7).
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: integer
+          minimum: 1
+          maximum: 7
+        default:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        uniqueItems: true
+    timezone:
+      name: timezone
+      description: 'Name of the timezone to use for dates and times. Example: America/New_York. Valid timezones
+
+        are defined by the <a href="https://en.wikipedia.org/wiki/Tz_database">Time Zone Database</a>
+
+        version installed on the server.
+
+        '
+      in: query
+      required: false
+      schema:
+        type: string
+        default: UTC
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9298
+x-xivo-name: call-logs
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-call-logd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/call-logd/1.0/api/api.yml (see wazo_call_logd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

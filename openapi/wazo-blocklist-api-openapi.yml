@@ -1,0 +1,438 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Blocklist API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: blocklist
+paths:
+  /users/me/blocklist/numbers:
+    get:
+      operationId: list_users_me_blocklist_numbers
+      summary: List blocklist numbers of current user
+      description: '**Required ACL:** `confd.users.me.blocklist.read`'
+      tags:
+      - blocklist
+      parameters:
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      - name: number
+        in: query
+        description: filter blocklisted numbers by a number string
+        required: false
+        schema:
+          type: string
+      - name: label
+        in: query
+        description: filter blocklisted numbers by a label string
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Blocklist numbers list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlocklistNumbersListResponse'
+    post:
+      operationId: create_users_me_blocklist_number
+      summary: Add a new blocklist number
+      description: '**Required ACL:** `confd.users.me.blocklist.create`'
+      tags:
+      - blocklist
+      responses:
+        '201':
+          description: Blocklisted number successfully added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlocklistNumber'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlocklistNumber'
+        description: specification of the blocklisted number to add
+        required: true
+  /users/me/blocklist/numbers/{blocklist_number_uuid}:
+    get:
+      operationId: get_users_me_blocklist_number
+      summary: Get blocklist number by uuid
+      description: '**Required ACL:** `confd.users.me.blocklist.read`'
+      tags:
+      - blocklist
+      parameters:
+      - $ref: '#/components/parameters/blocklist_number_uuid'
+      responses:
+        '200':
+          description: Blocklisted number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlocklistNumber'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: delete_users_me_blocklist_number
+      summary: Delete a single blocklisted number by uuid
+      description: '**Required ACL:** `confd.users.me.blocklist.delete`'
+      tags:
+      - blocklist
+      parameters:
+      - $ref: '#/components/parameters/blocklist_number_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_users_me_blocklist_number
+      summary: Update a single blocklisted number by uuid
+      description: '**Required ACL:** `confd.users.me.blocklist.update`'
+      tags:
+      - blocklist
+      parameters:
+      - $ref: '#/components/parameters/blocklist_number_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlocklistNumber'
+        description: specification of the blocklisted number to update
+        required: true
+  /users/{user_uuid}/blocklist/numbers:
+    parameters:
+    - $ref: '#/components/parameters/useruuid'
+    head:
+      operationId: lookup_user_blocklist_number
+      summary: Check if a number is part of a user's blocklist
+      description: '**Required ACL:** `confd.users.{user_uuid}.blocklist.read`'
+      tags:
+      - blocklist
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - name: number_exact
+        in: query
+        description: E.164 number string to lookup(exact match) in the user's blocklist
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The requested number is a blocklisted number
+          headers:
+            Wazo-Blocklist-Number-Label:
+              description: Label of the blocklisted number
+              schema:
+                type: string
+            Wazo-Blocklist-Number-UUID:
+              description: UUID of the blocklisted number
+              schema:
+                type: string
+            Location:
+              description: URL of the matching blocklisted number
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    get:
+      operationId: list_user_blocklist_numbers
+      summary: List blocklisted numbers of a user
+      description: '**Required ACL:** `confd.users.{user_uuid}.blocklist.read`'
+      tags:
+      - blocklist
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      - name: number
+        in: query
+        description: filter blocklisted numbers by a number string
+        required: false
+        schema:
+          type: string
+      - name: label
+        in: query
+        description: filter blocklisted numbers by a label string
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Blocklisted numbers list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlocklistNumbersListResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /users/blocklist/numbers:
+    get:
+      operationId: list_blocklist_numbers
+      summary: List all blocklisted numbers in tenant
+      description: '**Required ACL:** `confd.users.blocklist.read`'
+      tags:
+      - blocklist
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      - name: user_uuid
+        in: query
+        description: filter blocklist numbers by the blocklist owner's uuid
+        required: false
+        schema:
+          type: string
+      - name: number
+        in: query
+        description: filter blocklisted numbers by a number string
+        required: false
+        schema:
+          type: string
+      - name: label
+        in: query
+        description: filter blocklisted numbers by a label string
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Blocklisted numbers list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlocklistNumbersListResponse'
+        '400':
+          $ref: '#/components/responses/GenericError'
+  /users/blocklist/numbers/{blocklist_number_uuid}:
+    get:
+      operationId: get_blocklist_number
+      summary: Get blocklist number by uuid
+      description: '**Required ACL:** `confd.users.blocklist.read`'
+      tags:
+      - blocklist
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/blocklist_number_uuid'
+      responses:
+        '200':
+          description: Blocklisted number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlocklistNumber'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    BlocklistNumber:
+      allOf:
+      - $ref: '#/components/schemas/UserBlocklistNumber'
+      - type: object
+        description: a blocklisted number
+        properties:
+          user_uuid:
+            type: string
+            format: uuid
+            description: UUID of the user to whom the blocklisted number belongs
+            readOnly: true
+          user_firstname:
+            type: string
+            description: First name of the user to whom the blocklisted number belongs
+            readOnly: true
+          user_lastname:
+            type: string
+            description: Last name of the user to whom the blocklisted number belongs
+            readOnly: true
+          tenant_uuid:
+            type: string
+            format: uuid
+            description: UUID of the tenant to which the blocklisted number belongs
+            readOnly: true
+    BlocklistNumbersListResponse:
+      allOf:
+      - $ref: '#/components/schemas/BlocklistNumbersListResponse'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/BlocklistNumber'
+    UserBlocklistNumbersListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserBlocklistNumber'
+        total:
+          type: integer
+          description: Total number of blocklisted numbers in the user's blocklist
+    UserBlocklistNumber:
+      type: object
+      description: a blocklisted number
+      properties:
+        uuid:
+          type: string
+          description: Blocklisted Number UUID
+          readOnly: true
+        number:
+          type: string
+          description: The phone number (in E.164 representation if possible)
+        label:
+          type: string
+          description: The label of the blocklisted number
+      required:
+      - number
+    Error:
+      type: array
+      items:
+        type: string
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    useruuid:
+      required: true
+      name: user_uuid
+      in: path
+      description: the user's UUID
+      schema:
+        type: string
+        format: uuid
+    blocklist_number_uuid:
+      name: blocklist_number_uuid
+      in: path
+      description: UUID of the blocklisted number
+      required: true
+      schema:
+        type: string
+        format: uuid
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

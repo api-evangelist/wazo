@@ -1,0 +1,103 @@
+openapi: 3.2.0
+info:
+  version: '0.1'
+  title: wazo-auth Admin API
+  description: Wazo's authentication service
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+tags:
+- name: admin
+paths:
+  /admin/users/{user_uuid}/emails:
+    put:
+      tags:
+      - admin
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.admin.users.{user_uuid}.emails.update`
+
+        Update all of the users email address at the same time.
+
+        If an existing address is missing from the list, it will be removed. An empty list will remove all addresses. If addresses are defined, one and only one address should be main. If the confirmed field is set to none or ommited the existing value will be reused if it exists, otherwise the address will not be confirmed. '
+      summary: Update email addresses
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '200':
+          description: The updated email list
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserEmailList'
+        description: EmailAddressList
+        required: true
+components:
+  parameters:
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+  schemas:
+    AdminUserEmailList:
+      type: object
+      properties:
+        emails:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              main:
+                type: boolean
+              confirmed:
+                type: boolean
+            required:
+            - addresses
+            - main
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9497
+x-xivo-name: auth
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-auth
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/auth/0.1/api/api.yml (see wazo_auth/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

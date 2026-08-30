@@ -1,0 +1,1494 @@
+openapi: 3.2.0
+info:
+  title: Wazo Voicemails API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged voicemails across 2 of this provider''s published API definitions: wazo-calld-api-openapi.yml, wazo-confd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /1.0
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: voicemails
+paths:
+  /voicemails/messages:
+    get:
+      summary: List all voicemail messages in a tenant
+      description: '**Required ACL:** `calld.voicemails.messages.read`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - name: voicemail_type
+        in: query
+        description: Filter messages by voicemail accesstype
+        required: false
+        schema:
+          type: string
+          enum:
+          - all
+          - personal
+          - global
+          default: all
+      - name: user_uuid
+        in: query
+        description: Filter messages by user UUID (returns user's personal + global voicemails)
+        required: false
+        schema:
+          type: string
+      - name: voicemail_id
+        in: query
+        description: Filter messages by voicemail ID
+        required: false
+        schema:
+          type: integer
+      - name: from
+        in: query
+        description: Filter messages with timestamp >= this value (ISO 8601 datetime)
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: until
+        in: query
+        description: Filter messages with timestamp < this value (ISO 8601 datetime)
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: recurse
+        in: query
+        description: Include sub-tenants
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - name: transcribed
+        in: query
+        description: Filter messages by transcription availability
+        required: false
+        schema:
+          type: boolean
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: The voicemail messages in the tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminVoicemailMessages'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /voicemails/{voicemail_id}:
+    get:
+      summary: Get details of a voicemail
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.read`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/VoicemailID'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: The details of the voicemail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Voicemail'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    put:
+      operationId: update_voicemail
+      summary: Update voicemail
+      description: '**Required ACL:** `confd.voicemails.{voicemail_id}.update`'
+      tags:
+      - voicemails
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/voicemailid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Voicemail_2'
+        required: true
+    delete:
+      operationId: delete_voicemail
+      summary: Delete voicemail
+      description: '**Required ACL:** `confd.voicemails.{voicemail_id}.delete`
+
+
+        A voicemail can not be deleted if it is still attached to a user. The user must be dissociated first. Any extension that redirects to the voicemail (e.g. an Incoming call) will be disabled after deletion.'
+      tags:
+      - voicemails
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/voicemailid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.0
+  /voicemails/{voicemail_id}/folders/{folder_id}:
+    get:
+      summary: Get details of a folder
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.folders.{folder_id}.read`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailID'
+      - $ref: '#/components/parameters/VoicemailFolderID'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: The details of the folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailFolder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /voicemails/{voicemail_id}/messages/{message_id}:
+    get:
+      summary: Get a message
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.messages.{message_id}.read`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailID'
+      - $ref: '#/components/parameters/VoicemailMessageID'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: The message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailMessage'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    put:
+      summary: Update a message
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.messages.{message_id}.update`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailID'
+      - $ref: '#/components/parameters/VoicemailMessageID'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: Message was updated successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoicemailMessageUpdate'
+        description: Message
+        required: true
+    delete:
+      summary: Delete a mesage
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.messages.{message_id}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailID'
+      - $ref: '#/components/parameters/VoicemailMessageID'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: Message was deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /voicemails/{voicemail_id}/messages/{message_id}/recording:
+    get:
+      summary: Get a message's recording
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.messages.{message_id}.recording.read`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailID'
+      - $ref: '#/components/parameters/VoicemailMessageID'
+      - $ref: '#/components/parameters/TokenID'
+      - $ref: '#/components/parameters/ForceDownload'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: The recording
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /voicemails/{voicemail_id}/greetings/{greeting}:
+    post:
+      summary: Create a custom greeting
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.greetings.{greeting}.create`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailID'
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: The greeting was created successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          audio/wav:
+            schema:
+              format: binary
+        required: true
+    head:
+      summary: Check if greeting exists
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.greetings.{greeting}.read`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailID'
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: Greeting exists
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    get:
+      summary: Get a custom greeting
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.greetings.{greeting}.read`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailID'
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: The greeting's recording
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    put:
+      summary: Update a custom greeting
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.greetings.{greeting}.update`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailID'
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: The greeting was updated successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          audio/wav:
+            schema:
+              format: binary
+        required: true
+    delete:
+      summary: Delete a custom greeting
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.greetings.{greeting}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailID'
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: The greeting was deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /voicemails/{voicemail_id}/greetings/{greeting}/copy:
+    post:
+      summary: Copy a custom greeting
+      description: '**Required ACL:** `calld.voicemails.{voicemail_id}.greetings.{greeting}.copy.create`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailID'
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: The greeting was copied successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GreetingCopy'
+        required: true
+    servers:
+    - url: /1.0
+  /users/me/voicemails:
+    get:
+      summary: Get details of the voicemail of the authenticated user
+      description: '**Required ACL:** `calld.users.me.voicemails.read`'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: The details of the voicemail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Voicemail'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /users/me/voicemails/folders/{folder_id}:
+    get:
+      summary: Get details of a folder
+      description: '**Required ACL:** `calld.users.me.voicemails.folders.{folder_id}.read`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailFolderID'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: The details of the folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailFolder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /users/me/voicemails/messages:
+    get:
+      summary: Get all user's messages
+      description: '**Required ACL:** `calld.users.me.voicemails.messages.read`'
+      tags:
+      - voicemails
+      parameters:
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - name: voicemail_type
+        in: query
+        description: include or exclude messages from global mailboxes
+        required: false
+        schema:
+          type: string
+          enum:
+          - all
+          - personal
+          - global
+          default: all
+      responses:
+        '200':
+          description: The voicemail messages available to the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailMessages'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /users/me/voicemails/messages/{message_id}:
+    get:
+      summary: Get a message
+      description: '**Required ACL:** `calld.users.me.voicemails.messages.{message_id}.read`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailMessageID'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: The message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailMessage'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    put:
+      summary: Update a message
+      description: '**Required ACL:** `calld.users.me.voicemails.messages.{message_id}.update`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailMessageID'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: Message was updated successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoicemailMessageUpdate'
+        description: Message
+        required: true
+    delete:
+      summary: Delete a mesage
+      description: '**Required ACL:** `calld.users.me.voicemails.messages.{message_id}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailMessageID'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: Message was deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /users/me/voicemails/messages/{message_id}/recording:
+    get:
+      summary: Get a message's recording
+      description: '**Required ACL:** `calld.users.me.voicemails.messages.{message_id}.recording.read`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailMessageID'
+      - $ref: '#/components/parameters/TokenID'
+      - $ref: '#/components/parameters/ForceDownload'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: The recording
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /users/me/voicemails/greetings/{greeting}:
+    post:
+      summary: Create a custom greeting
+      description: '**Required ACL:** `calld.users.me.voicemails.greetings.{greeting}.create`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: The greeting was created successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          audio/wav:
+            schema:
+              format: binary
+        required: true
+    head:
+      summary: Check if greeting exists
+      description: '**Required ACL:** `calld.users.me.voicemails.greetings.{greeting}.read`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: Greeting exists
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    get:
+      summary: Get a custom greeting
+      description: '**Required ACL:** `calld.users.me.voicemails.greetings.{greeting}.read`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: The greeting's recording
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    put:
+      summary: Update a custom greeting
+      description: '**Required ACL:** `calld.users.me.voicemails.greetings.{greeting}.update`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: The greeting was updated successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          audio/wav:
+            schema:
+              format: binary
+        required: true
+    delete:
+      summary: Delete a custom greeting
+      description: '**Required ACL:** `calld.users.me.voicemails.greetings.{greeting}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: The greeting was deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /users/me/voicemails/greetings/{greeting}/copy:
+    post:
+      summary: Copy a custom greeting
+      description: '**Required ACL:** `calld.users.me.voicemails.greetings.{greeting}.copy.create`'
+      parameters:
+      - $ref: '#/components/parameters/VoicemailGreeting'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          description: The greeting was copied successfully
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GreetingCopy'
+        required: true
+    servers:
+    - url: /1.0
+  /users/{user_id}/voicemails:
+    post:
+      operationId: create_user_voicemail
+      summary: Create user voicemail
+      description: '**Required ACL:** `confd.users.{user_id}.voicemails.create`'
+      tags:
+      - voicemails
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '201':
+          description: Voicemail created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Voicemail_2'
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Voicemail_2'
+        description: Voicemail to create
+        required: true
+    get:
+      operationId: get_user_voicemail
+      summary: Get user voicemails
+      description: '**Required ACL:** `confd.users.{user_id}.voicemails.read`'
+      tags:
+      - voicemails
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '200':
+          description: User's voicemail list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailItems'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_user_voicemail
+      summary: Dissociate user and voicemail
+      description: '**Required ACL:** `confd.users.{user_id}.voicemails.delete`'
+      tags:
+      - voicemails
+      parameters:
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '204':
+          description: User and Voicemail dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /users/{user_id}/voicemails/{voicemail_id}:
+    put:
+      operationId: associate_user_voicemail
+      summary: Associate user and voicemail
+      description: '**Required ACL:** `confd.users.{user_id}.voicemails.{voicemail_id}.update`'
+      tags:
+      - voicemails
+      parameters:
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/voicemailid'
+      responses:
+        '204':
+          description: User and voicemail associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /voicemails:
+    get:
+      operationId: list_voicemails
+      summary: List voicemails
+      description: '**Required ACL:** `confd.voicemails.read`'
+      tags:
+      - voicemails
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Voicemail list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailItems'
+    post:
+      operationId: create_voicemail
+      summary: Create voicemail
+      description: '**Required ACL:** `confd.voicemails.create`'
+      tags:
+      - voicemails
+      responses:
+        '201':
+          description: Voicemail created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Voicemail_2'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Voicemail_2'
+        description: Voicemail to create
+        required: true
+    servers:
+    - url: /1.1
+  /asterisk/voicemail/general:
+    get:
+      operationId: list_asterisk_voicemail_general
+      summary: List Voicemail general options
+      description: '**Required ACL:** `confd.asterisk.voicemail.general.read`'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: Voicemail general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailGeneral'
+    put:
+      operationId: update_asterisk_voicemail_general
+      summary: Update Voicemail general option
+      description: '**Required ACL:** `confd.asterisk.voicemail.general.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoicemailGeneral'
+        required: true
+    servers:
+    - url: /1.1
+  /voicemails/transcription:
+    get:
+      summary: Retrieve the voicemail transcription configuration for the tenant
+      description: '
+
+        Returns the current transcription settings, including whether automatic
+
+        transcription is enabled for the tenant''s voicemails.
+
+        **required_acl**: `confd.voicemails.transcription.read`
+
+        '
+      operationId: get_voicemail_transcription_config
+      tags:
+      - voicemails
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: Voicemail transcription configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailTranscriptionConfig'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      summary: Update the voicemail transcription configuration for the tenant.
+      description: '**required_acl**: `confd.voicemails.transcription.update`'
+      operationId: update_voicemail_transcription_config
+      tags:
+      - voicemails
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: Configuration updated successfully
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoicemailTranscriptionConfig'
+        description: Voicemail transcription configuration
+        required: true
+    servers:
+    - url: /1.1
+  /asterisk/voicemail/zonemessages:
+    get:
+      operationId: list_asterisk_voicemail_zonemessages
+      summary: List Voicemail zonemessages options
+      description: '**Required ACL:** `confd.asterisk.voicemail.zonemessages.read`'
+      tags:
+      - voicemails
+      responses:
+        '200':
+          description: Voicemail zonemessages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailZoneMessages'
+    put:
+      operationId: update_asterisk_voicemail_zonemessages
+      summary: Update Voicemail zonemessages option
+      description: '**Required ACL:** `confd.asterisk.voicemail.zonemessages.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - voicemails
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoicemailZoneMessages'
+        required: true
+    servers:
+    - url: /1.1
+components:
+  parameters:
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    VoicemailMessageID:
+      name: message_id
+      in: path
+      description: The message's ID
+      required: true
+      schema:
+        type: string
+    ForceDownload:
+      name: download
+      in: query
+      description: Set to 1 to force download by browser
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    TokenID:
+      name: token
+      in: query
+      description: The token's ID
+      schema:
+        type: string
+    VoicemailGreeting:
+      name: greeting
+      in: path
+      description: The greeting
+      required: true
+      schema:
+        type: string
+        enum:
+        - unavailable
+        - busy
+        - name
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    VoicemailID:
+      name: voicemail_id
+      in: path
+      description: The voicemail's ID
+      required: true
+      schema:
+        type: integer
+    VoicemailFolderID:
+      name: folder_id
+      in: path
+      description: The folder's ID
+      required: true
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    voicemailid:
+      required: true
+      name: voicemail_id
+      in: path
+      schema:
+        type: integer
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+  schemas:
+    AdminVoicemailMessage:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/VoicemailMessageBase'
+      - properties:
+          transcribed:
+            type: boolean
+            description: True if a transcription exists for this message
+            readOnly: true
+    VoicemailFolderBase:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The folder's ID
+        name:
+          type: string
+          description: The folder's name
+        type:
+          type: string
+          enum:
+          - new
+          - old
+          - urgent
+          - other
+          description: The folder's type. When a message if left on a voicemail, it is stored in the folder of type "new", unless if it is an urgent message, in which case it is left in the folder of type "urgent". When that messages is read, it is moved into the folder of type "old". All other folders used the type "other".
+    GreetingCopy:
+      type: object
+      properties:
+        dest_greeting:
+          type: string
+          description: The destination name of the greeting
+      required:
+      - dest_greeting
+    VoicemailMessageVoicemail:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The containing voicemail's ID
+          readOnly: true
+        name:
+          type: string
+          description: The containing voicemail's name
+          readOnly: true
+        accesstype:
+          type: string
+          description: The containing voicemail's type (either global or personal)
+          enum:
+          - global
+          - personal
+          readOnly: true
+    VoicemailFolder:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/VoicemailFolderBase'
+      - properties:
+          messages:
+            type: array
+            description: The folder's messages
+            items:
+              $ref: '#/components/schemas/VoicemailMessageBase'
+    VoicemailMessageBase:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The message's ID
+          readOnly: true
+        caller_id_name:
+          type: string
+          description: The caller's name (or null if no caller ID name)
+          readOnly: true
+        caller_id_num:
+          type: string
+          description: The caller's number (or null if no caller ID number)
+          readOnly: true
+        duration:
+          type: integer
+          description: The message's duration in seconds
+          readOnly: true
+        empty:
+          type: boolean
+          description: True if the message is empty (duration is 0)
+          readOnly: true
+        timestamp:
+          type: integer
+          description: The time the message was left as a Unix time value
+          readOnly: true
+    VoicemailMessages:
+      type: object
+      properties:
+        items:
+          description: List of voicemail messages
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/VoicemailMessage'
+            - type: object
+              properties:
+                voicemail:
+                  $ref: '#/components/schemas/VoicemailMessageVoicemail'
+          readOnly: true
+        total:
+          type: integer
+          readOnly: true
+    VoicemailTranscriptedMessageBase:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/VoicemailMessageBase'
+      - properties:
+          transcription:
+            $ref: '#/components/schemas/VoicemailTranscription'
+            readOnly: true
+    VoicemailTranscription:
+      type: object
+      properties:
+        text:
+          type: string
+          description: The transcription text
+          readOnly: true
+    VoicemailMessageUpdate:
+      type: object
+      properties:
+        folder_id:
+          type: integer
+          description: The folder's ID
+      required:
+      - folder_id
+    Voicemail:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The voicemail's ID
+        number:
+          type: string
+          description: The voicemail's number
+        name:
+          type: string
+          description: The voicemail's name
+        accesstype:
+          type: string
+          description: The voicemail's access type (either personal or global)
+          enum:
+          - personal
+          - global
+        folders:
+          type: array
+          description: The voicemail's folders
+          items:
+            $ref: '#/components/schemas/VoicemailFolder'
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    VoicemailMessage:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/VoicemailTranscriptedMessageBase'
+      - properties:
+          folder:
+            $ref: '#/components/schemas/VoicemailFolderBase'
+            readOnly: true
+    AdminVoicemailMessages:
+      type: object
+      properties:
+        items:
+          description: List of voicemail messages
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/AdminVoicemailMessage'
+            - type: object
+              properties:
+                folder:
+                  $ref: '#/components/schemas/VoicemailFolderBase'
+                  readOnly: true
+                voicemail:
+                  $ref: '#/components/schemas/VoicemailMessageVoicemail'
+          readOnly: true
+        total:
+          type: integer
+          readOnly: true
+        filtered:
+          type: integer
+          readOnly: true
+    VoicemailGeneral:
+      title: VoicemailGeneral
+      description: 'Voicemail general configuration. This configuration will be in the file ''voicemail.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
+      properties:
+        options:
+          description: "General Voicemail options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    BaseVoicemail:
+      title: Voicemail
+      properties:
+        number:
+          type: string
+          description: Mailbox number, for example `0001`
+        context:
+          type: string
+          description: Voicemail context
+        password:
+          type: string
+          description: Numeric password used to access the voicemail
+        email:
+          type: string
+          description: Email address. Notifications and audio attachments will be sent to this address
+        pager:
+          type: string
+          description: Email address. Summarized notifications will be sent to this address
+        language:
+          type: string
+          enum:
+          - de_DE
+          - en_US
+          - es_ES
+          - fr_FR
+          - fr_CA
+          - it_IT
+          - nl_NL
+          description: Language used for the voicemail menu prompt
+        timezone:
+          type: string
+          default: The system default timezone
+          description: Timezone used for announcing at what time a message was recorded
+        max_messages:
+          type: integer
+          description: Maximum number of messages to store
+        attach_audio:
+          type: boolean
+          description: Attach an audio file of the recorded message when sending an email
+        delete_messages:
+          type: boolean
+          description: "Delete messages after reception. \nThis can only be set along with 'email' and 'attach_audio' configured.\n"
+          default: false
+        ask_password:
+          type: boolean
+          description: Ask for password when accessing the voicemail menu
+          default: true
+        enabled:
+          type: boolean
+          description: Voicemail can be used when it is enabled
+          default: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        accesstype:
+          type: string
+          enum:
+          - personal
+          - global
+          description: Access type of the voicemail. 'personal' means the voicemail is associated with specific users, 'global' means it is shared across the context. Only one global voicemail can exist per context.
+          default: personal
+        options:
+          description: "Advanced configuration options. Options are appended at the end of a \nvoicemail line in the file 'voicemail.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Options must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in voicemail.conf will have the following form:\n\n```\n1000 => ,Firstname Lastname,,,name1=value1|name2=value2\n```\n"
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueOption'
+      required:
+      - name
+      - number
+      - context
+    VoicemailItems:
+      title: VoicemailItems
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Voicemail_2'
+          type: array
+        total:
+          type: integer
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    VoicemailZoneMessages:
+      title: VoicemailZoneMessages
+      properties:
+        items:
+          description: 'Voicemail zonemessages configuration. This configuration will be in the file ''voicemail.conf'' used by asterisk.
+
+            Please consult the asterisk documentation for further details on available parameters.'
+          type: array
+          items:
+            $ref: '#/components/schemas/VoicemailZoneMessage'
+    VoicemailZoneMessage:
+      title: VoicemailZoneMessage
+      properties:
+        name:
+          type: string
+          description: label on which each voicemail is mapped
+        timezone:
+          type: string
+          description: Timezone as define in '/usr/share/zoneinfo/'
+        message:
+          type: string
+          description: Message that each user hears.
+      required:
+      - name
+      - timezone
+    VoicemailRelationUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/UserRelationBase'
+    Voicemail_2:
+      allOf:
+      - $ref: '#/components/schemas/BaseVoicemail'
+      - $ref: '#/components/schemas/VoicemailRelationBase'
+      - $ref: '#/components/schemas/VoicemailRelationUsers'
+    Error_2:
+      type: array
+      items:
+        type: string
+    UserRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
+    VoicemailTranscriptionConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Enable or disable automatic transcription of voicemails for this tenant.
+          default: false
+          example: true
+      required:
+      - enabled
+    VoicemailRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Voicemail ID
+          readOnly: true
+        name:
+          type: string
+          description: Voicemail name
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-calld-api-openapi.yml
+- wazo-confd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

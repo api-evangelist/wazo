@@ -1,0 +1,607 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Iax API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: iax
+paths:
+  /endpoints/iax:
+    get:
+      operationId: list_endpoints_iax
+      summary: List IAX endpoints
+      description: '**Required ACL:** `confd.endpoints.iax.read`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: IAX endpoint list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointIAXItems'
+    post:
+      operationId: create_endpoint_iax
+      summary: Create IAX endpoint
+      description: '**Required ACL:** `confd.endpoints.iax.create`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: IAX endpoint created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointIAX'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointIAX'
+        description: IAX Endpoint to create
+  /endpoints/iax/{iax_id}:
+    get:
+      operationId: get_endpoint_iax
+      summary: Get IAX Endpoint
+      description: '**Required ACL:** `confd.endpoints.iax.{iax_id}.read`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/iaxid'
+      responses:
+        '200':
+          description: IAX Endpoint
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointIAX'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_endpoint_iax
+      summary: Update IAX Endpoint
+      description: '**Required ACL:** `confd.endpoints.iax.{iax_id}.update`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/iaxid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointIAX'
+        required: true
+    delete:
+      operationId: delete_endpoint_iax
+      summary: Delete IAX Endpoint
+      description: '**Required ACL:** `confd.endpoints.iax.{iax_id}.delete`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/iaxid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /asterisk/iax/callnumberlimits:
+    get:
+      operationId: list_asterisk_iax_callnumberlimits
+      summary: List IAX callnumberlimits options
+      description: '**Required ACL:** `confd.asterisk.iax.callnumberlimits.read`'
+      tags:
+      - iax
+      responses:
+        '200':
+          description: IAX callnumberlimits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IAXCallNumberLimitss'
+    put:
+      operationId: update_asterisk_iax_callnumberlimits
+      summary: Update IAX callnumberlimits option
+      description: '**Required ACL:** `confd.asterisk.iax.callnumberlimits.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - iax
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IAXCallNumberLimitss'
+        required: true
+  /registers/iax:
+    get:
+      operationId: list_registers_iax
+      summary: List registers iax
+      description: '**Required ACL:** `confd.registers.iax.read`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Registers IAX list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterIAXItems'
+    post:
+      operationId: create_register_iax
+      summary: Create register_iax
+      description: '**Required ACL:** `confd.registers.iax.create`'
+      tags:
+      - iax
+      responses:
+        '201':
+          description: Register IAX created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterIAX'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterIAX'
+        description: Register iax to create
+        required: true
+  /registers/iax/{register_iax_id}:
+    get:
+      operationId: get_register_iax
+      summary: Get register IAX
+      description: '**Required ACL:** `confd.registers.iax.{register_iax_id}.read`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/registeriaxid'
+      responses:
+        '200':
+          description: Register IAX
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterIAX'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_register_iax
+      summary: Update register IAX
+      description: '**Required ACL:** `confd.registers.iax.{register_iax_id}.update`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/registeriaxid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterIAX'
+        required: true
+    delete:
+      operationId: delete_register_iax
+      summary: Delete register IAX
+      description: '**Required ACL:** `confd.registers.iax.{register_iax_id}.delete`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/registeriaxid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /trunks/{trunk_id}/endpoints/iax/{iax_id}:
+    put:
+      operationId: associate_trunk_endpoint_iax
+      summary: Associate trunk and IAX endpoint
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.iax.{iax_id}.update`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/iaxid'
+      responses:
+        '204':
+          description: Trunk and IAX endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_trunk_endpoint_iax
+      summary: Dissociate trunk and IAX endpoint
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.iax.{iax_id}.delete`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/iaxid'
+      responses:
+        '204':
+          description: Trunk and IAX endpoint dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /trunks/{trunk_id}/registers/iax/{iax_id}:
+    put:
+      operationId: associate_trunk_register_iax
+      summary: Associate trunk and IAX register
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.registers.iax.{iax_id}.update`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/iaxid'
+      responses:
+        '204':
+          description: Trunk and IAX register associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_trunk_register_iax
+      summary: Dissociate trunk and IAX register
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.registers.iax.{iax_id}.delete`'
+      tags:
+      - iax
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/iaxid'
+      responses:
+        '204':
+          description: Trunk and IAX register dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  schemas:
+    IAXCallNumberLimits:
+      title: IAXCallNumberLimits
+      properties:
+        ip_address:
+          type: string
+          description: IPv4 address of the destination
+        netmask:
+          type: string
+          description: Netmask of the IP address (e.g. 255.255.255.255)
+        limit:
+          type: string
+          description: Maximum call for the ip_address destination
+      required:
+      - ip_address
+      - netmask
+      - limit
+    EndpointRelationLine:
+      properties:
+        line:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    RegisterIAXItems:
+      title: RegisterItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegisterIAX'
+        total:
+          type: integer
+    IAXCallNumberLimitss:
+      title: IAXCallNumberLimitss
+      properties:
+        items:
+          description: 'IAX callnumberlimits configuration. This configuration will be in the file ''iax.conf'' used by asterisk.
+
+            Please consult the asterisk documentation for further details on available parameters.'
+          type: array
+          items:
+            $ref: '#/components/schemas/IAXCallNumberLimits'
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    RegisterIAX:
+      title: Register IAX
+      allOf:
+      - $ref: '#/components/schemas/RegisterIAXRelationBase'
+      - properties:
+          auth_username:
+            type: string
+            description: The username used by the remote_host for the authentication
+          auth_password:
+            type: string
+            description: The password to authenticate to the remote_host
+          remote_host:
+            type: string
+            description: The register domain
+          remote_port:
+            type: integer
+            description: The port of the remote_host
+          callback_extension:
+            type: string
+            description: The callback extension to use for the register
+          callback_context:
+            type: string
+            description: The callback context to use for the register
+        required:
+        - remote_host
+    TrunkRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the trunk
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+    Error:
+      type: array
+      items:
+        type: string
+    EndpointRelationTrunk:
+      properties:
+        trunk:
+          $ref: '#/components/schemas/TrunkRelationBase'
+          readOnly: true
+    LineRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        name:
+          type: string
+          description: The name of the line
+          readOnly: true
+    EndpointIAXItems:
+      title: IAX Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointIAX'
+          type: array
+        total:
+          type: integer
+    EndpointIAX:
+      title: IAX Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointIAXRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          type:
+            type: string
+            enum:
+            - friend
+            - peer
+            - user
+            default: friend
+            description: Type of IAX account
+          host:
+            type: string
+            description: Hosts that are allowed to use this IAX account
+            default: dynamic
+          options:
+            description: "Advanced configuration: options. Options are appended at the end of a IAX account in the file 'iax.conf' used by asterisk. Please consult the asterisk documentation for further details on available parameters. Because of database limitations, the following options can only be configured once:\n\n* accountcode\n* adsi\n* allow\n* amaflags\n* auth\n* callerid\n* category\n* cid_number\n* codecpriority\n* commented\n* context\n* dbsecret\n* defaultip\n* deny\n* encryption\n* forceencryption\n* forcejitterbuffer\n* fullname\n* immediate\n* inkeys\n* jitterbuffer\n* keyrotate\n* language\n* mailbox\n* mask\n* maxauthreq\n* mohinterpret\n* mohsuggest\n* outkey\n* parkinglot\n* peercontext\n* permit\n* port\n* protocol\n* qualify\n* qualifyfreqnoto\n* qualifyfreqok\n* qualifysmoothing\n* regexten\n* requirecalltoken\n* secret\n* sendani\n* setvar\n* sourceaddress\n* timezone\n* transfer\n* trunk\n* username\n\nAny other options may be repeated as many times as needed. Options must have the following form:\n```\n{\n  \"options\": [\n     [\"name1\", \"value1\"],\n     [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in iax.conf will have the following form:\n```\n[iaxusername]\ncontext=default\nsecret=iaxsecret\nname1=value1\nname2=value2\n```\n"
+            type: array
+            items:
+              $ref: '#/components/schemas/KeyValueOption'
+            default: []
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+    RegisterIAXRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the register IAX
+    EndpointIAXRelationBase:
+      properties:
+        id:
+          type: integer
+          description: IAX Endpoint ID
+          readOnly: true
+        name:
+          type: string
+          description: IAX name
+          default: autogenerated
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    registeriaxid:
+      description: Register IAX's ID
+      name: register_iax_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    iaxid:
+      required: true
+      name: iax_id
+      in: path
+      schema:
+        type: integer
+    trunkid:
+      description: Trunk's ID
+      name: trunk_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,242 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Access Features API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: access_features
+paths:
+  /access_features:
+    get:
+      operationId: list_access_features
+      summary: List access features
+      description: '**Required ACL:** `confd.access_features.read`'
+      tags:
+      - access_features
+      parameters:
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: AccessFeatures list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFeatureItems'
+    post:
+      operationId: create_access_feature
+      summary: Create access_feature
+      description: '**Required ACL:** `confd.access_features.create`'
+      tags:
+      - access_features
+      responses:
+        '201':
+          description: AccessFeature created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFeature'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessFeature'
+        description: Access feature to create
+        required: true
+  /access_features/{access_feature_id}:
+    get:
+      operationId: get_access_feature
+      summary: Get access_feature
+      description: '**Required ACL:** `confd.access_features.{access_feature_id}.read`'
+      tags:
+      - access_features
+      parameters:
+      - $ref: '#/components/parameters/access_featureid'
+      responses:
+        '200':
+          description: AccessFeature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessFeature'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_access_feature
+      summary: Update access_feature
+      description: '**Required ACL:** `confd.access_features.{access_feature_id}.update`'
+      tags:
+      - access_features
+      parameters:
+      - $ref: '#/components/parameters/access_featureid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessFeature'
+        required: true
+    delete:
+      operationId: delete_access_feature
+      summary: Delete access feature
+      description: '**Required ACL:** `confd.access_features.{access_feature_id}.delete`'
+      tags:
+      - access_features
+      parameters:
+      - $ref: '#/components/parameters/access_featureid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  parameters:
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    access_featureid:
+      required: true
+      name: access_feature_id
+      in: path
+      description: Access feature ID
+      schema:
+        type: integer
+  responses:
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    AccessFeature:
+      title: Access feature
+      properties:
+        id:
+          type: integer
+          description: The access_feature ID
+        host:
+          type: string
+          description: The host or subnet string (e.g. 10.0.0.0/24)
+        feature:
+          type: string
+          description: The feature to limit the access to
+          enum:
+          - phonebook
+        enabled:
+          type: boolean
+      required:
+      - host
+      - feature
+    Error:
+      type: array
+      items:
+        type: string
+    AccessFeatureItems:
+      title: AccessFeatureItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessFeature'
+        total:
+          type: integer
+      required:
+      - total
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

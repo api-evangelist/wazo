@@ -1,0 +1,121 @@
+openapi: 3.2.0
+info:
+  title: Wazo Config API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged config across 10 of this provider''s published API definitions: wazo-amid-api-openapi.yml, wazo-auth-api-openapi.yml, wazo-call-logd-api-openapi.yml, wazo-calld-api-openapi.yml, wazo-chatd-api-openapi.yml, wazo-dird-api-openapi.yml, wazo-phoned-api-openapi.yml, wazo-plugind-api-openapi.yml, wazo-setupd-api-openapi.yml, wazo-webhookd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /1.0
+- url: /0.1
+- url: /0.2
+tags:
+- name: config
+paths:
+  /config:
+    get:
+      summary: Show the current configuration
+      description: '**Required ACL:** `amid.config.read`'
+      operationId: getConfig
+      tags:
+      - config
+      responses:
+        '200':
+          description: The configuration of the service
+      security:
+      - wazo_auth_token: []
+    patch:
+      summary: Update the current configuration.
+      description: '**Required ACL:** `amid.config.update`
+
+        Changes are not persistent across service restart.
+
+        '
+      operationId: patchConfig
+      tags:
+      - config
+      parameters:
+      - $ref: '#/components/parameters/ConfigPatch'
+      responses:
+        '200':
+          description: The updated configuration of the service
+        '400':
+          description: The given configuration is invalid
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.0
+components:
+  schemas:
+    ConfigPatchItem:
+      properties:
+        op:
+          type: string
+          description: 'Patch operation. Supported operations: `replace`.'
+        path:
+          type: string
+          description: 'JSON path to operate on. Supported paths: `/debug`.'
+        value:
+          type: object
+          description: The new value for the operation. Type of value is dependent of `path`
+    ConfigPatchItem_2:
+      properties:
+        op:
+          type: string
+          description: 'Patch operation. Supported operation: `replace`.'
+        path:
+          type: string
+          description: 'Config element to operate on. Supported path: `/debug`'
+        value:
+          type: object
+          description: The new value for the resource.
+  parameters:
+    ConfigPatch:
+      name: ConfigPatch
+      in: body
+      required: true
+      description: See https://en.wikipedia.org/wiki/JSON_Patch.
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ConfigPatchItem'
+    configpatch:
+      name: config_patch
+      in: body
+      required: true
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ConfigPatchItem_2'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+x-refined-from:
+- wazo-amid-api-openapi.yml
+- wazo-auth-api-openapi.yml
+- wazo-call-logd-api-openapi.yml
+- wazo-calld-api-openapi.yml
+- wazo-chatd-api-openapi.yml
+- wazo-dird-api-openapi.yml
+- wazo-phoned-api-openapi.yml
+- wazo-plugind-api-openapi.yml
+- wazo-setupd-api-openapi.yml
+- wazo-webhookd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

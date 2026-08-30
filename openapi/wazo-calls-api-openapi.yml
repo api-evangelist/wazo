@@ -1,0 +1,1042 @@
+openapi: 3.2.0
+info:
+  title: wazo-calld Calls API
+  description: Control your calls from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: calls
+paths:
+  /calls:
+    get:
+      summary: List calls
+      description: '**Required ACL:** `calld.calls.read`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - name: application
+        description: Filter calls by Stasis application, e.g. switchboard.
+        in: query
+        schema:
+          type: string
+      - name: application_instance
+        description: Filter calls by Stasis application instance, e.g. switchboard-sales,green. Args must be separated by commas (,). `application_instance` is ignored if `application` is not set.
+        in: query
+        schema:
+          type: string
+      - name: recurse
+        description: 'Should the list include results from sub-tenants?
+
+          This option is only supported for the tenant `master`.
+
+          '
+        in: query
+        schema:
+          type: boolean
+      tags:
+      - calls
+      responses:
+        '200':
+          description: List currently active calls
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Call'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    post:
+      summary: Make a new call
+      description: '**Required ACL:** `calld.calls.create`
+
+
+        Create a new call from a phone to an extension.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      tags:
+      - calls
+      responses:
+        '201':
+          description: The new call ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallRequest'
+        description: Call parameters
+        required: true
+  /calls/{call_id}:
+    get:
+      summary: Show a call
+      description: '**Required ACL:** `calld.calls.{call_id}.read`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '200':
+          description: Call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    delete:
+      summary: Hangup a call
+      description: '**Required ACL:** `calld.calls.{call_id}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: Call has been hung up
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/mute/start:
+    put:
+      summary: Mute a call
+      description: '**Required ACL:** `calld.calls.{call_id}.mute.start.update`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The call is now muted
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/mute/stop:
+    put:
+      summary: Unmute a call
+      description: '**Required ACL:** `calld.calls.{call_id}.mute.stop.update`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The call is now unmuted
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/hold/start:
+    put:
+      summary: Hold a call
+      description: '**Required ACL:** `calld.calls.{call_id}.hold.start.update`
+
+
+        This works **only** if the phone brand has a corresponding phoned plugin to handle the event. '
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The call is now held
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/hold/stop:
+    put:
+      summary: Unhold a call
+      description: '**Required ACL:** `calld.calls.{call_id}.hold.stop.update`
+
+
+        This works **only** if the phone brand has a corresponding phoned plugin to handle the event. '
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The call is now unheld
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/record/start:
+    put:
+      summary: Start recording a call
+      description: '**Required ACL:** `calld.calls.{call_id}.record.start.update`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: Recording has started for the call
+        '403':
+          description: On demand call recording is not enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/record/stop:
+    put:
+      summary: Stop recording a call
+      description: '**Required ACL:** `calld.calls.{call_id}.record.stop.update`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: Recording has stopped for the call
+        '403':
+          description: On demand call recording is not enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/record/pause:
+    put:
+      summary: Pause recording a call
+      description: '**Required ACL:** `calld.calls.{call_id}.record.pause.update`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: Recording has paused for the call
+        '403':
+          description: On demand call recording is not enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/record/resume:
+    put:
+      summary: Resume recording a call
+      description: '**Required ACL:** `calld.calls.{call_id}.record.resume.update`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: Recording has resumed for the call
+        '403':
+          description: On demand call recording is not enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/answer:
+    put:
+      summary: Answer a call
+      description: '**Required ACL:** `calld.calls.{call_id}.answer.update`
+
+
+        This works **only** if the phone brand has a corresponding phoned plugin to handle the event. '
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The call is now answered
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/dtmf:
+    put:
+      summary: Simulate a user pressing DTMF keys
+      description: '**Required ACL:** `calld.calls.{call_id}.dtmf.update'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      - $ref: '#/components/parameters/DTMFDigits'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The digits have been sent
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/user/{user_uuid}:
+    put:
+      summary: Connect a call to a user
+      description: '**Required ACL:** `calld.calls.{call_id}.user.{user_uuid}.update`'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      - name: user_uuid
+        in: path
+        description: UUID of the user
+        required: true
+        schema:
+          type: string
+      tags:
+      - calls
+      responses:
+        '200':
+          description: The new call of the user (ringing side)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectCallToUserRequest'
+        description: options affecting the call to the targeted user
+  /users/me/calls:
+    get:
+      summary: List calls of a user
+      description: '**Required ACL:** `calld.users.me.calls.read`'
+      parameters:
+      - name: application
+        description: Filter calls by Stasis application, e.g. switchboard.
+        in: query
+        schema:
+          type: string
+      - name: application_instance
+        description: Filter calls by Stasis application instance, e.g. switchboard-sales,green. Args must be separated by commas (,).
+        in: query
+        schema:
+          type: string
+      tags:
+      - calls
+      responses:
+        '200':
+          description: List currently active calls of a user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Call'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    post:
+      summary: Make a new call from a user
+      description: '**Required ACL:** `calld.users.me.calls.create`
+
+
+        The user originator of the call is determined from the authentication token.
+
+        '
+      tags:
+      - calls
+      responses:
+        '201':
+          description: The new call ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCallRequest'
+        description: Parameters of the call
+        required: true
+  /users/me/calls/{call_id}:
+    delete:
+      summary: Hangup a call from a user
+      description: '**Required ACL:** `calld.users.me.calls.{call_id}.delete`
+
+
+        Only calls owned by the authenticated user may be hung up.'
+      parameters:
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: Call has been hung up
+        '403':
+          description: The authenticated user tried to hangup a call owned by someone else
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/calls/{call_id}/mute/start:
+    put:
+      summary: Mute a call from user
+      description: '**Required ACL:** `calld.users.me.calls.{call_id}.mute.start.update`
+
+
+        Only calls owned by the authenticated user may be mute.'
+      parameters:
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The call is now muted
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/calls/{call_id}/mute/stop:
+    put:
+      summary: Unmute a call from user
+      description: '**Required ACL:** `calld.users.me.calls.{call_id}.mute.stop.update`
+
+
+        Only calls owned by the authenticated user may be unmute.'
+      parameters:
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The call is now unmuted
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/calls/{call_id}/hold/start:
+    put:
+      summary: Hold a call from user
+      description: '**Required ACL:** `calld.users.me.calls.{call_id}.hold.start.update`
+
+
+        Only calls owned by the authenticated user may be held.'
+      parameters:
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The call is now held
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/calls/{call_id}/hold/stop:
+    put:
+      summary: Unhold a call from user
+      description: '**Required ACL:** `calld.users.me.calls.{call_id}.hold.stop.update`
+
+
+        Only calls owned by the authenticated user may be unheld.'
+      parameters:
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The call is now unheld
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/calls/{call_id}/record/start:
+    put:
+      summary: Start recording a call
+      description: '**Required ACL:** `calld.calls.{call_id}.record.start.update`'
+      parameters:
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: Recording has started for the call
+        '403':
+          description: On demand call recording is not enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/calls/{call_id}/record/stop:
+    put:
+      summary: Stop recording a call
+      description: '**Required ACL:** `calld.calls.{call_id}.record.stop.update`'
+      parameters:
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: Recording has stopped for the call
+        '403':
+          description: On demand call recording is not enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/calls/{call_id}/record/pause:
+    put:
+      summary: Pause recording a call
+      description: '**Required ACL:** `calld.calls.{call_id}.record.pause.update`'
+      parameters:
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: Recording has paused for the call
+        '403':
+          description: On demand call recording is not enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/calls/{call_id}/record/resume:
+    put:
+      summary: Resume recording a call
+      description: '**Required ACL:** `calld.calls.{call_id}.record.resume.update`'
+      parameters:
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: Recording has resumed for the call
+        '403':
+          description: On demand call recording is not enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/calls/{call_id}/answer:
+    put:
+      summary: Answer a call from user
+      description: '**Required ACL:** `calld.users.me.calls.{call_id}.answer.update`
+
+
+        Only calls owned by the authenticated user may be answered.'
+      parameters:
+      - $ref: '#/components/parameters/CallID'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The call is now answered
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/calls/{call_id}/dtmf:
+    put:
+      summary: Simulate a user pressing DTMF keys
+      description: '**Required ACL:** `calld.users.me.calls.{call_id}.dtmf.update'
+      parameters:
+      - $ref: '#/components/parameters/CallID'
+      - $ref: '#/components/parameters/DTMFDigits'
+      tags:
+      - calls
+      responses:
+        '204':
+          description: The digits have been sent
+        '404':
+          description: No such call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /calls/{call_id}/park:
+    put:
+      summary: Park a call
+      description: '**Required ACL:** calld.calls.{call_id}.park.update`. Use the `POST /calls` API to unpark the call.'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      - $ref: '#/components/parameters/ParkCall'
+      tags:
+      - calls
+      responses:
+        '200':
+          description: Parked call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkedCallInfo'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/FullOrServiceUnavailable'
+  /users/me/calls/{call_id}/park:
+    put:
+      summary: Park the user's connected (talking to) call
+      description: '**Required ACL:** `calld.users.me.calls.{call_id}.park.update` Use the `POST /users/me/calls` API to unpark the call.'
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/CallID'
+      - $ref: '#/components/parameters/ParkCall'
+      tags:
+      - calls
+      responses:
+        '200':
+          description: Parked call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkedCallInfo'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '503':
+          $ref: '#/components/responses/FullOrServiceUnavailable'
+components:
+  schemas:
+    ParkCallBody:
+      title: Information needed to park the call
+      required:
+      - parking_id
+      type: object
+      properties:
+        parking_id:
+          description: Parking lot ID in which to park the call
+          type: integer
+          minimum: 1
+          example: 2
+        preferred_slot:
+          description: 'Preferred slot in which to park the call.  If slots is already
+
+            occupied, another slot will be automatically chosen
+
+            '
+          type: string
+          example: '501'
+        timeout:
+          description: 'A timeout specified in seconds after which the call will redial the
+
+            parker.  If unspecified, it will defaults to the parking''s timeout value.
+
+            (A value of 0 disables the timeout feature)
+
+            '
+          type: integer
+          minimum: 0
+          example: 30
+    Call:
+      type: object
+      properties:
+        call_id:
+          type: string
+        conversation_id:
+          type: string
+        user_uuid:
+          type: string
+        status:
+          type: string
+        talking_to:
+          $ref: '#/components/schemas/TalkingTo'
+        bridges:
+          type: array
+          items:
+            type: string
+        creation_time:
+          type: string
+          format: date-time
+        direction:
+          type: string
+          enum:
+          - internal
+          - outbound
+          - inbound
+          - unknown
+        answer_time:
+          type: string
+          format: date-time
+        hangup_time:
+          type: string
+          format: date-time
+        caller_id_name:
+          type: string
+        caller_id_number:
+          type: string
+        peer_caller_id_name:
+          type: string
+        peer_caller_id_number:
+          type: string
+        on_hold:
+          type: boolean
+        muted:
+          type: boolean
+        is_caller:
+          type: boolean
+          description: This value is only correct when the destination of the call is a user or outgoing call. In other cases, it is always False.
+        parked:
+          type: boolean
+          description: If this call is currently parked
+        is_video:
+          type: boolean
+          description: If this call has a video track
+        dialed_extension:
+          type: string
+        sip_call_id:
+          type: string
+          description: Matches the `Call-ID` SIP header of the call. This value can be `null` when not using SIP
+          readOnly: true
+        line_id:
+          type: integer
+          description: Line ID of the endpoint making the call
+          readOnly: true
+        record_state:
+          type: string
+          enum:
+          - active
+          - inactive
+    TalkingTo:
+      type: object
+      properties:
+        '{channel_id}':
+          type: string
+    ParkedCallInfo:
+      description: Information returned when a call has been parked
+      properties:
+        slot:
+          description: Parking slot where this call has been parked
+          type: string
+          example: 501
+        timeout_at:
+          description: Timestamp when the call will timeout
+          type: string
+          format: date-time
+    UserCallRequest:
+      type: object
+      properties:
+        extension:
+          description: Extension to call
+          type: string
+        variables:
+          description: Channel variables to set
+          type: object
+        line_id:
+          type: integer
+          description: ID of the line of the user used to make the call. Default is the main line of the user.
+        from_mobile:
+          type: boolean
+          description: 'Start the call from the user''s mobile phone. Default is False. Limitation: this feature may return a wrong call_id if the outgoing call used to dial the mobile number has more than one associated trunk.'
+        all_lines:
+          type: boolean
+          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
+        auto_answer_caller:
+          type: boolean
+          description: 'Inform the caller phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
+      required:
+      - extension
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    CallRequestDestination:
+      description: Destination parameters
+      type: object
+      properties:
+        extension:
+          type: string
+        context:
+          type: string
+        priority:
+          type: integer
+      required:
+      - extension
+      - context
+      - priority
+    CallRequestSource:
+      description: Caller parameters
+      type: object
+      properties:
+        user:
+          type: string
+          description: UUID of the user making the call
+        line_id:
+          type: integer
+          description: ID of the line of the user used to make the call. Default is the main line of the user.
+        from_mobile:
+          type: boolean
+          description: Start the call from the user's mobile phone. Default is False
+        all_lines:
+          type: boolean
+          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
+        auto_answer:
+          type: boolean
+          description: 'Inform the phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
+      required:
+      - user
+    CallRequest:
+      type: object
+      properties:
+        destination:
+          $ref: '#/components/schemas/CallRequestDestination'
+        source:
+          $ref: '#/components/schemas/CallRequestSource'
+        variables:
+          description: Channel variables to set
+          type: object
+      required:
+      - destination
+      - source
+    ConnectCallToUserRequest:
+      type: object
+      properties:
+        timeout:
+          description: 'timeout in seconds for the dial attempt to the targeted user,
+
+            or null for no timeout(infinite ring time).
+
+            Omission leads to a default timeout of 30s.
+
+            '
+          type: integer
+  parameters:
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    DTMFDigits:
+      name: digits
+      in: query
+      description: Digits to send via DTMF. Must contain only `0-9*#ABCD` (letters are case insensitive).
+      required: true
+      schema:
+        type: string
+    ParkCall:
+      name: park_call
+      in: body
+      description: Payload required to park a call
+      required: true
+      schema:
+        $ref: '#/components/schemas/ParkCallBody'
+    CallID:
+      name: call_id
+      in: path
+      description: ID of the call
+      required: true
+      schema:
+        type: string
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    FullOrServiceUnavailable:
+      description: Parking is full or another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9500
+x-xivo-name: calld
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-calld
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/calld/1.0/api/api.yml (see wazo_calld/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

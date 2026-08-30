@@ -1,0 +1,416 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Callpermissions API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: callpermissions
+paths:
+  /callpermissions:
+    get:
+      operationId: list_callpermissions
+      summary: List call permissions
+      description: '**Required ACL:** `confd.callpermissions.read`'
+      tags:
+      - callpermissions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Call Permissions list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallPermissionItems'
+    post:
+      operationId: create_callpermission
+      summary: Create call permission
+      description: '**Required ACL:** `confd.callpermissions.create`'
+      tags:
+      - callpermissions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Call Permission created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallPermission'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallPermission'
+        description: Call Permission to create
+        required: true
+  /callpermissions/{callpermission_id}:
+    get:
+      operationId: get_callpermission
+      summary: Get call permission
+      description: '**Required ACL:** `confd.callpermissions.{callpermission_id}.read`'
+      tags:
+      - callpermissions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '200':
+          description: Call Permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallPermission'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_callpermission
+      summary: Update call permission
+      description: '**Required ACL:** `confd.callpermissions.{callpermission_id}.update`'
+      tags:
+      - callpermissions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallPermission'
+        required: true
+    delete:
+      operationId: delete_callpermission
+      summary: Delete call permission
+      description: '**Required ACL:** `confd.callpermissions.{callpermission_id}.delete`
+
+
+        . The call permission will also be removed from all users, groups, incoming calls and outgoing calls.'
+      tags:
+      - callpermissions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /groups/{group_uuid}/callpermissions/{callpermission_id}:
+    put:
+      operationId: associate_group_callpermission
+      summary: Associate group and call permission
+      description: '**Required ACL:** `confd.groups.{group_uuid}.callpermissions.{call_permission_id}.update`'
+      tags:
+      - callpermissions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/groupuuid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_group_callpermission
+      summary: Dissociate group and call permission
+      description: '**Required ACL:** `confd.groups.{group_uuid}.callpermissions.{call_permission_id}.delete`'
+      tags:
+      - callpermissions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/groupuuid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '204':
+          description: Group and Call Permission dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /outcalls/{outcall_id}/callpermissions/{callpermission_id}:
+    put:
+      operationId: associate_outcall_callpermission
+      summary: Associate outcall and call permission
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.callpermissions.{call_permission_id}.update`'
+      tags:
+      - callpermissions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/outcallid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_outcall_callpermission
+      summary: Dissociate outcall and call permission
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.callpermissions.{call_permission_id}.delete`'
+      tags:
+      - callpermissions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/outcallid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '204':
+          description: Outcall and Call Permission dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /users/{user_id}/callpermissions/{callpermission_id}:
+    put:
+      operationId: associate_user_callpermission
+      summary: Associate user and call permission
+      description: '**Required ACL:** `confd.users.{user_id}.callpermissions.{call_permission_id}.update`'
+      tags:
+      - callpermissions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_user_callpermission
+      summary: Dissociate user and call permission
+      description: '**Required ACL:** `confd.users.{user_id}.callpermissions.{call_permission_id}.delete`'
+      tags:
+      - callpermissions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '204':
+          description: User and Call Permission dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    outcallid:
+      required: true
+      name: outcall_id
+      in: path
+      description: Outgoing call's ID
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    groupuuid:
+      required: true
+      name: group_uuid
+      in: path
+      description: the group's UUID
+      schema:
+        type: string
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    callpermissionid:
+      required: true
+      name: callpermission_id
+      in: path
+      description: Call Permission's ID
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  schemas:
+    CallPermission:
+      allOf:
+      - $ref: '#/components/schemas/CallPermissionRelationBase'
+      - title: CallPermission
+        properties:
+          password:
+            type: string
+            description: The password to be able to call extensions
+          mode:
+            type: string
+            enum:
+            - allow
+            - deny
+            default: deny
+            description: Determine how the call permission are applied
+          enabled:
+            type: boolean
+            default: true
+            description: Disable or enable the call permission
+          description:
+            type: string
+            description: Additional information about the call permission
+          extensions:
+            type: array
+            items:
+              type: string
+            description: Extensions to apply the call permission
+    Error:
+      type: array
+      items:
+        type: string
+    CallPermissionRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the call permission
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name of the call permission
+      required:
+      - name
+    CallPermissionItems:
+      title: CallPermissionItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CallPermission'
+        total:
+          type: integer
+      required:
+      - total
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

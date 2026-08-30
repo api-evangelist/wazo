@@ -1,0 +1,228 @@
+openapi: 3.2.0
+info:
+  title: Wazo Microsoft API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged microsoft across 2 of this provider''s published API definitions: wazo-auth-api-openapi.yml, wazo-chatd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /0.1
+- url: /1.0
+tags:
+- name: microsoft
+paths:
+  /users/{user_uuid}/external/microsoft:
+    get:
+      summary: Get a Microsoft token
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.microsoft.read`'
+      tags:
+      - microsoft
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '200':
+          description: The auth data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MicrosoftGetResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+    post:
+      summary: Ask for a verification URL and store code to get token
+      description: "**Required ACL**: `auth.users.{user_uuid}.external.microsoft.create`.\n\n More info on Microsoft permissions: https://docs.microsoft.com/en-us/graph/permissions-reference"
+      tags:
+      - microsoft
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '201':
+          description: Authentication url
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MicrosoftPostResult'
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MicrosoftPost'
+    delete:
+      summary: Delete a Microsoft token
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.microsoft.delete`'
+      tags:
+      - microsoft
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+    servers:
+    - url: /0.1
+  /users/{user_uuid}/teams/presence:
+    post:
+      operationId: update_teams_presence
+      summary: Receive presence information from Microsoft Teams
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      tags:
+      - microsoft
+      responses:
+        '200':
+          description: Microsoft Teams presence information has been received
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/ResourceUpdated'
+        '404':
+          description: The resource requested was not found on the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFoundError'
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.0
+components:
+  schemas:
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
+    MicrosoftGetResult:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: Microsoft token
+        scope:
+          type: string
+          description: Scope permissions given to the `access token`
+        token_expiration:
+          type: integer
+          description: Token expiration
+      required:
+      - access_token
+      - scope
+      - token_expiration
+    MicrosoftPostResult:
+      type: object
+      required:
+      - verification_url
+      properties:
+        verification_url:
+          type: string
+          description: The URL to confirm the authorization
+    MicrosoftPost:
+      type: object
+      properties:
+        scope:
+          description: Scope permissions requested
+          type: array
+          items:
+            type: string
+          default:
+          - offline_access
+          - Contacts.Read
+    APIError_2:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  parameters:
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError_2'
+    ResourceUpdated:
+      description: Resource was updated successfully
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-auth-api-openapi.yml
+- wazo-chatd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,2318 @@
+openapi: 3.2.0
+info:
+  title: Wazo Configuration API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged configuration across 2 of this provider''s published API definitions: wazo-confd-api-openapi.yml, wazo-dird-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /1.1
+- url: /0.1
+security:
+- wazo_auth_token: []
+tags:
+- name: configuration
+paths:
+  /configuration/live_reload:
+    get:
+      operationId: get_configuration
+      summary: Get live reload status
+      description: '**Required ACL:** `confd.configuration.live_reload.read`'
+      tags:
+      - configuration
+      responses:
+        '200':
+          description: Live reload status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveReload'
+    put:
+      operationId: update_configuration
+      summary: Update live reload status
+      description: '**Required ACL:** `confd.configuration.live_reload.update`'
+      tags:
+      - configuration
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiveReload'
+        required: true
+    servers:
+    - url: /1.1
+  /backends:
+    get:
+      operationId: list_backend
+      summary: List all loaded backends
+      tags:
+      - configuration
+      description: '**Required ACL:** `dird.backends.read`'
+      parameters:
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: A list of all active backends
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackendItems'
+    servers:
+    - url: /0.1
+  /backends/conference/sources:
+    get:
+      operationId: list_conference_sources
+      summary: Get all `conference` source configurations
+      description: '**Required ACL:** `dird.backends.conference.sources.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: A list of configured `conference` sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConferenceSourceItems'
+    post:
+      operationId: create_conference_source
+      summary: Configure a source for the `conference` backend
+      description: '**Required ACL:** `dird.backends.conference.sources.create`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The created source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConferenceSource'
+              example:
+                name: conferences
+                searched_columns:
+                - number
+                - name
+                format_columns:
+                  displayname: '{name}'
+                auth:
+                  key_file: /usr/share/wazo-dird/my-auth-key.yml
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConferenceSource'
+        description: The display configuration body
+        required: true
+    servers:
+    - url: /0.1
+  /backends/conference/sources/{source_uuid}:
+    get:
+      operationId: get_a_conference_source
+      summary: Get a `conference` source configuration
+      description: '**Required ACL:** `dird.backends.conference.sources.{source_uuid}.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '200':
+          description: The `conference` source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConferenceSource'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_conference_source
+      summary: Update a `conference` source configuration
+      description: '**Required ACL:** `dird.backends.conference.sources.{source_uuid}.update`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConferenceSource'
+        description: The source configuration body
+        required: true
+    delete:
+      operationId: delete_conference_source
+      summary: Delete a `conference` source configuration
+      description: '**Required ACL:** `dird.backends.conference.sources.{source_uuid}.delete`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /0.1
+  /services:
+    get:
+      operationId: list_services
+      summary: List all loaded services
+      description: '**Required ACL:** `dird.services.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: A list of configured services
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceItems'
+    servers:
+    - url: /0.1
+  /backends/csv/sources:
+    get:
+      operationId: list_csv_source
+      summary: Get all `csv` source configurations
+      description: '**Required ACL:** `dird.backends.csv.sources.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: A list of configured `csv` sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CSVSourceItems'
+    post:
+      operationId: create_csv_source
+      summary: Configure a source for the `csv` backend
+      description: '**Required ACL:** `dird.backends.csv.sources.create`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The created source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CSVSource'
+              example:
+                name: Internal
+                searched_columns:
+                - firstname
+                - lastname
+                format_columns:
+                  displayname: '{firstname} {lastname}'
+                file: /tmp/directory.csv
+                separator: ':'
+                unique_column: uuid
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CSVSource'
+        description: The display configuration body
+        required: true
+    servers:
+    - url: /0.1
+  /backends/csv/sources/{source_uuid}:
+    get:
+      operationId: get_a_csv_source
+      summary: Get a `csv` source configuration
+      description: '**Required ACL:** `dird.backends.csv.sources.{source_uuid}.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '200':
+          description: The `csv` source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CSVSource'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_csv_source
+      summary: Update a `csv` source configuration
+      description: '**Required ACL:** `dird.backends.csv.sources.{source_uuid}.update`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CSVSource'
+        description: The source configuration body
+        required: true
+    delete:
+      operationId: delete_csv_source
+      summary: Delete a `csv` source configuration
+      description: '**Required ACL:** `dird.backends.csv.sources.{source_uuid}.delete`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /0.1
+  /backends/csv_ws/sources:
+    get:
+      operationId: list_csv_ws_source
+      summary: Get all `csv_ws` source configurations
+      description: '**Required ACL:** `dird.backends.csv_ws.sources.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: A list of configured `csv_ws` sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CSVWSSourceItems'
+    post:
+      operationId: create_csv_ws_source
+      summary: Configure a source for the `csv_ws` backend
+      description: '**Required ACL:** `dird.backends.csv_ws.sources.create`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The created source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CSVWSSource'
+              example:
+                name: ws
+                searched_columns:
+                - firstname
+                - lastname
+                format_columns:
+                  displayname: '{firstname} {lastname}'
+                lookup_url: https://my-service/search
+                list_url: https://my-service/all
+                verify_certificate: false
+                delimiter: ':'
+                unique_column: uuid
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CSVWSSource'
+        description: The display configuration body
+        required: true
+    servers:
+    - url: /0.1
+  /backends/csv_ws/sources/{source_uuid}:
+    get:
+      operationId: get_a_csv_ws_source
+      summary: Get a `csv_ws` source configuration
+      description: '**Required ACL:** `dird.backends.csv_ws.sources.{source_uuid}.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '200':
+          description: The `csv_ws` source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CSVWSSource'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_csv_ws_source
+      summary: Update a `csv_ws` source configuration
+      description: '**Required ACL:** `dird.backends.csv_ws.sources.{source_uuid}.update`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CSVWSSource'
+        description: The source configuration body
+        required: true
+    delete:
+      operationId: delete_csv_ws_source
+      summary: Delete a `csv_ws` source configuration
+      description: '**Required ACL:** `dird.backends.csv_ws.sources.{source_uuid}.delete`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /0.1
+  /displays:
+    get:
+      operationId: list_display
+      summary: List displays
+      description: '**Required ACL:** `dird.displays.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: A list of configured displays
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisplayItems'
+    post:
+      summary: Create a new display configuration
+      description: '**Required ACL:** `dird.displays.create`'
+      operationId: create_display
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The created display
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Display'
+              example:
+                name: english
+                columns:
+                - title: Firstname
+                  field: firstname
+                - title: Lastname
+                  field: lastname
+                  default: ''
+                - title: Number
+                  field: number
+                  number_display: '{firstname} {lastname}'
+                  type: number
+                - title: Email
+                  field: email
+                  type: email
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Display'
+        description: The display configuration body
+        required: true
+    servers:
+    - url: /0.1
+  /displays/{display_uuid}:
+    get:
+      operationId: get_display
+      summary: Get display
+      description: '**Required ACL:** `dird.displays.{display_uuid}.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/displayuuid'
+      responses:
+        '200':
+          description: Display
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Display'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_display
+      summary: Update display
+      description: '**Required ACL:** `dird.displays.{display_uuid}.update`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/displayuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Display'
+        description: The display configuration body
+        required: true
+    delete:
+      operationId: delete_display
+      summary: Delete display
+      description: '**Required ACL:** `dird.displays.{display_uuid}.delete`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/displayuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /0.1
+  /backends/google/sources:
+    get:
+      operationId: list_google_source
+      summary: Get google configuration
+      description: '**Required ACL:** `dird.backends.google.sources.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Configured google source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleSourceItems'
+    post:
+      operationId: create_google_source
+      summary: Configure a source for the google backend
+      description: '**Required ACL:** `dird.backends.google.sources.create`
+
+
+        This resource configures a Google source for wazo-dird. Columns that are available from this source
+
+        are:
+
+
+        * name: the contact name
+
+        * numbers: a list of phone numbers
+
+        * numbers_by_label: a map of type to numbers {''mobile'': <number>, ''home'': <number>, ...}. Types are defined by Google, currently known types include: ''home'', ''work'', ''mobile'', ''other'', ''main'', ''home_fax'', ''work_fax'', ''google_voice'', ''pager''.
+
+        * numbers_except_label: a map from type to every other number {''mobile'': [<number>, <number], ''home'': [<number>, <number>], ...}. See available types above. For example, the ''mobile'' key will contain the ''work'' and ''home'' numbers, but will exclude the ''mobile'' number.
+
+        * emails: a list of email addresses
+
+        '
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The created display
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleSource'
+              example:
+                auth:
+                  host: localhost
+                  port: 80
+                  prefix: /api/auth
+                  https: false
+                  version: 0.1
+                format_columns:
+                  phone: '{numbers[0]}'
+                  phone_mobile: '{numbers_by_label[mobile]}'
+                  reverse: '{name}'
+                  email: '{emails[0]}'
+                name: google
+                first_matched_columns:
+                - numbers
+                searched_columns:
+                - numbers
+                - emails
+                - name
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '409':
+          description: Source already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleSource'
+        description: The display configuration body
+        required: true
+    servers:
+    - url: /0.1
+  /backends/google/sources/{source_uuid}:
+    get:
+      operationId: get_a_google_source
+      summary: Get a `google` source configuration
+      description: '**Required ACL:** `dird.backends.google.sources.{source_uuid}.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '200':
+          description: The `google` source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleSource'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_google_source
+      summary: Update a `google` source configuration
+      description: '**Required ACL:** `dird.backends.google.sources.{source_uuid}.update`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleSource'
+        description: The source configuration body
+        required: true
+    delete:
+      operationId: delete_google_source
+      summary: Delete a `google` source configuration
+      description: '**Required ACL:** `dird.backends.google.sources.{source_uuid}.delete`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /0.1
+  /backends/ldap/sources:
+    get:
+      operationId: list_ldap_source
+      summary: Get all `ldap` source configurations
+      description: '**Required ACL:** `dird.backends.ldap.sources.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: A list of configured `ldap` sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPSourceItems'
+    post:
+      operationId: create_ldap_source
+      summary: Configure a source for the `ldap` backend
+      description: '**Required ACL:** `dird.backends.ldap.sources.create`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The created display
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPSource'
+              example:
+                name: ldap
+                searched_columns:
+                - firstname
+                - lastname
+                format_columns:
+                  firstname: '{givenName}'
+                  lastname: '{sn}'
+                  displayname: '{displayName}'
+                  exten: '{telephoneNumber}'
+                ldap_uri: ldap://example.com
+                ldap_base_dn: ou=people,dc=example,dc=com
+                ldap_custom_filter: (l=québec)
+                ldap_username: cn=admin,dc=example,dc=org
+                ldap_password: foobar
+                unique_column: objectGUID
+                unique_column_format: binary_uuid
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LDAPSource'
+        description: The display configuration body
+        required: true
+    servers:
+    - url: /0.1
+  /backends/ldap/sources/{source_uuid}:
+    get:
+      operationId: get_a_ldap_source
+      summary: Get a `ldap` source configuration
+      description: '**Required ACL:** `dird.backends.ldap.sources.{source_uuid}.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '200':
+          description: The `ldap` source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPSource'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_ldap_source
+      summary: Update a `ldap` source configuration
+      description: '**Required ACL:** `dird.backends.ldap.sources.{source_uuid}.update`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LDAPSource'
+        description: The source configuration body
+        required: true
+    delete:
+      operationId: delete_ldap_source
+      summary: Delete a `ldap` source configuration
+      description: '**Required ACL:** `dird.backends.ldap.sources.{source_uuid}.delete`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /0.1
+  /backends/office365/sources:
+    get:
+      operationId: list_microsoft_source
+      summary: Get microsoft configuration
+      description: '**Required ACL:** `dird.backends.microsoft.sources.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Configured microsoft source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MicrosoftSourceItems'
+    post:
+      operationId: create_microsoft_source
+      summary: Configure a source for the microsoft backend
+      description: '**Required ACL:** `dird.backends.microsoft.sources.create`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The created display
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MicrosoftSource'
+              example:
+                format_columns:
+                  name: '{givenName} {surname}'
+                  phone_mobile: '{mobilePhone}'
+                  number: '{numbers[0]}'
+                  reverse: '{givenName} {surname}'
+                  email: '{email}'
+                name: office365
+                searched_columns:
+                - displayName
+                - mobilePhone
+                - homePhones
+                - mobilePhone
+                first_matched_columns:
+                - businessPhones
+                - mobilePhone
+                - homePhones
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '409':
+          description: Source already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MicrosoftSource'
+        description: The display configuration body
+        required: true
+    servers:
+    - url: /0.1
+  /backends/office365/sources/{source_uuid}:
+    get:
+      operationId: get_a_microsoft_source
+      summary: Get a `microsoft` source configuration
+      description: '**Required ACL:** `dird.backends.microsoft.sources.{source_uuid}.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '200':
+          description: The `microsoft` source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MicrosoftSource'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_microsoft_source
+      summary: Update a `microsoft` source configuration
+      description: '**Required ACL:** `dird.backends.microsoft.sources.{source_uuid}.update`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MicrosoftSource'
+        description: The source configuration body
+        required: true
+    delete:
+      operationId: delete_microsoft_source
+      summary: Delete a `microsoft` source configuration
+      description: '**Required ACL:** `dird.backends.microsoft.sources.{source_uuid}.delete`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /0.1
+  /backends/personal/sources:
+    get:
+      operationId: list_personal_source
+      summary: Get all `personal` source configurations
+      description: '**Required ACL:** `dird.backends.personal.sources.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: A list of configured `personal` sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalSourceItems'
+    post:
+      operationId: create_personal_source
+      summary: Configure a source for the `personal` backend
+      description: '**Required ACL:** `dird.backends.personal.sources.create`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The created source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalSource'
+              example:
+                name: Personals
+                searched_columns:
+                - firstname
+                - lastname
+                format_columns:
+                  displayname: '{firstname} {lastname}'
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalSource'
+        description: The display configuration body
+        required: true
+    servers:
+    - url: /0.1
+  /backends/personal/sources/{source_uuid}:
+    get:
+      operationId: get_a_personal_source
+      summary: Get a `personal` source configuration
+      description: '**Required ACL:** `dird.backends.personal.sources.{source_uuid}.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '200':
+          description: The `personal` source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalSource'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_personal_source
+      summary: Update a `personal` source configuration
+      description: '**Required ACL:** `dird.backends.personal.sources.{source_uuid}.update`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalSource'
+        description: The source configuration body
+        required: true
+    delete:
+      operationId: delete_personal_source
+      summary: Delete a `personal` source configuration
+      description: '**Required ACL:** `dird.backends.personal.sources.{source_uuid}.delete`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /0.1
+  /backends/phonebook/sources:
+    get:
+      operationId: list_phonebook_source
+      summary: Get all `phonebook` source configurations
+      description: '**Required ACL:** `dird.backends.phonebook.sources.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: A list of configured `phonebook` sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhonebookSourceItems'
+    post:
+      operationId: create_phonebook_source
+      summary: Configure a source for the `phonebook` backend
+      description: '**Required ACL:** `dird.backends.phonebook.sources.create`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The created source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhonebookSource'
+              example:
+                name: shared
+                searched_columns:
+                - firstname
+                - lastname
+                format_columns:
+                  displayname: '{firstname} {lastname}'
+                phonebook_uuid: 00000000-0000-4000-a000-000000000001
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhonebookSource'
+        description: The phonebook source configuration body
+        required: true
+    servers:
+    - url: /0.1
+  /backends/phonebook/sources/{source_uuid}:
+    get:
+      operationId: get_a_phonebook_source
+      summary: Get a `phonebook` source configuration
+      description: '**Required ACL:** `dird.backends.phonebook.sources.{source_uuid}.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '200':
+          description: The `phonebook` source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhonebookSource'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_phonebook_source
+      summary: Update a `phonebook` source configuration
+      description: '**Required ACL:** `dird.backends.phonebook.sources.{source_uuid}.update`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhonebookSource'
+        description: The source configuration body
+        required: true
+    delete:
+      operationId: delete_phonebook_source
+      summary: Delete a `phonebook` source configuration
+      description: '**Required ACL:** `dird.backends.phonebook.sources.{source_uuid}.delete`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /0.1
+  /profiles:
+    post:
+      operationId: create_profile
+      summary: Create a new configuration profile
+      description: '**Required ACL:** `dird.profiles.create`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The created profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '409':
+          $ref: '#/components/responses/DuplicateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+        description: The profile configuration
+    get:
+      operationId: list_profile
+      summary: List all configured profiles
+      description: '**Required ACL:** `dird.profiles.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: A list of configured profiles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileItems'
+    servers:
+    - url: /0.1
+  /profiles/{profile_uuid}:
+    get:
+      operationId: get_profile
+      summary: Get a profile configuration
+      description: '**Required ACL:** `dird.profiles.{profile_uuid}.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/profileuuid'
+      responses:
+        '200':
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_profile
+      summary: Update a profile configuration
+      description: '**Required ACL:** `dird.profiles.{profile_uuid}.update`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/profileuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/DuplicateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+        description: The profile configuration body
+        required: true
+    delete:
+      operationId: delete_profile
+      summary: Delete a profile configuration
+      description: '**Required ACL:** `dird.profiles.{profile_uuid}.delete`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/profileuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /0.1
+  /sources:
+    get:
+      operationId: list_source
+      summary: List all configured sources
+      description: '**Required ACL:** `dird.sources.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: A list of configured sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceListItems'
+    servers:
+    - url: /0.1
+  /backends/wazo/sources:
+    get:
+      operationId: list_wazo_source
+      summary: Get all `wazo` source configurations
+      description: '**Required ACL:** `dird.backends.wazo.sources.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: A list of configured `wazo` sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WazoSourceItems'
+    post:
+      operationId: create_wazo_source
+      summary: Configure a source for the `wazo` backend
+      description: '**Required ACL:** `dird.backends.wazo.sources.create`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: The created source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WazoSource'
+              example:
+                name: internal_users
+                searched_columns:
+                - firstname
+                - lastname
+                format_columns:
+                  displayname: '{firstname} {lastname}'
+                auth:
+                  key_file: /usr/share/wazo-dird/my-auth-key.yml
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WazoSource'
+        description: The display configuration body
+        required: true
+    servers:
+    - url: /0.1
+  /backends/wazo/sources/{source_uuid}:
+    get:
+      operationId: get_a_wazo_source
+      summary: Get a `wazo` source configuration
+      description: '**Required ACL:** `dird.backends.wazo.sources.{source_uuid}.read`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '200':
+          description: The `wazo` source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WazoSource'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_wazo_source
+      summary: Update a `wazo` source configuration
+      description: '**Required ACL:** `dird.backends.wazo.sources.{source_uuid}.update`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Duplicate Source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WazoSource'
+        description: The source configuration body
+        required: true
+    delete:
+      operationId: delete_wazo_source
+      summary: Delete a `wazo` source configuration
+      description: '**Required ACL:** `dird.backends.wazo.sources.{source_uuid}.delete`'
+      tags:
+      - configuration
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sourceuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /0.1
+components:
+  schemas:
+    Error:
+      type: array
+      items:
+        type: string
+    LiveReload:
+      title: LiveReload
+      properties:
+        enabled:
+          type: boolean
+    LegacyError:
+      title: LegacyError
+      description: Error message for the client
+      properties:
+        timestamp:
+          description: Time at which the error occured
+          type: array
+          items:
+            type: number
+            format: timestamp
+        reason:
+          description: Human readable explanation of the error
+          type: array
+          items:
+            type: string
+        status_code:
+          description: HTTP status code
+          type: integer
+    MicrosoftSource:
+      title: MicrosoftSource
+      description: 'In addition to the keys defined by the [Microsoft API](https://docs.microsoft.com/en-us/graph/api/resources/contact?view=graph-rest-1.0#),
+
+        `format_columns` also accepts the following columns:
+
+        * a `numbers` field that aggregates the values from the `businessPhones`, `homePhones` and `mobilePhone` fields. Example: `"format_columns": {"phone": "{numbers[0]}"}`
+
+        * a `numbers_except_label` field that aggregates the same values than `numbers`, except for one field. Example: `"format_columns": {"phone": "{numbers_except_label[mobilePhone][0]}"}` will result in one of the phone numbers except the mobile phone.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          auth:
+            $ref: '#/components/schemas/WazoAuthConfig'
+          confd:
+            $ref: '#/components/schemas/ConfdConfig'
+          endpoint:
+            description: Endpoint where to get the information from
+            example: https://graph.microsoft.com/v1.0/me/contacts
+            default: https://graph.microsoft.com/v1.0/me/contacts
+            type: string
+      - required:
+        - name
+        - auth
+        - confd
+    DisplayIdentifier:
+      title: DisplayUUID
+      allOf:
+      - properties:
+          uuid:
+            type: string
+            description: The display's UUID
+      - required:
+        - uuid
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
+    MicrosoftSourceItems:
+      title: MicrosoftSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/MicrosoftSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    SourceListItems:
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceListItem'
+          readOnly: true
+        total:
+          type: integer
+          description: The number of sources
+          readOnly: true
+        filtered:
+          type: integer
+          description: The number of sources matching the search filters
+          readOnly: true
+      required:
+      - items
+      - total
+      - filtered
+    BackendItems:
+      title: BackendItems
+      allOf:
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Backend'
+            readOnly: true
+          total:
+            type: integer
+            description: The number of backends
+            readOnly: true
+          filtered:
+            type: integer
+            description: The number of backends matching the search filters
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    Profile:
+      title: Profile
+      allOf:
+      - properties:
+          uuid:
+            type: string
+            readOnly: true
+          name:
+            type: string
+            description: The name of the profile
+          display:
+            $ref: '#/components/schemas/DisplayIdentifier'
+          services:
+            type: object
+            properties:
+              name:
+                $ref: '#/components/schemas/ServiceConfiguration'
+      - required:
+        - name
+    SourceListItem:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of the source
+          readOnly: true
+        backend:
+          type: string
+          description: The backend of this source
+          readOnly: true
+        name:
+          type: string
+          description: The name of the source
+          readOnly: true
+      required:
+      - uuid
+      - backend
+      - name
+    PhonebookSource:
+      title: PhonebookSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          name:
+            readOnly: true
+          phonebook_uuid:
+            type: string
+            readOnly: true
+          phonebook_name:
+            type: string
+            readOnly: true
+          phonebook_description:
+            type: string
+            readOnly: true
+      - required:
+        - phonebook_uuid
+    PersonalSource:
+      title: PersonalSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - required:
+        - name
+    SourceItems:
+      properties:
+        total:
+          type: integer
+          description: The number of configured sources for this backend
+          readOnly: true
+        filtered:
+          type: integer
+          description: The number of configured sources matching the searched terms for this backend
+          readOnly: true
+    PhonebookSourceItems:
+      title: PhonebookSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/PhonebookSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    WazoAuthConfigNoAuth:
+      title: Auth
+      allOf:
+      - $ref: '#/components/schemas/ExternalServiceConfig'
+      - properties:
+          port:
+            type: integer
+            default: 80
+          version:
+            type: string
+            default: '0.1'
+    ConferenceSource:
+      title: ConferenceSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          auth:
+            $ref: '#/components/schemas/WazoAuthConfig'
+          confd:
+            $ref: '#/components/schemas/ConfdConfig'
+      - required:
+        - name
+        - auth
+        - confd
+    WazoSourceItems:
+      title: WazoSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/WazoSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    LDAPSource:
+      title: LDAPSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          ldap_uri:
+            type: string
+            description: the URI of the LDAP server. Can only contains the scheme, host and port part of an LDAP URL
+          ldap_base_dn:
+            type: string
+            description: the DN of the entry at which to start the search
+          ldap_username:
+            type: string
+            description: the user’s DN to use when performing a “simple” bind.
+          ldap_password:
+            type: string
+            description: the password to use when performing a “simple” bind.
+          ldap_custom_filter:
+            type: string
+            description: the custom filter is used to add more criteria to the filter generated by the back end.
+          ldap_network_timeout:
+            type: number
+            description: the maximum time, in second, that an LDAP network operation can take. If it takes more time than that, no result is returned.
+            default: 0.3
+          ldap_timeout:
+            type: number
+            description: the maximum time, in second, that an LDAP operation can take.
+            default: 1.0
+          unique_column:
+            type: string
+            description: the column that contains a unique identifier of the entry
+          unique_column_format:
+            type: string
+            enum:
+            - string
+            - binary_uuid
+            description: the unique column’s type returned by the queried LDAP server.
+      - required:
+        - name
+        - ldap_uri
+        - ldap_base_dn
+    LDAPSourceItems:
+      title: LDAPSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/LDAPSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    GoogleSourceItems:
+      title: GoogleSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/GoogleSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    DisplayItems:
+      title: DisplayItems
+      allOf:
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Display'
+            readOnly: true
+          total:
+            type: integer
+            description: The number of configured displays
+            readOnly: true
+          filtered:
+            type: integer
+            description: The number of configured displays matching the searched terms
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    ConferenceSourceItems:
+      title: ConferenceSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ConferenceSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    WazoAuthConfig:
+      title: Auth
+      allOf:
+      - $ref: '#/components/schemas/ExternalServiceConfig'
+      - $ref: '#/components/schemas/WazoAuthConfigNoAuth'
+      - properties:
+          key_file:
+            type: string
+            description: The path the the file containing the credentials
+          username:
+            type: string
+            description: The username to use when not using a key_file
+          password:
+            type: string
+            description: The password to use when not using a key_file
+    Backend:
+      title: Backend
+      allOf:
+      - properties:
+          name:
+            type: string
+            readOnly: true
+      - required:
+        - name
+    ServiceConfiguration:
+      title: Service
+      properties:
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceIdentifier'
+            default: []
+        options:
+          type: object
+          description: Service specific configuration options
+    PersonalSourceItems:
+      title: PersonalSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/PersonalSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    ServiceItems:
+      title: ServiceItems
+      allOf:
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Service'
+            readOnly: true
+          total:
+            type: integer
+            description: The number of services
+            readOnly: true
+          filtered:
+            type: integer
+            description: The number of services matching the search filters
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    ProfileItems:
+      title: ProfileItems
+      allOf:
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Profile'
+            readOnly: true
+          total:
+            type: integer
+            description: The number of configured profiles
+            readOnly: true
+          filtered:
+            type: integer
+            description: The number of configured profiles matching the searched terms
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    DisplayColumn:
+      title: Column
+      allOf:
+      - properties:
+          field:
+            type: string
+            description: The name of the field to display in this column
+          title:
+            type: string
+            description: A human readable name for this column
+          type:
+            type: string
+            description: The type of this column
+          default:
+            type: string
+            description: A default value if theres no result in this column
+          number_display:
+            type: string
+            description: A format string that overrides the default display. for number columns only.
+      - required:
+        - name
+    ExternalServiceConfig:
+      properties:
+        host:
+          type: string
+          default: localhost
+        verify_certificate:
+          type: string
+          description: If the HTTPs certificates should be verified and the path of the certificate if a custom certificate is used.
+          default: 'true'
+        timeout:
+          type: number
+    ConfdConfig:
+      title: Confd
+      allOf:
+      - $ref: '#/components/schemas/ExternalServiceConfig'
+      - properties:
+          port:
+            type: integer
+            default: 9486
+          https:
+            type: boolean
+            default: true
+          version:
+            type: string
+            default: '1.1'
+    GoogleSource:
+      title: GoogleSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          auth:
+            $ref: '#/components/schemas/WazoAuthConfigNoAuth'
+      - required:
+        - name
+        - auth
+    CSVWSSourceItems:
+      title: CSVWSSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/CSVWSSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    WazoSource:
+      title: WazoSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          auth:
+            $ref: '#/components/schemas/WazoAuthConfig'
+          confd:
+            $ref: '#/components/schemas/ConfdConfig'
+      - required:
+        - name
+        - auth
+        - confd
+    CSVSourceItems:
+      title: CSVSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/CSVSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    SourceIdentifier:
+      title: SourceUUID
+      allOf:
+      - properties:
+          uuid:
+            type: string
+            description: The source's UUID
+      - required:
+        - uuid
+    CSVWSSource:
+      title: CSVWSSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          lookup_url:
+            type: string
+            description: The URL used to search the remote CSV
+          list_url:
+            type: string
+            description: The URL used to list all values
+          delimiter:
+            type: string
+            description: The field separator in the CSV
+            default: ','
+          timeout:
+            type: number
+            description: The timeout on the remote HTTP queries
+            default: 10.0
+          unique_column:
+            type: string
+            description: The column to use for favorites
+      - required:
+        - name
+        - lookup_url
+    CSVSource:
+      title: CSVSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          file:
+            type: string
+            description: The path of the CSV file
+          separator:
+            type: string
+            description: The field separator in the CSV
+            default: ','
+          unique_column:
+            type: string
+            description: The column to use for favorites
+      - required:
+        - name
+    Source:
+      properties:
+        uuid:
+          type: string
+          description: The source's UUID
+          readOnly: true
+        name:
+          type: string
+          description: The source's name
+        searched_columns:
+          type: array
+          items:
+            type: string
+            description: A list of columns which should be searched when doing a look up
+        first_matched_columns:
+          type: array
+          items:
+            type: string
+          description: A list of columns which should be searched when doing a reverse look up
+        format_columns:
+          type: object
+          description: A mapping of new fields and a python format string to generate the new columns value
+    Service:
+      title: Service
+      allOf:
+      - properties:
+          name:
+            type: string
+            readOnly: true
+      - required:
+        - name
+    Display:
+      title: Display
+      allOf:
+      - properties:
+          uuid:
+            type: string
+            description: The display's UUID
+            readOnly: true
+          name:
+            type: string
+            description: The name of the display
+          columns:
+            type: array
+            items:
+              $ref: '#/components/schemas/DisplayColumn'
+            default: []
+      - required:
+        - name
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    DuplicateError:
+      description: The name already exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    UpdateError_2:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+  parameters:
+    displayuuid:
+      required: true
+      name: display_uuid
+      in: path
+      description: the display's UUID
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: The offset defines the number of items of the collection to skip
+      required: false
+      schema:
+        type: integer
+        default: 0
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    profileuuid:
+      required: true
+      name: profile_uuid
+      in: path
+      description: the profile's UUID
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    Limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    sourceuuid:
+      name: source_uuid
+      in: path
+      description: The source's UUID
+      required: true
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-confd-api-openapi.yml
+- wazo-dird-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

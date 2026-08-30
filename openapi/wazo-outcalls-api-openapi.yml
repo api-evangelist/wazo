@@ -1,0 +1,625 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Outcalls API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: outcalls
+paths:
+  /outcalls:
+    get:
+      operationId: list_outcalls
+      summary: List outgoing calls
+      description: '**Required ACL:** `confd.outcalls.read`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Outgoing calls list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutcallItems'
+    post:
+      operationId: create_outcall
+      summary: Create outgoing call
+      description: '**Required ACL:** `confd.outcalls.create`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Outgoing call created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outcall'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Outcall'
+        description: Outgoing call to create
+        required: true
+  /outcalls/{outcall_id}:
+    get:
+      operationId: get_outcall
+      summary: Get outgoing call
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.read`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/outcallid'
+      responses:
+        '200':
+          description: Outgoing call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outcall'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_outcall
+      summary: Update outgoing call
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.update`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/outcallid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Outcall'
+        required: true
+    delete:
+      operationId: delete_outcall
+      summary: Delete outgoing call
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.delete`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/outcallid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /outcalls/{outcall_id}/callpermissions/{callpermission_id}:
+    put:
+      operationId: associate_outcall_callpermission
+      summary: Associate outcall and call permission
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.callpermissions.{call_permission_id}.update`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/outcallid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_outcall_callpermission
+      summary: Dissociate outcall and call permission
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.callpermissions.{call_permission_id}.delete`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/outcallid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '204':
+          description: Outcall and Call Permission dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /outcalls/{outcall_id}/extensions/{extension_id}:
+    put:
+      operationId: associate_outcall_extension
+      summary: Associate outcall and extension
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.extensions.{extension_id}.update`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/outcallid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Trunk and Custom endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OutcallExtension'
+        description: Outgoing Extension
+    delete:
+      operationId: dissociate_outcall_extension
+      summary: Dissociate outcall and extension
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.extensions.{extension_id}.delete`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/outcallid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Outcall and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /outcalls/{outcall_id}/schedules/{schedule_id}:
+    put:
+      operationId: associate_outcall_schedule
+      summary: Associate outcall and schedule
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.schedules.{schedule_id}.update`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/outcallid'
+      - $ref: '#/components/parameters/scheduleid'
+      responses:
+        '204':
+          description: Outcall and Schedule associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_outcall_schedule
+      summary: Dissociate outcall and schedule
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.schedules.{schedule_id}.delete`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/outcallid'
+      - $ref: '#/components/parameters/scheduleid'
+      responses:
+        '204':
+          description: Outcall and Schedule dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /outcalls/{outcall_id}/trunks:
+    put:
+      operationId: associate_outcall_trunks
+      summary: Associate outcall and trunks
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.trunks.update`'
+      tags:
+      - outcalls
+      parameters:
+      - $ref: '#/components/parameters/outcallid'
+      responses:
+        '204':
+          description: Outcall and Trunks associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrunksId'
+        description: Trunks to associated
+        required: true
+components:
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Outcall:
+      title: Outcall
+      allOf:
+      - $ref: '#/components/schemas/OutcallRelationBase'
+      - properties:
+          description:
+            type: string
+            description: Additional information about the outgoing call
+          enabled:
+            type: boolean
+            default: true
+          internal_caller_id:
+            type: boolean
+            default: false
+            description: Use the internal caller id
+          preprocess_subroutine:
+            type: string
+            description: Name of the subroutine to execute in asterisk before receiving a call
+          ring_time:
+            type: integer
+            description: Ringing time before hangup
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+      - $ref: '#/components/schemas/OutcallRelationTrunks'
+      - $ref: '#/components/schemas/OutcallRelationExtensions'
+      - $ref: '#/components/schemas/OutcallRelationSchedules'
+      - $ref: '#/components/schemas/OutcallRelationCallPermissions'
+      - required:
+        - name
+    SIPAuthSectionOptions:
+      title: PJSIP Auth Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    OutcallRelationSchedule:
+      allOf:
+      - $ref: '#/components/schemas/ScheduleRelationBase'
+    OutcallExtension:
+      title: OutcallExtension
+      properties:
+        external_prefix:
+          type: string
+          description: The prefix added to the outgoing call when sent on the trunk
+        prefix:
+          type: string
+          description: The prefix that the user need to dial before the pattern
+        strip_digits:
+          type: integer
+          description: The number of leading digits to strip
+        caller_id:
+          type: string
+    OutcallItems:
+      title: OutcallItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Outcall'
+        total:
+          type: integer
+      required:
+      - total
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    OutcallRelationSchedules:
+      properties:
+        schedules:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/OutcallRelationSchedule'
+    OutcallRelationTrunk:
+      allOf:
+      - $ref: '#/components/schemas/TrunkRelationBase'
+      - $ref: '#/components/schemas/TrunkRelationEndpoints'
+    OutcallRelationTrunks:
+      properties:
+        trunks:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/OutcallRelationTrunk'
+    TrunksId:
+      title: TrunksId
+      properties:
+        trunks:
+          items:
+            $ref: '#/components/schemas/TrunkId'
+          type: array
+    TrunkId:
+      title: TrunkId
+      properties:
+        id:
+          type: integer
+    EndpointSipRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+          readOnly: true
+        name:
+          type: string
+          description: The name of the PJSIP entity, auto-generated if missing
+        label:
+          type: string
+          description: The human readable name for this configuration
+        auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint. Only `username` is supported
+    OutcallRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the outgoing call
+        name:
+          type: string
+          description: The name of the outcall
+    TrunkRelationEndpoints:
+      properties:
+        endpoint_sip:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointSipRelationBase'
+        endpoint_iax:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointIAXRelationBase'
+        endpoint_custom:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointCustomRelationBase'
+    EndpointCustomRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Custom Endpoint ID
+          readOnly: true
+        interface:
+          type: string
+          description: Asterisk interface to use. (e.g. 'dahdi/i1')
+    ExtensionRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Extension ID
+          readOnly: true
+        context:
+          type: string
+        exten:
+          type: string
+    OutcallRelationExtension:
+      allOf:
+      - $ref: '#/components/schemas/ExtensionRelationBase'
+      - properties:
+          caller_id:
+            type: string
+          external_prefix:
+            type: string
+            description: The prefix added to the outgoing call when sent on the trunk
+          prefix:
+            type: string
+            description: The prefix that the user need to dial before the extension
+          strip_digits:
+            type: integer
+            description: The number of leading digits to strip
+    TrunkRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the trunk
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+    OutcallRelationCallPermissions:
+      properties:
+        call_permissions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/CallPermissionRelationBase'
+    ScheduleRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the schedule
+    Error:
+      type: array
+      items:
+        type: string
+    OutcallRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/OutcallRelationExtension'
+    CallPermissionRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the call permission
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name of the call permission
+      required:
+      - name
+    EndpointIAXRelationBase:
+      properties:
+        id:
+          type: integer
+          description: IAX Endpoint ID
+          readOnly: true
+        name:
+          type: string
+          description: IAX name
+          default: autogenerated
+  parameters:
+    outcallid:
+      required: true
+      name: outcall_id
+      in: path
+      description: Outgoing call's ID
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    scheduleid:
+      required: true
+      name: schedule_id
+      in: path
+      description: Schedule's ID
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    callpermissionid:
+      required: true
+      name: callpermission_id
+      in: path
+      description: Call Permission's ID
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

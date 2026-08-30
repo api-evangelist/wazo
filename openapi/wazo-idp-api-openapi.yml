@@ -1,0 +1,185 @@
+openapi: 3.2.0
+info:
+  version: '0.1'
+  title: wazo-auth Idp API
+  description: Wazo's authentication service
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+tags:
+- name: idp
+paths:
+  /idp:
+    get:
+      tags:
+      - idp
+      security:
+      - wazo_auth_token: []
+      description: 'Returns a list of valid identity provider types that are available
+
+        '
+      summary: List identity provider types
+      responses:
+        '200':
+          description: The identity provider type list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IDPList'
+  /idp/{idp_type}/users:
+    put:
+      operationId: updateUsersIDP
+      summary: Associate multiple users to a IDP
+      tags:
+      - idp
+      parameters:
+      - $ref: '#/components/parameters/idp_type'
+      responses:
+        '204':
+          description: Users are associated to the IDP
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: IDP or user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IDPUsers'
+        description: Users to be associated
+        required: true
+  /idp/{idp_type}/users/{user_uuid}:
+    put:
+      tags:
+      - idp
+      security:
+      - wazo_auth_token: []
+      operationId: addUserIDP
+      description: '**Required ACL:** `auth.idp.{idp_type}.users.{user_uuid}.create`'
+      summary: Associate user to a IDP
+      parameters:
+      - $ref: '#/components/parameters/idp_type'
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '204':
+          description: The user has been assigned
+        '404':
+          description: User or IDP not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - idp
+      security:
+      - wazo_auth_token: []
+      operationId: removeIDPUser
+      description: '**Required ACL:** `auth.idp.{idp_type}.users.{user_uuid}.delete`'
+      summary: Dissocuate a user from an IDP
+      parameters:
+      - $ref: '#/components/parameters/idp_type'
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '204':
+          description: The user has been unassigned
+        '404':
+          description: User or IDP not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  parameters:
+    idp_type:
+      name: idp_type
+      in: path
+      description: The type of IDP
+      required: true
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+  schemas:
+    IDPUser:
+      properties:
+        uuid:
+          type: string
+      required:
+      - uuid
+    IDPUsers:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/IDPUser'
+          type: array
+      required:
+      - users
+    IDPList:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of identity provider types
+        filtered:
+          type: integer
+          description: The number of identity provider types matching the searched term
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IDP'
+          description: A paginated list of authentication methods
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    IDP:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of identity provider
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9497
+x-xivo-name: auth
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-auth
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/auth/0.1/api/api.yml (see wazo_auth/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,214 @@
+openapi: 3.2.0
+info:
+  title: wazo-dird Favorites API
+  description: "Contacts and directories in Wazo are managed by the wazo-dird daemon. This service provides a public API that can be used to query the directories that are configured on a Wazo. \n\n\nA contact can contain various information such as a person's phone number, number, office number, department, office number, etc. The information displayed is selected via a profile. Directories can be aggregated using multiple data sources such as an LDAP server, a CSV file, another Wazo server, etc.\n\n\nPlease refer to [the documentation](https://wazo-platform.org/uc-doc) for further details.\n\n\nNote: The 0.1 API is currently in development. Major changes could still happen and new resources will be added over time."
+  version: '0.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+security:
+- wazo_auth_token: []
+tags:
+- name: favorites
+paths:
+  /directories/favorites/{profile}:
+    get:
+      summary: List favorite contacts
+      description: '**Required ACL:** `dird.directories.favorites.{profile}.read`
+
+
+        Get the list of favorite contacts for directories configured in the profile'
+      operationId: list_favorites
+      tags:
+      - favorites
+      responses:
+        '200':
+          description: A list of contacts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactList'
+        '404':
+          $ref: '#/components/responses/ProfileInvalid'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/Profile'
+  /directories/favorites/{directory}/{contact}:
+    put:
+      summary: Mark a contact as favorite
+      description: '**Required ACL:** `dird.directories.favorites.{directory}.{contact}.update`
+
+
+        Add the contact from {directory} to the list of favorite contacts.'
+      operationId: add_favorite
+      tags:
+      - favorites
+      responses:
+        '204':
+          description: Favorite added.
+        '409':
+          $ref: '#/components/responses/DuplicateFavorite'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/Directory'
+      - $ref: '#/components/parameters/FavoriteID'
+    delete:
+      summary: Unmark a contact as favorite
+      description: '**Required ACL:** `dird.directories.favorites.{directory}.{contact}.delete`
+
+
+        Remove the contact from {directory} from the list of favorite contacts.'
+      operationId: remove_favorite
+      tags:
+      - favorites
+      responses:
+        '204':
+          description: Favorite removed.
+        '404':
+          description: Favorite does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/Directory'
+      - $ref: '#/components/parameters/FavoriteID'
+components:
+  schemas:
+    LegacyError:
+      title: LegacyError
+      description: Error message for the client
+      properties:
+        timestamp:
+          description: Time at which the error occured
+          type: array
+          items:
+            type: number
+            format: timestamp
+        reason:
+          description: Human readable explanation of the error
+          type: array
+          items:
+            type: string
+        status_code:
+          description: HTTP status code
+          type: integer
+    ContactList:
+      properties:
+        column_headers:
+          type: array
+          description: Labels for the headers
+          items:
+            type: string
+        column_types:
+          type: array
+          description: Data types for the headers
+          items:
+            type: string
+        results:
+          items:
+            $ref: '#/components/schemas/Contact'
+          type: array
+          description: List of results
+    Contact:
+      properties:
+        column_values:
+          items:
+            type: string
+          type: array
+        relations:
+          $ref: '#/components/schemas/Relation'
+        source:
+          type: string
+        backend:
+          type: string
+          description: Backend type
+    Relation:
+      properties:
+        xivo_id:
+          type: string
+        user_id:
+          type: string
+        user_uuid:
+          type: string
+        endpoint_id:
+          type: string
+        agent_id:
+          type: string
+        source_entry_id:
+          type: string
+  parameters:
+    FavoriteID:
+      name: contact
+      in: path
+      description: The ID of the contact. This ID is unique within the {directory}.
+      required: true
+      schema:
+        type: string
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`. More precisely, it is the name of the "Direct directory" defined in the web interface.
+      required: true
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    Directory:
+      name: directory
+      in: path
+      description: The directory where the contact is stored.
+      required: true
+      schema:
+        type: string
+  responses:
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    DuplicateFavorite:
+      description: The contact has already been favorited
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9489
+x-xivo-name: dird
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-dird
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/dird/0.1/api/api.yml (see wazo_dird/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

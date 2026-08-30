@@ -1,0 +1,1332 @@
+openapi: 3.2.0
+info:
+  title: Wazo Lines API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged lines across 2 of this provider''s published API definitions: wazo-calld-api-openapi.yml, wazo-confd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /1.0
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: lines
+paths:
+  /lines:
+    get:
+      summary: List line endpoint statuses
+      description: "**Required ACL:** `calld.lines.read`\n\nList the status of line endpoints that are configured on Asterisk\n\nSupported technologies:\n\n  * SIP\n\nLines with unsupported technologies will be listed but there status\nwill be null\n"
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      responses:
+        '200':
+          description: A list of line status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointLines'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    post:
+      operationId: create_line
+      summary: Create line
+      description: '**Required ACL:** `confd.lines.create`
+
+
+        When creating a line with an extension or a SIP endpoint as part of it''s body, the line''s context
+
+        will be used as a default for the endpoint and context if ommited.
+
+        '
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Line created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineView'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineCreate'
+        required: true
+    servers:
+    - url: /1.0
+  /lines/{line_id}:
+    get:
+      operationId: get_line
+      summary: Get line
+      description: '**Required ACL:** `confd.lines.{line_id}.read`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      responses:
+        '200':
+          description: Line
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineView'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_line
+      summary: Update line
+      description: '**Required ACL:** `confd.lines.{line_id}.update`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Line'
+        required: true
+    delete:
+      operationId: delete_line
+      summary: Delete line
+      description: '**Required ACL:** `confd.lines.{line_id}.delete`
+
+
+        **Disclaimer**: if `recursive=true`, the line is deleted, all their associations with any related resources are removed.'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /lines/{line_id}/applications/{application_uuid}:
+    put:
+      operationId: associate_line_application
+      summary: Associate line and application
+      description: '''**Required ACL:** `confd.lines.{line_id}.applications.{application_uuid}.update`''
+
+
+        **WARNING**: Association will disable the effect of the line `context` field
+
+        '
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/application_uuid'
+      responses:
+        '204':
+          description: Line and application associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_line_application
+      summary: Dissociate line and application
+      description: '**Required ACL:** `confd.lines.{line_id}.applications.{application_uuid}.delete`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/application_uuid'
+      responses:
+        '204':
+          description: Line and application dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /devices/{device_id}/lines:
+    get:
+      operationId: get_device_line_association
+      summary: List lines associated to device
+      description: '**Required ACL:** `confd.devices.{device_id}.lines.read`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/deviceid'
+      responses:
+        '200':
+          description: Line-Device association
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineDeviceItems'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /lines/{line_id}/devices:
+    get:
+      operationId: get_line_device
+      summary: Get Device associated to Line
+      description: '**Required ACL:** `confd.lines.{line_id}.devices.read`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      responses:
+        '200':
+          description: Association between Line and Device
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineDevice'
+        '400':
+          description: No device associated to line
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /lines/{line_id}/devices/{device_id}:
+    put:
+      operationId: associate_line_device
+      summary: Associate line and device
+      description: '**Required ACL:** `confd.lines.{line_id}.devices.{device_id}.update`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/deviceid'
+      responses:
+        '204':
+          description: Line and device associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_line_device
+      summary: Dissociate line and device
+      description: '**Required ACL:** `confd.lines.{line_id}.devices.{device_id}.delete`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/deviceid'
+      responses:
+        '204':
+          description: Line and device dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /lines/{line_id}/endpoints/custom/{custom_id}:
+    put:
+      operationId: associate_line_endpoint_custom
+      summary: Associate line and Custom endpoint
+      description: '**Required ACL:** `confd.lines.{line_id}.endpoints.custom.{custom_id}.update`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/customid'
+      responses:
+        '204':
+          description: Line and Custom endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_line_endpoint_custom
+      summary: Dissociate line and Custom endpoint
+      description: '**Required ACL:** `confd.lines.{line_id}.endpoints.custom.{custom_id}.delete`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/customid'
+      responses:
+        '204':
+          description: Line and Custom endpoint dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /lines/{line_id}/endpoints/sccp/{sccp_id}:
+    put:
+      operationId: associate_line_endpoint_sccp
+      summary: Associate line and SCCP endpoint
+      description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sccp.{sccp_id}.update`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/sccpid'
+      responses:
+        '204':
+          description: Line and SCCP endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_line_endpoint_sccp
+      summary: Dissociate line and SCCP endpoint
+      description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sccp.{sccp_id}.delete`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/sccpid'
+      responses:
+        '204':
+          description: Line and SCCP endpoint dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /lines/{line_id}/endpoints/sip/{sip_uuid}:
+    put:
+      operationId: associate_line_endpoint_sip
+      summary: Associate line and SIP endpoint
+      description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sip.{sip_uuid}.update`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/sipuuid'
+      responses:
+        '204':
+          description: Line and SIP endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_line_endpoint_sip
+      summary: Dissociate line and SIP endpoint
+      description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sip.{sip_uuid}.delete`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/sipuuid'
+      responses:
+        '204':
+          description: Line and SIP endpoint dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /lines/{line_id}/extensions/{extension_id}:
+    delete:
+      operationId: dissociate_line_extension
+      summary: Dissociate line and extension
+      description: '**Required ACL:** `confd.lines.{line_id}.extensions.{extension_id}.delete`
+
+
+        Any devices that are attached to a line must be removed before dissociating an extension from its line. A device can be dissociated by resetting it to autoprov mode.'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Line and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: associate_line_extension
+      summary: Associate line and extension
+      description: '**Required ACL:** `confd.lines.{line_id}.extensions.{extension_id}.update`
+
+
+        Because of technical limitations, a line can only have a single ‘internal’ extension associated (i.e. an extension with a context of type ‘internal’)'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Line and Extension associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /lines/{line_id}/extensions:
+    post:
+      operationId: create_line_extension
+      summary: Create extension
+      description: '**Required ACL:** `confd.lines.{line_id}.extensions.create`
+
+        The extension number must be included in one of the extension ranges for the given context.'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      responses:
+        '201':
+          description: Extension created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Extension'
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '404':
+          description: Line not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Extension'
+        description: Extension to create
+        required: true
+    servers:
+    - url: /1.1
+  /users/{user_id}/lines/{line_id}:
+    delete:
+      operationId: dissociate_user_line
+      summary: Dissociate user and line
+      description: '**Required ACL:** `confd.users.{user_id}.lines.{line_id}.delete`
+
+
+        Any devices that are attached the line must be removed before dissociating a user from its line. A device can be dissociated be resetting it to autoprov mode.'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/lineid'
+      responses:
+        '204':
+          description: User and Line dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: associate_user_line
+      summary: Associate user and line
+      description: '**Required ACL:** `confd.users.{user_id}.lines.{line_id}.update`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/lineid'
+      responses:
+        '204':
+          description: User and Line associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /users/{user_id}/lines:
+    put:
+      operationId: associate_user_lines
+      summary: Associate user and lines
+      description: '**Required ACL:** `confd.users.{user_id}.lines.update`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '204':
+          description: User and Lines associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinesID'
+        required: true
+    servers:
+    - url: /1.1
+  /users/{user_uuid}/lines/{line_id}/associated/endpoints/sip:
+    get:
+      operationId: get_user_line_associated_endpoints_sip
+      summary: Get SIP endpoint of a line for a user
+      description: '**Required ACL:** `confd.users.{user_uuid}.lines.{line_id}.associated.endpoints.sip.read`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/useruuid'
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/endpoint_sip_view'
+      responses:
+        '200':
+          description: SIP endpoint of a line for a user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointSIP'
+        '400':
+          description: Invalid `view`
+    servers:
+    - url: /1.1
+  /users/{user_uuid}/lines/main/associated/endpoints/sip:
+    get:
+      operationId: get_user_line_main_associated_endpoints_sip
+      summary: Get SIP endpoint of main line for a user
+      description: '**Required ACL:** `confd.users.{user_uuid}.lines.main.associated.endpoints.sip.read`'
+      tags:
+      - lines
+      parameters:
+      - $ref: '#/components/parameters/useruuid'
+      - $ref: '#/components/parameters/endpoint_sip_view'
+      responses:
+        '200':
+          description: SIP endpoint of main line for a user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointSIP'
+        '400':
+          description: Invalid `view`
+    servers:
+    - url: /1.1
+components:
+  parameters:
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    application_uuid:
+      required: true
+      name: application_uuid
+      in: path
+      description: Application's UUID
+      schema:
+        type: integer
+    sccpid:
+      required: true
+      name: sccp_id
+      in: path
+      schema:
+        type: integer
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    useruuid:
+      required: true
+      name: user_uuid
+      in: path
+      description: the user's UUID
+      schema:
+        type: string
+        format: uuid
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    customid:
+      required: true
+      name: custom_id
+      in: path
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    deviceid:
+      required: true
+      name: device_id
+      in: path
+      description: Device's ID
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    endpoint_sip_view:
+      required: false
+      name: view
+      in: query
+      description: 'Different view of the SIP endpoint
+
+
+        The `default` view, when the argument is omitted, is to include only options that
+
+        are defined on the specified endpoint.
+
+
+        The `merged` view includes all options from included templates.
+
+        '
+      schema:
+        type: string
+        enum:
+        - merged
+    sipuuid:
+      required: true
+      name: sip_uuid
+      in: path
+      schema:
+        type: string
+  schemas:
+    EndpointLines:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointLine'
+        total:
+          type: integer
+          description: The number of line endpoint
+        filtered:
+          type: integer
+          description: The number of line endpoint matching the searched terms
+    EndpointLine:
+      type: object
+      properties:
+        technology:
+          type: string
+          description: The technology of that endpoint only (SIP, SCCP or custom)
+        name:
+          type: string
+          description: The name of that given endpoint in Asterisk
+        id:
+          type: integer
+          description: The ID of the matching confd line
+        registered:
+          type: boolean
+          description: Wether or not this trunk is registered.
+        current_call_count:
+          type: integer
+          description: The number of ongoing calls on that line
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    SIPTransportRelation:
+      properties:
+        uuid:
+          type: string
+      required:
+      - uuid
+    ExtensionRelationConference:
+      properties:
+        conference:
+          readOnly: true
+          $ref: '#/components/schemas/ConferenceRelationBase'
+    LineRelationEndpoints:
+      properties:
+        endpoint_sip:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointSipRelationBase'
+        endpoint_sccp:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointSccpRelationBase'
+        endpoint_custom:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointCustomRelationBase'
+    EndpointSIP:
+      title: SIP Endpoint
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+          readOnly: true
+        name:
+          type: string
+          description: The name of the PJSIP entity, auto-generated if missing
+        label:
+          type: string
+          description: The human readable name for this configuration
+        aor_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAORSectionOptions'
+          description: A list of PJSIP AOR section options for this endpoint
+        auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint
+        endpoint_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPEndpointSectionOptions'
+          description: A list of PJSIP endpoint section options for this endpoint
+        identify_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPIdentifySectionOptions'
+          description: A list of PJSIP identify section options for this endpoint
+        registration_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPRegistrationSectionOptions'
+          description: A list of PJSIP registration section options for this endpoint
+        registration_outbound_auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint
+        outbound_auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint
+        transport:
+          description: The transport used by this endpoint
+          $ref: '#/components/schemas/SIPTransportRelation'
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointSIPTemplatesRelation'
+          description: 'A list of templates this configuration will inherit from.
+
+
+            The inheritance only applies to option sections. Not to the name, label and other fields.
+
+            For a given list of templates [A, B, C] A will be applied over B. C will be applied over (A,B) etc.
+
+            '
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        asterisk_id:
+          type: string
+          description: The ID of the Asterisk onto which this configuration applies.
+    LineEndpointSIP:
+      title: LineEndpointSIP
+      properties:
+        endpoint_sip:
+          $ref: '#/components/schemas/EndpointSIP'
+    ExtensionRelationLines:
+      properties:
+        lines:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    EndpointRelationLine:
+      properties:
+        line:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    SIPAuthSectionOptions:
+      title: PJSIP Auth Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    ParkingLotRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: name to identify the parking lot
+    ExtensionRelationParkingLot:
+      properties:
+        parking_lot:
+          readOnly: true
+          $ref: '#/components/schemas/ParkingLotRelationBase'
+    LineRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    Extension:
+      title: Extension
+      allOf:
+      - $ref: '#/components/schemas/ExtensionRelationBase'
+      - properties:
+          commented:
+            type: boolean
+            description: If True the extension is disabled. Deprecated, use enabled instead
+          enabled:
+            type: boolean
+            description: If False the extension is disabled.
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+      - $ref: '#/components/schemas/ExtensionRelationConference'
+      - $ref: '#/components/schemas/ExtensionRelationGroup'
+      - $ref: '#/components/schemas/ExtensionRelationIncall'
+      - $ref: '#/components/schemas/ExtensionRelationLines'
+      - $ref: '#/components/schemas/ExtensionRelationOutcall'
+      - $ref: '#/components/schemas/ExtensionRelationParkingLot'
+      - $ref: '#/components/schemas/ExtensionRelationQueue'
+      - required:
+        - context
+        - exten
+    LineRelationApplication:
+      properties:
+        application:
+          $ref: '#/components/schemas/ApplicationRelationBase'
+    ExtensionRelationOutcall:
+      properties:
+        outcall:
+          readOnly: true
+          $ref: '#/components/schemas/OutcallRelationBase'
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    EndpointSccpRelationBase:
+      properties:
+        id:
+          type: integer
+          description: SCCP Endpoint ID
+          readOnly: true
+    LineEndpointSCCP:
+      title: LineEndpointSCCP
+      properties:
+        endpoint_sccp:
+          $ref: '#/components/schemas/EndpointSccp'
+    ExtensionRelationQueue:
+      properties:
+        queue:
+          readOnly: true
+          $ref: '#/components/schemas/QueueRelationBase'
+    ExtensionRelationGroup:
+      properties:
+        group:
+          readOnly: true
+          $ref: '#/components/schemas/GroupRelationBase'
+    LineID:
+      properties:
+        id:
+          type: integer
+    ApplicationRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: Application UUID
+          readOnly: true
+        name:
+          type: string
+          description: Application name
+    EndpointSipRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+          readOnly: true
+        name:
+          type: string
+          description: The name of the PJSIP entity, auto-generated if missing
+        label:
+          type: string
+          description: The human readable name for this configuration
+        auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint. Only `username` is supported
+    EndpointSIPTemplatesRelation:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+        label:
+          type: string
+          description: The label of this resource
+          readOnly: true
+      required:
+      - uuid
+    ConferenceRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: name to identify the conference
+    QueueRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the queue
+        name:
+          type: string
+          description: The name of the queue. Cannot be modified
+        label:
+          type: string
+          description: The label of the queue
+    OutcallRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the outgoing call
+        name:
+          type: string
+          description: The name of the outcall
+    EndpointCustomRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Custom Endpoint ID
+          readOnly: true
+        interface:
+          type: string
+          description: Asterisk interface to use. (e.g. 'dahdi/i1')
+    Line:
+      title: Line
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        context:
+          type: string
+          description: The name of an internal context
+        position:
+          type: integer
+          description: Line's position on the device
+        caller_id_name:
+          type: string
+          description: Name to display when calling
+        caller_id_num:
+          type: string
+          description: Number to display when calling
+        provisioning_code:
+          type: string
+          description: Code used to provision a device
+        registrar:
+          type: string
+          description: Name of the template line used by the device
+      required:
+      - context
+    LineItems:
+      title: LineItems
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/LineView'
+          type: array
+        total:
+          type: integer
+      required:
+      - total
+    ExtensionRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Extension ID
+          readOnly: true
+        context:
+          type: string
+        exten:
+          type: string
+    LineEndpointCustom:
+      title: LineEndpointCustom
+      properties:
+        endpoint_custom:
+          $ref: '#/components/schemas/EndpointCustom'
+    LineDeviceItems:
+      title: LineDeviceItems
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/LineDevice'
+          type: array
+        total:
+          type: integer
+      required:
+      - total
+    LineCreate:
+      title: LineCreate
+      allOf:
+      - $ref: '#/components/schemas/Line'
+      - $ref: '#/components/schemas/LineExtensions'
+      - $ref: '#/components/schemas/LineEndpointSIP'
+      - $ref: '#/components/schemas/LineEndpointSCCP'
+      - $ref: '#/components/schemas/LineEndpointCustom'
+    TrunkRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the trunk
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+    LineExtensions:
+      title: LineExtensions
+      properties:
+        extensions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    LineRelationUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/UserRelationBase'
+    EndpointCustom:
+      title: Custom Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointCustomRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          enabled:
+            type: boolean
+            description: Endpoint can be used when it is enabled
+            default: true
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+      - required:
+        - interface
+    SIPAORSectionOptions:
+      title: PJSIP AOR Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    SIPRegistrationSectionOptions:
+      title: PJSIP Registration Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    LinesID:
+      properties:
+        lines:
+          items:
+            $ref: '#/components/schemas/LineID'
+          type: array
+    SIPEndpointSectionOptions:
+      title: SIP Endpoint Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    ExtensionRelationIncall:
+      properties:
+        incall:
+          readOnly: true
+          $ref: '#/components/schemas/IncallRelationBase'
+    EndpointSccp:
+      title: SCCP Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointSccpRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          options:
+            description: "Advanced configuration options. Options are appended at the end of a \nSCCP account in the file 'sccp.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Because of database limitations, only the following options are allowed:\n\n * cid_name\n * cid_num\n * allow\n * disallow\n \nOptions must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in sip.conf will have the following form:\n\n```\n[1000]\nname1=value1\nname2=value2\n```\n"
+            type: array
+            items:
+              $ref: '#/components/schemas/KeyValueOption'
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+    GroupRelationBase:
+      properties:
+        name:
+          type: string
+          description: The name of the group
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the group
+        uuid:
+          type: string
+          description: Group UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+    LineDevice:
+      title: LineDevice
+      properties:
+        line_id:
+          type: integer
+          description: Line's ID
+          readOnly: true
+        device_id:
+          type: string
+          description: Device's ID
+          readOnly: true
+    LineView:
+      title: Line
+      allOf:
+      - $ref: '#/components/schemas/LineRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          context:
+            type: string
+            description: The name of an internal context
+          caller_id_name:
+            type: string
+            description: Name to display when calling
+          caller_id_num:
+            type: string
+            description: Number to display when calling
+          device_id:
+            type: string
+            description: ID of the device associated to the line
+            readOnly: true
+          device_slot:
+            type: integer
+            description: '*Deprecated* Please use `position`'
+            readOnly: true
+          protocol:
+            type: string
+            enum:
+            - sip
+            description: Line's protocol
+            readOnly: true
+          provisioning_extension:
+            type: string
+            description: '*Deprecated* Please use `provisioning_code`'
+            readOnly: true
+          provisioning_code:
+            type: string
+            description: Code used to provision a device
+          position:
+            type: integer
+            description: Line's position on the device
+          registrar:
+            type: string
+            description: Name of the template line used by the device
+          is_webrtc:
+            type: boolean
+            description: Whether the line is a WebRTC line
+            readOnly: true
+        required:
+        - context
+      - $ref: '#/components/schemas/LineRelationApplication'
+      - $ref: '#/components/schemas/LineRelationEndpoints'
+      - $ref: '#/components/schemas/LineRelationExtensions'
+      - $ref: '#/components/schemas/LineRelationUsers'
+    Error_2:
+      type: array
+      items:
+        type: string
+    EndpointRelationTrunk:
+      properties:
+        trunk:
+          $ref: '#/components/schemas/TrunkRelationBase'
+          readOnly: true
+    LineRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        name:
+          type: string
+          description: The name of the line
+          readOnly: true
+    UserRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
+    SIPIdentifySectionOptions:
+      title: PJSIP Identify Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    IncallRelationBase:
+      title: IncallRelation
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the incoming call
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-calld-api-openapi.yml
+- wazo-confd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

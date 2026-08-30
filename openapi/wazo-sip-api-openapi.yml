@@ -1,0 +1,972 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Sip API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: sip
+paths:
+  /endpoints/sip:
+    get:
+      operationId: list_endpoints_sip
+      summary: List SIP endpoints
+      description: '**Required ACL:** `confd.endpoints.sip.read`
+
+
+        List all SIP configurations, each individual configuration includes only fields that it
+
+        defines. Inherited fields from the templates or default values are not returned here.
+
+        '
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/query_string_uuid_filter'
+      responses:
+        '200':
+          description: SIP endpoint list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointSIPItems'
+    post:
+      operationId: create_endpoint_sip
+      summary: Create a SIP endpoint
+      description: '**Required ACL:** `confd.endpoints.sip.create`
+
+
+        Create a new SIP endpoint. This endpoint can inherit from other endpoints, only modify
+
+        fields that have to be modified.
+
+        '
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: SIP endpoint created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointSIP'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointSIP'
+        description: SIP Endpoint to create
+  /endpoints/sip/{sip_uuid}:
+    get:
+      operationId: get_endpoint_sip
+      summary: Get SIP Endpoint
+      description: '**Required ACL:** `confd.endpoints.sip.{sip_uuid}.read`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sipuuid'
+      - $ref: '#/components/parameters/endpoint_sip_view'
+      responses:
+        '200':
+          description: SIP Endpoint
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointSIP'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_endpoint_sip
+      summary: Update SIP Endpoint
+      description: '**Required ACL:** `confd.endpoints.sip.{sip_uuid}.update`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sipuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointSIP'
+        required: true
+    delete:
+      operationId: delete_endpoint_sip
+      summary: Delete SIP Endpoint
+      description: '**Required ACL:** `confd.endpoints.sip.{sip_uuid}.delete`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sipuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /endpoints/sip/templates:
+    get:
+      operationId: list_endpoints_sip_templates
+      summary: List SIP endpoints templates
+      description: '**Required ACL:** `confd.endpoints.sip.templates.read`
+
+
+        List all SIP configuration templates, each individual configuration includes only fields that it
+
+        defines. Inherited fields from the templates or default values are not returned here.
+
+        '
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: SIP endpoint template list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointSIPItems'
+    post:
+      operationId: create_endpoint_sip_template
+      summary: Create a SIP endpoint template
+      description: '**Required ACL:** `confd.endpoints.sip.templates.create`
+
+
+        Create a new SIP endpoint configuration template. This endpoint can inherit from other templates,
+
+        only modify fields that have to be modified.
+
+        '
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: SIP endpoint created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointSIP'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointSIP'
+        description: SIP Endpoint to create
+  /endpoints/sip/templates/{template_uuid}:
+    get:
+      operationId: get_endpoint_sip_template
+      summary: Get SIP Endpoint template
+      description: '**Required ACL:** `confd.endpoints.sip.templates.{template_uuid}.read`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/template_uuid'
+      responses:
+        '200':
+          description: SIP Endpoint template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointSIP'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_endpoint_sip_template
+      summary: Update SIP Endpoint Template
+      description: '**Required ACL:** `confd.endpoints.sip.templates.{template_uuid}.update`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/template_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointSIP'
+        required: true
+    delete:
+      operationId: delete_endpoint_sip_template
+      summary: Delete SIP Endpoint Template
+      description: '**Required ACL:** `confd.endpoints.sip.templates.{template_uuid}.delete`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/template_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /lines/{line_id}/endpoints/sip/{sip_uuid}:
+    put:
+      operationId: associate_line_endpoint_sip
+      summary: Associate line and SIP endpoint
+      description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sip.{sip_uuid}.update`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/sipuuid'
+      responses:
+        '204':
+          description: Line and SIP endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_line_endpoint_sip
+      summary: Dissociate line and SIP endpoint
+      description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sip.{sip_uuid}.delete`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/sipuuid'
+      responses:
+        '204':
+          description: Line and SIP endpoint dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /asterisk/pjsip/doc:
+    get:
+      description: '**Required ACL:**: `confd.asterisk.pjsip.doc.read`
+
+
+        List all available configuration options for PJSIP, those values are
+
+        used to validate to content of POST and PUT requests.
+
+        '
+      operationId: show_pjsip_doc
+      responses:
+        '200':
+          description: A list of all PJSIP configuration options
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PJSIPConfigurationOptions'
+        '400':
+          description: wazo-confd could not read the PJSIP documentation file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      summary: List all PJSIP configuration options
+      tags:
+      - sip
+  /asterisk/pjsip/system:
+    get:
+      operationId: list_asterisk_pjsip_system
+      summary: List of PJSIP options for the `system` section
+      description: '**Required ACL:** `confd.asterisk.pjsip.system.read`'
+      tags:
+      - sip
+      responses:
+        '200':
+          description: SIP system
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PJSIPSystem'
+    put:
+      operationId: update_asterisk_pjsip_system
+      summary: Update PJSIP section options
+      description: '**Required ACL:** `confd.asterisk.pjsip.system.update`
+
+        The PJSIP system configuration is shared among all tenants of an instance.
+
+        **WARNING** This endpoint restore to default value or delete all fields that
+
+        are not defined.
+
+        '
+      tags:
+      - sip
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PJSIPSystem'
+        required: true
+  /asterisk/pjsip/global:
+    get:
+      operationId: list_asterisk_pjsip_global
+      summary: List of PJSIP options for the `global` section
+      description: '**Required ACL:** `confd.asterisk.pjsip.global.read`'
+      tags:
+      - sip
+      responses:
+        '200':
+          description: SIP global
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PJSIPGlobal'
+    put:
+      operationId: update_asterisk_pjsip_global
+      summary: Update PJSIP section options
+      description: '**Required ACL:** `confd.asterisk.pjsip.global.update`
+
+        The PJSIP global configuration is shared among all tenants of an instance.
+
+        **WARNING** This endpoint restore to default value or delete all fields that
+
+        are not defined.
+
+        '
+      tags:
+      - sip
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PJSIPGlobal'
+        required: true
+  /sip/transports:
+    get:
+      operationId: list_sip_transports
+      summary: List all configured SIP transports
+      description: '**Required ACL:** `confd.sip.transports.read`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: The SIP transport list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SIPTransportItems'
+    post:
+      operationId: create_sip_transport
+      summary: Create SIP transport
+      description: '**Required ACL:** `confd.sip.transports.create`
+
+
+        Transports are shared between all tenants and should be readable to the
+
+        tenants'' administrators.
+
+
+        There should always be atleast one transport configured on the system.
+
+        '
+      tags:
+      - sip
+      responses:
+        '201':
+          description: SIP transport created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SIPTransport'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SIPTransport'
+        description: Transport to create
+        required: true
+  /sip/transports/{transport_uuid}:
+    get:
+      operationId: get_sip_transport
+      summary: Get SIP transport
+      description: '**Required ACL**: `confd.sip.transports.{transport_uuid}.read`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/transportuuid'
+      responses:
+        '200':
+          description: A SIP transport
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SIPTransport'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_sip_transport
+      summary: Update SIP transport
+      description: '**Required ACL**: `confd.sip.transports.{transport_uuid}.update`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/transportuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SIPTransport'
+        required: true
+    delete:
+      operationId: delete_sip_transport
+      summary: Delete SIP transport
+      description: '**Required ACL:** `confd.sip.transports.{transport_uuid}.delete`
+
+
+        Deletes a transport, all associated configuration will be assigned to
+
+        the `fallback` transport.
+
+        '
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/transportuuid'
+      - $ref: '#/components/parameters/fallback_transport'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /trunks/{trunk_id}/endpoints/sip/{sip_uuid}:
+    put:
+      operationId: associate_trunk_endpoint_sip
+      summary: Associate trunk and SIP endpoint
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.sip.{sip_uuid}.update`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/sipuuid'
+      responses:
+        '204':
+          description: Trunk and SIP endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_trunk_endpoint_sip
+      summary: Dissociate trunk and SIP endpoint
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.sip.{sip_uuid}.delete`'
+      tags:
+      - sip
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/sipuuid'
+      responses:
+        '204':
+          description: Trunk and SIP endpoint dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  schemas:
+    SIPTransportRelation:
+      properties:
+        uuid:
+          type: string
+      required:
+      - uuid
+    EndpointSIP:
+      title: SIP Endpoint
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+          readOnly: true
+        name:
+          type: string
+          description: The name of the PJSIP entity, auto-generated if missing
+        label:
+          type: string
+          description: The human readable name for this configuration
+        aor_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAORSectionOptions'
+          description: A list of PJSIP AOR section options for this endpoint
+        auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint
+        endpoint_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPEndpointSectionOptions'
+          description: A list of PJSIP endpoint section options for this endpoint
+        identify_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPIdentifySectionOptions'
+          description: A list of PJSIP identify section options for this endpoint
+        registration_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPRegistrationSectionOptions'
+          description: A list of PJSIP registration section options for this endpoint
+        registration_outbound_auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint
+        outbound_auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint
+        transport:
+          description: The transport used by this endpoint
+          $ref: '#/components/schemas/SIPTransportRelation'
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointSIPTemplatesRelation'
+          description: 'A list of templates this configuration will inherit from.
+
+
+            The inheritance only applies to option sections. Not to the name, label and other fields.
+
+            For a given list of templates [A, B, C] A will be applied over B. C will be applied over (A,B) etc.
+
+            '
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        asterisk_id:
+          type: string
+          description: The ID of the Asterisk onto which this configuration applies.
+    SIPAuthSectionOptions:
+      title: PJSIP Auth Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    SIPTransportItems:
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPTransport'
+        total:
+          type: integer
+    EndpointSIPItems:
+      title: SIP Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointSIP'
+          type: array
+        total:
+          type: integer
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    PJSIPConfigurationOptions:
+      properties:
+        aor:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        auth:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        contact:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        domain_alias:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        endpoint:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        global:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        registration:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        system:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        transport:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+    PJSIPGlobal:
+      description: 'PJSIP global configuration.
+
+        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
+
+        '
+      properties:
+        options:
+          type: object
+      example:
+        options:
+          max_forwards: '5'
+          keep_alive_interval: '30'
+          user_agent: Wazo
+          debug: false
+    PJSIPConfigurationOption:
+      properties:
+        name:
+          type: string
+          description: The name of the option
+        synopsis:
+          type: string
+          description: A brief description of the option
+        description:
+          type: string
+          description: A long description of the option
+        default:
+          type: string
+          description: The default value for this option
+    EndpointSIPTemplatesRelation:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+        label:
+          type: string
+          description: The label of this resource
+          readOnly: true
+      required:
+      - uuid
+    PJSIPSystem:
+      description: 'PJSIP system configuration.
+
+        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
+
+        '
+      properties:
+        options:
+          type: object
+      example:
+        options:
+          accept_multiple_sdp_answers: 'yes'
+          compact_headers: 'yes'
+          disable_tcp_switch: 'yes'
+          follow_early_media_fork: 'no'
+    SIPAORSectionOptions:
+      title: PJSIP AOR Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    SIPEndpointSectionOptions:
+      title: SIP Endpoint Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    SIPRegistrationSectionOptions:
+      title: PJSIP Registration Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    Error:
+      type: array
+      items:
+        type: string
+    SIPIdentifySectionOptions:
+      title: PJSIP Identify Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    SIPTransport:
+      properties:
+        uuid:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueOption'
+      required:
+      - name
+      - options
+      example:
+        name: transport-udp
+        options:
+        - - protocol
+          - udp
+        - - bind
+          - 0.0.0.0:5060
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    transportuuid:
+      required: true
+      name: transport_uuid
+      in: path
+      description: The UUID of the transport
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    fallback_transport:
+      required: false
+      name: fallback
+      in: query
+      description: 'The UUID of the transport that should be associated to orphaned
+
+        SIP configurations
+
+        '
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    template_uuid:
+      required: true
+      name: template_uuid
+      in: path
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    query_string_uuid_filter:
+      in: query
+      name: uuid
+      required: false
+      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          format: uuid
+        maxItems: 20
+        minItems: 1
+        uniqueItems: true
+    trunkid:
+      description: Trunk's ID
+      name: trunk_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    endpoint_sip_view:
+      required: false
+      name: view
+      in: query
+      description: 'Different view of the SIP endpoint
+
+
+        The `default` view, when the argument is omitted, is to include only options that
+
+        are defined on the specified endpoint.
+
+
+        The `merged` view includes all options from included templates.
+
+        '
+      schema:
+        type: string
+        enum:
+        - merged
+    sipuuid:
+      required: true
+      name: sip_uuid
+      in: path
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

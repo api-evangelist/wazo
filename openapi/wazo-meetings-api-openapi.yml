@@ -1,0 +1,820 @@
+openapi: 3.2.0
+info:
+  title: Wazo Meetings API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged meetings across 2 of this provider''s published API definitions: wazo-calld-api-openapi.yml, wazo-confd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /1.0
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: meetings
+paths:
+  /guests/me/meetings/{meeting_uuid}/status:
+    get:
+      summary: Get the status of a meeting
+      description: Returns the status of a meeting that should be visible to a guest.
+      parameters:
+      - $ref: '#/components/parameters/MeetingUUID'
+      tags:
+      - meetings
+      responses:
+        '200':
+          description: The status of a meeting is returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingStatus'
+        '404':
+          $ref: '#/components/responses/NoSuchMeeting'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /meetings/{meeting_uuid}/participants:
+    get:
+      summary: List participants of a meeting
+      description: '**Required ACL:** `calld.meetings.{meeting_uuid}.participants.read`'
+      parameters:
+      - $ref: '#/components/parameters/MeetingUUID'
+      tags:
+      - meetings
+      responses:
+        '200':
+          description: The list of participant is returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParticipantList'
+        '404':
+          $ref: '#/components/responses/NoSuchMeeting'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /users/me/meetings/{meeting_uuid}/participants:
+    get:
+      summary: List participants of a meeting as a user
+      description: '**Required ACL:** `calld.users.me.meetings.{meeting_uuid}.participants.read`'
+      parameters:
+      - $ref: '#/components/parameters/MeetingUUID'
+      tags:
+      - meetings
+      responses:
+        '200':
+          description: The list of participant is returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParticipantList'
+        '404':
+          $ref: '#/components/responses/NoSuchMeeting'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /meetings/{meeting_uuid}/participants/{participant_id}:
+    delete:
+      summary: Kick a participant from a meeting
+      description: '**Required ACL:** `calld.meetings.{meeting_uuid}.participants.delete`'
+      parameters:
+      - $ref: '#/components/parameters/MeetingUUID'
+      - $ref: '#/components/parameters/ParticipantID'
+      tags:
+      - meetings
+      responses:
+        '204':
+          description: The participant was kicked
+        '404':
+          $ref: '#/components/responses/NoSuchMeetingOrParticipant'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /users/me/meetings/{meeting_uuid}/participants/{participant_id}:
+    delete:
+      summary: Kick a participant from a meeting as a user
+      description: '**Required ACL:** `calld.users.me.meetings.participants.delete`'
+      parameters:
+      - $ref: '#/components/parameters/MeetingUUID'
+      - $ref: '#/components/parameters/ParticipantID'
+      tags:
+      - meetings
+      responses:
+        '204':
+          description: The participant was kicked
+        '404':
+          $ref: '#/components/responses/NoSuchMeetingOrParticipant'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /meetings:
+    get:
+      operationId: list_meetings
+      summary: List meetings
+      description: '**Required ACL:** `confd.meetings.read`'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Meetings list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingItems'
+    post:
+      operationId: create_meeting
+      summary: Create meeting
+      description: '**Required ACL:** `confd.meetings.create`'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Meeting created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meeting'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeetingRequest'
+        description: Meeting to create
+        required: true
+    servers:
+    - url: /1.1
+  /meetings/{meeting_uuid}:
+    get:
+      operationId: get_meeting
+      summary: Get meeting
+      description: '**Required ACL:** `confd.meetings.{meeting_uuid}.read`'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/meeting_uuid'
+      responses:
+        '200':
+          description: Meeting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meeting'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_meeting
+      summary: Update meeting
+      description: '**Required ACL:** `confd.meetings.{meeting_uuid}.update`'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/meeting_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeetingRequest'
+        required: true
+    delete:
+      operationId: delete_meeting
+      summary: Delete meeting
+      description: '**Required ACL:** `confd.meetings.{meeting_uuid}.delete`, Deleting a meeting will hangup all current participants.'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/meeting_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /users/me/meetings:
+    get:
+      operationId: list_user_meetings
+      summary: List user meetings
+      description: '**Required ACL:** `confd.users.me.meetings.read`'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Meetings list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingItems'
+    post:
+      operationId: create_user_meeting
+      summary: Create user meeting
+      description: '**Required ACL:** `confd.users.me.meetings.create`'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Meeting created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meeting'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeetingUserRequest'
+        description: Meeting to create
+        required: true
+    servers:
+    - url: /1.1
+  /users/me/meetings/{meeting_uuid}:
+    get:
+      operationId: get_user_meeting
+      summary: Get one of the meetings of the current user
+      description: '**Required ACL:** `confd.users.me.meetings.{meeting_uuid}.read`'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/meeting_uuid'
+      responses:
+        '200':
+          description: Meeting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meeting'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_user_meeting
+      summary: Update one of the meetings of the current user
+      description: '**Required ACL:** `confd.users.me.meetings.{meeting_uuid}.update`'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/meeting_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeetingRequest'
+        required: true
+    delete:
+      operationId: delete_user_meeting
+      summary: Delete one of the meetings of the current user
+      description: '**Required ACL:** `confd.users.me.meetings.{meeting_uuid}.delete`'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/meeting_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /guests/me/meetings/{meeting_uuid}:
+    get:
+      operationId: get_guest_meeting
+      summary: Get one guest meeting
+      description: '**Required ACL:** none'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/meeting_uuid'
+      responses:
+        '200':
+          description: Meetings list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meeting'
+    servers:
+    - url: /1.1
+  /guests/{guest_uuid}/meetings/{meeting_uuid}/authorizations:
+    post:
+      operationId: create_guest_meeting_authorization
+      summary: Request guest authorization to enter a meeting
+      description: '**Required ACL:** none. A single meeting only accepts a maximum amount of 128 authorizations. Authorizations are valid for 24h.'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/guest_uuid'
+      - $ref: '#/components/parameters/meeting_uuid'
+      responses:
+        '201':
+          description: Authorization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingAuthorization'
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeetingAuthorizationRequest'
+        description: Details to request authorization
+        required: true
+    servers:
+    - url: /1.1
+  /guests/{guest_uuid}/meetings/{meeting_uuid}/authorizations/{authorization_uuid}:
+    get:
+      operationId: get_guest_meeting_authorization
+      summary: Read the guest authorization to enter a meeting
+      description: '**Required ACL:** none'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/guest_uuid'
+      - $ref: '#/components/parameters/meeting_uuid'
+      - $ref: '#/components/parameters/authorization_uuid'
+      responses:
+        '200':
+          description: Authorization details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingAuthorization'
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /user/me/meetings/{meeting_uuid}/authorizations:
+    get:
+      operationId: list_user_meeting_authorizations
+      summary: List all guest authorization requests of a meeting
+      description: '**Required ACL:** confd.users.me.meetings.{meeting_uuid}.authorizations.read'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/meeting_uuid'
+      responses:
+        '200':
+          description: Authorizations list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingAuthorizationItems'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /users/me/meetings/{meeting_uuid}/authorizations/{authorization_uuid}:
+    get:
+      operationId: get_user_meeting_authorization
+      summary: Read the guest authorization to enter a meeting
+      description: '**Required ACL:** confd.users.me.meetings.{meeting_uuid}.authorizations.{authorization_uuid}.read'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/guest_uuid'
+      - $ref: '#/components/parameters/meeting_uuid'
+      - $ref: '#/components/parameters/authorization_uuid'
+      responses:
+        '200':
+          description: Authorization details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingAuthorization'
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: delete_user_meeting_authorization
+      summary: Delete the guest authorization to enter a meeting
+      description: '**Required ACL:** confd.users.me.meetings.{meeting_uuid}.authorizations.{authorization_uuid}.read'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/guest_uuid'
+      - $ref: '#/components/parameters/meeting_uuid'
+      - $ref: '#/components/parameters/authorization_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /user/me/meetings/{meeting_uuid}/authorizations/{authorization_uuid}/accept:
+    put:
+      operationId: put_user_meeting_authorization_accept
+      summary: Accept a guest authorization request
+      description: '**Required ACL:** confd.users.me.meetings.{meeting_uuid}.authorizations.{authorization_uuid}.accept.update'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/meeting_uuid'
+      - $ref: '#/components/parameters/authorization_uuid'
+      responses:
+        '200':
+          description: Authorization details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingAuthorization'
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /user/me/meetings/{meeting_uuid}/authorizations/{authorization_uuid}/reject:
+    put:
+      operationId: put_user_meeting_authorization_reject
+      summary: Reject a guest authorization request
+      description: '**Required ACL:** confd.users.me.meetings.{meeting_uuid}.authorizations.{authorization_uuid}.reject.update'
+      tags:
+      - meetings
+      parameters:
+      - $ref: '#/components/parameters/meeting_uuid'
+      - $ref: '#/components/parameters/authorization_uuid'
+      responses:
+        '200':
+          description: Authorization details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingAuthorization'
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+components:
+  responses:
+    NoSuchMeetingOrParticipant:
+      description: The specified meeting or participant does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoSuchMeeting:
+      description: The specified meeting does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+  schemas:
+    MeetingStatus:
+      type: object
+      properties:
+        full:
+          description: Wether the meeting is full of not
+          type: boolean
+    ParticipantList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Participant'
+    Participant:
+      type: object
+      properties:
+        id:
+          description: The participant's ID
+          type: string
+        caller_id_name:
+          description: The participant's name
+          type: string
+        caller_id_num:
+          description: The participant's number
+          type: string
+        muted:
+          description: Is the participant muted?
+          type: boolean
+        join_time:
+          description: Elapsed seconds since the participant joined the conference
+          type: integer
+        admin:
+          description: Is the participant an admin of the conference?
+          type: boolean
+        language:
+          description: The participant's language
+          type: string
+        call_id:
+          description: The ID of the participant's call
+          type: string
+        user_uuid:
+          description: The UUID of the participant's user. `null` when there is no user.
+          type: string
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    MeetingAuthorization:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        guest_name:
+          type: string
+        creation_time:
+          type: string
+          format: date-time
+        status:
+          type: string
+          description: The status of the authorization. If the meeting does not require an authorization, the authorization will always be `accepted`.
+          enum:
+          - pending
+          - accepted
+          - rejected
+        sip_authorization:
+          type: string
+    MeetingAuthorizationRequest:
+      type: object
+      properties:
+        guest_name:
+          type: string
+    MeetingRequest:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/MeetingUserRequest'
+      - properties:
+          owner_uuids:
+            type: array
+            items:
+              type: string
+    MeetingItems:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Meeting'
+    Meeting:
+      type: object
+      properties:
+        uuid:
+          type: string
+        owner_uuids:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        ingress_http_uri:
+          type: string
+          description: URI to reach this stack (configured by the Ingress HTTP resource)
+        guest_sip_authorization:
+          type: string
+          readOnly: true
+          description: 'Format: base64(username:password), same as HTTP Basic Auth.'
+        persistent:
+          type: boolean
+          description: Persistent meetings will not get deleted automatically
+        creation_time:
+          type: string
+          format: date-time
+          readOnly: true
+        exten:
+          type: string
+          description: the external extension to dial to reach this meeting
+          readOnly: true
+        require_authorization:
+          type: boolean
+          description: when `true`, the `guest_sip_authorization` is always `null`. Instead, clients must request an authorization to access the meeting.
+    MeetingAuthorizationItems:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeetingAuthorization'
+        total:
+          type: integer
+    Error_2:
+      type: array
+      items:
+        type: string
+    MeetingUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        persistent:
+          type: boolean
+          description: Persistent meetings will not get deleted automatically
+  parameters:
+    MeetingUUID:
+      name: meeting_uuid
+      in: path
+      description: Unique identifier of the meeting
+      required: true
+      schema:
+        type: string
+    ParticipantID:
+      name: participant_id
+      in: path
+      description: Unique identifier of the participant
+      required: true
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    authorization_uuid:
+      required: true
+      name: authorization_uuid
+      in: path
+      description: Authorization UUID
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    meeting_uuid:
+      required: true
+      name: meeting_uuid
+      in: path
+      description: Meeting UUID
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    guest_uuid:
+      required: true
+      name: guest_uuid
+      in: path
+      description: Guest UUID. It must be generated by the guest.
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-calld-api-openapi.yml
+- wazo-confd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

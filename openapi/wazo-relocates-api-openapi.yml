@@ -1,0 +1,270 @@
+openapi: 3.2.0
+info:
+  title: wazo-calld Relocates API
+  description: Control your calls from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: relocates
+paths:
+  /users/me/relocates:
+    get:
+      summary: Get the relocates of the authenticated user
+      description: '**Required ACL:** `calld.users.me.relocates.read`'
+      tags:
+      - relocates
+      responses:
+        '200':
+          description: The list of relocates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelocateList'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    post:
+      summary: Initiate a relocate from the authenticated user
+      description: '**Required ACL:** `calld.users.me.relocates.create`'
+      tags:
+      - relocates
+      responses:
+        '201':
+          description: The relocate being created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relocate'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          description: The authenticated user tried to relocate a call owned by someone else
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: The server could not determine which Call to use as relocated or initiator, usually because too many Calls are eligible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRelocateRequest'
+        description: Parameters of the relocate
+        required: true
+  /users/me/relocates/{relocate_uuid}:
+    get:
+      summary: Get details of a relocate
+      description: '**Required ACL:** `calld.relocates.users.me.{relocate_uuid}.read`'
+      parameters:
+      - $ref: '#/components/parameters/RelocateUUID'
+      tags:
+      - relocates
+      responses:
+        '200':
+          description: The details of the relocate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relocate'
+        '404':
+          $ref: '#/components/responses/NoSuchRelocate'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/relocates/{relocate_uuid}/cancel:
+    put:
+      summary: Cancel a relocate
+      description: '**Required ACL:** `calld.users.me.relocates.{relocate_uuid}.cancel.update`'
+      parameters:
+      - $ref: '#/components/parameters/RelocateUUID'
+      tags:
+      - relocates
+      responses:
+        '204':
+          description: The relocate was cancelled
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NoSuchRelocate'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /users/me/relocates/{relocate_uuid}/complete:
+    put:
+      summary: Complete a relocate
+      description: '**Required ACL:** `calld.users.me.relocates.{relocate_uuid}.complete.update`'
+      parameters:
+      - $ref: '#/components/parameters/RelocateUUID'
+      tags:
+      - relocates
+      responses:
+        '204':
+          description: The relocate was completed
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NoSuchRelocate'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+components:
+  schemas:
+    RelocateCompletion:
+      type: string
+      default: answer
+      enum:
+      - answer
+      - api
+    RelocateCompletions:
+      type: array
+      items:
+        $ref: '#/components/schemas/RelocateCompletion'
+    UserRelocateLocation:
+      properties:
+        line:
+          $ref: '#/components/schemas/LocationLine'
+    LocationLine:
+      type: object
+      properties:
+        line_id:
+          type: integer
+          description: the ID of the line where the relocated call should be connected
+        contact:
+          type: string
+          description: the SIP contact to use when multiple registers are used
+      required:
+      - line_id
+    Timeout:
+      description: Number of seconds to wait for the recipient to answer
+      type: integer
+    UserRelocateRequest:
+      type: object
+      properties:
+        initiator_call:
+          description: Call ID of the relocate initiator. This call must be owned by the authenticated user.
+          type: string
+        destination:
+          type: string
+          description: What kind of destination the relocated call should be connected
+          enum:
+          - line
+          - mobile
+        location:
+          description: "Describes where exactly the relocated call should be connected. Attributes depend on the `destination` value. Example\n```\n{\n  ...\n  destination: line\n  location: {line_id: 14}\n}\n```\n"
+          type: object
+          $ref: '#/components/schemas/UserRelocateLocation'
+        completions:
+          $ref: '#/components/schemas/RelocateCompletions'
+        timeout:
+          $ref: '#/components/schemas/Timeout'
+        auto_answer:
+          type: boolean
+          description: 'Inform the destination phone that it should answer automatically. Limitation: this does not work on SCCP phones.'
+      example:
+        initiator_call: '123456.789'
+        destination: line
+        location:
+          line_id: 14
+          contact: 5f3ff5ga
+        completions:
+        - answer
+        auto_answer: false
+      required:
+      - initiator_call
+      - destination
+    RelocateList:
+      type: object
+      properties:
+        items:
+          $ref: '#/components/schemas/Relocate'
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    Relocate:
+      type: object
+      properties:
+        uuid:
+          description: Unique identifier of the relocate
+          type: string
+        relocated_call:
+          description: Call ID of the call being relocated to someone else
+          type: string
+        initiator_call:
+          description: Call ID of the relocate initiator
+          type: string
+        recipient_call:
+          description: Call ID of the recipient of the relocate.
+          type: string
+        completions:
+          description: How the relocate will behave. "answer" will complete the relocate as soon as the destination answers. "api" will wait for a call to API `/complete`. "answer" overrides all other values.
+          $ref: '#/components/schemas/RelocateCompletions'
+        initiator:
+          description: The user UUID of the relocate initiator
+          type: string
+  parameters:
+    RelocateUUID:
+      name: relocate_uuid
+      in: path
+      description: Unique identifier of the relocate
+      required: true
+      schema:
+        type: string
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoSuchRelocate:
+      description: The specified relocate does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9500
+x-xivo-name: calld
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-calld
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/calld/1.0/api/api.yml (see wazo_calld/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

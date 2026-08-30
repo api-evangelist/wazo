@@ -1,0 +1,196 @@
+openapi: 3.2.0
+info:
+  title: wazo-calld Faxes API
+  description: Control your calls from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: faxes
+paths:
+  /faxes:
+    post:
+      summary: Send a fax
+      description: '**Required ACL:** `calld.faxes.create`'
+      parameters:
+      - name: context
+        in: query
+        description: Context of the recipient of the fax
+        required: true
+        schema:
+          type: string
+      - name: extension
+        in: query
+        description: Extension of the recipient of the fax
+        required: true
+        schema:
+          type: string
+      - name: caller_id
+        in: query
+        description: 'Caller ID that will be presented to the recipient of the fax. Example: "my-name <+15551112222>"'
+        schema:
+          type: string
+          default: Wazo Fax
+      - name: ivr_extension
+        in: query
+        description: Extension to compose before sending fax. Useful for fax in IVR
+        schema:
+          type: string
+      - name: wait_time
+        in: query
+        description: Time waiting before sending fax when destination has answered (in seconds)
+        schema:
+          type: integer
+      tags:
+      - faxes
+      responses:
+        '201':
+          description: Fax send request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fax'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+        description: The fax file content, in PDF format
+        required: true
+  /users/me/faxes:
+    post:
+      summary: Send a fax as the user detected from the token
+      description: '**Required ACL:** `calld.users.me.faxes.create`'
+      parameters:
+      - name: extension
+        in: query
+        description: Extension of the recipient of the fax
+        required: true
+        schema:
+          type: string
+      - name: caller_id
+        in: query
+        description: 'Caller ID that will be presented to the recipient of the fax. Example: "my-name <+15551112222>"'
+        schema:
+          type: string
+          default: Wazo Fax
+      - name: ivr_extension
+        in: query
+        description: Extension to compose before sending fax. Useful for fax in IVR
+        schema:
+          type: string
+      - name: wait_time
+        in: query
+        description: Time waiting before sending fax when destination has answered (in seconds)
+        schema:
+          type: integer
+      tags:
+      - faxes
+      responses:
+        '201':
+          description: Fax send request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fax'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+        description: The fax file content, in PDF format
+        required: true
+components:
+  schemas:
+    Fax:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The fax ID
+        call_id:
+          type: string
+          description: The ID of the call that produced this fax
+        extension:
+          type: string
+          description: The extension where the fax was sent
+        context:
+          type: string
+          description: The context where the fax was sent
+        caller_id:
+          type: string
+          description: The Caller ID that was presented to the fax recipient
+        ivr_extension:
+          type: string
+          description: Extension to compose before sending fax. Useful for fax in IVR
+        wait_time:
+          type: string
+          description: Time waiting before sending fax when destination has answered (in seconds)
+        user_uuid:
+          type: string
+          description: The UUID of the user that sent the fax. May be null if the fax was sent by another service.
+        tenant_uuid:
+          type: string
+          description: The tenant UUID where the fax was sent from
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9500
+x-xivo-name: calld
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-calld
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/calld/1.0/api/api.yml (see wazo_calld/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

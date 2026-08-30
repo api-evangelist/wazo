@@ -1,0 +1,549 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Funckeys API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: funckeys
+  externalDocs:
+    url: https://wazo-platform.org/uc-doc/api_sdk/rest_api/confd/func_keys
+    description: Documentation on function key models
+paths:
+  /funckeys/destinations:
+    get:
+      operationId: list_func_key_destinations
+      summary: List of possible func key destinations and their parameters
+      description: '**Required ACL:** `confd.funckeys.destinations.read`'
+      tags:
+      - funckeys
+      responses:
+        '200':
+          description: List of destinations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuncKeyDestinationItems'
+  /funckeys/templates:
+    get:
+      operationId: list_func_key_template
+      summary: List a func key template
+      description: '**Required ACL:** `confd.funckeys.templates.read`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: List Func key template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuncKeyTemplate'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      operationId: create_func_key_template
+      summary: Create a template of func keys
+      description: '**Required ACL:** `confd.funckeys.templates.create`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuncKeyTemplate'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FuncKeyTemplate'
+        description: Template to create
+  /funckeys/templates/{template_id}:
+    get:
+      operationId: get_func_key_template
+      summary: Get a func key template
+      description: '**Required ACL:** `confd.funckeys.templates.{template_id}.read`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/templateid'
+      responses:
+        '200':
+          description: Func key template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuncKeyTemplate'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_func_key_template
+      summary: Update a func key template
+      description: '**Required ACL:** `confd.funckeys.templates.{template_id}.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/templateid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FuncKeyTemplate'
+        required: true
+    delete:
+      operationId: delete_func_key_template
+      summary: Delete func key template
+      description: '**Required ACL:** `confd.funckeys.templates.{template_id}.delete`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/templateid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /funckeys/templates/{template_id}/users:
+    get:
+      operationId: list_func_key_template_user_associations
+      summary: List users associated to template
+      description: '**Required ACL:** `confd.funckeys.templates.{template_id}.users.read`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/templateid'
+      responses:
+        '200':
+          description: User-FuncKeyTemplate associations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserFuncKeyTemplate'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /funckeys/templates/{template_id}/{position}:
+    get:
+      operationId: get_func_key
+      summary: Get a func key inside template
+      description: '**Required ACL:** `confd.funckeys.templates.{template_id}.{position}.read`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/templateid'
+      - $ref: '#/components/parameters/funckeyposition'
+      responses:
+        '200':
+          description: Func key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuncKey'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_func_key
+      summary: Add/Replace a func key in a template
+      description: '**Required ACL:** `confd.funckeys.templates.{template_id}.{position}.update`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/templateid'
+      - $ref: '#/components/parameters/funckeyposition'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FuncKey'
+        required: true
+    delete:
+      operationId: delete_func_key
+      summary: Remove func key from template
+      description: '**Required ACL:** `confd.funckeys.templates.{template_id}.{position}.delete`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/templateid'
+      - $ref: '#/components/parameters/funckeyposition'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /users/{user_id}/funckeys:
+    get:
+      operationId: list_user_func_keys
+      summary: List func keys for a user
+      description: '**Required ACL:** `confd.users.{user_id}.funckeys.read`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '200':
+          description: Func keys for user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuncKeyTemplate'
+    put:
+      operationId: update_user_func_keys
+      summary: Update func keys for a user
+      description: '**Required ACL:** `confd.users.{user_id}.funckeys.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FuncKeyTemplate'
+        required: true
+  /users/{user_id}/funckeys/{position}:
+    get:
+      operationId: get_user_func_key
+      summary: Get a func key for a user
+      description: '**Required ACL:** `confd.users.{user_id}.funckeys.{position}.read`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/funckeyposition'
+      responses:
+        '200':
+          description: Func key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuncKey'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_user_func_key
+      summary: Add/Replace a func key for a user
+      description: '**Required ACL:** `confd.users.{user_id}.funckeys.{position}.update`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/funckeyposition'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FuncKey'
+        required: true
+    delete:
+      operationId: delete_user_func_key
+      summary: Remove func key for user
+      description: '**Required ACL:** `confd.users.{user_id}.funckeys.{position}.delete`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/funckeyposition'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /users/{user_id}/funckeys/templates:
+    get:
+      operationId: list_user_func_key_template_associations
+      summary: List funckey templates associated to user
+      description: '**Required ACL:** `confd.users.{user_id}.funckeys.templates.read`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '200':
+          description: User-FuncKeyTemplate associations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserFuncKeyTemplate'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /users/{user_id}/funckeys/templates/{template_id}:
+    put:
+      operationId: associate_user_func_key_template
+      summary: Associate a func key template to a user
+      description: '**Required ACL:** `confd.users.{user_id}.funckeys.templates.{template_id}.update`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/templateid'
+      responses:
+        '204':
+          description: User and template associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_user_func_key_template
+      summary: Dissociate a func key template to a user
+      description: '**Required ACL:** `confd.users.{user_id}.funckeys.templates.{template_id}.delete`'
+      tags:
+      - funckeys
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/useriduuid'
+      - $ref: '#/components/parameters/templateid'
+      responses:
+        '204':
+          description: User and template dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    FuncKeyDestination:
+      title: FuncKeyDestination
+      properties:
+        type:
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/FuncKeyDestinationParameter'
+          type: array
+    FuncKeyTemplate:
+      title: FuncKeyTemplate
+      description: Further documentation at https://wazo-platform.org/uc-doc/administration/users/csv_import
+      properties:
+        id:
+          type: integer
+          description: The ID of the funckey template
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+        keys:
+          type: object
+    FuncKeyDestinationItems:
+      title: FuncKeyDestinationItems
+      description: Description of func key destinations and their parameters
+      items:
+        $ref: '#/components/schemas/FuncKeyDestination'
+      type: array
+    FuncKey:
+      title: FuncKey
+      description: Further documentation at https://wazo-platform.org/uc-doc/api_sdk/rest_api/confd/func_keys
+      properties:
+        blf:
+          type: boolean
+        label:
+          type: string
+        destination:
+          type: object
+    UserFuncKeyTemplate:
+      title: UserFuncKeyTemplate
+      description: Association between a User and a FuncKey Template
+      properties:
+        user_id:
+          type: integer
+          format: int32
+          description: User's ID
+        template_id:
+          type: integer
+          format: int32
+          description: FuncKey Template's ID
+    FuncKeyDestinationParameter:
+      title: FuncKeyDestinationParameter
+      properties:
+        name:
+          type: string
+          description: Parameter name
+        collection:
+          type: string
+          description: URL towards a collection of entities representing possible values as a destination
+        values:
+          description: Array of values to choose from for this parameter
+          items:
+            type: string
+          type: array
+    Error:
+      type: array
+      items:
+        type: string
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    templateid:
+      required: true
+      name: template_id
+      in: path
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    funckeyposition:
+      required: true
+      name: position
+      in: path
+      description: position of the funckey
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

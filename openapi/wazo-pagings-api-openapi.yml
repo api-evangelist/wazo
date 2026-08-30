@@ -1,0 +1,397 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Pagings API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: pagings
+paths:
+  /pagings:
+    get:
+      operationId: list_pagings
+      summary: List paging
+      description: '**Required ACL:** `confd.pagings.read`'
+      tags:
+      - pagings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Pagings list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagingItems'
+    post:
+      operationId: create_paging
+      summary: Create paging
+      description: '**Required ACL:** `confd.pagings.create`'
+      tags:
+      - pagings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Paging created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paging'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Paging'
+        description: Paging to create
+        required: true
+  /pagings/{paging_id}:
+    get:
+      operationId: get_paging
+      summary: Get paging
+      description: '**Required ACL:** `confd.pagings.{paging_id}.read`'
+      tags:
+      - pagings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/pagingid'
+      responses:
+        '200':
+          description: Paging
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paging'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_paging
+      summary: Update paging
+      description: '**Required ACL:** `confd.pagings.{paging_id}.update`'
+      tags:
+      - pagings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/pagingid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Paging'
+        required: true
+    delete:
+      operationId: delete_paging
+      summary: Delete paging
+      description: '**Required ACL:** `confd.pagings.{paging_id}.delete`'
+      tags:
+      - pagings
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/pagingid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /pagings/{paging_id}/callers/users:
+    put:
+      operationId: update_paging_caller_users
+      summary: Update paging and callers
+      description: '**Required ACL:** `confd.pagings.{paging_id}.callers.users.update`
+
+
+        **WARNING**
+
+        This endpoint remove all callers which are not defined.
+
+        '
+      tags:
+      - pagings
+      parameters:
+      - $ref: '#/components/parameters/pagingid'
+      responses:
+        '204':
+          description: Paging and Users associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersUuid'
+        description: Users to associated
+        required: true
+  /pagings/{paging_id}/members/users:
+    put:
+      operationId: update_paging_member_users
+      summary: Update paging and members
+      description: '**Required ACL:** `confd.pagings.{paging_id}.members.users.update`
+
+
+        **WARNING**
+
+        This endpoint remove all members which are not defined.
+
+        '
+      tags:
+      - pagings
+      parameters:
+      - $ref: '#/components/parameters/pagingid'
+      responses:
+        '204':
+          description: Paging and Users associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersUuid'
+        description: Users to associated
+        required: true
+components:
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    PagingRelationCallers:
+      properties:
+        callers:
+          readOnly: true
+          $ref: '#/components/schemas/PagingRelationMemberUsers'
+    PagingRelationMemberUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/UserRelationBase'
+    PagingRelationMembers:
+      properties:
+        members:
+          readOnly: true
+          $ref: '#/components/schemas/PagingRelationMemberUsers'
+    PagingItems:
+      title: PagingItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Paging'
+        total:
+          type: integer
+      required:
+      - total
+    UserUuid:
+      properties:
+        uuid:
+          type: string
+    UsersUuid:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/UserUuid'
+          type: array
+    Error:
+      type: array
+      items:
+        type: string
+    Paging:
+      title: Paging
+      allOf:
+      - properties:
+          id:
+            type: integer
+            readOnly: true
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          name:
+            type: string
+            description: The name to identify the paging
+          number:
+            type: string
+            description: The number of the paging
+          announce_caller:
+            type: boolean
+            description: Play the announce sound to the caller
+            default: true
+          announce_sound:
+            type: string
+            description: The sound played to everyone
+          caller_notification:
+            type: boolean
+            description: Play a notification to caller
+            default: true
+          duplex:
+            type: boolean
+            description: Duplex audio
+            default: false
+          record:
+            type: boolean
+            description: Record the paging
+            default: false
+          ignore_forward:
+            type: boolean
+            description: Ignore attemps to forward the call
+            default: false
+          enabled:
+            type: boolean
+            default: true
+        required:
+        - number
+      - $ref: '#/components/schemas/PagingRelationCallers'
+      - $ref: '#/components/schemas/PagingRelationMembers'
+    UserRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    pagingid:
+      required: true
+      name: paging_id
+      in: path
+      description: Paging's ID
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

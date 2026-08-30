@@ -1,0 +1,463 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Callpickups API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: callpickups
+paths:
+  /callpickups:
+    get:
+      operationId: list_call_pickups
+      summary: List call pickups
+      description: '**Required ACL:** `confd.callpickups.read`'
+      tags:
+      - callpickups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Call Pickups list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallPickupItems'
+    post:
+      operationId: create_callpickup
+      summary: Create call pickup
+      description: '**Required ACL:** `confd.callpickups.create`'
+      tags:
+      - callpickups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Call Pickup created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallPickup'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallPickup'
+        description: Call Pickup to create
+        required: true
+  /callpickups/{callpickup_id}:
+    get:
+      operationId: get_callpickup
+      summary: Get call pickup
+      description: '**Required ACL:** `confd.callpickups.{callpickup_id}.read`'
+      tags:
+      - callpickups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpickupid'
+      responses:
+        '200':
+          description: Call Pickup
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallPickup'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_callpickup
+      summary: Update call pickup
+      description: '**Required ACL:** `confd.callpickups.{callpickup_id}.update`'
+      tags:
+      - callpickups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpickupid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CallPickup'
+        required: true
+    delete:
+      operationId: delete_callpickup
+      summary: Delete call pickup
+      description: '**Required ACL:** `confd.callpickups.{callpickup_id}.delete`'
+      tags:
+      - callpickups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpickupid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /callpickups/{callpickup_id}/interceptors/groups:
+    put:
+      operationId: update_call_pickup_interceptor_groups
+      summary: Update call pickup and interceptors
+      description: '**Required ACL:** `confd.callpickups.{callpickup_id}.interceptors.groups.update`
+
+
+        **WARNING**
+
+        This endpoint remove all interceptors which are not defined.
+
+        '
+      tags:
+      - callpickups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpickupid'
+      responses:
+        '204':
+          description: Call Pickup and Groups associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupsID'
+        description: Groups to associated
+        required: true
+  /callpickups/{callpickup_id}/interceptors/users:
+    put:
+      operationId: update_call_pickup_interceptor_users
+      summary: Update call pickup and interceptors
+      description: '**Required ACL:** `confd.callpickups.{callpickup_id}.interceptors.users.update`
+
+
+        **WARNING**
+
+        This endpoint remove all interceptors which are not defined.
+
+        '
+      tags:
+      - callpickups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpickupid'
+      responses:
+        '204':
+          description: Call Pickup and Users associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersUuid'
+        description: Users to associated
+        required: true
+  /callpickups/{callpickup_id}/targets/groups:
+    put:
+      operationId: update_call_pickup_target_groups
+      summary: Update call pickup and targets
+      description: '**Required ACL:** `confd.callpickups.{callpickup_id}.targets.groups.update`
+
+
+        **WARNING**
+
+        This endpoint remove all targets which are not defined.
+
+        '
+      tags:
+      - callpickups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpickupid'
+      responses:
+        '204':
+          description: Call Pickup and Groups associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupsID'
+        description: Groups to associated
+        required: true
+  /callpickups/{callpickup_id}/targets/users:
+    put:
+      operationId: update_call_pickup_target_users
+      summary: Update call pickup and targets
+      description: '**Required ACL:** `confd.callpickups.{callpickup_id}.targets.users.update`
+
+
+        **WARNING**
+
+        This endpoint remove all targets which are not defined.
+
+        '
+      tags:
+      - callpickups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpickupid'
+      responses:
+        '204':
+          description: Call Pickup and Users associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersUuid'
+        description: Users to associated
+        required: true
+components:
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    callpickupid:
+      required: true
+      name: callpickup_id
+      in: path
+      description: Call Pickup's ID
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  schemas:
+    GroupsID:
+      properties:
+        groups:
+          items:
+            $ref: '#/components/schemas/GroupID'
+          type: array
+    CallPickupItems:
+      title: CallPickupItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CallPickup'
+        total:
+          type: integer
+      required:
+      - total
+    CallPickupInterceptorUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/UserRelationBase'
+    GroupID:
+      properties:
+        id:
+          type: integer
+    UserUuid:
+      properties:
+        uuid:
+          type: string
+    CallPickupTargetUser:
+      allOf:
+      - properties:
+          timeout:
+            type: integer
+      - $ref: '#/components/schemas/UserRelationBase'
+    CallPickupTargetUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/CallPickupTargetUser'
+    CallPickupTargets:
+      properties:
+        recipients:
+          readOnly: true
+          $ref: '#/components/schemas/CallPickupTargetUsers'
+    CallPickupInterceptors:
+      properties:
+        surrogates:
+          readOnly: true
+          $ref: '#/components/schemas/CallPickupInterceptorUsers'
+    UsersUuid:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/UserUuid'
+          type: array
+    CallPickup:
+      title: CallPickup
+      allOf:
+      - properties:
+          id:
+            type: integer
+            readOnly: true
+            description: The id of the call pickup
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          name:
+            type: string
+            description: The name of the call pickup
+          description:
+            type: string
+            description: Additional information about the call pickup
+          enabled:
+            type: boolean
+            default: true
+            description: Disable or enable the call pickup
+        required:
+        - name
+      - $ref: '#/components/schemas/CallPickupTargets'
+      - $ref: '#/components/schemas/CallPickupInterceptors'
+    Error:
+      type: array
+      items:
+        type: string
+    UserRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

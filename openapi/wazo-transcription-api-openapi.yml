@@ -1,0 +1,120 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Transcription API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: transcription
+paths:
+  /voicemails/transcription:
+    get:
+      summary: Retrieve the voicemail transcription configuration for the tenant
+      description: '
+
+        Returns the current transcription settings, including whether automatic
+
+        transcription is enabled for the tenant''s voicemails.
+
+        **required_acl**: `confd.voicemails.transcription.read`
+
+        '
+      operationId: get_voicemail_transcription_config
+      tags:
+      - transcription
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: Voicemail transcription configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailTranscriptionConfig'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      summary: Update the voicemail transcription configuration for the tenant.
+      description: '**required_acl**: `confd.voicemails.transcription.update`'
+      operationId: update_voicemail_transcription_config
+      tags:
+      - transcription
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: Configuration updated successfully
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoicemailTranscriptionConfig'
+        description: Voicemail transcription configuration
+        required: true
+components:
+  responses:
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Error:
+      type: array
+      items:
+        type: string
+    VoicemailTranscriptionConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Enable or disable automatic transcription of voicemails for this tenant.
+          default: false
+          example: true
+      required:
+      - enabled
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

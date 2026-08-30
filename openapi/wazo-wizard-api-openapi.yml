@@ -1,0 +1,272 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Wizard API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: wizard
+paths:
+  /wizard:
+    get:
+      operationId: get_wizard_status
+      summary: Get wizard status
+      description: '**Required ACL:** none'
+      tags:
+      - wizard
+      responses:
+        '200':
+          description: Wizard status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WizardConfigured'
+    post:
+      operationId: pass_wizard
+      summary: Pass the wizard
+      description: '**Required ACL:** none
+
+
+        This API can only be used before wizard configuration.'
+      tags:
+      - wizard
+      responses:
+        '201':
+          description: Wizard passed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wizard'
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '403':
+          $ref: '#/components/responses/AlreadyConfiguredError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Wizard'
+        description: Wizard parameters to configure
+        required: true
+  /wizard/discover:
+    get:
+      operationId: get_wizard_discover
+      summary: Get wizard discover
+      description: '**Required ACL:** none
+
+
+        This API can only be used before wizard configuration.'
+      tags:
+      - wizard
+      responses:
+        '200':
+          description: Wizard discover
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WizardDiscover'
+        '403':
+          $ref: '#/components/responses/AlreadyConfiguredError'
+components:
+  schemas:
+    WizardDiscover:
+      title: WizardDiscover
+      properties:
+        hostname:
+          type: string
+          description: System hostname
+        domain:
+          type: string
+          description: System domain name
+        timezone:
+          type: string
+          description: System timezone from file ``/etc/timezone``
+        nameservers:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+          description: Nameservers from file ``/etc/resolv.conf``
+        interfaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/WizardDiscoverInterface'
+        gateways:
+          type: array
+          items:
+            $ref: '#/components/schemas/WizardDiscoverGateway'
+    WizardNetwork:
+      title: WizardNetwork
+      properties:
+        hostname:
+          type: string
+          description: System hostname
+        domain:
+          type: string
+          description: Domain name
+        interface:
+          type: string
+          description: Interface name (e.g. eth0)
+        ip_address:
+          type: string
+          description: IPv4 address of the VoIP interface (connected to phones)
+        netmask:
+          type: string
+          description: Netmask of the IP address (e.g. 255.255.0.0)
+        gateway:
+          type: string
+          description: Gateway IPv4 address
+        nameservers:
+          type: array
+          items:
+            type: string
+          maxItems: 3
+          description: List of IPv4 addresses. Nameservers are used in resolv.conf.
+      required:
+      - hostname
+      - domain
+      - ip_address
+      - interface
+      - netmask
+      - gateway
+      - nameservers
+    Wizard:
+      title: Wizard
+      properties:
+        admin_password:
+          type: string
+          description: Wazo administrator ``root`` password
+        license:
+          type: boolean
+          description: 'Accept/decline the GPLv3: http://www.gnu.org/licenses/gpl-3.0.en.html'
+        timezone:
+          type: string
+          description: 'System timezone. Example: America/Montreal. For the complete list of supported timezones, see ``/usr/share/zoneinfo/``'
+        language:
+          type: string
+          default: en_US
+          enum:
+          - de_DE
+          - en_US
+          - es_ES
+          - fr_FR
+          - fr_CA
+          - it_IT
+          - nl_NL
+          description: The language in which the Wazo will play sounds
+        network:
+          $ref: '#/components/schemas/WizardNetwork'
+        steps:
+          $ref: '#/components/schemas/WizardSteps'
+      required:
+      - admin_password
+      - license
+      - timezone
+      - network
+    WizardDiscoverInterface:
+      title: WizardDiscoverInterface
+      properties:
+        interface:
+          type: string
+          description: Interface name (e.g. eth0)
+        ip_address:
+          type: string
+          description: IPv4 address of the interface
+        netmask:
+          type: string
+          description: Netmask of the IP address
+    WizardDiscoverGateway:
+      title: WizardDiscoverGateway
+      properties:
+        interface:
+          type: string
+          description: Interface name (e.g. eth0)
+        gateway:
+          type: string
+          description: Gateway IPv4 address
+    Error:
+      type: array
+      items:
+        type: string
+    WizardSteps:
+      title: WizardSteps
+      properties:
+        database:
+          type: boolean
+          default: true
+          description: Initialize Wazo database?
+        manage_services:
+          type: boolean
+          default: true
+          description: Enable/start Wazo services?
+        manage_hosts_file:
+          type: boolean
+          default: true
+          description: Modify /etc/hosts?
+        manage_resolv_file:
+          type: boolean
+          default: true
+          description: Modify /etc/resolv.conf?
+        commonconf:
+          type: boolean
+          default: true
+          description: Generate /etc/xivo/common.conf
+        provisioning:
+          type: boolean
+          default: true
+          description: Initialize wazo-provd database?
+        admin:
+          type: boolean
+          default: true
+          description: Create admin in wazo-auth?
+    WizardConfigured:
+      title: WizardConfigured
+      properties:
+        configured:
+          type: boolean
+          description: Whether Wazo has already been configured or not
+        configurable:
+          type: boolean
+          description: Whether all services which the wizard depends on are started or not
+        configurable_status:
+          type: object
+          description: A mapping of all dependencies and there statuses
+  responses:
+    AlreadyConfiguredError:
+      description: The Wazo must not be configured
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

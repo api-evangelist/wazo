@@ -1,0 +1,462 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Contexts API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: contexts
+paths:
+  /contexts:
+    get:
+      operationId: list_contexts
+      summary: List contexts
+      description: '**Required ACL:** `confd.contexts.read`'
+      tags:
+      - contexts
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Contexts list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextItems'
+    post:
+      operationId: create_context
+      summary: Create context
+      description: '**Required ACL:** `confd.contexts.create`'
+      tags:
+      - contexts
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Context created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Context'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Context'
+        description: Context to create
+        required: true
+  /contexts/{context_id}:
+    get:
+      operationId: get_context
+      summary: Get context
+      description: '**Required ACL:** `confd.contexts.{context_id}.read`'
+      tags:
+      - contexts
+      parameters:
+      - $ref: '#/components/parameters/contextid'
+      responses:
+        '200':
+          description: Context
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Context'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_context
+      summary: Update context
+      description: '**Required ACL:** `confd.contexts.{context_id}.update`'
+      tags:
+      - contexts
+      parameters:
+      - $ref: '#/components/parameters/contextid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Context'
+        required: true
+    delete:
+      operationId: delete_context
+      summary: Delete context
+      description: '**Required ACL:** `confd.contexts.{context_id}.delete`'
+      tags:
+      - contexts
+      parameters:
+      - $ref: '#/components/parameters/contextid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /contexts/{context_id}/contexts:
+    put:
+      operationId: associate_context_contexts
+      summary: Include contexts inside context
+      description: '**Required ACL:** `confd.contexts.{context_id}.contexts.update`'
+      tags:
+      - contexts
+      parameters:
+      - $ref: '#/components/parameters/contextid'
+      responses:
+        '204':
+          description: Context and Contexts associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContextsId'
+        description: Contexts to associated
+        required: true
+  /contexts/{context_id}/ranges/{range_type}:
+    get:
+      operationId: list_contexts_range
+      summary: List contexts range
+      description: '**Required ACL:** `confd.contexts.{context_id}.ranges.{range_type}.read`
+
+
+        List the extension range for a given context and resource type. When filtering
+
+        using the `availability=available` query string the range will be split into multiple
+
+        sub-ranges to only contain extension numbers that are available.
+
+
+        If a given extension exists but is not assigned to any resource it will still
+
+        be considered to be unavailable and therefore will not be included in the list
+
+        of available extension
+
+        '
+      tags:
+      - contexts
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/rangetype'
+      - $ref: '#/components/parameters/availability'
+      - $ref: '#/components/parameters/contextid'
+      responses:
+        '200':
+          description: Contexts list of ranges for that destination type in that context
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextRangeItems'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  schemas:
+    ContextRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the context
+        uuid:
+          type: string
+          readOnly: true
+          description: The UUID of the context
+        name:
+          type: string
+          description: The name used by Asterisk
+          readOnly: true
+    ContextRelationContext:
+      $ref: '#/components/schemas/ContextRelationBase'
+    ContextRelationContexts:
+      properties:
+        contexts:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ContextRelationContext'
+    ContextRange:
+      title: ContextRange
+      properties:
+        start:
+          type: string
+          default: <start>
+        end:
+          type: string
+          default: <end>
+      required:
+      - start
+    ContextItems:
+      title: ContextItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Context'
+        total:
+          type: integer
+      required:
+      - total
+    Context:
+      title: Context
+      allOf:
+      - $ref: '#/components/schemas/ContextRelationBase'
+      - properties:
+          label:
+            type: string
+            description: The label of the context
+          type:
+            type: string
+            default: internal
+            enum:
+            - internal
+            - incall
+            - outcall
+            - services
+            - others
+          user_ranges:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContextRange'
+          group_ranges:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContextRange'
+          queue_ranges:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContextRange'
+          conference_room_ranges:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContextRange'
+          incall_ranges:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContextIncallRange'
+          description:
+            type: string
+            description: Additional information about the context
+          enabled:
+            type: boolean
+            default: true
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+      - $ref: '#/components/schemas/ContextRelationContexts'
+      - required:
+        - label
+    ContextId:
+      title: ContextId
+      properties:
+        id:
+          type: integer
+    ContextsId:
+      title: ContextsId
+      properties:
+        contexts:
+          items:
+            $ref: '#/components/schemas/ContextId'
+          type: array
+    ContextIncallRange:
+      title: ContextIncallRange
+      allOf:
+      - $ref: '#/components/schemas/ContextRange'
+      - properties:
+          did_length:
+            type: integer
+            default: 0
+            description: The length of the did
+    Error:
+      type: array
+      items:
+        type: string
+    ContextRangeItems:
+      title: ContextRangeItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContextRange'
+        total:
+          type: integer
+      required:
+      - total
+      example:
+        total: 3
+        items:
+        - start: 1006
+          end: 1006
+        - start: 1010
+          end: 1014
+        - start: 1025
+          end: 1999
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    availability:
+      required: false
+      name: availability
+      in: query
+      description: Determines if the ranges are going to be split to display only ranges with available extensions.
+      schema:
+        type: string
+        enum:
+        - available
+        - all
+        default: available
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    contextid:
+      required: true
+      name: context_id
+      in: path
+      description: context's ID
+      schema:
+        type: integer
+    rangetype:
+      required: true
+      name: range_type
+      in: path
+      description: The extension range destination type
+      schema:
+        type: string
+        enum:
+        - user
+        - group
+        - queue
+        - conference
+        - incall
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

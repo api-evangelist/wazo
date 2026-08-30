@@ -1,0 +1,272 @@
+openapi: 3.2.0
+info:
+  version: '0.1'
+  title: wazo-auth Saml API
+  description: Wazo's authentication service
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+tags:
+- name: saml
+paths:
+  /saml/sso:
+    post:
+      description: 'Returns the information (SAML request and redirect location) that
+
+        the client needs to use to authenticate using the configured identity
+
+        provider. The redirection does not happen automatically, the client
+
+        has to use the `location` provided in the body of the response.
+
+        '
+      summary: Creates and returns context and redirects to IdP login page
+      operationId: samlSSO
+      tags:
+      - saml
+      responses:
+        '201':
+          description: 'The `Location` contains the URL of the identity provider that should be
+
+            used by the client to authenticate. The provided `saml_session_id` must
+
+            be used by the application when requesting the token following the login.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SAMLSSOResponse'
+        '400':
+          description: Missing or wrong parameters.
+        '500':
+          description: 'Failed to initialize SAML SSO. Please check your stack configuration.
+
+            '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SAMLLoginContext'
+        description: SAML SSO Login context
+        required: true
+  /saml/acs:
+    post:
+      description: 'Receives the SAML response created by the identity provider.
+
+
+        The internal cache allows to retrieve the context and redirect the browser
+
+        to process the login.
+
+        '
+      summary: 'Processes the IdP response and redirects to requested URL, even if the authentication
+
+        failed to allow further processing by the frontend application.
+
+        '
+      operationId: processACS
+      tags:
+      - saml
+      responses:
+        '303':
+          description: 'Redirect browser to process the login result. The `Location` header contains the
+
+            URL that should be used by the client to complete the authentication. For failed authentication,
+
+            the `Location` header URL contains an error code in the `login_failure_code` query parameter.
+
+            | Code | Description            |
+
+            |------|------------------------|
+
+            | 401  | Unauthorized           |
+
+            | 403  | Forbidden              |
+
+            | 500  | Internal Server Error  |
+
+            '
+          headers:
+            Location:
+              description: The URL to redirect the browser to.
+              schema:
+                type: string
+        '400':
+          description: Missing or wrong parameters.
+        '404':
+          description: Context of the response not found, unable to redirect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error while processing the SAML response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SAMLIdpResponse'
+        description: The SAML response
+        required: true
+  /saml/logout:
+    get:
+      description: 'Returns the SAML logout request and redirect location, which is the IdP.
+
+        The client must use the indicated location and forward the logout request
+
+        to the IdP and forward the response to the wazo-auth. Wazo-auth will process
+
+        the answer and confirm to the requester the logout was processed or notify
+
+        an error.
+
+        '
+      summary: Creates and returns data required to process the logout by the IdP
+      security:
+      - wazo_auth_token: []
+      operationId: samlLogout
+      tags:
+      - saml
+      responses:
+        '201':
+          description: 'SAML encoded Logout request to be forwarded to the provided redirect URL.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SAMLLogoutRequest'
+        '400':
+          description: Missing or wrong parameters.
+        '500':
+          description: 'Failed to initialize SAML SSO. Please check your stack configuration.
+
+            '
+  /saml/sls:
+    get:
+      description: 'Processes the IdP response to logout request and confirms the logout by
+
+        a redirect to the `redirect_url` provided during the login phase
+
+        with logout confirmation in the URL''s query param.
+
+        '
+      summary: Handles the logout response from the IDP
+      operationId: samlLogoutResponse
+      tags:
+      - saml
+      parameters:
+      - in: query
+        required: true
+        name: SAMLResponse
+        description: Encoded SAML XML response to logout request
+        schema:
+          type: string
+      - in: query
+        required: true
+        name: RelayState
+        description: Relay state parameter
+        schema:
+          type: string
+      responses:
+        '201':
+          description: 'Logout successfully processed.
+
+            '
+        '400':
+          description: Missing or wrong parameters.
+        '500':
+          description: 'Failed to initialize SAML SSO. Please check your stack configuration.
+
+            '
+components:
+  schemas:
+    SAMLIdpResponse:
+      properties:
+        SAMLResponse:
+          description: Encoded SAML XML response
+          type: string
+        RelayState:
+          description: Relay state parameter
+          type: string
+      required:
+      - SAMLResponse
+      - RelayState
+      type: object
+    SAMLLoginContext:
+      properties:
+        redirect_url:
+          description: Where to redirect the browser once the login succeeded
+          type: string
+        domain:
+          description: The domain name of the tenant
+          type: string
+      required:
+      - redirect_url
+      - domain
+      type: object
+    SAMLLogoutRequest:
+      type: object
+      properties:
+        location:
+          description: 'The URL that the client should open to complete the logout.
+
+            '
+          type: string
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    SAMLSSOResponse:
+      type: object
+      properties:
+        location:
+          description: 'The URL that the client should open to complete the authentication
+
+            request
+
+            '
+          type: string
+        saml_session_id:
+          type: string
+          description: 'The saml_session_id needs to be used to create a wazo-auth token
+
+            once the SAML authentication has been completed successfully
+
+            '
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9497
+x-xivo-name: auth
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-auth
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/auth/0.1/api/api.yml (see wazo_auth/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,1834 @@
+openapi: 3.2.0
+info:
+  title: Wazo Groups API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged groups across 2 of this provider''s published API definitions: wazo-auth-api-openapi.yml, wazo-confd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /0.1
+- url: /1.1
+tags:
+- name: groups
+paths:
+  /groups/{group_uuid}/policies:
+    get:
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.groups.{group_uuid}.policies.read`'
+      parameters:
+      - $ref: '#/components/parameters/group_uuid'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      summary: Retrieves the list of policies associated to a group
+      responses:
+        '200':
+          description: The group's policies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPoliciesResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Policy not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /0.1
+  /groups/{group_uuid}/policies/{policy_uuid}:
+    put:
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      operationId: addGroupPolicy
+      description: '**Required ACL:** `auth.groups.{group_uuid}.policies.{policy_uuid}.create`'
+      summary: Associate a group to a policy
+      parameters:
+      - $ref: '#/components/parameters/group_uuid'
+      - $ref: '#/components/parameters/policy_uuid'
+      responses:
+        '204':
+          description: The policy has been assigned
+        '404':
+          description: Policy or Group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      operationId: removeGroupPolicy
+      description: '**Required ACL:** `auth.groups.{group_uuid}.policies.{policy_uuid}.delete`'
+      summary: Dissociate a policy from a group
+      parameters:
+      - $ref: '#/components/parameters/group_uuid'
+      - $ref: '#/components/parameters/policy_uuid'
+      responses:
+        '204':
+          description: The policy has been unassigned
+        '404':
+          description: Policy or Group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /0.1
+  /groups:
+    get:
+      security:
+      - wazo_auth_token: []
+      summary: List groups
+      description: '**Required ACL:** `auth.groups.read`'
+      operationId: listGroups
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/search_uuid'
+      - $ref: '#/components/parameters/search_name'
+      - $ref: '#/components/parameters/search_user_uuid'
+      - $ref: '#/components/parameters/search_read_only'
+      - $ref: '#/components/parameters/search_policy_slug'
+      - $ref: '#/components/parameters/search_policy_uuid'
+      responses:
+        '200':
+          description: A list of group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGroupsResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      security:
+      - wazo_auth_token: []
+      summary: Create a new group
+      description: '**Required ACL:** `auth.groups.create`'
+      operationId: createGroups
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The created group's data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupResult'
+        '401':
+          description: Invalid data has been supplied'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Duplicate Group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+        description: The group creation parameters
+        required: true
+    servers:
+    - url: /0.1
+  /groups/{group_uuid}:
+    get:
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.groups.{group_uuid}.read'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/group_uuid'
+      summary: Retrieves the details of a group
+      responses:
+        '200':
+          description: The group's data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: delete_group
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.groups.{group_uuid}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/group_uuid'
+      summary: Delete a group
+      responses:
+        '204':
+          description: The group has been removed
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      security:
+      - wazo_auth_token: []
+      summary: Modify a group
+      description: '**Required ACL:** `auth.groups.{group_uuid}.update`'
+      operationId: editGroups
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/group_uuid'
+      responses:
+        '200':
+          description: The modified group's data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupResult'
+        '401':
+          description: Invalid data has been supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Duplicate Group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupPut'
+        description: The group parameters
+        required: true
+    servers:
+    - url: /0.1
+  /groups/{group_uuid}/users:
+    get:
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.groups.{group_uuid}.users.read`'
+      parameters:
+      - $ref: '#/components/parameters/group_uuid'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      summary: Retrieves the list of users associated to a group
+      responses:
+        '200':
+          description: The group's users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /0.1
+  /groups/{group_uuid}/users/{user_uuid}:
+    put:
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      operationId: addUserGroup
+      description: '**Required ACL:** `auth.groups.{group_uuid}.users.{user_uuid}.create`'
+      summary: Associate a group to a user
+      parameters:
+      - $ref: '#/components/parameters/group_uuid'
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '204':
+          description: The user has been assigned
+        '404':
+          description: User or Group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - groups
+      security:
+      - wazo_auth_token: []
+      operationId: removeUserGroup
+      description: '**Required ACL:** `auth.groups.{group_uuid}.users.{user_uuid}.delete`'
+      summary: Dissociate a user from a group
+      parameters:
+      - $ref: '#/components/parameters/group_uuid'
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '204':
+          description: The user has been unassigned
+        '404':
+          description: User or Group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /0.1
+  /callpickups/{callpickup_id}/interceptors/groups:
+    put:
+      operationId: update_call_pickup_interceptor_groups
+      summary: Update call pickup and interceptors
+      description: '**Required ACL:** `confd.callpickups.{callpickup_id}.interceptors.groups.update`
+
+
+        **WARNING**
+
+        This endpoint remove all interceptors which are not defined.
+
+        '
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpickupid'
+      responses:
+        '204':
+          description: Call Pickup and Groups associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupsID'
+        description: Groups to associated
+        required: true
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.1
+  /callpickups/{callpickup_id}/targets/groups:
+    put:
+      operationId: update_call_pickup_target_groups
+      summary: Update call pickup and targets
+      description: '**Required ACL:** `confd.callpickups.{callpickup_id}.targets.groups.update`
+
+
+        **WARNING**
+
+        This endpoint remove all targets which are not defined.
+
+        '
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/callpickupid'
+      responses:
+        '204':
+          description: Call Pickup and Groups associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupsID'
+        description: Groups to associated
+        required: true
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.1
+  /groups/{group_uuid}/callpermissions/{callpermission_id}:
+    put:
+      operationId: associate_group_callpermission
+      summary: Associate group and call permission
+      description: '**Required ACL:** `confd.groups.{group_uuid}.callpermissions.{call_permission_id}.update`'
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/groupuuid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security:
+      - wazo_auth_token: []
+    delete:
+      operationId: dissociate_group_callpermission
+      summary: Dissociate group and call permission
+      description: '**Required ACL:** `confd.groups.{group_uuid}.callpermissions.{call_permission_id}.delete`'
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/groupuuid'
+      - $ref: '#/components/parameters/callpermissionid'
+      responses:
+        '204':
+          description: Group and Call Permission dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.1
+  /groups/{group_uuid}/extensions/{extension_id}:
+    put:
+      operationId: associate_group_extension
+      summary: Associate group and extension
+      description: '**Required ACL:** `confd.groups.{group_uuid}.extensions.{extension_id}.update`'
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/groupuuid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Group and Extension associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security:
+      - wazo_auth_token: []
+    delete:
+      operationId: dissociate_group_extension
+      summary: Dissociate group and extension
+      description: '**Required ACL:** `confd.groups.{group_uuid}.extensions.{extension_id}.delete`'
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/groupuuid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Group and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.1
+  /groups/{group_uuid}/fallbacks:
+    get:
+      operationId: get_group_fallback
+      summary: List all fallbacks for group
+      description: '**Required ACL:** `confd.groups.{group_uuid}.fallbacks.read`'
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/groupuuid'
+      responses:
+        '200':
+          description: Fallbacks for group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupFallbacks'
+      security:
+      - wazo_auth_token: []
+    put:
+      operationId: update_group_fallback
+      summary: Update group's fallbacks
+      description: '**Required ACL:** `confd.groups.{group_uuid}.fallbacks.update`
+
+
+        **WARNING** This endpoint delete all fields that are not defined.'
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/groupuuid'
+      responses:
+        '204':
+          description: Group's fallbacks updated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupFallbacks'
+        description: Fallbacks for group
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.1
+  /groups/{group_uuid}/members/users:
+    put:
+      operationId: update_group_member_users
+      summary: Update group's user members
+      description: '**Required ACL:** `confd.groups.{group_uuid}.members.users.update`
+
+
+        user members are called by ringing all of the user''s configured lines simultaneously;
+
+        user redirections are not used;
+
+
+        **WARNING**
+
+        This endpoint remove all members which are not defined.
+
+        '
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/groupuuid'
+      responses:
+        '204':
+          description: Group and Users associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupMemberUsers'
+        description: Users to associated
+        required: true
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.1
+  /groups/{group_uuid}/members/extensions:
+    put:
+      operationId: update_group_member_extensions
+      summary: update group's extension members
+      description: '**Required ACL:** `confd.groups.{group_uuid}.members.extensions.update`
+
+
+        a call to an extension member directly invokes the complete dialplan logic of that extension,
+
+        as if the extension was called directly;
+
+
+        **WARNING**
+
+        This endpoint remove all members which are not defined.
+
+        '
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/groupuuid'
+      responses:
+        '204':
+          description: Group and Extensions associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupMemberExtensions'
+        description: Extensions to associated
+        required: true
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.1
+  /groups/{group_uuid}/schedules/{schedule_id}:
+    put:
+      operationId: associate_group_schedule
+      summary: Associate group and schedule
+      description: '**Required ACL:** `confd.groups.{group_uuid}.schedules.{schedule_id}.update`'
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/groupuuid'
+      - $ref: '#/components/parameters/scheduleid'
+      responses:
+        '204':
+          description: Group and Schedule associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security:
+      - wazo_auth_token: []
+    delete:
+      operationId: dissociate_group_schedule
+      summary: Dissociate group and schedule
+      description: '**Required ACL:** `confd.groups.{group_uuid}.schedules.{schedule_id}.delete`'
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/groupuuid'
+      - $ref: '#/components/parameters/scheduleid'
+      responses:
+        '204':
+          description: Group and Schedule dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.1
+  /users/{user_id}/groups:
+    put:
+      operationId: update_user_groups
+      summary: Update user and groups
+      description: '**Required ACL:** `confd.users.{user_id}.groups`
+
+        **WARNING** This endpoint remove all groups which are not defined.'
+      tags:
+      - groups
+      parameters:
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '204':
+          description: Group and Users associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserGroupsID'
+        description: Users to associated
+        required: true
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.1
+components:
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    search_name:
+      name: name
+      in: query
+      description: The name of the group
+      required: false
+      schema:
+        type: string
+    search_uuid:
+      name: uuid
+      in: query
+      description: The UUID of the group
+      required: false
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    group_uuid:
+      name: group_uuid
+      in: path
+      description: The UUID of the group
+      required: true
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    search_policy_uuid:
+      name: policy_uuid
+      in: query
+      description: The UUID of the policy that the group must have.
+      schema:
+        type: string
+    search_user_uuid:
+      name: user_uuid
+      in: query
+      description: The UUID of the user
+      required: false
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search_read_only:
+      name: read_only
+      in: query
+      description: Is the group managed by the system?
+      required: false
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    policy_uuid:
+      name: policy_uuid
+      in: path
+      description: The UUID or slug of the policy. The slug is unique within a tenant, hence the tenant must be specified.
+      required: true
+      schema:
+        type: string
+    search_policy_slug:
+      name: policy_slug
+      in: query
+      description: The slug of the policy that the group must have.
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    groupuuid:
+      required: true
+      name: group_uuid
+      in: path
+      description: the group's UUID
+      schema:
+        type: string
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    callpickupid:
+      required: true
+      name: callpickup_id
+      in: path
+      description: Call Pickup's ID
+      schema:
+        type: integer
+    offset_2:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
+    scheduleid:
+      required: true
+      name: schedule_id
+      in: path
+      description: Schedule's ID
+      schema:
+        type: integer
+    callpermissionid:
+      required: true
+      name: callpermission_id
+      in: path
+      description: Call Permission's ID
+      schema:
+        type: integer
+    limit_2:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  schemas:
+    GroupPut:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+      - name
+    UserEmail:
+      type: object
+      properties:
+        address:
+          type: string
+        main:
+          type: boolean
+        confirmed:
+          type: boolean
+    UserList:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of users
+        filtered:
+          type: integer
+          description: The number of users matching the searched term
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResult'
+          description: A paginated list of users
+    Group:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+          default: <name>
+      required:
+      - name
+    GetGroupsResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of groups.
+        filtered:
+          type: integer
+          description: The number of groups matching the searched term.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupResult'
+          description: A paginated list of groups
+      required:
+      - filtered
+      - total
+      - items
+    UserResult:
+      type: object
+      properties:
+        uuid:
+          type: string
+        username:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        purpose:
+          type: string
+          enum:
+          - user
+          - internal
+          - external_api
+        tenant_uuid:
+          type: string
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserEmail'
+        enabled:
+          type: boolean
+    Policy:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+          description: A unique, human readable identifier for this policy
+        description:
+          type: string
+        acl:
+          type: array
+          items:
+            type: string
+        shared:
+          type: boolean
+          description: 'Should be shared to sub-tenants or not. Cannot be changed after creation
+
+
+            When shared is `true`, then all tenants below this policy''s tenant
+
+            will see it as their own policy with the attribute `read_only: true`.
+
+
+            Using `shared` attribute will add uniqueness constraints for the slug
+
+            among all policies'' sub-tenants.
+
+            '
+      required:
+      - name
+    GetPoliciesResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of policies matching the searched term
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyResult'
+          description: A paginated list of policies
+      required:
+      - total
+      - items
+    GroupResult:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        tenant_uuid:
+          type: string
+        system_managed:
+          type: boolean
+          description: '*Deprecated* Please use `read_only`'
+        read_only:
+          type: boolean
+    PolicyResult:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+      - properties:
+          uuid:
+            type: string
+          read_only:
+            type: boolean
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    GroupRelationCallPermissions:
+      description: call permissions configured for this group
+      properties:
+        call_permissions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/CallPermissionRelationBase'
+    GroupRelationExtensions:
+      description: extensions configured for this group
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    DestinationApplicationDISA:
+      title: DestinationApplicationDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    GroupMemberUsers:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/GroupMemberUser'
+          type: array
+      required:
+      - users
+    DestinationApplicationDirectory:
+      title: DestinationApplicationDirectory
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'directory'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    DestinationUser:
+      title: DestinationUser
+      properties:
+        type:
+          type: string
+          description: MUST be 'user'
+        user_id:
+          type: integer
+          description: The id of the user
+        ring_time:
+          type: number
+          format: float
+        moh_uuid:
+          type: string
+          description: The UUID of the music on hold to use instead of a ringback tone.
+      required:
+      - type
+      - user_id
+    DestinationOutcall:
+      title: DestinationOutcall
+      properties:
+        type:
+          type: string
+          description: MUST be 'outcall'
+        exten:
+          type: string
+        outcall_id:
+          type: integer
+          description: The id of the outcall
+      required:
+      - type
+      - exten
+      - outcall_id
+    GroupsID:
+      properties:
+        groups:
+          items:
+            $ref: '#/components/schemas/GroupID'
+          type: array
+    DestinationHangup:
+      title: DestinationHangup
+      properties:
+        type:
+          type: string
+          description: MUST be 'hangup'
+      required:
+      - type
+    DestinationQueue:
+      title: DestinationQueue
+      properties:
+        type:
+          type: string
+          description: MUST be 'queue'
+        queue_id:
+          type: integer
+          description: The id of the queue
+        ring_time:
+          type: number
+          format: float
+        skill_rule_id:
+          type: integer
+          description: The id of the skill rule
+        skill_rule_variables:
+          type: object
+          description: key-value where key represents the variable of the skill rule and value represents a value
+      required:
+      - type
+      - queue_id
+    DestinationConference:
+      title: DestinationConference
+      properties:
+        type:
+          type: string
+          description: MUST be 'conference'
+        conference_id:
+          type: integer
+          description: The id of the conference
+      required:
+      - type
+      - conference_id
+    DestinationGroup:
+      title: DestinationGroup
+      properties:
+        type:
+          type: string
+          description: MUST be 'group'
+        group_id:
+          type: integer
+          description: The id of the group
+        ring_time:
+          type: number
+          format: float
+      required:
+      - type
+      - group_id
+    DestinationHangupNormal:
+      title: DestinationHangupNormal
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'normal'
+      required:
+      - cause
+    DestinationApplicationVoicemail:
+      title: DestinationApplicationVoicemail
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'voicemail'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    GroupRelationIncalls:
+      description: incalls configured for this group
+      properties:
+        incalls:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/GroupRelationIncall'
+    GroupItems:
+      title: GroupItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group_2'
+        total:
+          type: integer
+      required:
+      - total
+    GroupID:
+      properties:
+        id:
+          type: integer
+    Group_2:
+      title: Group
+      allOf:
+      - $ref: '#/components/schemas/GroupRelationBase'
+      - properties:
+          label:
+            type: string
+            description: human-readable identifier for the group
+          ring_strategy:
+            type: string
+            default: all
+            description: "The strategy to use when ringing group members.\n- `all`: ring all members concurrently, first to answer wins\n- `least_recent`: ring the member which has handled a call the least recently\n- `linear`: ring each member one after the other based on a the priority ordering of all members\n- `fewest_calls`: ring the member with the fewest completed calls\n- `memorized_round_robin`: ring members in a round-robin fashion, starting with the member following\n  the one who answered last\n- `random`: ring a random member\n- `weight_random`: ring a random member, weighed by a per-member penalty factor\n"
+            enum:
+            - all
+            - random
+            - least_recent
+            - linear
+            - fewest_calls
+            - memorized_round_robin
+            - weight_random
+          preprocess_subroutine:
+            type: string
+          timeout:
+            type: integer
+            description: 'Number of seconds the group will ring before falling back;
+
+              if not set, the group will ring indefinitely.
+
+              '
+          user_timeout:
+            type: integer
+            default: 15
+            description: Number of seconds each member of the group will ring
+          retry_delay:
+            type: integer
+            default: 5
+            description: Number of seconds after each `user_timeout` before the member of the group will ring again
+          ring_in_use:
+            type: boolean
+            default: true
+            description: Notify the member even if it already in communication
+          music_on_hold:
+            type: string
+            description: Name of the MOH category to use for music on hold
+          caller_id_mode:
+            type: string
+            enum:
+            - prepend
+            - overwrite
+            - append
+            description: How the caller_id_name will be treated
+          caller_id_name:
+            type: string
+            description: Name to display
+          mark_answered_elsewhere:
+            type: boolean
+            default: false
+            description: Mark all calls as "answered elsewhere" when cancelled
+          dtmf_record_toggle:
+            type: boolean
+            default: false
+            description: Enable/Disable DTMF recording for members of this group receiving a call from this group
+          enabled:
+            type: boolean
+            default: true
+            description: Enable/Disable the group
+          max_calls:
+            type: integer
+            default: 0
+            description: Number of maximum calls waiting in the group. 0 means unlimited.
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          ignore_forward:
+            type: boolean
+            default: false
+            description: 'Ignore forwarding from member endpoints;
+
+
+              this only affects forwarding configured directly on member endpoint devices;
+
+              this _does not_ affect the forwardings configured through user profiles,
+
+              nor the fallback redirections configured on the group itself.
+
+
+              When set to `true`, redirections from member endpoints are ignored and skipped,
+
+              and other members are rung according to the ring strategy;
+
+              when `false`, redirections from members'' endpoints are followed,
+
+              which effectively answers the call to the group.
+
+              '
+      - $ref: '#/components/schemas/GroupRelationExtensions'
+      - $ref: '#/components/schemas/GroupRelationFallbacks'
+      - $ref: '#/components/schemas/GroupRelationIncalls'
+      - $ref: '#/components/schemas/GroupRelationMembers'
+      - $ref: '#/components/schemas/GroupRelationSchedules'
+      - $ref: '#/components/schemas/GroupRelationCallPermissions'
+      - required:
+        - label
+    GroupMemberUser:
+      properties:
+        uuid:
+          type: string
+        priority:
+          type: integer
+          description: priority of user in the group. Only used for linear ring strategy
+      required:
+      - uuid
+    DestinationHangupBusy:
+      title: DestinationHangupBusy
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'busy'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
+      required:
+      - cause
+    DestinationHangupCause:
+      title: DestinationHangupCause
+      properties:
+        busy:
+          $ref: '#/components/schemas/DestinationHangupBusy'
+        congestion:
+          $ref: '#/components/schemas/DestinationHangupCongestion'
+        normal:
+          $ref: '#/components/schemas/DestinationHangupNormal'
+    DestinationApplication:
+      title: DestinationApplication
+      properties:
+        type:
+          type: string
+          description: MUST be 'application'
+      required:
+      - type
+    DestinationType:
+      title: DestinationType
+      properties:
+        application:
+          $ref: '#/components/schemas/DestinationApplicationApplication'
+        conference:
+          $ref: '#/components/schemas/DestinationConference'
+        custom:
+          $ref: '#/components/schemas/DestinationCustom'
+        extension:
+          $ref: '#/components/schemas/DestinationExtension'
+        group:
+          $ref: '#/components/schemas/DestinationGroup'
+        hangup:
+          $ref: '#/components/schemas/DestinationHangupCause'
+        ivr:
+          $ref: '#/components/schemas/DestinationIVR'
+        none:
+          $ref: '#/components/schemas/DestinationNone'
+        outcall:
+          $ref: '#/components/schemas/DestinationOutcall'
+        queue:
+          $ref: '#/components/schemas/DestinationQueue'
+        sound:
+          $ref: '#/components/schemas/DestinationSound'
+        switchboard:
+          $ref: '#/components/schemas/DestinationSwitchboard'
+        user:
+          $ref: '#/components/schemas/DestinationUser'
+        voicemail:
+          $ref: '#/components/schemas/DestinationVoicemail'
+    GroupMemberExtension:
+      properties:
+        exten:
+          type: string
+        context:
+          type: string
+        priority:
+          type: integer
+          description: priority of extension in the group. Only used for linear ring strategy
+    IncallRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    GroupRelationMembers:
+      description: members configured in this group
+      properties:
+        members:
+          type: object
+          readOnly: true
+          properties:
+            users:
+              description: users configured as members of this group
+              type: array
+              items:
+                $ref: '#/components/schemas/GroupRelationMemberUser'
+            extensions:
+              description: extensions configured as members of this group
+              type: array
+              items:
+                $ref: '#/components/schemas/GroupRelationMemberExtension'
+    UserGroupID:
+      properties:
+        id:
+          type: integer
+        uuid:
+          type: string
+    DestinationCustom:
+      title: DestinationCustom
+      properties:
+        type:
+          type: string
+          description: MUST be 'custom'
+        command:
+          type: string
+          description: The command to execute
+      required:
+      - type
+      - command
+    GroupRelationSchedules:
+      properties:
+        schedules:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ScheduleRelationBase'
+    DestinationIVR:
+      title: DestinationIVR
+      properties:
+        type:
+          type: string
+          description: MUST be 'ivr'
+        ivr_id:
+          type: integer
+          description: The id of the IVR
+      required:
+      - type
+      - ivr_id
+    GroupRelationIncall:
+      description: an incall configured with this group as destination
+      allOf:
+      - $ref: '#/components/schemas/IncallRelationBase'
+      - $ref: '#/components/schemas/IncallRelationExtensions'
+    DestinationSound:
+      title: DestinationSound
+      properties:
+        type:
+          type: string
+          description: MUST be 'sound'
+        filename:
+          type: string
+          description: The filename of the sound. The file MUST be imported by to webi in the playback directory. The extension of file SHOULD be not present.
+        skip:
+          type: boolean
+          description: Do not play this sound if the call is not answered
+        no_answer:
+          type: boolean
+          description: Play this sound without answering the call
+      required:
+      - type
+      - filename
+    ExtensionRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Extension ID
+          readOnly: true
+        context:
+          type: string
+        exten:
+          type: string
+    DestinationHangupCongestion:
+      title: DestinationHangupCongestion
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'congestion'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
+      required:
+      - cause
+    DestinationApplicationCustom:
+      title: DestinationApplicationCustom
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'custom'
+          application_uuid:
+            type: string
+            description: The UUID of the application.
+      required:
+      - application
+      - application_uuid
+    GroupFallbacks:
+      properties:
+        noanswer_destination:
+          description: The destination to redirect the caller to when there are no answers
+          $ref: '#/components/schemas/DestinationType'
+        congestion_destination:
+          description: The destination to redirect the caller to when the group has exceeded max_calls
+          $ref: '#/components/schemas/DestinationType'
+      example:
+        noanswer_destination:
+          type: user
+          user_id: 1
+        congestion_destination:
+          type: user
+          user_id: 2
+    DestinationVoicemail:
+      title: DestinationVoicemail
+      properties:
+        type:
+          type: string
+          description: MUST be 'voicemail'
+        voicemail_id:
+          type: integer
+          description: The id of the voicemail
+        skip_instructions:
+          type: boolean
+          description: Skip the playback of instructions for leaving a message
+        greeting:
+          type: string
+          enum:
+          - busy
+          - unavailable
+          description: Play the specified greeting
+      required:
+      - type
+      - voicemail_id
+    DestinationApplicationApplication:
+      title: DestinationApplicationApplication
+      properties:
+        callback_disa:
+          $ref: '#/components/schemas/DestinationApplicationCallbackDISA'
+        custom:
+          $ref: '#/components/schemas/DestinationApplicationCustom'
+        directory:
+          $ref: '#/components/schemas/DestinationApplicationDirectory'
+        disa:
+          $ref: '#/components/schemas/DestinationApplicationDISA'
+        fax_to_mail:
+          $ref: '#/components/schemas/DestinationApplicationFaxToMail'
+        voicemail:
+          $ref: '#/components/schemas/DestinationApplicationVoicemail'
+    GroupRelationMemberExtension:
+      description: an extension configured as a member of this group
+      properties:
+        priority:
+          type: integer
+          description: 'The priority of the extension member in the group.
+
+            Only used for linear ring strategy.
+
+            '
+        exten:
+          type: string
+          description: The extension number of the member
+        context:
+          type: string
+          description: The context of the member
+    DestinationSwitchboard:
+      title: DestinationSwitchboard
+      properties:
+        type:
+          type: string
+          description: MUST be 'switchboard'
+        switchboard_uuid:
+          type: string
+          description: The UUID of the switchboard.
+      required:
+      - type
+      - switchboard_uuid
+    ScheduleRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the schedule
+    GroupMemberExtensions:
+      properties:
+        extensions:
+          items:
+            $ref: '#/components/schemas/GroupMemberExtension'
+          type: array
+      required:
+      - extensions
+    DestinationApplicationCallbackDISA:
+      title: DestinationApplicationCallbackDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'callback_disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    GroupRelationBase:
+      properties:
+        name:
+          type: string
+          description: The name of the group
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the group
+        uuid:
+          type: string
+          description: Group UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+    GroupRelationFallbacks:
+      description: fallback options for calls to the group
+      properties:
+        fallbacks:
+          readOnly: true
+          $ref: '#/components/schemas/GroupFallbacks'
+    UserGroupsID:
+      properties:
+        groups:
+          items:
+            $ref: '#/components/schemas/UserGroupID'
+          type: array
+    Error_2:
+      type: array
+      items:
+        type: string
+    DestinationNone:
+      title: DestinationNone
+      properties:
+        type:
+          type: string
+          description: MUST be 'none'
+      required:
+      - type
+    DestinationApplicationFaxToMail:
+      title: DestinationApplicationFaxToMail
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'fax_to_mail'
+          email:
+            type: string
+            description: The email of the application
+      required:
+      - application
+      - email
+    IncallRelationBase:
+      title: IncallRelation
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the incoming call
+    UserRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
+    CallPermissionRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the call permission
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name of the call permission
+      required:
+      - name
+    GroupRelationMemberUser:
+      description: a user configured as a member of this group
+      allOf:
+      - $ref: '#/components/schemas/UserRelationBase'
+      - properties:
+          priority:
+            type: integer
+            description: 'The priority of the user member in the group.
+
+              Only used for linear ring strategy.
+
+              '
+    DestinationExtension:
+      title: DestinationExtension
+      properties:
+        type:
+          type: string
+          description: MUST be 'extension'
+        exten:
+          type: string
+        context:
+          type: string
+          description: Context of the extension
+      required:
+      - type
+      - exten
+      - context
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-auth-api-openapi.yml
+- wazo-confd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

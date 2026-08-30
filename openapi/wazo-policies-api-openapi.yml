@@ -1,0 +1,528 @@
+openapi: 3.2.0
+info:
+  version: '0.1'
+  title: wazo-auth Policies API
+  description: Wazo's authentication service
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+tags:
+- name: policies
+paths:
+  /groups/{group_uuid}/policies/{policy_uuid}:
+    put:
+      tags:
+      - policies
+      security:
+      - wazo_auth_token: []
+      operationId: addGroupPolicy
+      description: '**Required ACL:** `auth.groups.{group_uuid}.policies.{policy_uuid}.create`'
+      summary: Associate a group to a policy
+      parameters:
+      - $ref: '#/components/parameters/group_uuid'
+      - $ref: '#/components/parameters/policy_uuid'
+      responses:
+        '204':
+          description: The policy has been assigned
+        '404':
+          description: Policy or Group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - policies
+      security:
+      - wazo_auth_token: []
+      operationId: removeGroupPolicy
+      description: '**Required ACL:** `auth.groups.{group_uuid}.policies.{policy_uuid}.delete`'
+      summary: Dissociate a policy from a group
+      parameters:
+      - $ref: '#/components/parameters/group_uuid'
+      - $ref: '#/components/parameters/policy_uuid'
+      responses:
+        '204':
+          description: The policy has been unassigned
+        '404':
+          description: Policy or Group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /policies:
+    get:
+      security:
+      - wazo_auth_token: []
+      summary: List ACL policies
+      description: '**Required ACL:** `auth.policies.read`'
+      operationId: listPolicies
+      tags:
+      - policies
+      parameters:
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      responses:
+        '200':
+          description: A list of policies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPoliciesResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      security:
+      - wazo_auth_token: []
+      summary: Create a new ACL policy
+      description: '**Required ACL:** `auth.policies.create`
+
+
+        Create a new ACL policy set that can be associated to a user, an administrator, a service or a backend.
+
+        An ACL policy is a list of ACL or ACL templates that is used to create a token
+
+        '
+      operationId: createPolicies
+      tags:
+      - policies
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The created policy's data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyResult'
+        '401':
+          description: Invalid data has been supplied'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Duplicate Policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Policy'
+        description: The policy creation parameters
+        required: true
+  /policies/{policy_uuid}:
+    get:
+      tags:
+      - policies
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.policies.{policy_uuid}.read'
+      parameters:
+      - $ref: '#/components/parameters/policy_uuid'
+      - $ref: '#/components/parameters/tenantuuid'
+      summary: Retrieves the details of a policy
+      responses:
+        '200':
+          description: The policy's data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Policy not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: delete_policy
+      tags:
+      - policies
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.policies.{policy_uuid}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/policy_uuid'
+      - $ref: '#/components/parameters/tenantuuid'
+      summary: Delete a policy
+      responses:
+        '204':
+          description: The policy has been removed
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Policy not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      security:
+      - wazo_auth_token: []
+      summary: Modify an ACL policy
+      description: '**Required ACL:** `auth.policies.{policy_uuid}.update`'
+      operationId: editPolicies
+      tags:
+      - policies
+      parameters:
+      - $ref: '#/components/parameters/policy_uuid'
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The modified policy's data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyResult'
+        '401':
+          description: Invalid data has been supplied'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Duplicate Policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Policy'
+        description: The policy edition parameters
+        required: true
+  /policies/{policy_uuid}/acl/{access}:
+    delete:
+      security:
+      - wazo_auth_token: []
+      operationId: deletePolicyAccess
+      tags:
+      - policies
+      description: '**Required ACL:** `auth.policies.{policy_uuid}.update`'
+      summary: Dissociate an access from a policy
+      parameters:
+      - $ref: '#/components/parameters/policy_uuid'
+      - $ref: '#/components/parameters/access'
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The policy has been modified
+        '404':
+          description: Policy or access not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      security:
+      - wazo_auth_token: []
+      operationId: addPolicyAccess
+      tags:
+      - policies
+      description: '**Required ACL:** `auth.policies.{policy_uuid}.update`'
+      summary: Associate an access to a policy
+      parameters:
+      - $ref: '#/components/parameters/policy_uuid'
+      - $ref: '#/components/parameters/access'
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The policy has been modified
+        '404':
+          description: Policy not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{user_uuid}/policies:
+    get:
+      tags:
+      - policies
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.policies.read`'
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      summary: Retrieves the list of policies associated to a user
+      responses:
+        '200':
+          description: The user's policies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPoliciesResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{user_uuid}/policies/{policy_uuid}:
+    put:
+      tags:
+      - policies
+      security:
+      - wazo_auth_token: []
+      operationId: addUserPolicy
+      description: '**Required ACL:** `auth.users.{user_uuid}.policies.{policy_uuid}.create`'
+      summary: Associate a policy to a user
+      parameters:
+      - $ref: '#/components/parameters/policy_uuid'
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '204':
+          description: The policy has been assigned
+        '404':
+          description: User or Policy not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - policies
+      security:
+      - wazo_auth_token: []
+      operationId: removeUserPolicy
+      description: '**Required ACL:** `auth.users.{user_uuid}.policies.{policy_uuid}.delete`'
+      summary: Dissociate a policy from a user
+      parameters:
+      - $ref: '#/components/parameters/policy_uuid'
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '204':
+          description: The policy has been unassigned
+        '404':
+          description: User or Policy not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  parameters:
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    group_uuid:
+      name: group_uuid
+      in: path
+      description: The UUID of the group
+      required: true
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    access:
+      name: access
+      in: path
+      description: The access to add
+      required: true
+      schema:
+        type: string
+    policy_uuid:
+      name: policy_uuid
+      in: path
+      description: The UUID or slug of the policy. The slug is unique within a tenant, hence the tenant must be specified.
+      required: true
+      schema:
+        type: string
+  schemas:
+    PolicyResult:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+      - properties:
+          uuid:
+            type: string
+          read_only:
+            type: boolean
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    Policy:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+          description: A unique, human readable identifier for this policy
+        description:
+          type: string
+        acl:
+          type: array
+          items:
+            type: string
+        shared:
+          type: boolean
+          description: 'Should be shared to sub-tenants or not. Cannot be changed after creation
+
+
+            When shared is `true`, then all tenants below this policy''s tenant
+
+            will see it as their own policy with the attribute `read_only: true`.
+
+
+            Using `shared` attribute will add uniqueness constraints for the slug
+
+            among all policies'' sub-tenants.
+
+            '
+      required:
+      - name
+    GetPoliciesResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of policies matching the searched term
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyResult'
+          description: A paginated list of policies
+      required:
+      - total
+      - items
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9497
+x-xivo-name: auth
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-auth
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/auth/0.1/api/api.yml (see wazo_auth/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,105 @@
+openapi: 3.2.0
+info:
+  title: wazo-amid Command API
+  description: Send AMI actions to Asterisk, providing token based authentication.
+  version: '0.1'
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: command
+paths:
+  /action/Command:
+    post:
+      summary: AMI command
+      description: '**Required ACL:** `amid.action.Command.create`
+
+
+        This endpoint sends a command to the Asterisk Manager.
+
+
+        See https://docs.asterisk.org/Latest_API/API_Documentation/AMI_Actions/ for more details about the AMI message parameters.
+
+        '
+      tags:
+      - command
+      responses:
+        '200':
+          description: The Asterisk Manager response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid authentication token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Another service is unavailable (e.g. wazo-auth)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Command'
+        description: 'The command to send to the manager.
+
+
+          '
+components:
+  schemas:
+    Error:
+      properties:
+        timestamp:
+          type: number
+          format: timestamp
+        message:
+          type: string
+        error_id:
+          type: string
+        details:
+          type: object
+    Command:
+      properties:
+        command:
+          type: string
+      required:
+      - command
+    CommandResponse:
+      properties:
+        response:
+          type: array
+          items:
+            type: string
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-name: amid
+x-xivo-port: 9491
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-amid
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/amid/1.0/api/api.yml (see wazo_amid/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

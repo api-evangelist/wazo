@@ -1,0 +1,369 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Sounds API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: sounds
+paths:
+  /sounds:
+    get:
+      operationId: list_sounds
+      summary: List sound categories
+      description: '**Required ACL:** `confd.sounds.read`'
+      tags:
+      - sounds
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: sounds list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SoundItems'
+    post:
+      operationId: create_sounds
+      summary: Create sound category
+      description: '**Required ACL:** `confd.sounds.create`'
+      tags:
+      - sounds
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Sound category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sound'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sound'
+        description: Sound category to create
+        required: true
+  /sounds/{sound_category}:
+    get:
+      operationId: get_sounds
+      summary: Get sound category
+      description: '**Required ACL:** `confd.sounds.{sound_category}.read`'
+      tags:
+      - sounds
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sound_category'
+      responses:
+        '200':
+          description: Sound category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sound'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: delete_sounds
+      summary: Delete sound category
+      description: '**Required ACL:** `confd.sounds.{sound_category}.delete`
+
+
+        Delete the sound category and associated audio files.
+
+        '
+      tags:
+      - sounds
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sound_category'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /sounds/{sound_category}/files/{sound_filename}:
+    get:
+      operationId: get_sounds_files
+      summary: Get audio file
+      description: '**Required ACL:** `confd.sounds.{sound_category}.files.{sound_filename}.read`'
+      tags:
+      - sounds
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sound_category'
+      - $ref: '#/components/parameters/sound_filename'
+      - $ref: '#/components/parameters/sound_language'
+      - $ref: '#/components/parameters/sound_format'
+      responses:
+        '200':
+          description: Audio file
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_sounds_files
+      summary: Add or update audio file
+      description: '**Required ACL:** `confd.sounds.{sound_category}.files.{sound_filename}.update`'
+      tags:
+      - sounds
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sound_category'
+      - $ref: '#/components/parameters/sound_filename'
+      - $ref: '#/components/parameters/sound_language'
+      - $ref: '#/components/parameters/sound_format'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              format: binary
+        required: true
+    delete:
+      operationId: delete_sounds_files
+      summary: Delete audio file
+      description: '**Required ACL:** `confd.sounds.{sound_category}.files.{sound_filename}.delete`'
+      tags:
+      - sounds
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sound_category'
+      - $ref: '#/components/parameters/sound_filename'
+      - $ref: '#/components/parameters/sound_language'
+      - $ref: '#/components/parameters/sound_format'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /sounds/languages:
+    get:
+      operationId: list_sounds_languages
+      summary: List all languages for sounds
+      description: '**Required ACL:** `confd.sounds.languages.read`'
+      tags:
+      - sounds
+      responses:
+        '200':
+          description: List sounds languages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SoundLanguageItems'
+components:
+  parameters:
+    sound_language:
+      required: false
+      name: language
+      in: query
+      description: Language of the sound
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    sound_category:
+      required: true
+      name: sound_category
+      in: path
+      schema:
+        type: string
+    sound_format:
+      required: false
+      name: format
+      in: query
+      description: Format of the sound
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    sound_filename:
+      required: true
+      name: sound_filename
+      in: path
+      schema:
+        type: string
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    SoundFile:
+      properties:
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant of the file
+        name:
+          type: string
+          description: The name of the file
+        formats:
+          type: array
+          readOnly: true
+          description: The audio file formats
+          items:
+            $ref: '#/components/schemas/SoundFormat'
+    SoundItems:
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sound'
+        total:
+          type: integer
+      required:
+      - total
+    SoundFormat:
+      properties:
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant of the file
+        format:
+          type: string
+        language:
+          type: string
+        text:
+          type: string
+        path:
+          type: string
+    SoundLanguageItems:
+      title: SoundLanguageItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SoundLanguage'
+        total:
+          type: integer
+    SoundLanguage:
+      title: SoundLanguage
+      properties:
+        tag:
+          type: string
+    Error:
+      type: array
+      items:
+        type: string
+    Sound:
+      properties:
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant of the category
+        name:
+          type: string
+          description: The name of the category (can only by set on create and must be unique)
+        files:
+          type: array
+          readOnly: true
+          description: The audio files
+          items:
+            $ref: '#/components/schemas/SoundFile'
+      required:
+      - name
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,185 @@
+openapi: 3.2.0
+info:
+  version: '0.1'
+  title: wazo-auth Mobile API
+  description: Wazo's authentication service
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+tags:
+- name: mobile
+paths:
+  /users/{user_uuid}/external/mobile:
+    get:
+      summary: Get device tokens for push notifications
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.read`'
+      tags:
+      - mobile
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '200':
+          description: The auth data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileData'
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+    post:
+      summary: Configure device tokens for push notifications
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.create`'
+      tags:
+      - mobile
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '200':
+          description: The auth data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileData'
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileData'
+        required: true
+    put:
+      summary: Update device tokens for push notifications
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.update`'
+      tags:
+      - mobile
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '200':
+          description: The updated mobile auth data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileData'
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileData'
+        required: true
+    delete:
+      summary: Delete device tokens for push notifications
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.delete`'
+      tags:
+      - mobile
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '204':
+          description: the mobile auth data was successfully deleted
+  /users/{user_uuid}/external/mobile/sender_id:
+    get:
+      summary: Get your Mobile sender_id
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.sender_id.read`'
+      tags:
+      - mobile
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '200':
+          description: The sender id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sender_id:
+                    type:
+                    - string
+                    - 'null'
+                    description: The sender id
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+components:
+  parameters:
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+  schemas:
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
+    MobileData:
+      type: object
+      properties:
+        token:
+          type: string
+          description: FCM token
+        apns_token:
+          type: string
+          description: APNs VoIP device token. This field is deprecated and will be removed in a later version.
+        apns_notification_token:
+          type: string
+          description: APNs text alert notification device token.
+        apns_voip_token:
+          type: string
+          description: APNs VoIP device token.
+        apns_call_topic:
+          type: string
+          description: APNs topic for VoIP call notifications (e.g. com.example.app.voip). When set, overrides the server-wide mobile_apns_call_topic configuration.
+        apns_default_topic:
+          type: string
+          description: APNs topic for non-call notifications such as messages, voicemails, and missed calls (e.g. com.example.app). When set, overrides the server-wide mobile_apns_default_topic configuration.
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9497
+x-xivo-name: auth
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-auth
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/auth/0.1/api/api.yml (see wazo_auth/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,844 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Extensions API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: extensions
+paths:
+  /conferences/{conference_id}/extensions/{extension_id}:
+    put:
+      operationId: associate_conference_extension
+      summary: Associate conference and extension
+      description: '**Required ACL:** `confd.conferences.{conference_id}.extensions.{extension_id}.update`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/conferenceid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Conference and Extension associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_conference_extension
+      summary: Dissociate conference and extension
+      description: '**Required ACL:** `confd.conferences.{conference_id}.extensions.{extension_id}.delete`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/conferenceid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Conference and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /extensions:
+    get:
+      operationId: list_extensions
+      summary: List extensions
+      description: '**Required ACL:** `confd.extensions.read`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      - name: type
+        in: query
+        description: 'Filter extensions of a certain type. Internal: Used for calling a line with an internal number (e.g. “1000@default”). Incall: Used for calling a line from the outside (e.g. “from-extern” with a DID)'
+        schema:
+          type: string
+          enum:
+          - internal
+          - incall
+      - name: exten
+        in: query
+        description: Filter extensions by exten number
+        schema:
+          type: string
+      - name: context
+        in: query
+        description: Filter extensions by context name
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Extension list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtensionItems'
+    post:
+      operationId: create_extension
+      summary: Create extension
+      description: '**Required ACL:** `confd.extensions.create`
+
+
+        The extension number must be included in one of the extension ranges for the given context.'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Extension created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Extension'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Extension'
+        description: Extension to create
+        required: true
+  /extensions/{extension_id}:
+    get:
+      operationId: get_extension
+      summary: Get extension
+      description: '**Required ACL:** `confd.extensions.{extension_id}.read`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '200':
+          description: Extension
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Extension'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_extension
+      summary: Update extension
+      description: '**Required ACL:** `confd.extensions.{extension_id}.update`
+
+
+        The new extension number must be included in one of the extension ranges for the new context.'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Extension'
+        required: true
+    delete:
+      operationId: delete_extension
+      summary: Delete extension
+      description: '**Required ACL:** `confd.extensions.{extension_id}.delete`
+
+
+        An extension can not be deleted if it is associated to a line. You must delete the association first.'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /extensions/features:
+    get:
+      operationId: list_extensions_features
+      summary: List extensions features
+      description: '**Required ACL:** `confd.extensions.features.read`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Extension feature list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtensionFeatureItems'
+  /extensions/features/{extension_uuid}:
+    get:
+      operationId: get_extension_feature
+      summary: Get extension feature
+      description: '**Required ACL:** `confd.extensions.features.{extension_uuid}.read`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/extensionuuid'
+      responses:
+        '200':
+          description: Extension feature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtensionFeature'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_extension_feature
+      summary: Update extension
+      description: '**Required ACL:** `confd.extensions.features.{extension_uuid}.update`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/extensionuuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtensionFeature'
+        required: true
+  /groups/{group_uuid}/extensions/{extension_id}:
+    put:
+      operationId: associate_group_extension
+      summary: Associate group and extension
+      description: '**Required ACL:** `confd.groups.{group_uuid}.extensions.{extension_id}.update`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/groupuuid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Group and Extension associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_group_extension
+      summary: Dissociate group and extension
+      description: '**Required ACL:** `confd.groups.{group_uuid}.extensions.{extension_id}.delete`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/groupuuid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Group and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /incalls/{incall_id}/extensions/{extension_id}:
+    put:
+      operationId: associate_incall_extension
+      summary: Associate incall and extension
+      description: '**Required ACL:** `confd.incalls.{incall_id}.extensions.{extension_id}.update`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/incallid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Incall and Extension associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_incall_extension
+      summary: Dissociate incall and extension
+      description: '**Required ACL:** `confd.incalls.{incall_id}.extensions.{extension_id}.delete`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/incallid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Incall and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /lines/{line_id}/extensions/{extension_id}:
+    delete:
+      operationId: dissociate_line_extension
+      summary: Dissociate line and extension
+      description: '**Required ACL:** `confd.lines.{line_id}.extensions.{extension_id}.delete`
+
+
+        Any devices that are attached to a line must be removed before dissociating an extension from its line. A device can be dissociated by resetting it to autoprov mode.'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Line and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: associate_line_extension
+      summary: Associate line and extension
+      description: '**Required ACL:** `confd.lines.{line_id}.extensions.{extension_id}.update`
+
+
+        Because of technical limitations, a line can only have a single ‘internal’ extension associated (i.e. an extension with a context of type ‘internal’)'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Line and Extension associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /lines/{line_id}/extensions:
+    post:
+      operationId: create_line_extension
+      summary: Create extension
+      description: '**Required ACL:** `confd.lines.{line_id}.extensions.create`
+
+        The extension number must be included in one of the extension ranges for the given context.'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/lineid'
+      responses:
+        '201':
+          description: Extension created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Extension'
+        '400':
+          $ref: '#/components/responses/CreateError'
+        '404':
+          description: Line not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Extension'
+        description: Extension to create
+        required: true
+  /outcalls/{outcall_id}/extensions/{extension_id}:
+    put:
+      operationId: associate_outcall_extension
+      summary: Associate outcall and extension
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.extensions.{extension_id}.update`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/outcallid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Trunk and Custom endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OutcallExtension'
+        description: Outgoing Extension
+    delete:
+      operationId: dissociate_outcall_extension
+      summary: Dissociate outcall and extension
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.extensions.{extension_id}.delete`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/outcallid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Outcall and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /parkinglots/{parking_lot_id}/extensions/{extension_id}:
+    put:
+      operationId: associate_parking_lot_extension
+      summary: Associate parking_lot and extension
+      description: '**Required ACL:** `confd.parkinglots.{parking_lot_id}.extensions.{extension_id}.update`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/parkinglotid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Parking Lot and Extension associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_parking_lot_extension
+      summary: Dissociate parking lot and extension
+      description: '**Required ACL:** `confd.parkinglots.{parking_lot_id}.extensions.{extension_id}.delete`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/parkinglotid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Parking Lot and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /queues/{queue_id}/extensions/{extension_id}:
+    put:
+      operationId: associate_queue_extension
+      summary: Associate queue and extension
+      description: '**Required ACL:** `confd.queues.{queue_id}.extensions.{extension_id}.update`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Queue and Extension associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_queue_extension
+      summary: Dissociate queue and extension
+      description: '**Required ACL:** `confd.queues.{queue_id}.extensions.{extension_id}.delete`'
+      tags:
+      - extensions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Queue and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  schemas:
+    ExtensionRelationConference:
+      properties:
+        conference:
+          readOnly: true
+          $ref: '#/components/schemas/ConferenceRelationBase'
+    ExtensionItems:
+      title: ExtensionItems
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Extension'
+          type: array
+        total:
+          type: integer
+      required:
+      - total
+    ExtensionRelationLines:
+      properties:
+        lines:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    OutcallExtension:
+      title: OutcallExtension
+      properties:
+        external_prefix:
+          type: string
+          description: The prefix added to the outgoing call when sent on the trunk
+        prefix:
+          type: string
+          description: The prefix that the user need to dial before the pattern
+        strip_digits:
+          type: integer
+          description: The number of leading digits to strip
+        caller_id:
+          type: string
+    ParkingLotRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: name to identify the parking lot
+    ExtensionRelationParkingLot:
+      properties:
+        parking_lot:
+          readOnly: true
+          $ref: '#/components/schemas/ParkingLotRelationBase'
+    ExtensionFeature:
+      title: ExtensionFeature
+      properties:
+        uuid:
+          type: string
+          description: Extension UUID
+          readOnly: true
+        context:
+          type: string
+          readOnly: true
+        exten:
+          type: string
+        feature:
+          type: string
+          readOnly: true
+          description: The feature of the extension
+        enabled:
+          type: boolean
+          description: If False the extension feature is disabled
+      required:
+      - exten
+    Extension:
+      title: Extension
+      allOf:
+      - $ref: '#/components/schemas/ExtensionRelationBase'
+      - properties:
+          commented:
+            type: boolean
+            description: If True the extension is disabled. Deprecated, use enabled instead
+          enabled:
+            type: boolean
+            description: If False the extension is disabled.
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+      - $ref: '#/components/schemas/ExtensionRelationConference'
+      - $ref: '#/components/schemas/ExtensionRelationGroup'
+      - $ref: '#/components/schemas/ExtensionRelationIncall'
+      - $ref: '#/components/schemas/ExtensionRelationLines'
+      - $ref: '#/components/schemas/ExtensionRelationOutcall'
+      - $ref: '#/components/schemas/ExtensionRelationParkingLot'
+      - $ref: '#/components/schemas/ExtensionRelationQueue'
+      - required:
+        - context
+        - exten
+    ExtensionRelationOutcall:
+      properties:
+        outcall:
+          readOnly: true
+          $ref: '#/components/schemas/OutcallRelationBase'
+    ExtensionRelationQueue:
+      properties:
+        queue:
+          readOnly: true
+          $ref: '#/components/schemas/QueueRelationBase'
+    ExtensionRelationGroup:
+      properties:
+        group:
+          readOnly: true
+          $ref: '#/components/schemas/GroupRelationBase'
+    ExtensionFeatureItems:
+      title: ExtensionFeatureItems
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ExtensionFeature'
+          type: array
+        total:
+          type: integer
+      required:
+      - total
+    ConferenceRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: name to identify the conference
+    QueueRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the queue
+        name:
+          type: string
+          description: The name of the queue. Cannot be modified
+        label:
+          type: string
+          description: The label of the queue
+    OutcallRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the outgoing call
+        name:
+          type: string
+          description: The name of the outcall
+    ExtensionRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Extension ID
+          readOnly: true
+        context:
+          type: string
+        exten:
+          type: string
+    ExtensionRelationIncall:
+      properties:
+        incall:
+          readOnly: true
+          $ref: '#/components/schemas/IncallRelationBase'
+    GroupRelationBase:
+      properties:
+        name:
+          type: string
+          description: The name of the group
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the group
+        uuid:
+          type: string
+          description: Group UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+    Error:
+      type: array
+      items:
+        type: string
+    IncallRelationBase:
+      title: IncallRelation
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the incoming call
+    LineRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        name:
+          type: string
+          description: The name of the line
+          readOnly: true
+  parameters:
+    extensionuuid:
+      required: true
+      name: extension_uuid
+      in: path
+      schema:
+        type: string
+    queueid:
+      required: true
+      name: queue_id
+      in: path
+      description: Queue’s ID
+      schema:
+        type: integer
+    outcallid:
+      required: true
+      name: outcall_id
+      in: path
+      description: Outgoing call's ID
+      schema:
+        type: integer
+    conferenceid:
+      required: true
+      name: conference_id
+      in: path
+      description: Conference's ID
+      schema:
+        type: integer
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    groupuuid:
+      required: true
+      name: group_uuid
+      in: path
+      description: the group's UUID
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    parkinglotid:
+      required: true
+      name: parking_lot_id
+      in: path
+      description: Parking Lot's ID
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    incallid:
+      required: true
+      name: incall_id
+      in: path
+      description: Incoming call's ID
+      schema:
+        type: integer
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

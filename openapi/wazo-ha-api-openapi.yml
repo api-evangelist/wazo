@@ -1,0 +1,85 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Ha API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: ha
+paths:
+  /ha:
+    get:
+      operationId: get_ha
+      summary: Get High Availability configuration
+      description: '**Required ACL:** `confd.ha.read`'
+      tags:
+      - ha
+      responses:
+        '200':
+          description: High Availability configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HA'
+    put:
+      operationId: update_ha
+      summary: Update High Availability configuration
+      description: '**Required ACL:** `confd.ha.update`'
+      tags:
+      - ha
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HA'
+        required: true
+components:
+  schemas:
+    HA:
+      title: HA
+      type: object
+      properties:
+        node_type:
+          type: string
+          description: The role of this server in a HA cluster.
+          enum:
+          - disabled
+          - master
+          - slave
+        remote_address:
+          type: string
+          description: The remote IP address of the other machine in the HA cluster. Must be an IP address, a hostname is invalid.
+      required:
+      - node_type
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

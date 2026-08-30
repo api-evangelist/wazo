@@ -1,0 +1,248 @@
+openapi: 3.2.0
+info:
+  title: wazo-phoned Cisco API
+  description: Wazo Phone Daemon
+  version: '1.0'
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+security:
+- wazo_auth_token: []
+tags:
+- name: cisco
+paths:
+  /directories/menu/{profile}/cisco:
+    get:
+      summary: Extends the directories menu for Cisco Unified IP Phones
+      description: 'The `menu` query will return a XML to extend the directories menu for Cisco
+
+        Unified IP Phones.
+
+        '
+      operationId: cisco_menu
+      tags:
+      - cisco
+      responses:
+        '200':
+          description: XML to extend the directories menu
+          content:
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/CiscoIPPhoneMenu'
+      parameters:
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/XivoUserUUID'
+      - $ref: '#/components/parameters/AcceptLanguage'
+  /directories/input/{profile}/cisco:
+    get:
+      summary: Given informations about how make request lookup for Cisco Unified IP Phones
+      description: 'The `input` query will return a XML to give informations about how make request
+
+        lookup for Cisco Unified IP Phones.
+
+        '
+      operationId: cisco_input
+      tags:
+      - cisco
+      responses:
+        '200':
+          description: XML to make request lookup
+          content:
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/CiscoIPPhoneInput'
+      parameters:
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/XivoUserUUID'
+      - $ref: '#/components/parameters/AcceptLanguage'
+  /directories/lookup/{profile}/cisco:
+    get:
+      summary: Search for contacts with Cisco Unified IP Phones
+      description: 'The `lookup` query will return a list of result matching the searched term
+
+        formated for Cisco Unified IP Phones. The results will be retrieved from a lookup query to
+
+        wazo-dird.
+
+        '
+      operationId: cisco_lookup
+      tags:
+      - cisco
+      responses:
+        '200':
+          description: A list of contacts
+          content:
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/CiscoIPPhoneDirectory'
+        '400':
+          $ref: '#/components/responses/LimitOffsetInvalid'
+        '404':
+          $ref: '#/components/responses/ProfileInvalid'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/XivoUserUUID'
+      - $ref: '#/components/parameters/Term'
+      - $ref: '#/components/parameters/Limit16'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/AcceptLanguage'
+components:
+  schemas:
+    CiscoIPPhoneInput:
+      properties:
+        Title:
+          type: string
+        Prompt:
+          type: string
+        URL:
+          type: string
+        InputItem:
+          $ref: '#/components/schemas/CiscoInputItem'
+    CiscoInputItem:
+      properties:
+        DisplayName:
+          type: string
+        QueryStringParam:
+          type: string
+        DefaultValue:
+          type: string
+        InputFlags:
+          type: string
+    CiscoMenuItem:
+      properties:
+        Name:
+          type: string
+        URL:
+          type: string
+    CiscoIPPhoneDirectory:
+      properties:
+        DirectoryEntry:
+          type: array
+          items:
+            $ref: '#/components/schemas/CiscoDirectoryEntry'
+        SoftKeyItem:
+          type: array
+          items:
+            $ref: '#/components/schemas/CiscoSoftKeyItem'
+    CiscoIPPhoneMenu:
+      properties:
+        MenuItem:
+          $ref: '#/components/schemas/CiscoMenuItem'
+    Error:
+      type: object
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    CiscoSoftKeyItem:
+      properties:
+        Name:
+          type: string
+        URL:
+          type: string
+        position:
+          type: integer
+    CiscoDirectoryEntry:
+      properties:
+        Name:
+          type: string
+        Telephone:
+          type: string
+  parameters:
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
+      required: true
+      schema:
+        type: string
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
+    Limit16:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+        default: 16
+    XivoUserUUID:
+      name: xivo_user_uuid
+      in: query
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+  responses:
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    LimitOffsetInvalid:
+      description: The limit or offset should be positive
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port:
+- 9499
+x-xivo-name: phoned
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-phoned
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/phoned/0.1/api/api.yml (see wazo_phoned/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

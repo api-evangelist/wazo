@@ -1,0 +1,538 @@
+openapi: 3.2.0
+info:
+  title: wazo-dird Directories API
+  description: "Contacts and directories in Wazo are managed by the wazo-dird daemon. This service provides a public API that can be used to query the directories that are configured on a Wazo. \n\n\nA contact can contain various information such as a person's phone number, number, office number, department, office number, etc. The information displayed is selected via a profile. Directories can be aggregated using multiple data sources such as an LDAP server, a CSV file, another Wazo server, etc.\n\n\nPlease refer to [the documentation](https://wazo-platform.org/uc-doc) for further details.\n\n\nNote: The 0.1 API is currently in development. Major changes could still happen and new resources will be added over time."
+  version: '0.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+security:
+- wazo_auth_token: []
+tags:
+- name: directories
+paths:
+  /directories/lookup/{profile}:
+    get:
+      summary: Search for contacts
+      description: '**Required ACL:** `dird.directories.lookup.{profile}.read`
+
+
+        The `lookup` query will return a list of result matching the searched term. The result will be retrieved from all configured directories for the given profile.
+
+
+
+        This route is provided by the `default_json_view` plugin using the `lookup` plugin and all configured sources for the given profile.'
+      operationId: lookup
+      tags:
+      - directories
+      responses:
+        '200':
+          description: A list of contacts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lookup'
+        '404':
+          $ref: '#/components/responses/ProfileInvalid'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/Term'
+  /directories/lookup/{profile}/{user_uuid}:
+    get:
+      summary: Search for contacts for a particular user
+      description: '**Required ACL:** `dird.directories.lookup.{profile}.{user_uuid}.read`
+
+
+        The `lookup` query will return a list of result matching the searched term. The result will be retrieved from all configured directories for the given profile and user.
+
+
+
+        This route is provided by the `default_json_view` plugin using the `lookup` plugin and all configured sources for the given profile.'
+      operationId: lookup_user
+      tags:
+      - directories
+      responses:
+        '200':
+          description: A list of contacts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lookup'
+        '404':
+          $ref: '#/components/responses/ProfileInvalid'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/UserUUID'
+      - $ref: '#/components/parameters/Term'
+  /directories/reverse/{profile}/{user_uuid}:
+    get:
+      summary: Search for contact by number
+      description: '**Required ACL:** `dird.directories.reverse.{profile}.{user_uuid}.read`
+
+
+        The `reverse` query will return a contact matching the searched exten. The result will be retrieved from all configured directories for the given profile.
+
+
+
+        This route is provided by the `default_json_view` plugin using the `reverse` plugin and all configured sources for the given profile.'
+      operationId: reverse
+      tags:
+      - directories
+      responses:
+        '200':
+          description: A contact
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reverse'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/UserUUID'
+      - $ref: '#/components/parameters/Exten'
+  /directories/favorites/{profile}:
+    get:
+      summary: List favorite contacts
+      description: '**Required ACL:** `dird.directories.favorites.{profile}.read`
+
+
+        Get the list of favorite contacts for directories configured in the profile'
+      operationId: list_favorites
+      tags:
+      - directories
+      responses:
+        '200':
+          description: A list of contacts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactList'
+        '404':
+          $ref: '#/components/responses/ProfileInvalid'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/Profile'
+  /directories/favorites/{directory}/{contact}:
+    put:
+      summary: Mark a contact as favorite
+      description: '**Required ACL:** `dird.directories.favorites.{directory}.{contact}.update`
+
+
+        Add the contact from {directory} to the list of favorite contacts.'
+      operationId: add_favorite
+      tags:
+      - directories
+      responses:
+        '204':
+          description: Favorite added.
+        '409':
+          $ref: '#/components/responses/DuplicateFavorite'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/Directory'
+      - $ref: '#/components/parameters/FavoriteID'
+    delete:
+      summary: Unmark a contact as favorite
+      description: '**Required ACL:** `dird.directories.favorites.{directory}.{contact}.delete`
+
+
+        Remove the contact from {directory} from the list of favorite contacts.'
+      operationId: remove_favorite
+      tags:
+      - directories
+      responses:
+        '204':
+          description: Favorite removed.
+        '404':
+          description: Favorite does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/Directory'
+      - $ref: '#/components/parameters/FavoriteID'
+  /directories/personal/{profile}:
+    get:
+      summary: List personal contacts with formatting
+      description: '**Required ACL:** `dird.directories.personal.{profile}.read`
+
+
+        Get the list of personal contacts formatted for the profile'
+      operationId: list_personal_profile
+      tags:
+      - directories
+      responses:
+        '200':
+          description: A list of contacts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhonebookContactList'
+        '404':
+          $ref: '#/components/responses/ProfileInvalid'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/Profile'
+  /directories/lookup/{profile}/headers:
+    get:
+      summary: Lookup headers
+      description: '**Required ACL:** `dird.directories.lookup.{profile}.headers.read`
+
+
+        Column headers that can be used when displaying lookup results to the client'
+      operationId: get_headers
+      tags:
+      - directories
+      responses:
+        '200':
+          description: A list of headers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Header'
+        '404':
+          $ref: '#/components/responses/ProfileInvalid'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/Profile'
+  /directories/{profile}/sources:
+    get:
+      summary: List all sources configured for the given profile
+      description: '**Required ACL:** `dird.directories.{profile}.sources.read`'
+      tags:
+      - directories
+      parameters:
+      - $ref: '#/components/parameters/Profile'
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: List of sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSourceItems'
+        '400':
+          $ref: '#/components/responses/InvalidParameters'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  responses:
+    InvalidParameters:
+      description: Invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    DuplicateFavorite:
+      description: The contact has already been favorited
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+  schemas:
+    LegacyError:
+      title: LegacyError
+      description: Error message for the client
+      properties:
+        timestamp:
+          description: Time at which the error occured
+          type: array
+          items:
+            type: number
+            format: timestamp
+        reason:
+          description: Human readable explanation of the error
+          type: array
+          items:
+            type: string
+        status_code:
+          description: HTTP status code
+          type: integer
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
+    Contact:
+      properties:
+        column_values:
+          items:
+            type: string
+          type: array
+        relations:
+          $ref: '#/components/schemas/Relation'
+        source:
+          type: string
+        backend:
+          type: string
+          description: Backend type
+    PhonebookContact:
+      properties:
+        id:
+          type: string
+          readOnly: true
+        firstname:
+          type: string
+        lastname:
+          type: string
+      additionalProperties:
+        type: string
+    Header:
+      properties:
+        column_headers:
+          type: array
+          description: Labels for the headers
+          items:
+            type: string
+        column_types:
+          type: array
+          description: Data types for the headers
+          items:
+            type: string
+    Reverse:
+      properties:
+        display:
+          type: string
+        exten:
+          type: string
+          description: A search exten to look for
+        source:
+          type: string
+        fields:
+          description: Fields defined for each source
+          $ref: '#/components/schemas/ResultFields'
+      required:
+      - display
+      - exten
+      - fields
+      - source
+    PhonebookContactList:
+      type: array
+      items:
+        $ref: '#/components/schemas/PhonebookContact'
+    ProfileSourceItems:
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProfileSource'
+        total:
+          type: integer
+          description: The number of configured sources for this backend
+          readOnly: true
+        filtered:
+          type: integer
+          description: The number of configured sources matching the searched terms for this backend
+          readOnly: true
+    ResultFields: {}
+    ContactList:
+      properties:
+        column_headers:
+          type: array
+          description: Labels for the headers
+          items:
+            type: string
+        column_types:
+          type: array
+          description: Data types for the headers
+          items:
+            type: string
+        results:
+          items:
+            $ref: '#/components/schemas/Contact'
+          type: array
+          description: List of results
+    ProfileSource:
+      properties:
+        uuid:
+          type: string
+          description: The source's UUID
+          readOnly: true
+        backend:
+          type: string
+          description: The name of the source's backend
+        name:
+          type: string
+          description: The source's name
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant of this source
+    Lookup:
+      allOf:
+      - $ref: '#/components/schemas/ContactList'
+      - properties:
+          term:
+            type: string
+            description: Search term used for these results
+    Relation:
+      properties:
+        xivo_id:
+          type: string
+        user_id:
+          type: string
+        user_uuid:
+          type: string
+        endpoint_id:
+          type: string
+        agent_id:
+          type: string
+        source_entry_id:
+          type: string
+  parameters:
+    Exten:
+      name: exten
+      in: query
+      description: A search exten to look for
+      required: true
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    UserUUID:
+      name: user_uuid
+      in: path
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
+      required: true
+      schema:
+        type: string
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`. More precisely, it is the name of the "Direct directory" defined in the web interface.
+      required: true
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    Directory:
+      name: directory
+      in: path
+      description: The directory where the contact is stored.
+      required: true
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    FavoriteID:
+      name: contact
+      in: path
+      description: The ID of the contact. This ID is unique within the {directory}.
+      required: true
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9489
+x-xivo-name: dird
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-dird
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/dird/0.1/api/api.yml (see wazo_dird/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

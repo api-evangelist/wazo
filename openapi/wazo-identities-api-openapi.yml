@@ -1,0 +1,479 @@
+openapi: 3.2.0
+info:
+  title: wazo-chatd Identities API
+  description: Control your message and presence from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: identities
+paths:
+  /identities:
+    get:
+      operationId: list_identities
+      summary: List all identities visible to the tenant
+      description: '**Required ACL:** `chatd.identities.read`
+
+
+        Returns every identity bound to a user in the calling
+
+        tenant. The `Wazo-Tenant` header scopes the result; each
+
+        item includes its owner (`user_uuid`) and `tenant_uuid`.
+
+        '
+      tags:
+      - identities
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - name: order
+        in: query
+        required: false
+        description: Name of the field to use for sorting the list of items returned.
+        schema:
+          type: string
+          enum:
+          - uuid
+          - backend
+          - type
+          - identity
+      - $ref: '#/components/parameters/direction'
+      - name: search
+        in: query
+        required: false
+        description: 'Filter identities whose ``identity`` value contains this term,
+
+          case-insensitive. Matching is a literal substring search; wildcard
+
+          characters are escaped and not interpreted. Only the ``identity``
+
+          column is searched.
+
+          '
+        schema:
+          type: string
+      - $ref: '#/components/parameters/identity_user_uuid_filter'
+      - $ref: '#/components/parameters/identity_backend_filter'
+      - $ref: '#/components/parameters/identity_type_filter'
+      - $ref: '#/components/parameters/identity_value_filter'
+      responses:
+        '200':
+          description: Identity list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityList'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+    post:
+      operationId: create_identity
+      summary: Create an identity
+      description: '**Required ACL:** `chatd.identities.create`
+
+
+        Creates an external identity for the user named in the body
+
+        on a configured backend.
+
+        '
+      tags:
+      - identities
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      responses:
+        '201':
+          description: Identity created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: An identity with the same backend/type/identity already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityCreateRequest'
+        required: true
+  /identities/{identity_uuid}:
+    get:
+      operationId: get_identity
+      summary: Get an identity by UUID
+      description: '**Required ACL:** `chatd.identities.{identity_uuid}.read`'
+      tags:
+      - identities
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      - $ref: '#/components/parameters/identity_uuid'
+      responses:
+        '200':
+          description: Identity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_identity
+      summary: Update an identity (partial)
+      description: '**Required ACL:** `chatd.identities.{identity_uuid}.update`
+
+
+        Updates one or more mutable fields.
+
+        '
+      tags:
+      - identities
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      - $ref: '#/components/parameters/identity_uuid'
+      responses:
+        '200':
+          description: Identity updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Another identity with the same value already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityUpdateRequest'
+        required: true
+    delete:
+      operationId: delete_identity
+      summary: Delete an identity
+      description: '**Required ACL:** `chatd.identities.{identity_uuid}.delete`'
+      tags:
+      - identities
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      - $ref: '#/components/parameters/identity_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /users/me/identities:
+    get:
+      operationId: list_user_me_identities
+      summary: List identities for the authenticated user
+      description: '**Required ACL:** `chatd.users.me.identities.read`
+
+
+        Returns all identities of the authenticated user. When a
+
+        `room_uuid` is provided, returns only identities usable to
+
+        reach the other participants of that room.
+
+        '
+      tags:
+      - identities
+      parameters:
+      - name: room_uuid
+        in: query
+        required: false
+        description: Filter identities by reachability for a specific room
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Identity list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserIdentityList'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  schemas:
+    IdentityCreateRequest:
+      title: IdentityCreateRequest
+      properties:
+        user_uuid:
+          type: string
+          description: The UUID of the user the identity is bound to
+        backend:
+          type: string
+          description: The connector backend name
+          maxLength: 64
+        type:
+          type: string
+          description: The messaging type
+          maxLength: 32
+        identity:
+          type: string
+          description: The external identity value
+          maxLength: 256
+        extra:
+          type: object
+          description: 'Additional metadata. Values must be scalars (string,
+
+            integer, float, boolean, null) or lists of scalars. Keys
+
+            ≤64 chars, individual values ≤1024 chars, total serialized
+
+            size ≤4096 chars.
+
+            '
+      required:
+      - user_uuid
+      - backend
+      - type
+      - identity
+    APIError:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
+    UserIdentity:
+      title: UserIdentity
+      properties:
+        uuid:
+          type: string
+          description: The UUID of the identity
+          readOnly: true
+        backend:
+          type: string
+          description: The connector backend name
+          maxLength: 64
+        type:
+          type: string
+          description: The messaging type
+          maxLength: 32
+        identity:
+          type: string
+          description: The external identity value
+          maxLength: 256
+    IdentityUpdateRequest:
+      title: IdentityUpdateRequest
+      description: 'Partial update — every field is optional.
+
+        '
+      properties:
+        identity:
+          type: string
+          description: The external identity value
+          maxLength: 256
+        extra:
+          type: object
+          description: 'Additional metadata. Values must be scalars (string,
+
+            integer, float, boolean, null) or lists of scalars. Keys
+
+            ≤64 chars, individual values ≤1024 chars, total serialized
+
+            size ≤4096 chars.
+
+            '
+    UserIdentityList:
+      title: UserIdentityList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserIdentity'
+        total:
+          type: integer
+          description: The number of results
+    IdentityList:
+      title: IdentityList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Identity'
+        filtered:
+          type: integer
+          description: Count after applying filter parameters
+        total:
+          type: integer
+          description: Unfiltered count in the tenant scope
+    Identity:
+      title: Identity
+      allOf:
+      - $ref: '#/components/schemas/UserIdentity'
+      - type: object
+        properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant owning the identity
+            readOnly: true
+          user_uuid:
+            type: string
+            description: The UUID of the user owning the identity
+          extra:
+            type: object
+            description: 'Additional admin-managed metadata. Values must be
+
+              scalars (string, integer, float, boolean, null) or
+
+              lists of scalars. Keys ≤64 chars, individual values
+
+              ≤1024 chars, total serialized size ≤4096 chars.
+
+              '
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+  parameters:
+    tenant_uuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    identity_uuid:
+      name: identity_uuid
+      in: path
+      description: The UUID of the identity
+      required: true
+      schema:
+        type: string
+        format: uuid
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    identity_value_filter:
+      name: identity
+      in: query
+      required: false
+      description: Filter by exact identity value
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    identity_backend_filter:
+      name: backend
+      in: query
+      required: false
+      description: Filter by exact backend name
+      schema:
+        type: string
+    identity_user_uuid_filter:
+      name: user_uuid
+      in: query
+      required: false
+      description: 'Filter by user_uuid. Comma-separated list — a row matches if its
+
+        user_uuid is any of the listed values (logical OR).
+
+        '
+      schema:
+        type: string
+    identity_type_filter:
+      name: type
+      in: query
+      required: false
+      description: Filter by exact messaging type
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9304
+x-xivo-name: chatd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-chatd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/chatd/1.0/api/api.yml (see wazo_chatd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

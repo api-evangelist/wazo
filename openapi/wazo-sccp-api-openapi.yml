@@ -1,0 +1,394 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Sccp API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: sccp
+paths:
+  /endpoints/sccp:
+    get:
+      operationId: list_endpoints_sccp
+      summary: List SCCP endpoints
+      description: '**Required ACL:** `confd.endpoints.sccp.read`'
+      tags:
+      - sccp
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: SCCP endpoint list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointSccpItems'
+    post:
+      operationId: create_endpoint_sccp
+      summary: Create SCCP endpoint
+      description: '**Required ACL:** `confd.endpoints.sccp.create`'
+      tags:
+      - sccp
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: SCCP endpoint created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointSccp'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointSccp'
+        description: SCCP Endpoint to create
+  /endpoints/sccp/{sccp_id}:
+    get:
+      operationId: get_endpoint_sccp
+      summary: Get SCCP Endpoint
+      description: '**Required ACL:** `confd.endpoints.sccp.{sccp_id}.read`'
+      tags:
+      - sccp
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sccpid'
+      responses:
+        '200':
+          description: SCCP Endpoint
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointSccp'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_endpoint_sccp
+      summary: Update SCCP Endpoint
+      description: '**Required ACL:** `confd.endpoints.sccp.{sccp_id}.update`'
+      tags:
+      - sccp
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sccpid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointSccp'
+        required: true
+    delete:
+      operationId: delete_endpoint_sccp
+      summary: Delete SCCP Endpoint
+      description: '**Required ACL:** `confd.endpoints.sccp.{sccp_id}.delete`'
+      tags:
+      - sccp
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/sccpid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /lines/{line_id}/endpoints/sccp/{sccp_id}:
+    put:
+      operationId: associate_line_endpoint_sccp
+      summary: Associate line and SCCP endpoint
+      description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sccp.{sccp_id}.update`'
+      tags:
+      - sccp
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/sccpid'
+      responses:
+        '204':
+          description: Line and SCCP endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_line_endpoint_sccp
+      summary: Dissociate line and SCCP endpoint
+      description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sccp.{sccp_id}.delete`'
+      tags:
+      - sccp
+      parameters:
+      - $ref: '#/components/parameters/lineid'
+      - $ref: '#/components/parameters/sccpid'
+      responses:
+        '204':
+          description: Line and SCCP endpoint dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /asterisk/sccp/general:
+    get:
+      operationId: list_asterisk_sccp_general
+      summary: List SCCP general options
+      description: '**Required ACL:** `confd.asterisk.sccp.general.read`'
+      tags:
+      - sccp
+      responses:
+        '200':
+          description: SCCP general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCCPGeneral'
+    put:
+      operationId: update_asterisk_sccp_general
+      summary: Update SCCP general option
+      description: '**Required ACL:** `confd.asterisk.sccp.general.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - sccp
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SCCPGeneral'
+        required: true
+components:
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    EndpointRelationLine:
+      properties:
+        line:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    EndpointSccpRelationBase:
+      properties:
+        id:
+          type: integer
+          description: SCCP Endpoint ID
+          readOnly: true
+    SCCPGeneral:
+      title: SCCPGeneral
+      description: SCCP general configuration. This configuration will be in the file 'sccp.conf' used by asterisk.
+      properties:
+        options:
+          description: "General SCCP options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    TrunkRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the trunk
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+    EndpointSccpItems:
+      title: SCCP Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointSccp'
+          type: array
+        total:
+          type: integer
+    EndpointSccp:
+      title: SCCP Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointSccpRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          options:
+            description: "Advanced configuration options. Options are appended at the end of a \nSCCP account in the file 'sccp.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Because of database limitations, only the following options are allowed:\n\n * cid_name\n * cid_num\n * allow\n * disallow\n \nOptions must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in sip.conf will have the following form:\n\n```\n[1000]\nname1=value1\nname2=value2\n```\n"
+            type: array
+            items:
+              $ref: '#/components/schemas/KeyValueOption'
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+    Error:
+      type: array
+      items:
+        type: string
+    EndpointRelationTrunk:
+      properties:
+        trunk:
+          $ref: '#/components/schemas/TrunkRelationBase'
+          readOnly: true
+    LineRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        name:
+          type: string
+          description: The name of the line
+          readOnly: true
+  parameters:
+    sccpid:
+      required: true
+      name: sccp_id
+      in: path
+      schema:
+        type: integer
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

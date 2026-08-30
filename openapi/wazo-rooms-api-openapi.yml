@@ -1,0 +1,439 @@
+openapi: 3.2.0
+info:
+  title: wazo-chatd Rooms API
+  description: Control your message and presence from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: rooms
+paths:
+  /users/me/rooms:
+    post:
+      operationId: create_room
+      summary: Create room
+      description: '**Required ACL:** `chatd.users.me.rooms.create`
+
+
+        **Warning**: **>=22.16**: If a room with the same participants exists,
+
+        it will be returned instead of creating new one. In this case, no other
+
+        parameter will be taken into account and the return code will be 201.
+
+        This behaviour will disappear in the future and a 409 error will be
+
+        raised.
+
+        '
+      tags:
+      - rooms
+      responses:
+        '201':
+          description: Room created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '409':
+          description: 'Either a participant is unreachable via any registered connector
+
+            (`unreachable-participant`) or no connector type is shared by all
+
+            participants (`no-common-connector`).
+
+            '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Room'
+        description: room to create
+        required: true
+    get:
+      operationId: get_room
+      summary: Get room
+      description: '**Required ACL:** `chatd.users.me.rooms.read`'
+      tags:
+      - rooms
+      parameters:
+      - $ref: '#/components/parameters/user_uuid_query'
+      responses:
+        '200':
+          description: Room
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rooms'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /users/me/rooms/messages:
+    get:
+      operationId: list_rooms_messages
+      summary: List rooms messages
+      description: '**Required ACL:** `chatd.users.me.rooms.messages.read`'
+      tags:
+      - rooms
+      parameters:
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search_distinct'
+      - $ref: '#/components/parameters/distinct'
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+  /users/me/rooms/{room_uuid}/messages:
+    post:
+      operationId: create_room_message
+      summary: Create room messages
+      description: '**Required ACL:** `chatd.users.me.rooms.{room_uuid}.messages.create`'
+      tags:
+      - rooms
+      parameters:
+      - $ref: '#/components/parameters/room_uuid'
+      responses:
+        '201':
+          description: Message created (no outbound delivery)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '202':
+          description: Message created, outbound delivery accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: sender_identity_uuid is required but missing, or identity is not reachable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserMessagePOST'
+        description: message to create
+        required: true
+    get:
+      operationId: list_room_message
+      summary: List room messages
+      description: '**Required ACL:** `chatd.users.me.rooms.{room_uuid}.messages.read`'
+      tags:
+      - rooms
+      parameters:
+      - $ref: '#/components/parameters/room_uuid'
+      - $ref: '#/components/parameters/from_date'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  schemas:
+    APIError:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
+    Messages:
+      title: UserItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        filtered:
+          type: integer
+        total:
+          type: integer
+    RoomRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of the room
+          readOnly: true
+    UserMessagePOST:
+      properties:
+        content:
+          type: string
+          description: The content of the message
+        alias:
+          type: string
+          description: Alias/nickname of the sender
+        sender_identity_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the sender's identity to use for outbound delivery. Required when the room contains external participants.
+      required:
+      - content
+    RoomUser:
+      properties:
+        uuid:
+          type: string
+        tenant_uuid:
+          type: string
+          description: The tenant of the user_uuid. Default to the same tenant as the token owner
+        wazo_uuid:
+          type: string
+          description: The wazo of the tenant_uuid. Default to the same wazo as the token owner
+        identity:
+          type: string
+          description: The external identity of this participant (e.g. a phone number for SMS). When set, the participant is reachable via the matching connector backend.
+      required:
+      - uuid
+    Rooms:
+      title: Rooms
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Room'
+        filtered:
+          type: integer
+        total:
+          type: integer
+    Message:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of the message
+          readOnly: true
+        content:
+          type: string
+          description: The content of the message
+        alias:
+          type: string
+          description: Alias/nickname of the sender
+        delivery:
+          $ref: '#/components/schemas/MessageDelivery'
+          readOnly: true
+        user_uuid:
+          type: string
+          description: user uuid of the sender
+        tenant_uuid:
+          type: string
+          description: tenant uuid of the sender
+        wazo_uuid:
+          type: string
+          description: wazo uuid of the sender
+        created_at:
+          type: string
+          description: The date of the message's creation
+          readOnly: true
+        room:
+          $ref: '#/components/schemas/RoomRelationBase'
+    Room:
+      title: Room
+      allOf:
+      - $ref: '#/components/schemas/RoomRelationBase'
+      - properties:
+          name:
+            type: string
+            description: The name of the room
+          users:
+            type: array
+            maxItems: 100
+            items:
+              $ref: '#/components/schemas/RoomUser'
+        required:
+        - users
+    MessageRecipient:
+      properties:
+        identity:
+          type: string
+          description: The recipient's external address (e.g. phone number)
+          readOnly: true
+        status:
+          type: string
+          description: 'Current delivery state for this recipient. One of: pending,
+
+            retrying, accepted, sent, delivered, failed, dead_letter.
+
+            '
+          readOnly: true
+        updated_at:
+          type: string
+          description: Timestamp of the latest status transition for this recipient
+          readOnly: true
+    MessageDelivery:
+      description: 'Delivery metadata for the message. Always present on the response.
+
+        Internal messages report `type=internal`, `backend=null`, and an empty
+
+        `recipients` array. External messages carry the channel info and one
+
+        recipient per outbound leg.
+
+        '
+      properties:
+        type:
+          type: string
+          description: The messaging type (e.g. 'internal', 'sms')
+          readOnly: true
+        backend:
+          type: string
+          description: The connector backend name (e.g. 'twilio'). Null for internal messages.
+          readOnly: true
+        recipients:
+          type: array
+          description: Per-recipient delivery state. Empty for internal messages.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/MessageRecipient'
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+  parameters:
+    room_uuid:
+      name: room_uuid
+      in: path
+      description: The UUID of the room
+      required: true
+      schema:
+        type: string
+    from_date:
+      name: from_date
+      in: query
+      description: 'The date and time from which to retrieve messages. Example: 2019-06-12T10:00:00.000+00:00'
+      schema:
+        type: string
+        format: date-time
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    user_uuid_query:
+      required: false
+      name: user_uuid
+      in: query
+      description: Filter by user_uuid. Many uuid can be specified. A logical AND is used for filtering. Each uuid MUST be separated by a comma (,).
+      schema:
+        type: array
+        items:
+          type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned. Required if `distinct` is not specified.
+      schema:
+        type: string
+    search_distinct:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    distinct:
+      required: false
+      name: distinct
+      in: query
+      description: Distinct list results by field. Always picks the latest entry. Required if `search` is not specified.
+      schema:
+        type: string
+        enum:
+        - room_uuid
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9304
+x-xivo-name: chatd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-chatd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/chatd/1.0/api/api.yml (see wazo_chatd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

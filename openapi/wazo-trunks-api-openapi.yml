@@ -1,0 +1,619 @@
+openapi: 3.2.0
+info:
+  title: Wazo Trunks API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged trunks across 2 of this provider''s published API definitions: wazo-calld-api-openapi.yml, wazo-confd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /1.0
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: trunks
+paths:
+  /trunks:
+    get:
+      summary: List trunk endpoint statuses
+      description: "**Required ACL:** `calld.trunks.read`\n\nList the status of trunk endpoints that are configured on Asterisk\n\nSupported technologies:\n\n  * SIP\n\nTrunks with unsupported technologies will be listed but there status\nwill be null\n"
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      responses:
+        '200':
+          description: A list of trunk status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointTrunks'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    post:
+      operationId: create_trunk
+      summary: Create trunk
+      description: '**Required ACL:** `confd.trunks.create`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Trunk created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trunk'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Trunk'
+        description: Trunk to create
+    servers:
+    - url: /1.0
+  /outcalls/{outcall_id}/trunks:
+    put:
+      operationId: associate_outcall_trunks
+      summary: Associate outcall and trunks
+      description: '**Required ACL:** `confd.outcalls.{outcall_id}.trunks.update`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/outcallid'
+      responses:
+        '204':
+          description: Outcall and Trunks associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrunksId'
+        description: Trunks to associated
+        required: true
+    servers:
+    - url: /1.1
+  /trunks/{trunk_id}:
+    get:
+      operationId: get_trunk
+      summary: Get trunk
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.read`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/trunkid'
+      responses:
+        '200':
+          description: Trunk
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trunk'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_trunk
+      summary: Update trunk
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.update`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/trunkid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Trunk'
+        required: true
+    delete:
+      operationId: delete_trunk
+      summary: Delete trunk
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.delete`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/trunkid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /trunks/{trunk_id}/endpoints/custom/{custom_id}:
+    put:
+      operationId: associate_trunk_endpoint_custom
+      summary: Associate trunk and Custom endpoint
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.custom.{custom_id}.update`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/customid'
+      responses:
+        '204':
+          description: Trunk and Custom endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_trunk_endpoint_custom
+      summary: Dissociate trunk and Custom endpoint
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.custom.{custom_id}.delete`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/customid'
+      responses:
+        '204':
+          description: Trunk and Custom endpoint dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /trunks/{trunk_id}/endpoints/iax/{iax_id}:
+    put:
+      operationId: associate_trunk_endpoint_iax
+      summary: Associate trunk and IAX endpoint
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.iax.{iax_id}.update`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/iaxid'
+      responses:
+        '204':
+          description: Trunk and IAX endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_trunk_endpoint_iax
+      summary: Dissociate trunk and IAX endpoint
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.iax.{iax_id}.delete`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/iaxid'
+      responses:
+        '204':
+          description: Trunk and IAX endpoint dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /trunks/{trunk_id}/endpoints/sip/{sip_uuid}:
+    put:
+      operationId: associate_trunk_endpoint_sip
+      summary: Associate trunk and SIP endpoint
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.sip.{sip_uuid}.update`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/sipuuid'
+      responses:
+        '204':
+          description: Trunk and SIP endpoint associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_trunk_endpoint_sip
+      summary: Dissociate trunk and SIP endpoint
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.sip.{sip_uuid}.delete`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/sipuuid'
+      responses:
+        '204':
+          description: Trunk and SIP endpoint dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /trunks/{trunk_id}/registers/iax/{iax_id}:
+    put:
+      operationId: associate_trunk_register_iax
+      summary: Associate trunk and IAX register
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.registers.iax.{iax_id}.update`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/iaxid'
+      responses:
+        '204':
+          description: Trunk and IAX register associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_trunk_register_iax
+      summary: Dissociate trunk and IAX register
+      description: '**Required ACL:** `confd.trunks.{trunk_id}.registers.iax.{iax_id}.delete`'
+      tags:
+      - trunks
+      parameters:
+      - $ref: '#/components/parameters/trunkid'
+      - $ref: '#/components/parameters/iaxid'
+      responses:
+        '204':
+          description: Trunk and IAX register dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+components:
+  parameters:
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    outcallid:
+      required: true
+      name: outcall_id
+      in: path
+      description: Outgoing call's ID
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    customid:
+      required: true
+      name: custom_id
+      in: path
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    iaxid:
+      required: true
+      name: iax_id
+      in: path
+      schema:
+        type: integer
+    trunkid:
+      description: Trunk's ID
+      name: trunk_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    sipuuid:
+      required: true
+      name: sip_uuid
+      in: path
+      schema:
+        type: string
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+  schemas:
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    EndpointTrunk:
+      type: object
+      properties:
+        technology:
+          type: string
+          description: The technology of that endpoint only (SIP, IAX or custom)
+        name:
+          type: string
+          description: The name of that given endpoint in Asterisk
+        id:
+          type: integer
+          description: The ID of the matching confd trunk
+        registered:
+          type: boolean
+          description: Wether or not this trunk is registered.
+        current_call_count:
+          type: integer
+          description: The number of ongoing calls on that trunk
+    EndpointTrunks:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointTrunk'
+        total:
+          type: integer
+          description: The number of trunk endpoint
+        filtered:
+          type: integer
+          description: The number of trunk endpoint matching the searched terms
+    SIPAuthSectionOptions:
+      title: PJSIP Auth Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    Trunk:
+      title: Trunk
+      allOf:
+      - $ref: '#/components/schemas/TrunkRelationBase'
+      - properties:
+          context:
+            type: string
+            description: The context of the trunk
+          twilio_incoming:
+            type: boolean
+            description: Use this trunk's settings to handle incoming calls from Twilio
+          outgoing_caller_id_format:
+            type: string
+            default: +E164
+            enum:
+            - +E164
+            - E164
+            - national
+            description: "The format to use for the caller ID of outgoing calls through this trunk, \nwhen the caller id is provided by an application through the `X-Wazo-Selected-Caller-ID` SIP header on an `INVITE`. \nIf the caller ID supplied by an application cannot be formatted, the requested caller ID will be ignored.\n"
+      - $ref: '#/components/schemas/TrunkRelationEndpoints'
+      - $ref: '#/components/schemas/TrunkRelationOutcalls'
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    TrunksId:
+      title: TrunksId
+      properties:
+        trunks:
+          items:
+            $ref: '#/components/schemas/TrunkId'
+          type: array
+    EndpointSipRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+          readOnly: true
+        name:
+          type: string
+          description: The name of the PJSIP entity, auto-generated if missing
+        label:
+          type: string
+          description: The human readable name for this configuration
+        auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint. Only `username` is supported
+    TrunkId:
+      title: TrunkId
+      properties:
+        id:
+          type: integer
+    OutcallRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the outgoing call
+        name:
+          type: string
+          description: The name of the outcall
+    TrunkRelationEndpoints:
+      properties:
+        endpoint_sip:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointSipRelationBase'
+        endpoint_iax:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointIAXRelationBase'
+        endpoint_custom:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointCustomRelationBase'
+    EndpointCustomRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Custom Endpoint ID
+          readOnly: true
+        interface:
+          type: string
+          description: Asterisk interface to use. (e.g. 'dahdi/i1')
+    TrunkRelationOutcalls:
+      properties:
+        outcalls:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/OutcallRelationBase'
+    TrunkRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the trunk
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+    Error_2:
+      type: array
+      items:
+        type: string
+    TrunkItems:
+      title: TrunkItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Trunk'
+        total:
+          type: integer
+    EndpointIAXRelationBase:
+      properties:
+        id:
+          type: integer
+          description: IAX Endpoint ID
+          readOnly: true
+        name:
+          type: string
+          description: IAX name
+          default: autogenerated
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-calld-api-openapi.yml
+- wazo-confd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

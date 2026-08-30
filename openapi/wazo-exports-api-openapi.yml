@@ -1,0 +1,263 @@
+openapi: 3.2.0
+info:
+  title: wazo-call-logd Exports API
+  description: Consult call logs from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: exports
+paths:
+  /cdr/recordings/media/export:
+    post:
+      summary: Create an export for the recording media of multiple CDRs
+      description: '**Required ACL:** `call-logd.cdr.recordings.media.export.create`
+
+
+        This endpoint creates a new export and returns its UUID.
+
+        '
+      tags:
+      - exports
+      parameters:
+      - $ref: '#/components/parameters/from'
+      - $ref: '#/components/parameters/until'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/call_direction'
+      - $ref: '#/components/parameters/number'
+      - $ref: '#/components/parameters/tags'
+      - $ref: '#/components/parameters/user_uuid'
+      - $ref: '#/components/parameters/from_id'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/email'
+      responses:
+        '202':
+          description: Creation of multiple recording media export started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  export_uuid:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cdr_ids:
+                  type: array
+                  items:
+                    type: string
+        description: The CDR IDs list from which to create an export
+  /exports/{export_uuid}:
+    get:
+      summary: Get an export by the given UUID
+      description: '**Required ACL:** `call-logd.exports.{export_uuid}.read`'
+      tags:
+      - exports
+      parameters:
+      - $ref: '#/components/parameters/export_uuid'
+      responses:
+        '200':
+          description: Get an export by UUID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Export'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /exports/{export_uuid}/download:
+    get:
+      summary: Download an export as a ZIP archive by the given UUID
+      description: '**Required ACL:** `call-logd.exports.{export_uuid}.download.read`
+
+        This endpoint allow to use `?token={token_uuid}` and `?tenant={tenant_uuid}` query string to bypass headers
+
+        '
+      tags:
+      - exports
+      parameters:
+      - $ref: '#/components/parameters/export_uuid'
+      responses:
+        '200':
+          description: Download an export by UUID
+        '202':
+          $ref: '#/components/responses/NotDoneYetError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  parameters:
+    search:
+      required: false
+      name: search
+      in: query
+      description: Filter list of items
+      schema:
+        type: string
+    number:
+      required: false
+      name: number
+      in: query
+      description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
+      schema:
+        type: string
+    tags:
+      required: false
+      name: tags
+      in: query
+      description: Filter by tags. Each tag MUST be separated by a coma (,). Many tag will perform a logical AND.
+      schema:
+        type: array
+        items:
+          type: string
+    email:
+      name: email
+      description: E-mail address
+      in: query
+      schema:
+        type: string
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    user_uuid:
+      required: false
+      name: user_uuid
+      in: query
+      description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will perform a logical OR.
+      schema:
+        type: array
+        items:
+          type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    from:
+      name: from
+      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    call_direction:
+      required: false
+      name: call_direction
+      in: query
+      description: Filter list of items
+      schema:
+        type: string
+        enum:
+        - internal
+        - inbound
+        - outbound
+    from_id:
+      name: from_id
+      description: Ignore CDR created before the given CDR ID.
+      in: query
+      required: false
+      schema:
+        type: integer
+    export_uuid:
+      name: export_uuid
+      description: UUID of the given export
+      required: true
+      in: path
+      schema:
+        type: string
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotDoneYetError:
+      description: Not done yet
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Export:
+      type: object
+      properties:
+        uuid:
+          type: string
+        tenant_uuid:
+          type: string
+        user_uuid:
+          type: string
+        requested_at:
+          type: string
+          format: date-time
+        filename:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - processing
+          - finished
+          - deleted
+          - error
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9298
+x-xivo-name: call-logs
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-call-logd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/call-logd/1.0/api/api.yml (see wazo_call_logd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

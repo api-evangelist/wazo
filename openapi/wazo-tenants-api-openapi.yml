@@ -1,0 +1,527 @@
+openapi: 3.2.0
+info:
+  title: Wazo Tenants API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged tenants across 2 of this provider''s published API definitions: wazo-auth-api-openapi.yml, wazo-confd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /0.1
+- url: /1.1
+tags:
+- name: tenants
+paths:
+  /tenants:
+    get:
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.tenants.read`
+
+
+        Tenants can be filtered by domain name using the `domain_name` query string to do an exact match on one of its domain names or using the `search` query string for a fuzzy match.
+
+        '
+      summary: Retrieves the list of tenants
+      parameters:
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The list of tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantList'
+    post:
+      summary: Creates a new tenant
+      description: '**Required ACL:** `auth.tenants.create`'
+      operationId: createTenant
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The new tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantPostResponse'
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantCreate'
+        description: The tenant creation parameters
+    servers:
+    - url: /0.1
+  /tenants/{tenant_uuid}:
+    delete:
+      operationId: delete_tenant
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.tenants.{tenant_uuid}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      summary: Delete a tenant
+      responses:
+        '204':
+          description: The tenant has been removed
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.tenants.{tenant_uuid}.read`'
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      summary: Retrieves the details of a tenant
+      responses:
+        '200':
+          description: The tenant's data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Modify a tenant
+      description: '**Required ACL:** `auth.tenants.{tenant_uuid}.update`'
+      operationId: updateTenant
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      responses:
+        '200':
+          description: The new tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantPostResponse'
+        '400':
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '404':
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantEdit'
+        description: The tenant parameters
+        required: true
+    servers:
+    - url: /0.1
+  /tenants/{tenant_uuid}/domains:
+    get:
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.tenants.{tenant_uuid}.domains.read`'
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      summary: Retrieves the domains names with uuids of a tenant
+      responses:
+        '200':
+          description: The tenant's domains data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantDomainsList'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /0.1
+  /tenants/{tenant_uuid}/parent/{parent_tenant_uuid}:
+    put:
+      summary: Update tenant's parent
+      description: '**Required ACL:** `auth.tenants.{tenant_uuid}.parent.{parent_tenant_uuid}.update`'
+      operationId: updateTenantParent
+      tags:
+      - tenants
+      security:
+      - wazo_auth_token: []
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      - $ref: '#/components/parameters/parent_tenant_uuid'
+      responses:
+        '204':
+          description: Parent updated
+        '404':
+          description: Tenant or Parent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /0.1
+components:
+  schemas:
+    TenantBase:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The tenant's name
+        contact:
+          type: string
+          description: The contact user's UUID
+        phone:
+          type: string
+          description: The tenant's contact phone number
+        domain_names:
+          type: array
+          description: A list containing human readeable unique domain names, associated with a specific tenant
+          uniqueItems: true
+          items:
+            type: string
+        address:
+          $ref: '#/components/schemas/TenantAddress'
+        default_authentication_method:
+          type: string
+          description: 'The `default_authentication_method` defines the authentication method that
+
+            is going to be used for users using the `authentication_method` `default`.
+
+            '
+          default: native
+          enum:
+          - native
+          - saml
+          - ldap
+    TenantAddress:
+      type: object
+      properties:
+        line_1:
+          type: string
+          description: The first line of the address
+        line_2:
+          type: string
+          description: The second line of the address
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        zip_code:
+          type: string
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
+    TenantCreate:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/TenantBase'
+      - properties:
+          uuid:
+            type: string
+            description: The tenant's UUID
+          slug:
+            type: string
+            description: A unique, human readeable identifier for this tenant. This field cannot be modified and will be auto-generated if missing.
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    TenantDomainsList:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of domains
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              uuid:
+                type: string
+          description: A non-paginated list of domains
+    TenantEdit:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/TenantBase'
+    TenantList:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of tenants
+        filtered:
+          type: integer
+          description: The number of tenants matching the searched term
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantResult'
+          description: A paginated list of tenants
+    TenantResult:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/TenantBase'
+      - properties:
+          uuid:
+            type: string
+          slug:
+            type: string
+            description: A unique, human readeable identifier for this tenant
+    TenantPostResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        uuid:
+          type: string
+        parent_uuid:
+          type: string
+    Tenant:
+      properties:
+        uuid:
+          type: string
+          readOnly: true
+          description: The UUID of the Tenant
+        sip_templates_generated:
+          type: boolean
+          readOnly: true
+          description: Wether or not the SIP templates have been generated
+        global_sip_template_uuid:
+          type: string
+          readOnly: true
+        webrtc_sip_template_uuid:
+          type: string
+          readOnly: true
+        registration_trunk_sip_template_uuid:
+          type: string
+          readOnly: true
+    TenantItems:
+      title: TenantItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tenant'
+        total:
+          type: integer
+    Error_2:
+      type: array
+      items:
+        type: string
+  parameters:
+    parent_tenant_uuid:
+      name: parent_tenant_uuid
+      in: path
+      description: The UUID of the new parent tenant
+      required: true
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    tenant_uuid:
+      name: tenant_uuid
+      in: path
+      description: The UUID of the tenant
+      required: true
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset_2:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    limit_2:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    urltenantuuid:
+      description: Resource UUID
+      name: tenant_uuid
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-auth-api-openapi.yml
+- wazo-confd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,228 @@
+openapi: 3.2.0
+info:
+  version: '0.1'
+  title: wazo-auth Sessions API
+  description: Wazo's authentication service
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+tags:
+- name: sessions
+paths:
+  /sessions:
+    get:
+      security:
+      - wazo_auth_token: []
+      summary: List sessions
+      description: '**Required ACL:** `auth.sessions.read`'
+      operationId: listSessions
+      tags:
+      - sessions
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: A list of session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSessionsResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /sessions/{session_uuid}:
+    delete:
+      operationId: delete_session
+      tags:
+      - sessions
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.sessions.{session_uuid}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/session_uuid'
+      summary: Delete a session
+      responses:
+        '204':
+          description: The session has been removed
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{user_uuid}/sessions:
+    get:
+      tags:
+      - sessions
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.sessions.read`'
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      summary: Retrieves the list of sessions associated to a user
+      responses:
+        '200':
+          description: The sessions of the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSessionsResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: System related error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{user_uuid}/sessions/{session_uuid}:
+    delete:
+      operationId: user_delete_session
+      tags:
+      - sessions
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.sessions.{session_uuid}.delete`'
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      - $ref: '#/components/parameters/session_uuid'
+      summary: Delete a session
+      responses:
+        '204':
+          description: The session has been removed
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    SessionResult:
+      type: object
+      properties:
+        uuid:
+          type: string
+        user_uuid:
+          type: string
+        tenant_uuid:
+          type: string
+        mobile:
+          type: boolean
+    GetSessionsResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of sessions.
+        filtered:
+          type: integer
+          description: The number of sessions matching the searched term.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionResult'
+          description: A paginated list of sessions
+      required:
+      - filtered
+      - total
+      - items
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+  parameters:
+    session_uuid:
+      name: session_uuid
+      in: path
+      description: The UUID of the session
+      required: true
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9497
+x-xivo-name: auth
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-auth
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/auth/0.1/api/api.yml (see wazo_auth/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

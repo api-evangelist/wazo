@@ -1,0 +1,393 @@
+openapi: 3.2.0
+info:
+  version: '0.1'
+  title: wazo-auth External API
+  description: Wazo's authentication service
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+tags:
+- name: external
+paths:
+  /external/{auth_type}/config:
+    get:
+      description: '**Required ACL**: `auth.{auth_type}.external.config.read`'
+      summary: Retrieve the client id and client secret
+      tags:
+      - external
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/auth_type'
+      responses:
+        '200':
+          description: The requested config
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalConfig'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      description: '**Required ACL**: `auth.{auth_type}.external.config.delete`'
+      summary: Delete the client id and client secret
+      tags:
+      - external
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/auth_type'
+      responses:
+        '204':
+          description: Deletion confirmed
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: '**Required ACL**: `auth.{auth_type}.external.config.create`'
+      summary: Add configuration for the given auth_type
+      tags:
+      - external
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/auth_type'
+      responses:
+        '201':
+          description: Config created
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Duplicate config
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalConfig'
+        description: JSON object holding configuration for the given authentication type
+        required: true
+    put:
+      description: '**Required ACL**: `auth.{auth_type}.external.config.update`'
+      summary: Update configuration for the given auth_type
+      tags:
+      - external
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/auth_type'
+      responses:
+        '201':
+          description: Config created
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalConfig'
+        description: JSON object holding configuration for the given authentication type
+        required: true
+  /external/{auth_type}/users:
+    get:
+      description: '**Required ACL**: `auth.{auth_type}.external.users`'
+      summary: Retrieves the list of connected users to this external source
+      tags:
+      - external
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/auth_type'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: The list of external auth connected users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalAuthUserList'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{user_uuid}/external:
+    get:
+      tags:
+      - external
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.read`
+
+
+        This list should not contain any sensible information
+
+        '
+      summary: Retrieves the list of the users external auth data
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: The list of external auth data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalAuthList'
+components:
+  schemas:
+    ExternalAuthList:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of external auth.
+        filtered:
+          type: integer
+          description: The number of external auth matching the searched term.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalAuth'
+          description: A paginated list of external auth
+      required:
+      - filtered
+      - total
+      - items
+    ExternalConfig:
+      type: object
+      properties:
+        client_id:
+          description: 'Client ID for the given authentication type.
+
+            Required only for `google` and `microsoft` authentication types.
+
+            '
+          type: string
+          example: a-client-id
+        client_secret:
+          description: 'Client secret for the given authentication type.
+
+            Required only for `google` and `microsoft` authentication types.
+
+            '
+          type: string
+          example: a-client-secret
+        ios_apn_certificate:
+          description: Public certificate to use for Apple Push Notification Service
+          type: string
+        ios_apn_private:
+          description: Private key to use for Apple Push Notification Service
+          type: boolean
+        use_sandbox:
+          description: Whether to use sandbox for Apple Push Notification Service
+          type: boolean
+        fcm_sender_id:
+          description: The sender ID to use for Firebase Cloud Messaging
+          type: string
+        fcm_api_key:
+          description: (deprecated) The API key to use for Firebase Cloud Messaging (legacy)
+          type: string
+        fcm_service_account_info:
+          description: 'The service account info file to use for Firebase Cloud Messaging (v1). The
+
+            content must be a JSON-encoded string.
+
+            '
+          type: string
+    ExternalAuthUserList:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of connected external auth users.
+          example: 3
+        filtered:
+          type: integer
+          description: The number of external auth matching the searched term.
+          example: 3
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalAuthUser'
+          description: A paginated list of connected external auth users
+          example:
+          - user_uuid: 210ef281-4201-4f95-952f-5f8d5211e085
+          - user_uuid: 28e6f253-a19d-458d-8b52-2ba6feb788bc
+          - user_uuid: e72fe53d-3981-4c51-a488-e06ca94fcbb1
+      required:
+      - filtered
+      - total
+      - items
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    ExternalAuthUser:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+    ExternalAuth:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The external auth type name
+        enabled:
+          type: boolean
+        data:
+          type: object
+        plugin_info:
+          type: object
+  parameters:
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    auth_type:
+      name: auth_type
+      in: path
+      description: External auth type name
+      required: true
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9497
+x-xivo-name: auth
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-auth
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/auth/0.1/api/api.yml (see wazo_auth/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

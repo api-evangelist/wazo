@@ -1,0 +1,331 @@
+openapi: 3.2.0
+info:
+  title: Wazo Emails API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged emails across 2 of this provider''s published API definitions: wazo-auth-api-openapi.yml, wazo-confd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /0.1
+- url: /1.1
+tags:
+- name: emails
+paths:
+  /emails/{email_uuid}/confirm:
+    put:
+      tags:
+      - emails
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.emails.{email_uuid}.confirm.update`'
+      summary: Confirm an email address
+      parameters:
+      - $ref: '#/components/parameters/email_uuid'
+      responses:
+        '204':
+          description: The email address has been confirmed
+        '404':
+          description: Email not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      tags:
+      - emails
+      description: '**Required ACL**: `auth.emails.{email_uuid}.confirm.update`
+
+
+        The token should be in the URL instead of being in the HTTP headers
+
+        '
+      summary: Confirm an email address
+      parameters:
+      - $ref: '#/components/parameters/email_uuid'
+      - $ref: '#/components/parameters/email_confirm_token'
+      responses:
+        '200':
+          description: The email address has been confirmed
+        '404':
+          description: Email not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    servers:
+    - url: /0.1
+  /admin/users/{user_uuid}/emails:
+    put:
+      tags:
+      - emails
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.admin.users.{user_uuid}.emails.update`
+
+        Update all of the users email address at the same time.
+
+        If an existing address is missing from the list, it will be removed. An empty list will remove all addresses. If addresses are defined, one and only one address should be main. If the confirmed field is set to none or ommited the existing value will be reused if it exists, otherwise the address will not be confirmed. '
+      summary: Update email addresses
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '200':
+          description: The updated email list
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserEmailList'
+        description: EmailAddressList
+        required: true
+    servers:
+    - url: /0.1
+  /users/{user_uuid}/emails:
+    put:
+      tags:
+      - emails
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.emails.update`
+
+        Update all of the users email address at the same time.
+
+        If an existing address is missing from the list, it will be removed. An empty list will remove all addresses. If addresses are defined, one and only one address should be main. All new address are created unconfirmed. '
+      summary: Update email addresses
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      responses:
+        '200':
+          description: The updated email list
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserEmailList'
+        description: EmailAddressList
+        required: true
+    servers:
+    - url: /0.1
+  /users/{user_uuid}/emails/{email_uuid}/confirm:
+    get:
+      tags:
+      - emails
+      security:
+      - wazo_auth_token: []
+      description: '**Required ACL**: `auth.users.{user_uuid}.emails.{email_uuid}.confirm.read`'
+      summary: Ask a new confirmation email
+      parameters:
+      - $ref: '#/components/parameters/user_uuid'
+      - $ref: '#/components/parameters/email_uuid'
+      responses:
+        '204':
+          description: The new email confirmation email has been sent
+        '404':
+          description: User or Email not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Already confirmed
+    servers:
+    - url: /0.1
+  /emails:
+    get:
+      operationId: get_emails_config
+      summary: Get e-mail configuration
+      description: '**Required ACL:** `confd.emails.read`'
+      tags:
+      - emails
+      responses:
+        '200':
+          description: E-mail configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailConfig'
+      security:
+      - wazo_auth_token: []
+    put:
+      operationId: update_emails_config
+      summary: Update e-mail configuration
+      description: '**Required ACL:** `confd.emails.update`
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - emails
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailConfig'
+        description: E-mail configuration
+        required: true
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.1
+components:
+  schemas:
+    UserEmailList:
+      type: object
+      properties:
+        emails:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              main:
+                type: boolean
+            required:
+            - addresses
+            - main
+    AdminUserEmailList:
+      type: object
+      properties:
+        emails:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              main:
+                type: boolean
+              confirmed:
+                type: boolean
+            required:
+            - addresses
+            - main
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    RewritingRule:
+      title: Rewriting rule
+      properties:
+        match:
+          type: string
+          description: The local address matching rule. Supports regular expressions
+          example: '`/^.*@example.org/` or `user-name` or `user-name@example.org`'
+        replacement:
+          type: string
+          description: The replacement for the matched rule
+          example: '`no-reply@example.org`'
+    Error_2:
+      type: array
+      items:
+        type: string
+    EmailConfig:
+      title: E-mail configuration
+      properties:
+        domain_name:
+          type: string
+          description: The domain name of the current mailing server, i.e. `example.com`
+        from:
+          type: string
+          description: 'The e-mail address or domain name to use in the `From` header for local services
+
+            '
+        address_rewriting_rules:
+          description: Rules for local address to external address rewriting
+          type: array
+          items:
+            $ref: '#/components/schemas/RewritingRule'
+        smtp_host:
+          description: 'E-mail relay server hostname or address. It is possible to specify the port, for example
+
+            `domain.com:587`
+
+            '
+          type: string
+        fallback_smtp_host:
+          description: 'Fallback relay server hostname or address. It is possible to specify the port, for example
+
+            `domain.com:587`
+
+            '
+          type: string
+  parameters:
+    email_confirm_token:
+      name: token
+      in: query
+      description: The UUID of the token used to confirm the email address
+      required: true
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    email_uuid:
+      name: email_uuid
+      in: path
+      description: The UUID of the email
+      required: true
+      schema:
+        type: string
+  responses:
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceUpdated:
+      description: Resource was updated successfully
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-auth-api-openapi.yml
+- wazo-confd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

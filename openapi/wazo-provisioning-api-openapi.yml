@@ -1,0 +1,82 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Provisioning API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: provisioning
+paths:
+  /provisioning/networking:
+    get:
+      operationId: get_provisioning_networking
+      summary: Get Provisioning Networking configuration
+      description: '**Required ACL:** `confd.provisioning.networking.read`'
+      tags:
+      - provisioning
+      responses:
+        '200':
+          description: Provisioning Networking configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvisioningNetworking'
+    put:
+      operationId: update_provisioning_networking
+      summary: Update Provisioning Networking configuration
+      description: '**Required ACL:** `confd.provisioning.networking.update`'
+      tags:
+      - provisioning
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProvisioningNetworking'
+        required: true
+components:
+  schemas:
+    ProvisioningNetworking:
+      title: Provisioning Networking
+      type: object
+      properties:
+        provision_host:
+          type: string
+          description: The hostname or IP address used for HTTP and TFTP provisioning requests for DHCP integration.
+        provision_http_port:
+          type: integer
+          description: The port used by the HTTP provisioning server.
+        provision_http_base_url:
+          type: string
+          description: The base URL on which the provisioning server will be accessible from outside the network.
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

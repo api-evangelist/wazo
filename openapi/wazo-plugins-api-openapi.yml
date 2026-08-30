@@ -1,0 +1,656 @@
+openapi: 3.2.0
+info:
+  title: wazo-provd Plugins API
+  description: Provisioning application REST API
+  version: '0.2'
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /api/provd/0.2
+security:
+- wazo_auth_token: []
+tags:
+- name: plugins
+paths:
+  /pg_mgr:
+    get:
+      summary: Get the Plugin Manager resource
+      description: '**Required ACL:** `provd.pg_mgr.read`
+
+
+        The plugin manager resource represents the entry point to the wazo-provd plugin REST API
+
+        '
+      tags:
+      - plugins
+      responses:
+        '200':
+          description: Links to the different plugin resources
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/LinksObject'
+  /pg_mgr/plugins:
+    get:
+      summary: List the installed plugins
+      description: '**Required ACL:** `provd.pg_mgr.plugins.read`'
+      tags:
+      - plugins
+      responses:
+        '200':
+          description: List of all the installed plugins and their resources
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/PluginsObject'
+  /pg_mgr/plugins/{plugin_id}:
+    get:
+      summary: Get the resources of a specific plugin
+      description: '**Required ACL:** `provd.pg_mgr.plugins.{plugin_id}.read`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/LinksObject'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+  /pg_mgr/plugins/{plugin_id}/info:
+    get:
+      summary: Get the information of a plugin
+      description: '**Required ACL:** `provd.pg_mgr.plugins.{plugin_id}.info.read`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/PluginInfo'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+  /pg_mgr/plugins/{plugin_id}/install:
+    get:
+      summary: Get the package installation service resources
+      description: '**Required ACL:** `provd.pg_mgr.plugins.{plugin_id}.install.read`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/LinksObject'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+  /pg_mgr/plugins/{plugin_id}/install/install:
+    post:
+      summary: Install a package
+      description: '**Required ACL:** `provd.pg_mgr.plugins.{plugin_id}.install.install.create`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginId'
+      - $ref: '#/components/parameters/PackageIdBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/OperationInProgressResponse'
+        '400':
+          $ref: '#/components/responses/InvalidJSONError'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaError'
+  /pg_mgr/plugins/{plugin_id}/install/install/{operation_id}:
+    get:
+      summary: Get the status of a package installation Operation In Progress
+      description: '**Required ACL:** `provd.operation.read`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginId'
+      - $ref: '#/components/parameters/OperationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/OperationInProgressObject'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+    delete:
+      summary: Delete the Operation In Progress
+      description: '**Required ACL:** `provd.operation.delete`
+
+
+        This does not cancel the underlying operation; it only deletes the monitor
+
+
+        Every monitor that is created should be deleted, else they won''t be freed by the process and they will accumulate, taking memory
+
+        '
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginId'
+      - $ref: '#/components/parameters/OperationId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContentResponse'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+  /pg_mgr/plugins/{plugin_id}/install/uninstall:
+    post:
+      summary: Uninstall a package
+      description: '**Required ACL:** `provd.pg_mgr.plugins.{plugin_id}.install.uninstall.create`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginId'
+      - $ref: '#/components/parameters/PackageIdBody'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContentResponse'
+        '400':
+          $ref: '#/components/responses/InvalidJSONError'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaError'
+  /pg_mgr/plugins/{plugin_id}/install/upgrade/{operation_id}:
+    get:
+      summary: Get the status of a package upgrade Operation In Progress
+      description: '**Required ACL:** `provd.operation.read`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginId'
+      - $ref: '#/components/parameters/OperationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/OperationInProgressObject'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+    delete:
+      summary: Delete the Operation In Progress
+      description: '**Required ACL:** `provd.operation.delete`
+
+
+        This does not cancel the underlying operation; it only deletes the monitor
+
+
+        Every monitor that is created should be deleted, else they won''t be freed by the process and they will accumulate, taking memory
+
+        '
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginId'
+      - $ref: '#/components/parameters/OperationId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContentResponse'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+  /pg_mgr/plugins/{plugin_id}/install/installable:
+    get:
+      summary: Get the installable packages list
+      description: '**Required ACL:** `provd.pg_mgr.plugins.{plugin_id}.install.installable.read`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/PackageList'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+  /pg_mgr/plugins/{plugin_id}/install/installed:
+    get:
+      summary: Get the installed packages list
+      description: '**Required ACL:** `provd.pg_mgr.plugins.{plugin_id}.install.installed.read`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/PackageList'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+  /pg_mgr/install:
+    get:
+      summary: Get the installation service resources
+      description: '**Required ACL:** `provd.pg_mgr.install.read`'
+      tags:
+      - plugins
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/LinksObject'
+  /pg_mgr/install/install:
+    post:
+      summary: Install a plugin
+      description: '**Required ACL:** `provd.pg_mgr.install.install.create`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PackageIdBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/OperationInProgressResponse'
+        '400':
+          $ref: '#/components/responses/InvalidJSONError'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaError'
+  /pg_mgr/install/install/{operation_id}:
+    get:
+      summary: Get the status of a plugin installation Operation In Progress
+      description: '**Required ACL:** `provd.operation.read`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/OperationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/OperationInProgressObject'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+    delete:
+      summary: Delete the Operation In Progress
+      description: '**Required ACL:** `provd.operation.delete`
+
+
+        This does not cancel the underlying operation; it only deletes the monitor
+
+
+        Every monitor that is created should be deleted, else they won''t be freed by the process and they will accumulate, taking memory
+
+        '
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/OperationId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContentResponse'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+  /pg_mgr/install/uninstall:
+    post:
+      summary: Uninstall a plugin
+      description: '**Required ACL:** `provd.pg_mgr.install.uninstall.create`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PackageIdBody'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContentResponse'
+        '400':
+          $ref: '#/components/responses/InvalidJSONError'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaError'
+  /pg_mgr/install/upgrade:
+    post:
+      summary: Upgrade a plugin
+      description: '**Required ACL:** `provd.pg_mgr.install.upgrade.create`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PackageIdBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/OperationInProgressResponse'
+        '400':
+          $ref: '#/components/responses/InvalidJSONError'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaError'
+  /pg_mgr/install/upgrade/{operation_id}:
+    get:
+      summary: Get the status of a plugin upgrade Operation In Progress
+      description: '**Required ACL:** `provd.operation.read`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/OperationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/OperationInProgressObject'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+    delete:
+      summary: Delete the Operation In Progress
+      description: '**Required ACL:** `provd.operation.delete`
+
+
+        This does not cancel the underlying operation; it only deletes the monitor
+
+
+        Every monitor that is created should be deleted, else they won''t be freed by the process and they will accumulate, taking memory
+
+        '
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/OperationId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContentResponse'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+  /pg_mgr/install/update:
+    post:
+      summary: Update the List of installable plugins
+      description: '**Required ACL:** `provd.pg_mgr.install.update.create`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/EmptyBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/OperationInProgressResponse'
+        '400':
+          $ref: '#/components/responses/InvalidJSONError'
+  /pg_mgr/install/update/{operation_id}:
+    get:
+      summary: Get the status of a plugin database update Operation In Progress
+      description: '**Required ACL:** `provd.operation.read`'
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/OperationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/OperationInProgressObject'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+    delete:
+      summary: Delete the Operation In Progress
+      description: '**Required ACL:** `provd.operation.delete`
+
+
+        This does not cancel the underlying operation; it only deletes the monitor
+
+
+        Every monitor that is created should be deleted, else they won''t be freed by the process and they will accumulate, taking memory
+
+        '
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/OperationId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContentResponse'
+        '404':
+          $ref: '#/components/responses/NoSuchResourceError'
+  /pg_mgr/install/installable:
+    get:
+      summary: Get the installable plugins list
+      description: '**Required ACL:** `provd.pg_mgr.install.installable.read`'
+      tags:
+      - plugins
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/PackageList'
+  /pg_mgr/install/installed:
+    get:
+      summary: Get the installed plugins list
+      description: '**Required ACL:** `provd.pg_mgr.install.installed.read`'
+      tags:
+      - plugins
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.proformatique.provd+json:
+              schema:
+                $ref: '#/components/schemas/PackageList'
+  /pg_mgr/reload:
+    post:
+      summary: Reload a plugin
+      description: '**Required ACL:** `provd.pg_mgr.reload.create`
+
+
+        This is mostly useful during plugin development, after changing the code of the plugin, instead of restarting the wazo-provd application
+
+        '
+      tags:
+      - plugins
+      parameters:
+      - $ref: '#/components/parameters/PluginIdBody'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContentResponse'
+components:
+  responses:
+    NoContentResponse:
+      description: No content
+    UnsupportedMediaError:
+      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    OperationInProgressResponse:
+      description: Operation in progress
+      headers:
+        Location:
+          description: Location of the OperationInProgress resource
+          schema:
+            type: string
+    NoSuchResourceError:
+      description: No such resource. The provided id does not exist
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    InvalidJSONError:
+      description: Invalid JSON document
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+  schemas:
+    PackageObject:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Package'
+    IdObject:
+      properties:
+        id:
+          type: string
+      example:
+        id: abcdef1234567890
+    PackageList:
+      type: object
+      properties:
+        pkgs:
+          $ref: '#/components/schemas/PackageObject'
+    ErrorMessage:
+      description: Error message response
+      type: string
+    LinksObject:
+      description: Links object
+      type: object
+      properties:
+        links:
+          type: array
+          description: Links to different resources
+          items:
+            $ref: '#/components/schemas/LinkObject'
+    EmptyObject:
+      description: Empty body
+      properties: {}
+    PluginInfo:
+      properties:
+        plugin_info:
+          $ref: '#/components/schemas/PluginInfoObject'
+    OperationInProgressObject:
+      properties:
+        status:
+          type: string
+          description: 'The ``status`` field describes the current status of the operation. The format is
+
+            ``[label|]state[;current[/end]](\(sub_oips\))*``. Here are some examples:
+
+
+            * progress
+
+            * download|progress
+
+            * download|progress;10
+
+            * download|progress;10/100
+
+            * download|progress(file_1|progress;20/100)(file_2|waiting;0/50)
+
+            * download|progress;20/150(file_1|progress)(file_2|waiting)
+
+            * op|progress(op1|progress(op11|progress)(op12|waiting))(op2|progress)
+
+
+            The state of an operation is either ``waiting``, ``progress``, ``success`` or ``fail``.
+
+            '
+    PluginInfoObject:
+      properties:
+        capabilities:
+          $ref: '#/components/schemas/CapabilitiesObject'
+        description:
+          type: string
+        version:
+          type: string
+    CapabilitiesObject:
+      type: object
+      additionalProperties:
+        type: object
+        additionalProperties:
+          type: string
+    LinkObject:
+      description: Link Object
+      type: object
+      properties:
+        href:
+          type: string
+          description: Location of the resource
+        rel:
+          type: string
+          description: Relation to the resource
+    Package:
+      type: object
+      properties:
+        capabilities:
+          $ref: '#/components/schemas/CapabilitiesObject'
+        description:
+          type: string
+        dsize:
+          type: integer
+        sha1sum:
+          type: string
+        version:
+          type: string
+    Plugins:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LinksObject'
+    PluginsObject:
+      type: object
+      properties:
+        plugins:
+          $ref: '#/components/schemas/Plugins'
+  parameters:
+    PluginIdBody:
+      description: Plugin ID body definition
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/IdObject'
+    OperationId:
+      required: true
+      name: operation_id
+      in: path
+      description: Operation In Progress ID
+      schema:
+        type: string
+    PluginId:
+      required: true
+      name: plugin_id
+      in: path
+      description: Plugin ID
+      schema:
+        type: string
+    EmptyBody:
+      description: Empty object body
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/EmptyObject'
+    PackageIdBody:
+      description: Package ID body definition
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/IdObject'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-name: provd
+x-xivo-port: 8666
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-provd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/provd/0.2/api/api.yml (see wazo_provd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

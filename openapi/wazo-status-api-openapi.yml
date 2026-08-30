@@ -1,0 +1,217 @@
+openapi: 3.2.0
+info:
+  title: Wazo Status API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged status across 13 of this provider''s published API definitions: wazo-agentd-api-openapi.yml, wazo-amid-api-openapi.yml, wazo-auth-api-openapi.yml, wazo-call-logd-api-openapi.yml, wazo-calld-api-openapi.yml, wazo-chatd-api-openapi.yml, wazo-confd-api-openapi.yml, wazo-dird-api-openapi.yml, wazo-phoned-api-openapi.yml, wazo-plugind-api-openapi.yml, wazo-provd-api-openapi.yml, wazo-setupd-api-openapi.yml, wazo-webhookd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /1.0
+- url: /0.1
+- url: /1.1
+- url: /0.2
+- url: /api/provd/0.2
+tags:
+- name: status
+paths:
+  /status:
+    get:
+      summary: Get the status of wazo-agentd.
+      description: '**Required ACL:** `agentd.status.read`'
+      operationId: get_status
+      tags:
+      - status
+      responses:
+        '200':
+          description: The internal status of wazo-agentd
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusSummary'
+      security:
+      - wazo_auth_token: []
+    head:
+      summary: Check if wazo-auth is OK
+      description: This endpoint is not authenticated
+      tags:
+      - status
+      responses:
+        '200':
+          description: wazo-auth is OK
+        '503':
+          description: wazo-auth is missing a requirement
+      security:
+      - wazo_auth_token: []
+    servers:
+    - url: /1.0
+components:
+  schemas:
+    StatusValue:
+      type: string
+      enum:
+      - fail
+      - ok
+    ComponentWithStatus:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusValue'
+    StatusSummary:
+      type: object
+      properties:
+        bus_consumer:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        service_token:
+          $ref: '#/components/schemas/ComponentWithStatus'
+    StatusSummary_2:
+      type: object
+      properties:
+        rest_api:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        service_token:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        ami_socket:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        bus_publisher:
+          $ref: '#/components/schemas/ComponentWithStatus'
+    StatusSummary_3:
+      type: object
+      properties:
+        bus_consumer:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        task_queue:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        service_token:
+          $ref: '#/components/schemas/ComponentWithStatus'
+    PluginsStatus:
+      type: object
+      properties:
+        endpoints:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        voicemails:
+          $ref: '#/components/schemas/VoicemailsStatus'
+    VoicemailsStatus:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/ComponentWithStatus'
+      - properties:
+          cache_items:
+            type: integer
+    StatusSummary_4:
+      type: object
+      properties:
+        ari:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        bus_consumer:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        service_token:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        plugins:
+          $ref: '#/components/schemas/PluginsStatus'
+    StatusSummary_5:
+      type: object
+      properties:
+        rest_api:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        bus_consumer:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        presence_initialization:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        master_tenant:
+          $ref: '#/components/schemas/ComponentWithStatus'
+    StatusSummary_6:
+      type: object
+      properties:
+        bus_consumer:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        master_tenant:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        rest_api:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        service_token:
+          $ref: '#/components/schemas/ComponentWithStatus'
+    StatusSummary_7:
+      type: object
+      properties:
+        bus_consumer:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        master_tenant:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        rest_api:
+          $ref: '#/components/schemas/ComponentWithStatus'
+    StatusSummary_8:
+      type: object
+      properties:
+        service_token:
+          type: string
+          enum:
+          - ok
+          - fail
+        bus_consumer:
+          type: string
+          enum:
+          - ok
+          - fail
+    StatusSummary_9:
+      type: object
+      properties:
+        master_tenant:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        rest_api:
+          $ref: '#/components/schemas/ComponentWithStatus'
+    StatusSummary_10:
+      type: object
+      properties:
+        rest_api:
+          $ref: '#/components/schemas/ComponentWithStatus'
+    StatusSummary_11:
+      type: object
+      properties:
+        rest_api:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        master_tenant:
+          $ref: '#/components/schemas/ComponentWithStatus'
+    StatusSummary_12:
+      type: object
+      properties:
+        bus_consumer:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        master_tenant:
+          $ref: '#/components/schemas/ComponentWithStatus'
+      additionalProperties:
+        $ref: '#/components/schemas/ComponentWithStatus'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+x-refined-from:
+- wazo-agentd-api-openapi.yml
+- wazo-amid-api-openapi.yml
+- wazo-auth-api-openapi.yml
+- wazo-call-logd-api-openapi.yml
+- wazo-calld-api-openapi.yml
+- wazo-chatd-api-openapi.yml
+- wazo-confd-api-openapi.yml
+- wazo-dird-api-openapi.yml
+- wazo-phoned-api-openapi.yml
+- wazo-plugind-api-openapi.yml
+- wazo-provd-api-openapi.yml
+- wazo-setupd-api-openapi.yml
+- wazo-webhookd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

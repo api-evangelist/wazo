@@ -1,0 +1,1240 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Queues API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: queues
+paths:
+  /queues:
+    get:
+      operationId: list_queues
+      summary: List queues
+      description: '**Required ACL:** `confd.queues.read`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Queues list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueueItems'
+    post:
+      operationId: create_queue
+      summary: Create queue
+      description: '**Required ACL:** `confd.queues.create`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Queue created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Queue'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Queue'
+        description: Queue to create
+        required: true
+  /queues/{queue_id}:
+    get:
+      operationId: get_queue
+      summary: Get queue
+      description: '**Required ACL:** `confd.queues.{queue_id}.read`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      responses:
+        '200':
+          description: Queue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Queue'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_queue
+      summary: Update queue
+      description: '**Required ACL:** `confd.queues.{queue_id}.update`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Queue'
+        required: true
+    delete:
+      operationId: delete_queue
+      summary: Delete queue
+      description: '**Required ACL:** `confd.queues.{queue_id}.delete`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /queues/{queue_id}/extensions/{extension_id}:
+    put:
+      operationId: associate_queue_extension
+      summary: Associate queue and extension
+      description: '**Required ACL:** `confd.queues.{queue_id}.extensions.{extension_id}.update`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Queue and Extension associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_queue_extension
+      summary: Dissociate queue and extension
+      description: '**Required ACL:** `confd.queues.{queue_id}.extensions.{extension_id}.delete`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/extensionid'
+      responses:
+        '204':
+          description: Queue and Extension dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /queues/{queue_id}/fallbacks:
+    get:
+      operationId: get_queue_fallback
+      summary: List all fallbacks for queue
+      description: '**Required ACL:** `confd.queues.{queue_id}.fallbacks.read`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      responses:
+        '200':
+          description: Fallbacks for queue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueueFallbacks'
+    put:
+      operationId: update_queue_fallback
+      summary: Update queue's fallbacks
+      description: '**Required ACL:** `confd.queues.{queue_id}.fallbacks.update`
+
+
+        **WARNING** This endpoint delete all fields that are not defined.'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      responses:
+        '204':
+          description: Queue's fallbacks updated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueueFallbacks'
+        description: Fallbacks for queue
+  /queues/{queue_id}/members/agents/{agent_id}:
+    put:
+      operationId: update_agent_queue_association
+      summary: Update Agent-Queue association
+      description: '**Required ACL:** `confd.queues.{queue_id}.members.agents.{agent_id}.update`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/agentid'
+      responses:
+        '204':
+          description: Association updated
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueueMemberAgent'
+    delete:
+      operationId: dissociate_agent_queue
+      summary: Dissociate agent and queue
+      description: '**Required ACL:** `confd.queues.{queue_id}.members.agents.{agent_id}.delete`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/agentid'
+      responses:
+        '204':
+          description: Agent and Queue dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /queues/{queue_id}/members/users/{user_id}:
+    put:
+      operationId: update_user_queue_association
+      summary: Update User-Queue association
+      description: '**Required ACL:** `confd.queues.{queue_id}.members.users.{user_id}.update`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '204':
+          description: Association updated
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueueMemberUser'
+    delete:
+      operationId: dissociate_user_queue
+      summary: Dissociate user and queue
+      description: '**Required ACL:** `confd.queues.{queue_id}.members.users.{user_id}.delete`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/useriduuid'
+      responses:
+        '204':
+          description: User and Queue dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /queues/{queue_id}/schedules/{schedule_id}:
+    put:
+      operationId: associate_queue_schedule
+      summary: Associate queue and schedule
+      description: '**Required ACL:** `confd.queues.{queue_id}.schedules.{schedule_id}.update`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/scheduleid'
+      responses:
+        '204':
+          description: Queue and Schedule associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      operationId: dissociate_queue_schedule
+      summary: Dissociate queue and schedule
+      description: '**Required ACL:** `confd.queues.{queue_id}.schedules.{schedule_id}.delete`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/queueid'
+      - $ref: '#/components/parameters/scheduleid'
+      responses:
+        '204':
+          description: Queue and Schedule dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /queues/skillrules:
+    get:
+      operationId: list_skill_rules
+      summary: List skill rule
+      description: '**Required ACL:** `confd.queues.skillrules.read`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Skill rules list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillRuleItems'
+    post:
+      operationId: create_skill_rule
+      summary: Create skill rule
+      description: '**Required ACL:** `confd.queues.skillrules.create`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Skill rule created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillRule'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SkillRule'
+        description: Skill rule to create
+        required: true
+  /queues/skillrules/{skillrule_id}:
+    get:
+      operationId: get_skill_rule
+      summary: Get skill rule
+      description: '**Required ACL:** `confd.queues.skillrules.{skillrule_id}.read`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/skillruleid'
+      responses:
+        '200':
+          description: Skill rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillRule'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_skill_rule
+      summary: Update skill rule
+      description: '**Required ACL:** `confd.queues.skillrules.{skillrule_id}.update`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/skillruleid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SkillRule'
+        required: true
+    delete:
+      operationId: delete_skill_rule
+      summary: Delete skill rule
+      description: '**Required ACL:** `confd.queues.skillrules.{skillrule_id}.delete`'
+      tags:
+      - queues
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/skillruleid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  schemas:
+    QueueRelationMemberUser:
+      allOf:
+      - $ref: '#/components/schemas/UserRelationBase'
+      - $ref: '#/components/schemas/QueueMemberUserRelationBase'
+    QueueMemberUser:
+      title: QueueMemberUser
+      description: An association between a user and a queue.
+      allOf:
+      - $ref: '#/components/schemas/QueueMemberUserRelationBase'
+    QueueFallbacks:
+      properties:
+        noanswer_destination:
+          description: The destination to redirect the caller to when there are no answer
+          $ref: '#/components/schemas/DestinationType'
+        busy_destination:
+          description: The destination to redirect the caller to when there are busy
+          $ref: '#/components/schemas/DestinationType'
+        congestion_destination:
+          description: The destination to redirect the caller to when there are congestion
+          $ref: '#/components/schemas/DestinationType'
+        fail_destination:
+          description: The destination to redirect the caller to when the call fail
+          $ref: '#/components/schemas/DestinationType'
+      example:
+        noanswer_destination:
+          type: user
+          user_id: 1
+        busy_destination:
+          type: group
+          group_id: 2
+        congestion_destination:
+          type: ivr
+          ivr_id: 3
+        fail_destination:
+          type: voicemail
+          voicemail_id: 4
+    DestinationApplicationDISA:
+      title: DestinationApplicationDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    QueueMemberUserRelationBase:
+      properties:
+        priority:
+          type: integer
+          minimum: 0
+          description: Priority of user in the queue. Only used for linear ring strategy
+    DestinationApplicationDirectory:
+      title: DestinationApplicationDirectory
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'directory'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    QueueRelationSchedules:
+      properties:
+        schedules:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ScheduleRelationBase'
+    DestinationUser:
+      title: DestinationUser
+      properties:
+        type:
+          type: string
+          description: MUST be 'user'
+        user_id:
+          type: integer
+          description: The id of the user
+        ring_time:
+          type: number
+          format: float
+        moh_uuid:
+          type: string
+          description: The UUID of the music on hold to use instead of a ringback tone.
+      required:
+      - type
+      - user_id
+    DestinationOutcall:
+      title: DestinationOutcall
+      properties:
+        type:
+          type: string
+          description: MUST be 'outcall'
+        exten:
+          type: string
+        outcall_id:
+          type: integer
+          description: The id of the outcall
+      required:
+      - type
+      - exten
+      - outcall_id
+    QueueRelationMemberAgents:
+      properties:
+        agents:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/QueueRelationMemberAgent'
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/QueueRelationMemberUser'
+    SkillRuleRule:
+      title: SkillRuleRule
+      properties:
+        definition:
+          type: string
+          description: The rule definition
+    DestinationHangup:
+      title: DestinationHangup
+      properties:
+        type:
+          type: string
+          description: MUST be 'hangup'
+      required:
+      - type
+    DestinationQueue:
+      title: DestinationQueue
+      properties:
+        type:
+          type: string
+          description: MUST be 'queue'
+        queue_id:
+          type: integer
+          description: The id of the queue
+        ring_time:
+          type: number
+          format: float
+        skill_rule_id:
+          type: integer
+          description: The id of the skill rule
+        skill_rule_variables:
+          type: object
+          description: key-value where key represents the variable of the skill rule and value represents a value
+      required:
+      - type
+      - queue_id
+    DestinationConference:
+      title: DestinationConference
+      properties:
+        type:
+          type: string
+          description: MUST be 'conference'
+        conference_id:
+          type: integer
+          description: The id of the conference
+      required:
+      - type
+      - conference_id
+    DestinationGroup:
+      title: DestinationGroup
+      properties:
+        type:
+          type: string
+          description: MUST be 'group'
+        group_id:
+          type: integer
+          description: The id of the group
+        ring_time:
+          type: number
+          format: float
+      required:
+      - type
+      - group_id
+    AgentRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the agent
+        firstname:
+          type: string
+        lastname:
+          type: string
+        number:
+          type: string
+          description: Agent number. Cannot be modified after creation
+    DestinationHangupNormal:
+      title: DestinationHangupNormal
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'normal'
+      required:
+      - cause
+    DestinationApplicationVoicemail:
+      title: DestinationApplicationVoicemail
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'voicemail'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    QueueMemberAgent:
+      title: QueueMemberAgent
+      description: An association between an agent and a queue. Agents associated to a Queue will receive calls when they are logged in.
+      allOf:
+      - $ref: '#/components/schemas/QueueMemberAgentRelationBase'
+    SkillRuleItems:
+      title: SkillRuleItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillRule'
+        total:
+          type: integer
+      required:
+      - total
+    QueueMemberAgentRelationBase:
+      properties:
+        penalty:
+          type: integer
+          description: Agent's penalty. A priority used for distributing calls.
+        priority:
+          type: integer
+          description: Priority of agent in the queue. Only used for linear ring strategy
+    DestinationHangupBusy:
+      title: DestinationHangupBusy
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'busy'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
+      required:
+      - cause
+    DestinationHangupCause:
+      title: DestinationHangupCause
+      properties:
+        busy:
+          $ref: '#/components/schemas/DestinationHangupBusy'
+        congestion:
+          $ref: '#/components/schemas/DestinationHangupCongestion'
+        normal:
+          $ref: '#/components/schemas/DestinationHangupNormal'
+    DestinationApplication:
+      title: DestinationApplication
+      properties:
+        type:
+          type: string
+          description: MUST be 'application'
+      required:
+      - type
+    SkillRule:
+      title: SkillRule
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the skill rule
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillRuleRule'
+      required:
+      - name
+    DestinationType:
+      title: DestinationType
+      properties:
+        application:
+          $ref: '#/components/schemas/DestinationApplicationApplication'
+        conference:
+          $ref: '#/components/schemas/DestinationConference'
+        custom:
+          $ref: '#/components/schemas/DestinationCustom'
+        extension:
+          $ref: '#/components/schemas/DestinationExtension'
+        group:
+          $ref: '#/components/schemas/DestinationGroup'
+        hangup:
+          $ref: '#/components/schemas/DestinationHangupCause'
+        ivr:
+          $ref: '#/components/schemas/DestinationIVR'
+        none:
+          $ref: '#/components/schemas/DestinationNone'
+        outcall:
+          $ref: '#/components/schemas/DestinationOutcall'
+        queue:
+          $ref: '#/components/schemas/DestinationQueue'
+        sound:
+          $ref: '#/components/schemas/DestinationSound'
+        switchboard:
+          $ref: '#/components/schemas/DestinationSwitchboard'
+        user:
+          $ref: '#/components/schemas/DestinationUser'
+        voicemail:
+          $ref: '#/components/schemas/DestinationVoicemail'
+    QueueRelationMemberAgent:
+      allOf:
+      - $ref: '#/components/schemas/AgentRelationBase'
+      - $ref: '#/components/schemas/QueueMemberAgentRelationBase'
+    DestinationCustom:
+      title: DestinationCustom
+      properties:
+        type:
+          type: string
+          description: MUST be 'custom'
+        command:
+          type: string
+          description: The command to execute
+      required:
+      - type
+      - command
+    QueueRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the queue
+        name:
+          type: string
+          description: The name of the queue. Cannot be modified
+        label:
+          type: string
+          description: The label of the queue
+    DestinationIVR:
+      title: DestinationIVR
+      properties:
+        type:
+          type: string
+          description: MUST be 'ivr'
+        ivr_id:
+          type: integer
+          description: The id of the IVR
+      required:
+      - type
+      - ivr_id
+    DestinationSound:
+      title: DestinationSound
+      properties:
+        type:
+          type: string
+          description: MUST be 'sound'
+        filename:
+          type: string
+          description: The filename of the sound. The file MUST be imported by to webi in the playback directory. The extension of file SHOULD be not present.
+        skip:
+          type: boolean
+          description: Do not play this sound if the call is not answered
+        no_answer:
+          type: boolean
+          description: Play this sound without answering the call
+      required:
+      - type
+      - filename
+    DestinationHangupCongestion:
+      title: DestinationHangupCongestion
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'congestion'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
+      required:
+      - cause
+    DestinationApplicationCustom:
+      title: DestinationApplicationCustom
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'custom'
+          application_uuid:
+            type: string
+            description: The UUID of the application.
+      required:
+      - application
+      - application_uuid
+    DestinationVoicemail:
+      title: DestinationVoicemail
+      properties:
+        type:
+          type: string
+          description: MUST be 'voicemail'
+        voicemail_id:
+          type: integer
+          description: The id of the voicemail
+        skip_instructions:
+          type: boolean
+          description: Skip the playback of instructions for leaving a message
+        greeting:
+          type: string
+          enum:
+          - busy
+          - unavailable
+          description: Play the specified greeting
+      required:
+      - type
+      - voicemail_id
+    DestinationApplicationApplication:
+      title: DestinationApplicationApplication
+      properties:
+        callback_disa:
+          $ref: '#/components/schemas/DestinationApplicationCallbackDISA'
+        custom:
+          $ref: '#/components/schemas/DestinationApplicationCustom'
+        directory:
+          $ref: '#/components/schemas/DestinationApplicationDirectory'
+        disa:
+          $ref: '#/components/schemas/DestinationApplicationDISA'
+        fax_to_mail:
+          $ref: '#/components/schemas/DestinationApplicationFaxToMail'
+        voicemail:
+          $ref: '#/components/schemas/DestinationApplicationVoicemail'
+    DestinationSwitchboard:
+      title: DestinationSwitchboard
+      properties:
+        type:
+          type: string
+          description: MUST be 'switchboard'
+        switchboard_uuid:
+          type: string
+          description: The UUID of the switchboard.
+      required:
+      - type
+      - switchboard_uuid
+    ScheduleRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the schedule
+    DestinationApplicationCallbackDISA:
+      title: DestinationApplicationCallbackDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'callback_disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    DestinationApplicationFaxToMail:
+      title: DestinationApplicationFaxToMail
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'fax_to_mail'
+          email:
+            type: string
+            description: The email of the application
+      required:
+      - application
+      - email
+    Error:
+      type: array
+      items:
+        type: string
+    DestinationNone:
+      title: DestinationNone
+      properties:
+        type:
+          type: string
+          description: MUST be 'none'
+      required:
+      - type
+    UserRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
+    Queue:
+      title: Queue
+      allOf:
+      - $ref: '#/components/schemas/QueueRelationBase'
+      - properties:
+          data_quality:
+            type: boolean
+            default: false
+            description: 'Asterisk definition: data-quality (modem) call (minimum delay)'
+          dtmf_hangup_callee_enabled:
+            type: boolean
+            default: false
+            description: Enable DTMF hangup by callee
+          dtmf_hangup_caller_enabled:
+            type: boolean
+            default: false
+            description: Enable DTMF hangup by caller
+          dtmf_transfer_callee_enabled:
+            type: boolean
+            default: false
+            description: Enable DTMF transfers by callee
+          dtmf_transfer_caller_enabled:
+            type: boolean
+            default: false
+            description: Enable DTMF transfers by caller
+          dtmf_record_callee_enabled:
+            type: boolean
+            default: false
+            description: Enable DTMF records by callee
+          dtmf_record_caller_enabled:
+            type: boolean
+            default: false
+            description: Enable DTMF records by caller
+          dtmf_record_toggle:
+            type: boolean
+            default: false
+            description: Enable/Disable DTMF recording for members of this queue receiving a call from this queue
+          retry_on_timeout:
+            type: boolean
+            default: true
+            description: Retry when time has elapsed
+          ring_on_hold:
+            type: boolean
+            default: false
+            description: Ring instead of On-Hold Music
+          timeout:
+            type: integer
+            description: Number of seconds the queue will ring before falling back
+          announce_hold_time_on_entry:
+            type: boolean
+            default: false
+            description: Announce hold time on entry
+          ignore_forward:
+            type: boolean
+            default: false
+            description: Ignore call forward requests from members
+          preprocess_subroutine:
+            type: string
+          music_on_hold:
+            type: string
+            description: Name of the MOH category to use for music on hold
+          wait_time_threshold:
+            type: integer
+            description: Wait time threshold before fallback on 'wait_time_destination'. Set to 'null' to disable it.
+          wait_time_destination:
+            $ref: '#/components/schemas/DestinationType'
+            description: Go to that destination when 'wait_time_threshold' is reached
+          wait_ratio_threshold:
+            type: integer
+            description: Wait ratio (waiting calls per logged-in agent) threshold before fallback on 'wait_ratio_destination'. Set to 'null' to disable it.
+          wait_ratio_destination:
+            $ref: '#/components/schemas/DestinationType'
+            description: Go to that destination when 'wait_ratio_threshold' is reached
+          caller_id_mode:
+            type: string
+            enum:
+            - prepend
+            - overwrite
+            - append
+            description: How the caller_id_name will be treated
+          caller_id_name:
+            type: string
+            description: Name to display
+          mark_answered_elsewhere:
+            type: boolean
+            default: true
+            description: Mark all calls as "answered elsewhere" when cancelled
+          enabled:
+            type: boolean
+            default: true
+            description: Enable/Disable the queue
+          options:
+            description: "Advanced configuration options. Options are appended at the end of\na queue account in the file 'queues.conf' used by asterisk. Please\nconsult the asterisk documentation for further details on available\nparameters. Because of database limitations, only the following\noptions can be configured:\n\n* announce\n* context\n* timeout\n* monitor-type\n* monitor-format\n* queue-youarenext\n* queue-thereare\n* queue-callswaiting\n* queue-holdtime\n* queue-minutes\n* queue-seconds\n* queue-thankyou\n* queue-reporthold\n* periodic-announce\n* announce-frequency\n* periodic-announce-frequency\n* announce-round-seconds\n* announce-holdtime\n* retry\n* wrapuptime\n* maxlen\n* servicelevel\n* strategy\n* joinempty\n* leavewhenempty\n* ringinuse\n* reportholdtime\n* memberdelay\n* weight\n* timeoutrestart\n* timeoutpriority\n* autofill\n* autopause\n* setinterfacevar\n* setqueueentryvar\n* setqueuevar\n* membermacro\n* min-announce-frequency\n* random-periodic-announce\n* announce-position\n* announce-position-limit\n* defaultrule\n\nOptions must have the following form:\n```\n{\n  \"options\": [\n     [\"name1\", \"value1\"],\n     [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in queues.conf will have the following form:\n```\n[queuename]\nname1=value1\nname2=value2\n```\n"
+            type: array
+            items:
+              $ref: '#/components/schemas/KeyValueOption'
+            default: []
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+      - $ref: '#/components/schemas/QueueRelationSchedules'
+      - $ref: '#/components/schemas/QueueRelationMembers'
+      - required:
+        - name
+    QueueRelationMembers:
+      properties:
+        members:
+          readOnly: true
+          $ref: '#/components/schemas/QueueRelationMemberAgents'
+    DestinationExtension:
+      title: DestinationExtension
+      properties:
+        type:
+          type: string
+          description: MUST be 'extension'
+        exten:
+          type: string
+        context:
+          type: string
+          description: Context of the extension
+      required:
+      - type
+      - exten
+      - context
+    QueueItems:
+      title: QueueItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Queue'
+        total:
+          type: integer
+      required:
+      - total
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    queueid:
+      required: true
+      name: queue_id
+      in: path
+      description: Queue’s ID
+      schema:
+        type: integer
+    agentid:
+      required: true
+      name: agent_id
+      in: path
+      description: Agent’s ID
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    scheduleid:
+      required: true
+      name: schedule_id
+      in: path
+      description: Schedule's ID
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    skillruleid:
+      required: true
+      name: skillrule_id
+      in: path
+      description: Skill's ID
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

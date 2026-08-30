@@ -1,0 +1,505 @@
+openapi: 3.2.0
+info:
+  version: '0.1'
+  title: wazo-auth Backends API
+  description: Wazo's authentication service
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /0.1
+tags:
+- name: backends
+paths:
+  /backends:
+    get:
+      tags:
+      - backends
+      security:
+      - {}
+      description: Retrieves the list of activated wazo_auth.backends plugins
+      responses:
+        '200':
+          description: The list of activated backends
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackendList'
+  /backends/ldap:
+    get:
+      security:
+      - wazo_auth_token: []
+      summary: 'Get current tenant''s LDAP backend configuration. If there is no configuration,
+
+        all the fields will be `null`.
+
+        '
+      description: '**Required ACL:** `auth.backends.ldap.read`'
+      operationId: getLDAPBackendConfig
+      tags:
+      - backends
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The LDAP backend configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPBackendConfig'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      security:
+      - wazo_auth_token: []
+      summary: Update current tenant's LDAP backend configuration
+      description: '**Required ACL:** `auth.backends.ldap.update'
+      operationId: updateLDAPBackendConfig
+      tags:
+      - backends
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The LDAP backend configuration has been updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPBackendConfig'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LDAPBackendConfigEdit'
+        description: The LDAP backend configuration
+        required: true
+    delete:
+      security:
+      - wazo_auth_token: []
+      summary: Delete current tenant's LDAP backend configuration
+      description: '**Required ACL:** `auth.backends.ldap.delete`'
+      operationId: deleteLDAPBackendConfig
+      tags:
+      - backends
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The LDAP backend configuration has been deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /backends/saml:
+    delete:
+      description: '**Required ACL:** `auth.backends.saml.delete`'
+      operationId: deleteSAMLBackendConfig
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '204':
+          description: The SAML backend configuration has been deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Configuration for the tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - wazo_auth_token: []
+      summary: Delete current tenant's SAML backend configuration
+      tags:
+      - backends
+    get:
+      description: '**Required ACL:** `auth.backends.saml.read`'
+      operationId: getSAMLBackendConfig
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The SAML backend configuration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SAMLBackendConfig'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - wazo_auth_token: []
+      summary: 'Get current tenant''s SAML backend configuration. If there is no configuration,
+
+        all the fields will be `null`.
+
+        '
+      tags:
+      - backends
+    post:
+      description: '**Required ACL:** `auth.backends.saml.create'
+      operationId: createSAMLBackendConfig
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The SAML backend configuration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SAMLBackendConfig'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - wazo_auth_token: []
+      summary: Returns the created SAML configuration.
+      tags:
+      - backends
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  type: string
+                  description: The IDP metadata file in XML format.
+                  format: binary
+                domain_uuid:
+                  type: string
+                  description: The UUID of the domain to use for the SAML backend.
+                entity_id:
+                  type: string
+                  description: The name of the SAML Entity.
+                acs_url:
+                  type: string
+                  format: uri
+                  description: The SAML ACS URL configured in the IdP.
+              required:
+              - metadata
+              - domain_uuid
+              - entity_id
+              - acs_url
+    put:
+      description: '**Required ACL:** `auth.backends.saml.update'
+      operationId: updateSAMLBackendConfig
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The SAML backend configuration has been updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SAMLBackendConfig'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - wazo_auth_token: []
+      summary: Updates current tenant's SAML backend configuration
+      tags:
+      - backends
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  type: string
+                  description: The IDP metadata file in XML format.
+                  format: binary
+                domain_uuid:
+                  type: string
+                  description: The UUID of the domain to use for the SAML backend.
+                entity_id:
+                  type: string
+                  description: The name of the SAML Entity.
+                acs_url:
+                  type: string
+                  format: uri
+                  description: The SAML ACS URL configured in the IdP.
+  /backends/saml/metadata:
+    get:
+      description: '**Required ACL:** `auth.backends.saml.read`
+
+
+        This endpoint allow to download tenant metadata file.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '200':
+          description: Download the tenant SAML metadata XML file.
+          content:
+            application/json:
+              schema:
+                description: The  metadata file in XML format.
+                type: string
+                x-mimetype: application/xml
+                format: binary
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No metadata file found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      summary: Download the tenant's SAML metadata XML file.
+      tags:
+      - backends
+  /backends/saml/acs_url_template:
+    get:
+      description: '**Required ACL:** `auth.backends.saml.read` This endpoint provides the tenant Assertion Consumer Service URL template. The `{{STACK_URL}}` must be replaced by the public URL of the stack, wazo-confd ingress can be used to retrieve previously configured data. '
+      responses:
+        '200':
+          description: Returns the URL to be used while configuring the Identity provider.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SAMLAcsUrlTemplate'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: SAML backend is not enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      summary: Get tenant's ACS URL template to use in the IDP configuration
+      tags:
+      - backends
+components:
+  schemas:
+    SAMLAcsUrlTemplate:
+      properties:
+        acs_url:
+          type: string
+          description: The SAML ACS URL
+          format: uri
+      required:
+      - acs_url
+      type: object
+    BackendList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: string
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    LDAPBackendConfig:
+      type: object
+      required:
+      - host
+      - port
+      - user_base_dn
+      - user_login_attribute
+      - user_email_attribute
+      properties:
+        tenant_uuid:
+          type: string
+          readOnly: true
+        host:
+          type: string
+          description: 'The host or IP address of the LDAP server.
+
+            '
+        port:
+          type: integer
+          description: The port on which to connect to the LDAP server.
+          example: 389
+        protocol_version:
+          type: integer
+          minimum: 2
+          maximum: 3
+          description: LDAP protocol version to use
+          default: 3
+        protocol_security:
+          type: string
+          description: The layer of security to use for the connection.
+          enum:
+          - ''
+          - tls
+          - ldaps
+          default: ''
+        bind_dn:
+          type: string
+          description: 'The DN to use to bind the `wazo-auth` service to the LDAP server. If
+
+            unspecified, `wazo-auth` will not bind with a service user but only with the
+
+            final user account. For this to work though, your users will need to have the
+
+            right to read their own information, particularly their email address.
+
+            '
+          example: CN=wazo-auth,DC=wazo-platform,DC=org
+        user_base_dn:
+          type: string
+          description: The base DN in which users are located
+          example: OU=people,DC=wazo-platform,DC=org
+        user_login_attribute:
+          type: string
+          description: 'The attribute that identifies users. It will be prepended to the
+
+            `user_base_dn`.
+
+            '
+          example: uid
+        user_email_attribute:
+          type: string
+          description: The attribute of the email address in the LDAP schema.
+          example: mail
+        search_filters:
+          type: string
+          description: 'Filters for finding a user DN given a service bind is used.
+
+            Available variables are `username`, `user_login_attribute` and
+
+            `user_email_attribute`. These variables come from the fields of the
+
+            same name from the API.
+
+            '
+          example: '{user_login_attribute}={username}'
+    LDAPBackendConfigEdit:
+      allOf:
+      - $ref: '#/components/schemas/LDAPBackendConfig'
+      - type: object
+        properties:
+          bind_password:
+            type: string
+            description: 'The password to use to bind the `wazo-auth` service to the LDAP server.
+
+              '
+    SAMLBackendConfig:
+      properties:
+        domain_uuid:
+          type: string
+          description: The UUID of the domain to use for the SAML backend.
+        entity_id:
+          type: string
+          description: The name of the SAML Entity Id
+        acs_url:
+          type: string
+          description: The SAML ACS URL
+          format: uri
+      required:
+      - domain_uuid
+      - entity_id
+      - acs_url
+      type: object
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_basic:
+      type: http
+      scheme: basic
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9497
+x-xivo-name: auth
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-auth
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/auth/0.1/api/api.yml (see wazo_auth/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

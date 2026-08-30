@@ -1,0 +1,1010 @@
+openapi: 3.2.0
+info:
+  title: Wazo Switchboards API
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+  version: '1.0'
+  description: 'Operations tagged switchboards across 2 of this provider''s published API definitions: wazo-calld-api-openapi.yml, wazo-confd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /1.0
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: switchboards
+paths:
+  /switchboards/{switchboard_uuid}/calls/queued:
+    get:
+      summary: List calls queued in the switchboard
+      description: " **Required ACL:** `calld.switchboards.{switchboard_uuid}.calls.queued.read`\n\n **Warning:** This endpoint is still in development and may change in the future."
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/SwitchboardUUID'
+      responses:
+        '200':
+          description: List of calls
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SwitchboardQueuedCalls'
+        '404':
+          $ref: '#/components/responses/NoSuchSwitchboard'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /switchboards/{switchboard_uuid}/calls/queued/{call_id}/answer:
+    put:
+      summary: Answer the specified queued call
+      description: " **Required ACL:** `calld.switchboards.{switchboard_uuid}.calls.queued.{call_id}.answer.update`\n\n **Warning:** This endpoint is still in development and may change in the future."
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/SwitchboardUUID'
+      - $ref: '#/components/parameters/CallID'
+      - $ref: '#/components/parameters/LineID'
+      responses:
+        '200':
+          description: Answerer was correctly originated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallID'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NoSuchSwitchboard'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /switchboards/{switchboard_uuid}/calls/held:
+    get:
+      summary: List calls held in the switchboard
+      description: " **Required ACL:** `calld.switchboards.{switchboard_uuid}.calls.held.read`\n\n **Warning:** This endpoint is still in development and may change in the future."
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/SwitchboardUUID'
+      responses:
+        '200':
+          description: List of calls
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SwitchboardHeldCalls'
+        '404':
+          $ref: '#/components/responses/NoSuchSwitchboard'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /switchboards/{switchboard_uuid}/calls/held/{call_id}:
+    put:
+      summary: Put the specified call on hold in the switchboard
+      description: " **Required ACL:** `calld.switchboards.{switchboard_uuid}.calls.held.{call_id}.update`\n\n **Warning:** This endpoint is still in development and may change in the future.\n\n This action will also hangup the previous call talking to the held call, if there was any."
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/SwitchboardUUID'
+      - $ref: '#/components/parameters/CallID'
+      responses:
+        '204':
+          description: Call was held correctly
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NoSuchSwitchboard'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /switchboards/{switchboard_uuid}/calls/held/{call_id}/answer:
+    put:
+      summary: Answer the specified held call
+      description: " **Required ACL:** `calld.switchboards.{switchboard_uuid}.calls.held.{call_id}.answer.update`\n\n **Warning:** This endpoint is still in development and may change in the future."
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/TenantUUID'
+      - $ref: '#/components/parameters/SwitchboardUUID'
+      - $ref: '#/components/parameters/CallID'
+      - $ref: '#/components/parameters/LineID'
+      responses:
+        '200':
+          description: Answerer was correctly originated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallID'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/NoSuchSwitchboard'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+    servers:
+    - url: /1.0
+  /switchboards:
+    get:
+      summary: List switchboards
+      description: '**Required ACL:** `confd.switchboards.read`'
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: List of switchboards
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Switchboard'
+    post:
+      summary: Create a switchboard
+      description: '**Required ACL:** `confd.switchboards.create`'
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      tags:
+      - switchboards
+      responses:
+        '201':
+          description: The switchboard has been created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Switchboard'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Switchboard'
+        description: Switchboard parameters
+        required: true
+    servers:
+    - url: /1.1
+  /switchboards/{switchboard_uuid}:
+    get:
+      summary: Get a switchboard
+      description: '**Required ACL:** `confd.switchboards.{switchboard_uuid}.read`'
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/switchboard_uuid'
+      responses:
+        '200':
+          description: Switchboard
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Switchboard'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      summary: Update a switchboard
+      description: '**Required ACL:** `confd.switchboards.{switchboard_uuid}.update`'
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/switchboard_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Switchboard'
+        required: true
+    delete:
+      summary: Delete a switchboard
+      description: '**Required ACL:** `confd.switchboards.{switchboard_uuid}.delete`'
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/switchboard_uuid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    servers:
+    - url: /1.1
+  /switchboards/{switchboard_uuid}/fallbacks:
+    get:
+      operationId: get_switchboard_fallback
+      summary: List all fallbacks for switchboard
+      description: '**Required ACL:** `confd.switchboards.{switchboard_uuid}.fallbacks.read`'
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/switchboard_uuid'
+      responses:
+        '200':
+          description: Fallbacks for switchboard
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SwitchboardFallbacks'
+    put:
+      operationId: update_switchboard_fallback
+      summary: Update switchboard's fallbacks
+      description: '**Required ACL:** `confd.switchboards.{switchboard_uuid}.fallbacks.update`
+
+
+        **WARNING** This endpoint delete all fields that are not defined.'
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/switchboard_uuid'
+      responses:
+        '204':
+          description: Switchboard's fallbacks updated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SwitchboardFallbacks'
+        description: Fallbacks for switchboard
+    servers:
+    - url: /1.1
+  /switchboards/{switchboard_uuid}/members/users:
+    put:
+      operationId: update_switchboard_member_users
+      summary: Update switchboard and members
+      description: '**Required ACL:** `confd.switchboards.{switchboard_uuid}.members.users.update`
+
+
+        **WARNING**
+
+        This endpoint removes all members which are not defined.
+
+        '
+      tags:
+      - switchboards
+      parameters:
+      - $ref: '#/components/parameters/switchboard_uuid'
+      responses:
+        '204':
+          description: Switchboard and users have been associated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersUuid'
+        description: Users to associate with the switchboard
+        required: true
+    servers:
+    - url: /1.1
+components:
+  parameters:
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    LineID:
+      name: line_id
+      in: query
+      description: ID of the line of the user used to make the call. Default is the main line of the user.
+      schema:
+        type: integer
+    SwitchboardUUID:
+      name: switchboard_uuid
+      in: path
+      description: Unique identifier of the switchboard
+      required: true
+      schema:
+        type: string
+    CallID:
+      name: call_id
+      in: path
+      description: ID of the call
+      required: true
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    switchboard_uuid:
+      name: switchboard_uuid
+      in: path
+      required: true
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  schemas:
+    CallID:
+      type: object
+      properties:
+        call_id:
+          type: string
+    SwitchboardHeldCalls:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SwitchboardHeldCall'
+    SwitchboardQueuedCall:
+      type: object
+      properties:
+        id:
+          type: string
+        caller_id_name:
+          type: string
+        caller_id_number:
+          type: string
+    SwitchboardHeldCall:
+      type: object
+      properties:
+        id:
+          type: string
+        caller_id_name:
+          type: string
+        caller_id_number:
+          type: string
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    SwitchboardQueuedCalls:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SwitchboardQueuedCall'
+    SwitchboardRelationMemberUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/UserRelationBase'
+    SwitchboardRelationIncalls:
+      properties:
+        incalls:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/SwitchboardRelationIncall'
+    SwitchboardRelationIncall:
+      allOf:
+      - $ref: '#/components/schemas/IncallRelationBase'
+      - $ref: '#/components/schemas/IncallRelationExtensions'
+    DestinationApplicationDISA:
+      title: DestinationApplicationDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    DestinationApplicationDirectory:
+      title: DestinationApplicationDirectory
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'directory'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    DestinationUser:
+      title: DestinationUser
+      properties:
+        type:
+          type: string
+          description: MUST be 'user'
+        user_id:
+          type: integer
+          description: The id of the user
+        ring_time:
+          type: number
+          format: float
+        moh_uuid:
+          type: string
+          description: The UUID of the music on hold to use instead of a ringback tone.
+      required:
+      - type
+      - user_id
+    DestinationOutcall:
+      title: DestinationOutcall
+      properties:
+        type:
+          type: string
+          description: MUST be 'outcall'
+        exten:
+          type: string
+        outcall_id:
+          type: integer
+          description: The id of the outcall
+      required:
+      - type
+      - exten
+      - outcall_id
+    DestinationHangup:
+      title: DestinationHangup
+      properties:
+        type:
+          type: string
+          description: MUST be 'hangup'
+      required:
+      - type
+    DestinationQueue:
+      title: DestinationQueue
+      properties:
+        type:
+          type: string
+          description: MUST be 'queue'
+        queue_id:
+          type: integer
+          description: The id of the queue
+        ring_time:
+          type: number
+          format: float
+        skill_rule_id:
+          type: integer
+          description: The id of the skill rule
+        skill_rule_variables:
+          type: object
+          description: key-value where key represents the variable of the skill rule and value represents a value
+      required:
+      - type
+      - queue_id
+    DestinationConference:
+      title: DestinationConference
+      properties:
+        type:
+          type: string
+          description: MUST be 'conference'
+        conference_id:
+          type: integer
+          description: The id of the conference
+      required:
+      - type
+      - conference_id
+    DestinationGroup:
+      title: DestinationGroup
+      properties:
+        type:
+          type: string
+          description: MUST be 'group'
+        group_id:
+          type: integer
+          description: The id of the group
+        ring_time:
+          type: number
+          format: float
+      required:
+      - type
+      - group_id
+    DestinationHangupNormal:
+      title: DestinationHangupNormal
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'normal'
+      required:
+      - cause
+    DestinationApplicationVoicemail:
+      title: DestinationApplicationVoicemail
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'voicemail'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    SwitchboardRelationMembers:
+      properties:
+        members:
+          readOnly: true
+          $ref: '#/components/schemas/SwitchboardRelationMemberUsers'
+    UserUuid:
+      properties:
+        uuid:
+          type: string
+    DestinationHangupBusy:
+      title: DestinationHangupBusy
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'busy'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
+      required:
+      - cause
+    DestinationHangupCause:
+      title: DestinationHangupCause
+      properties:
+        busy:
+          $ref: '#/components/schemas/DestinationHangupBusy'
+        congestion:
+          $ref: '#/components/schemas/DestinationHangupCongestion'
+        normal:
+          $ref: '#/components/schemas/DestinationHangupNormal'
+    Switchboard:
+      type: object
+      allOf:
+      - properties:
+          uuid:
+            type: string
+            readOnly: true
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          name:
+            type: string
+          timeout:
+            type: integer
+            description: Maximum time allowed for a call to be queued. When the timeout expires, the call is redirected to the no-answer fallback.
+          queue_music_on_hold:
+            type: string
+          waiting_room_music_on_hold:
+            type: string
+      - $ref: '#/components/schemas/SwitchboardRelationIncalls'
+      - $ref: '#/components/schemas/SwitchboardRelationMembers'
+      - $ref: '#/components/schemas/SwitchboardRelationFallbacks'
+    DestinationApplication:
+      title: DestinationApplication
+      properties:
+        type:
+          type: string
+          description: MUST be 'application'
+      required:
+      - type
+    DestinationType:
+      title: DestinationType
+      properties:
+        application:
+          $ref: '#/components/schemas/DestinationApplicationApplication'
+        conference:
+          $ref: '#/components/schemas/DestinationConference'
+        custom:
+          $ref: '#/components/schemas/DestinationCustom'
+        extension:
+          $ref: '#/components/schemas/DestinationExtension'
+        group:
+          $ref: '#/components/schemas/DestinationGroup'
+        hangup:
+          $ref: '#/components/schemas/DestinationHangupCause'
+        ivr:
+          $ref: '#/components/schemas/DestinationIVR'
+        none:
+          $ref: '#/components/schemas/DestinationNone'
+        outcall:
+          $ref: '#/components/schemas/DestinationOutcall'
+        queue:
+          $ref: '#/components/schemas/DestinationQueue'
+        sound:
+          $ref: '#/components/schemas/DestinationSound'
+        switchboard:
+          $ref: '#/components/schemas/DestinationSwitchboard'
+        user:
+          $ref: '#/components/schemas/DestinationUser'
+        voicemail:
+          $ref: '#/components/schemas/DestinationVoicemail'
+    IncallRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    DestinationCustom:
+      title: DestinationCustom
+      properties:
+        type:
+          type: string
+          description: MUST be 'custom'
+        command:
+          type: string
+          description: The command to execute
+      required:
+      - type
+      - command
+    DestinationIVR:
+      title: DestinationIVR
+      properties:
+        type:
+          type: string
+          description: MUST be 'ivr'
+        ivr_id:
+          type: integer
+          description: The id of the IVR
+      required:
+      - type
+      - ivr_id
+    ExtensionRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Extension ID
+          readOnly: true
+        context:
+          type: string
+        exten:
+          type: string
+    DestinationSound:
+      title: DestinationSound
+      properties:
+        type:
+          type: string
+          description: MUST be 'sound'
+        filename:
+          type: string
+          description: The filename of the sound. The file MUST be imported by to webi in the playback directory. The extension of file SHOULD be not present.
+        skip:
+          type: boolean
+          description: Do not play this sound if the call is not answered
+        no_answer:
+          type: boolean
+          description: Play this sound without answering the call
+      required:
+      - type
+      - filename
+    DestinationHangupCongestion:
+      title: DestinationHangupCongestion
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'congestion'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
+      required:
+      - cause
+    DestinationApplicationCustom:
+      title: DestinationApplicationCustom
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'custom'
+          application_uuid:
+            type: string
+            description: The UUID of the application.
+      required:
+      - application
+      - application_uuid
+    UsersUuid:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/UserUuid'
+          type: array
+    DestinationVoicemail:
+      title: DestinationVoicemail
+      properties:
+        type:
+          type: string
+          description: MUST be 'voicemail'
+        voicemail_id:
+          type: integer
+          description: The id of the voicemail
+        skip_instructions:
+          type: boolean
+          description: Skip the playback of instructions for leaving a message
+        greeting:
+          type: string
+          enum:
+          - busy
+          - unavailable
+          description: Play the specified greeting
+      required:
+      - type
+      - voicemail_id
+    DestinationApplicationApplication:
+      title: DestinationApplicationApplication
+      properties:
+        callback_disa:
+          $ref: '#/components/schemas/DestinationApplicationCallbackDISA'
+        custom:
+          $ref: '#/components/schemas/DestinationApplicationCustom'
+        directory:
+          $ref: '#/components/schemas/DestinationApplicationDirectory'
+        disa:
+          $ref: '#/components/schemas/DestinationApplicationDISA'
+        fax_to_mail:
+          $ref: '#/components/schemas/DestinationApplicationFaxToMail'
+        voicemail:
+          $ref: '#/components/schemas/DestinationApplicationVoicemail'
+    DestinationSwitchboard:
+      title: DestinationSwitchboard
+      properties:
+        type:
+          type: string
+          description: MUST be 'switchboard'
+        switchboard_uuid:
+          type: string
+          description: The UUID of the switchboard.
+      required:
+      - type
+      - switchboard_uuid
+    DestinationApplicationCallbackDISA:
+      title: DestinationApplicationCallbackDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'callback_disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    SwitchboardRelationFallbacks:
+      properties:
+        fallbacks:
+          readOnly: true
+          $ref: '#/components/schemas/SwitchboardFallbacks'
+    DestinationApplicationFaxToMail:
+      title: DestinationApplicationFaxToMail
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'fax_to_mail'
+          email:
+            type: string
+            description: The email of the application
+      required:
+      - application
+      - email
+    IncallRelationBase:
+      title: IncallRelation
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the incoming call
+    Error_2:
+      type: array
+      items:
+        type: string
+    UserRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
+    DestinationNone:
+      title: DestinationNone
+      properties:
+        type:
+          type: string
+          description: MUST be 'none'
+      required:
+      - type
+    SwitchboardFallbacks:
+      properties:
+        noanswer_destination:
+          description: If a call has not been answered before the switchboard `timeout`, the call will be redirected to this destination.
+          $ref: '#/components/schemas/DestinationType'
+      example:
+        noanswer_destination:
+          type: user
+          user_id: 1
+    DestinationExtension:
+      title: DestinationExtension
+      properties:
+        type:
+          type: string
+          description: MUST be 'extension'
+        exten:
+          type: string
+        context:
+          type: string
+          description: Context of the extension
+      required:
+      - type
+      - exten
+      - context
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoSuchSwitchboard:
+      description: The specified switchboard does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-refined-from:
+- wazo-calld-api-openapi.yml
+- wazo-confd-api-openapi.yml
+x-xivo-name: agentd
+x-xivo-port: 9493
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-agentd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/agentd/1.0/api/api.yml (see wazo_agentd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

@@ -1,0 +1,499 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Skills API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: skills
+paths:
+  /agents/{agent_id}/skills/{skill_id}:
+    put:
+      operationId: associate_agent_skill
+      summary: Associate agent and skill
+      description: '**Required ACL:** `confd.agents.{agent_id}.skills.{skill_id}.update`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/agentid'
+      - $ref: '#/components/parameters/skillid'
+      responses:
+        '204':
+          description: Association updated
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentSkill'
+    delete:
+      operationId: dissociate_agent_skill
+      summary: Dissociate agent and skill
+      description: '**Required ACL:** `confd.agents.{agent_id}.skills.{skill_id}.delete`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/agentid'
+      - $ref: '#/components/parameters/skillid'
+      responses:
+        '204':
+          description: Skill and Agent dissociated
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /agents/skills:
+    get:
+      operationId: list_skills
+      summary: List skill
+      description: '**Required ACL:** `confd.agents.skills.read`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Skills list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillItems'
+    post:
+      operationId: create_skill
+      summary: Create skill
+      description: '**Required ACL:** `confd.agents.skills.create`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Skill created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Skill'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Skill'
+        description: Skill to create
+        required: true
+  /agents/skills/{skill_id}:
+    get:
+      operationId: get_skill
+      summary: Get skill
+      description: '**Required ACL:** `confd.agents.skills.{skill_id}.read`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/skillid'
+      responses:
+        '200':
+          description: Skill
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Skill'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_skill
+      summary: Update skill
+      description: '**Required ACL:** `confd.agents.skills.{skill_id}.update`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/skillid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Skill'
+        required: true
+    delete:
+      operationId: delete_skill
+      summary: Delete skill
+      description: '**Required ACL:** `confd.agents.skills.{skill_id}.delete`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/skillid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /queues/skillrules:
+    get:
+      operationId: list_skill_rules
+      summary: List skill rule
+      description: '**Required ACL:** `confd.queues.skillrules.read`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/recurse'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/direction'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Skill rules list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillRuleItems'
+    post:
+      operationId: create_skill_rule
+      summary: Create skill rule
+      description: '**Required ACL:** `confd.queues.skillrules.create`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      responses:
+        '201':
+          description: Skill rule created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillRule'
+        '400':
+          $ref: '#/components/responses/CreateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SkillRule'
+        description: Skill rule to create
+        required: true
+  /queues/skillrules/{skillrule_id}:
+    get:
+      operationId: get_skill_rule
+      summary: Get skill rule
+      description: '**Required ACL:** `confd.queues.skillrules.{skillrule_id}.read`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/skillruleid'
+      responses:
+        '200':
+          description: Skill rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillRule'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      operationId: update_skill_rule
+      summary: Update skill rule
+      description: '**Required ACL:** `confd.queues.skillrules.{skillrule_id}.update`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/skillruleid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SkillRule'
+        required: true
+    delete:
+      operationId: delete_skill_rule
+      summary: Delete skill rule
+      description: '**Required ACL:** `confd.queues.skillrules.{skillrule_id}.delete`'
+      tags:
+      - skills
+      parameters:
+      - $ref: '#/components/parameters/tenantuuid'
+      - $ref: '#/components/parameters/skillruleid'
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceDeleted'
+        '400':
+          $ref: '#/components/responses/DeleteError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  schemas:
+    Skill:
+      title: Skill
+      allOf:
+      - $ref: '#/components/schemas/SkillRelationBase'
+      - properties:
+          description:
+            type: string
+      - $ref: '#/components/schemas/SkillRelationAgents'
+      - required:
+        - name
+    SkillRelationAgents:
+      properties:
+        agents:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/SkillRelationAgent'
+    SkillRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the skill
+    SkillRelationAgent:
+      allOf:
+      - $ref: '#/components/schemas/AgentRelationBase'
+      - $ref: '#/components/schemas/AgentSkillRelationBase'
+    SkillRuleRule:
+      title: SkillRuleRule
+      properties:
+        definition:
+          type: string
+          description: The rule definition
+    AgentSkill:
+      title: AgentSkill
+      allOf:
+      - $ref: '#/components/schemas/AgentSkillRelationBase'
+    AgentRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the agent
+        firstname:
+          type: string
+        lastname:
+          type: string
+        number:
+          type: string
+          description: Agent number. Cannot be modified after creation
+    SkillRuleItems:
+      title: SkillRuleItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillRule'
+        total:
+          type: integer
+      required:
+      - total
+    SkillRule:
+      title: SkillRule
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the skill rule
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillRuleRule'
+      required:
+      - name
+    AgentSkillRelationBase:
+      properties:
+        skill_weight:
+          type: integer
+          description: Skill's weight.
+    Error:
+      type: array
+      items:
+        type: string
+    SkillItems:
+      title: SkillItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+        total:
+          type: integer
+      required:
+      - total
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    agentid:
+      required: true
+      name: agent_id
+      in: path
+      description: Agent’s ID
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    skillid:
+      required: true
+      name: skill_id
+      in: path
+      description: Skill's ID
+      schema:
+        type: integer
+    skillruleid:
+      required: true
+      name: skillrule_id
+      in: path
+      description: Skill's ID
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

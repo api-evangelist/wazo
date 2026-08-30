@@ -1,0 +1,921 @@
+openapi: 3.2.0
+info:
+  title: wazo-confd Asterisk API
+  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  version: '1.1'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.1
+security:
+- wazo_auth_token: []
+tags:
+- name: asterisk
+paths:
+  /asterisk/confbridge/wazo_default_bridge:
+    get:
+      operationId: list_asterisk_confbridge_wazo_default_bridge
+      summary: List ConfBridge wazo_default_bridge options
+      description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_bridge.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: ConfBridge wazo_default_bridge
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfBridgeConfiguration'
+    put:
+      operationId: update_asterisk_confbridge_wazo_default_bridge
+      summary: Update ConfBridge wazo_default_bridge option
+      description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_bridge.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that
+
+        are not defined.
+
+
+        All available configuration options are listed in the
+
+        [sample](https://raw.githubusercontent.com/asterisk/asterisk/master/configs/samples/confbridge.conf.sample)
+
+        Asterisk configuration file.
+
+        '
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfBridgeConfiguration'
+        required: true
+  /asterisk/confbridge/wazo_default_user:
+    get:
+      operationId: list_asterisk_confbridge_wazo_default_user
+      summary: List ConfBridge wazo_default_user options
+      description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_user.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: ConfBridge wazo_default_user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfBridgeConfiguration'
+    put:
+      operationId: update_asterisk_confbridge_wazo_default_user
+      summary: Update ConfBridge wazo_default_user option
+      description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_user.update`
+
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that
+
+        are not defined.
+
+
+        All available configuration options are listed in the
+
+        [sample](https://raw.githubusercontent.com/asterisk/asterisk/master/configs/samples/confbridge.conf.sample)
+
+        Asterisk configuration file.
+
+        '
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfBridgeConfiguration'
+        required: true
+  /asterisk/features/applicationmap:
+    get:
+      operationId: list_asterisk_features_applicationmap
+      summary: List Features applicationmap options
+      description: '**Required ACL:** `confd.asterisk.features.applicationmap.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: Features applicationmap
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeaturesConfiguration'
+    put:
+      operationId: update_asterisk_features_applicationmap
+      summary: Update Features applicationmap option
+      description: '**Required ACL:** `confd.asterisk.features.applicationmap.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeaturesConfiguration'
+        required: true
+  /asterisk/features/featuremap:
+    get:
+      operationId: list_asterisk_features_featuremap
+      summary: List Features featuremap options
+      description: '**Required ACL:** `confd.asterisk.features.featuremap.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: Features featuremap
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeaturesConfiguration'
+    put:
+      operationId: update_asterisk_features_featuremap
+      summary: Update Features featuremap option
+      description: '**Required ACL:** `confd.asterisk.features.featuremap.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeaturesConfiguration'
+        required: true
+  /asterisk/features/general:
+    get:
+      operationId: list_asterisk_features_general
+      summary: List Features general options
+      description: '**Required ACL:** `confd.asterisk.features.general.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: Features general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeaturesConfiguration'
+    put:
+      operationId: update_asterisk_features_general
+      summary: Update Features general option
+      description: '**Required ACL:** `confd.asterisk.features.general.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeaturesConfiguration'
+        required: true
+  /asterisk/hep/general:
+    get:
+      operationId: list_asterisk_hep_general
+      summary: List HEP general options
+      description: '**Required ACL:** `confd.asterisk.hep.general.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: HEP general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HEPConfiguration'
+    put:
+      operationId: update_asterisk_hep_general
+      summary: Update HEP general option
+      description: '**Required ACL:** `confd.asterisk.hep.general.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HEPConfiguration'
+        required: true
+  /asterisk/iax/callnumberlimits:
+    get:
+      operationId: list_asterisk_iax_callnumberlimits
+      summary: List IAX callnumberlimits options
+      description: '**Required ACL:** `confd.asterisk.iax.callnumberlimits.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: IAX callnumberlimits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IAXCallNumberLimitss'
+    put:
+      operationId: update_asterisk_iax_callnumberlimits
+      summary: Update IAX callnumberlimits option
+      description: '**Required ACL:** `confd.asterisk.iax.callnumberlimits.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IAXCallNumberLimitss'
+        required: true
+  /asterisk/iax/general:
+    get:
+      operationId: list_asterisk_iax_general
+      summary: List IAX general options
+      description: '**Required ACL:** `confd.asterisk.iax.general.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: IAX general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IAXGeneral'
+    put:
+      operationId: update_asterisk_iax_general
+      summary: Update IAX general option
+      description: '**Required ACL:** `confd.asterisk.iax.general.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IAXGeneral'
+        required: true
+  /asterisk/pjsip/doc:
+    get:
+      description: '**Required ACL:**: `confd.asterisk.pjsip.doc.read`
+
+
+        List all available configuration options for PJSIP, those values are
+
+        used to validate to content of POST and PUT requests.
+
+        '
+      operationId: show_pjsip_doc
+      responses:
+        '200':
+          description: A list of all PJSIP configuration options
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PJSIPConfigurationOptions'
+        '400':
+          description: wazo-confd could not read the PJSIP documentation file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      summary: List all PJSIP configuration options
+      tags:
+      - asterisk
+  /asterisk/pjsip/system:
+    get:
+      operationId: list_asterisk_pjsip_system
+      summary: List of PJSIP options for the `system` section
+      description: '**Required ACL:** `confd.asterisk.pjsip.system.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: SIP system
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PJSIPSystem'
+    put:
+      operationId: update_asterisk_pjsip_system
+      summary: Update PJSIP section options
+      description: '**Required ACL:** `confd.asterisk.pjsip.system.update`
+
+        The PJSIP system configuration is shared among all tenants of an instance.
+
+        **WARNING** This endpoint restore to default value or delete all fields that
+
+        are not defined.
+
+        '
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PJSIPSystem'
+        required: true
+  /asterisk/pjsip/global:
+    get:
+      operationId: list_asterisk_pjsip_global
+      summary: List of PJSIP options for the `global` section
+      description: '**Required ACL:** `confd.asterisk.pjsip.global.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: SIP global
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PJSIPGlobal'
+    put:
+      operationId: update_asterisk_pjsip_global
+      summary: Update PJSIP section options
+      description: '**Required ACL:** `confd.asterisk.pjsip.global.update`
+
+        The PJSIP global configuration is shared among all tenants of an instance.
+
+        **WARNING** This endpoint restore to default value or delete all fields that
+
+        are not defined.
+
+        '
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PJSIPGlobal'
+        required: true
+  /asterisk/queues/general:
+    get:
+      operationId: list_asterisk_queue_general
+      summary: List Queue general options
+      description: '**Required ACL:** `confd.asterisk.queue.general.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: Queue general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueueGeneral'
+    put:
+      operationId: update_asterisk_queue_general
+      summary: Update Queue general option
+      description: '**Required ACL:** `confd.asterisk.queue.general.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueueGeneral'
+        required: true
+  /asterisk/rtp/general:
+    get:
+      operationId: list_asterisk_rtp_general
+      summary: List RTP general options
+      description: '**Required ACL:** `confd.asterisk.rtp.general.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: RTP general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RTPConfiguration'
+    put:
+      operationId: update_asterisk_rtp_general
+      summary: Update RTP general option
+      description: '**Required ACL:** `confd.asterisk.rtp.general.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RTPConfiguration'
+        required: true
+  /asterisk/rtp/ice_host_candidates:
+    get:
+      operationId: list_asterisk_rtp_ice_host_candidates
+      summary: List RTP ice_host_candidates options
+      description: '**Required ACL:** `confd.asterisk.rtp.ice_host_candidates.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: RTP ice_host_candidates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RTPConfiguration'
+    put:
+      operationId: update_asterisk_rtp_ice_host_candidates
+      summary: Update RTP ice_host_candidates option
+      description: '**Required ACL:** `confd.asterisk.rtp.ice_host_candidates.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RTPConfiguration'
+        required: true
+  /asterisk/sccp/general:
+    get:
+      operationId: list_asterisk_sccp_general
+      summary: List SCCP general options
+      description: '**Required ACL:** `confd.asterisk.sccp.general.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: SCCP general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCCPGeneral'
+    put:
+      operationId: update_asterisk_sccp_general
+      summary: Update SCCP general option
+      description: '**Required ACL:** `confd.asterisk.sccp.general.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SCCPGeneral'
+        required: true
+  /asterisk/voicemail/general:
+    get:
+      operationId: list_asterisk_voicemail_general
+      summary: List Voicemail general options
+      description: '**Required ACL:** `confd.asterisk.voicemail.general.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: Voicemail general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailGeneral'
+    put:
+      operationId: update_asterisk_voicemail_general
+      summary: Update Voicemail general option
+      description: '**Required ACL:** `confd.asterisk.voicemail.general.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoicemailGeneral'
+        required: true
+  /asterisk/voicemail/zonemessages:
+    get:
+      operationId: list_asterisk_voicemail_zonemessages
+      summary: List Voicemail zonemessages options
+      description: '**Required ACL:** `confd.asterisk.voicemail.zonemessages.read`'
+      tags:
+      - asterisk
+      responses:
+        '200':
+          description: Voicemail zonemessages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoicemailZoneMessages'
+    put:
+      operationId: update_asterisk_voicemail_zonemessages
+      summary: Update Voicemail zonemessages option
+      description: '**Required ACL:** `confd.asterisk.voicemail.zonemessages.update`
+
+
+        **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
+      tags:
+      - asterisk
+      responses:
+        '204':
+          $ref: '#/components/responses/ResourceUpdated'
+        '400':
+          $ref: '#/components/responses/UpdateError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoicemailZoneMessages'
+        required: true
+components:
+  schemas:
+    IAXCallNumberLimits:
+      title: IAXCallNumberLimits
+      properties:
+        ip_address:
+          type: string
+          description: IPv4 address of the destination
+        netmask:
+          type: string
+          description: Netmask of the IP address (e.g. 255.255.255.255)
+        limit:
+          type: string
+          description: Maximum call for the ip_address destination
+      required:
+      - ip_address
+      - netmask
+      - limit
+    VoicemailGeneral:
+      title: VoicemailGeneral
+      description: 'Voicemail general configuration. This configuration will be in the file ''voicemail.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
+      properties:
+        options:
+          description: "General Voicemail options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    ConfBridgeConfiguration:
+      title: ConfBridgeConfiguration
+      description: 'This configuration will be in the file ''confbridge.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
+      properties:
+        options:
+          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    IAXCallNumberLimitss:
+      title: IAXCallNumberLimitss
+      properties:
+        items:
+          description: 'IAX callnumberlimits configuration. This configuration will be in the file ''iax.conf'' used by asterisk.
+
+            Please consult the asterisk documentation for further details on available parameters.'
+          type: array
+          items:
+            $ref: '#/components/schemas/IAXCallNumberLimits'
+    RTPConfiguration:
+      title: RTPConfiguration
+      description: 'This configuration will be in the file ''rtp.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
+      properties:
+        options:
+          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    PJSIPConfigurationOptions:
+      properties:
+        aor:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        auth:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        contact:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        domain_alias:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        endpoint:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        global:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        registration:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        system:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        transport:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+    VoicemailZoneMessages:
+      title: VoicemailZoneMessages
+      properties:
+        items:
+          description: 'Voicemail zonemessages configuration. This configuration will be in the file ''voicemail.conf'' used by asterisk.
+
+            Please consult the asterisk documentation for further details on available parameters.'
+          type: array
+          items:
+            $ref: '#/components/schemas/VoicemailZoneMessage'
+    PJSIPGlobal:
+      description: 'PJSIP global configuration.
+
+        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
+
+        '
+      properties:
+        options:
+          type: object
+      example:
+        options:
+          max_forwards: '5'
+          keep_alive_interval: '30'
+          user_agent: Wazo
+          debug: false
+    PJSIPConfigurationOption:
+      properties:
+        name:
+          type: string
+          description: The name of the option
+        synopsis:
+          type: string
+          description: A brief description of the option
+        description:
+          type: string
+          description: A long description of the option
+        default:
+          type: string
+          description: The default value for this option
+    VoicemailZoneMessage:
+      title: VoicemailZoneMessage
+      properties:
+        name:
+          type: string
+          description: label on which each voicemail is mapped
+        timezone:
+          type: string
+          description: Timezone as define in '/usr/share/zoneinfo/'
+        message:
+          type: string
+          description: Message that each user hears.
+      required:
+      - name
+      - timezone
+    SCCPGeneral:
+      title: SCCPGeneral
+      description: SCCP general configuration. This configuration will be in the file 'sccp.conf' used by asterisk.
+      properties:
+        options:
+          description: "General SCCP options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    PJSIPSystem:
+      description: 'PJSIP system configuration.
+
+        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
+
+        '
+      properties:
+        options:
+          type: object
+      example:
+        options:
+          accept_multiple_sdp_answers: 'yes'
+          compact_headers: 'yes'
+          disable_tcp_switch: 'yes'
+          follow_early_media_fork: 'no'
+    QueueGeneral:
+      title: QueueGeneral
+      description: 'Queue general configuration. This configuration will be in the file ''queue.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
+      properties:
+        options:
+          description: "General Queue options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    FeaturesConfiguration:
+      title: FeaturesConfiguration
+      description: 'This configuration will be in the file ''features.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
+      properties:
+        options:
+          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    HEPConfiguration:
+      title: HEPConfiguration
+      description: 'This configuration will be in the file ''hep.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
+      properties:
+        options:
+          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+      example:
+        options:
+          enabled: 'yes'
+    IAXGeneral:
+      title: IAXGeneral
+      description: 'IAX general configuration. This configuration will be in the file ''iax.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
+      properties:
+        options:
+          description: "General IAX options. These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+        ordered_options:
+          description: "Any options may be repeated as many times and ordered as needed. Ordered options must have the following form:\n\n```\n{\n  \"ordered_options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in iax.conf will have the following form:\n\n```\n[general]\nname1=value1\nname2=value2\n```\n"
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueOption'
+    Error:
+      type: array
+      items:
+        type: string
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9486
+x-xivo-name: confd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-confd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/confd/1.1/api/api.yml (see wazo_confd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'

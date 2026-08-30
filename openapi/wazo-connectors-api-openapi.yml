@@ -1,0 +1,430 @@
+openapi: 3.2.0
+info:
+  title: wazo-chatd Connectors API
+  description: Control your message and presence from a REST API
+  version: 1.0.0
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: https://wazo-platform.org/images/logo-black.svg
+    backgroundColor: '#FAFAFA'
+    altText: Wazo Logo
+servers:
+- url: /1.0
+security:
+- wazo_auth_token: []
+tags:
+- name: connectors
+paths:
+  /connectors:
+    get:
+      operationId: list_connectors
+      summary: List capability metadata for every registered backend
+      description: '**Required ACL:** `chatd.connectors.read`
+
+
+        Returns supported types and tenant-configured state for
+
+        each registered backend.
+
+        '
+      tags:
+      - connectors
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      responses:
+        '200':
+          description: Connector list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorList'
+  /connectors/{backend}/auth-schema:
+    get:
+      operationId: get_connector_auth_schema
+      summary: Get the credential schema declared by the backend
+      description: '**Required ACL:** `chatd.connectors.{backend}.auth-schema.read`
+
+
+        Returns the connector''s declared credential fields and where the
+
+        credentials live (`scope`). The body is class-level metadata —
+
+        identical across tenants.
+
+        '
+      tags:
+      - connectors
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      - name: backend
+        in: path
+        description: The backend name
+        required: true
+        schema:
+          type: string
+      - name: If-None-Match
+        in: header
+        required: false
+        description: Quoted ETag of a previously fetched body
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Auth schema
+          headers:
+            ETag:
+              description: Quoted SHA-256 of the canonical body
+              schema:
+                type: string
+            Cache-Control:
+              description: Caching directives (`private, no-cache`)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorAuthSchema'
+        '304':
+          description: Body unchanged since the ETag was issued
+        '404':
+          description: No such connector
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+  /connectors/{backend}/identities:
+    get:
+      operationId: list_connector_identities
+      summary: List identities the backend reports this tenant owns
+      description: '**Required ACL:** `chatd.connectors.{backend}.identities.read`
+
+
+        Each item carries the backend-reported identity and its
+
+        binding to a Wazo user (``null`` when unbound).
+
+        '
+      tags:
+      - connectors
+      parameters:
+      - $ref: '#/components/parameters/tenant_uuid'
+      - name: backend
+        in: path
+        description: The backend name
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Identity list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorIdentityList'
+        '400':
+          description: Backend not configured for this tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '404':
+          description: No such connector
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '501':
+          description: Connector does not support listing identities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '502':
+          description: Connector failed to list identities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '503':
+          $ref: '#/components/responses/AnotherServiceUnavailable'
+  /connectors/incoming:
+    post:
+      operationId: connector_webhook
+      summary: Receive incoming webhook from connector
+      description: 'Dispatches an incoming webhook to the matching connector backend.
+
+
+        **Body size**: capped at 4 MB at the nginx layer. Bodies above
+
+        the cap are rejected with HTTP 413 before reaching chatd.
+
+        '
+      tags:
+      - connectors
+      security: []
+      responses:
+        '204':
+          description: Webhook accepted
+        '400':
+          description: No connector matched the webhook payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '401':
+          description: Webhook signature verification failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '503':
+          description: Webhook deferred; backend should retry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+        required: true
+  /connectors/incoming/{backend}:
+    post:
+      operationId: connector_webhook_with_hint
+      summary: Receive incoming webhook with backend hint
+      description: Dispatches an incoming webhook, trying the specified backend first.
+      tags:
+      - connectors
+      security: []
+      parameters:
+      - name: backend
+        in: path
+        description: Backend name hint for faster dispatch
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Webhook accepted
+        '400':
+          description: No connector matched the webhook payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '401':
+          description: Webhook signature verification failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+        '503':
+          description: Webhook deferred; backend should retry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+        required: true
+components:
+  schemas:
+    ConnectorLocalizedLabel:
+      title: ConnectorLocalizedLabel
+      properties:
+        language:
+          type: string
+          description: Locale tag, e.g. `en_US`.
+        value:
+          type: string
+    APIError:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
+    Connector:
+      title: Connector
+      properties:
+        name:
+          type: string
+          description: The backend identifier
+        supported_types:
+          type: array
+          items:
+            type: string
+          description: Messaging types this backend can handle
+        configured:
+          type: boolean
+          description: 'Whether the backend is ready to use for this tenant. For backends
+
+            that require per-tenant credentials, this is true once wazo-auth has
+
+            external credentials stored. Backends with no credential requirement
+
+            (auth scope ``none``) are always reported as configured.
+
+            '
+        mode:
+          type: string
+          enum:
+          - webhook
+          - poll
+          - listen
+          description: 'Transport the backend uses to exchange messages with the provider.
+
+            ``webhook`` requires configuring a provider-side callback to wazo;
+
+            ``poll`` and ``listen`` need none.
+
+            '
+    ConnectorIdentityItem:
+      title: ConnectorIdentityItem
+      properties:
+        identity:
+          type: string
+          description: The external identity value
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: Messaging capabilities of this identity (e.g. ["sms"], ["sms", "mms"])
+        binding:
+          $ref: '#/components/schemas/ConnectorIdentityBinding'
+          description: Wazo binding for this identity, or null when unbound
+    ConnectorList:
+      title: ConnectorList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Connector'
+        total:
+          type: integer
+          description: The number of results
+    ConnectorAuthSchemaField:
+      title: ConnectorAuthSchemaField
+      properties:
+        name:
+          type: string
+          description: Machine-readable field name (used as the form key).
+        type:
+          type: string
+          enum:
+          - string
+          - secret
+          - select
+          - boolean
+          - integer
+          - url
+        required:
+          type: boolean
+        default:
+          type: string
+        label:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectorLocalizedLabel'
+        choices:
+          type: array
+          items:
+            type: string
+          description: Allowed values; only emitted when `type` is `select`.
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    ConnectorIdentityBinding:
+      title: ConnectorIdentityBinding
+      properties:
+        identity_uuid:
+          type: string
+          description: The UUID of the bound UserIdentity row
+        user_uuid:
+          type: string
+          description: The UUID of the user the identity is bound to
+    ConnectorIdentityList:
+      title: ConnectorIdentityList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectorIdentityItem'
+        total:
+          type: integer
+          description: The number of results
+    ConnectorAuthSchema:
+      title: ConnectorAuthSchema
+      properties:
+        scope:
+          type: string
+          enum:
+          - none
+          - tenant
+          description: 'Where the credentials are stored. `none` means the backend needs
+
+            no credentials; `tenant` means they live in wazo-auth tenant
+
+            external config.
+
+            '
+        fields:
+          type: array
+          description: Fields required to collect the credentials.
+          items:
+            $ref: '#/components/schemas/ConnectorAuthSchemaField'
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    tenant_uuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    wazo_auth_token:
+      type: apiKey
+      name: X-Auth-Token
+      in: header
+x-xivo-port: 9304
+x-xivo-name: chatd
+x-apievangelist-source:
+  harvested_from: https://github.com/wazo-platform/wazo-chatd
+  assembly: base plugin api.yml deep-merged with all plugin api.yml fragments, reproducing what the running service serves at /api/chatd/1.0/api/api.yml (see wazo_chatd/plugins/api/http.py — xivo.chain_map.ChainMap)
+  spec_version: Swagger 2.0 (as published by Wazo)
+  harvested: '2026-08-17'
