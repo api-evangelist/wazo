@@ -30,25 +30,25 @@ specificationVersion: '0.23'
 created: '2026-08-17'
 modified: '2026-08-17'
 tags:
-- telephony
-- voip
-- unified-communications
-- ucaas
-- contact-center
+- Telephony
+- VoIP
+- Unified Communications
+- UCaaS
+- Contact Center
 - SIP
 - asterisk
 - WebRTC
 - Open-Source
-- self-hosted
-- white-label
-- pbx
-- msp
-- call-center
+- Self-Hosted
+- White Label
+- PBX
+- MSP
+- Call Center
 - Provisioning
 - Webhook
-- event-driven
+- Event-Driven
 - Chat
-- presence
+- Presence
 - CDR
 tags_raw:
 - telephony
@@ -81,15 +81,15 @@ apis:
   baseURL: https://{wazo_stack}/api/provd/0.2
   tags:
   - asterisk
-  - device-management
+  - Device Management
   - Provisioning
   - SIP
   - sip-phones
-  - telephony
-  - ucaas
-  - unified-communications
-  - voip
-  - zero-touch
+  - Telephony
+  - UCaaS
+  - Unified Communications
+  - VoIP
+  - Zero Touch
   tags_raw:
   - asterisk
   - device-management
@@ -129,13 +129,13 @@ apis:
   humanURL: https://api.wazo.io/documentation/overview/websocket.html
   baseURL: wss://{wazo_stack}/api/websocketd/
   tags:
-  - websocket
+  - WebSocket
   - Event
-  - event-driven
+  - Event-Driven
   - Real-Time
-  - telephony
-  - pubsub
-  - streaming
+  - Telephony
+  - Pub-Sub
+  - Streaming
   tags_raw:
   - websocket
   - events
@@ -13723,7 +13723,7 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
-  - Trunks
+  - trunks
   tags_raw:
   - trunks
   properties:
@@ -14774,6 +14774,9 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: License
+  name: GPL-3.0
+  url: https://github.com/wazo-platform/wazo-provd/blob/master/LICENSE
 - type: Overlay
   url: overlays/wazo-auth-overlay.yaml
 - type: Overlay
