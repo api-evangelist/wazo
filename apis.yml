@@ -1,14 +1,15 @@
 aid: wazo
 name: Wazo
-description: 'Wazo Communication Inc. builds the Wazo Platform, an open-source (GPL-3.0) programmable unified-communications
-  and contact-centre platform assembled from Asterisk, Kamailio, RabbitMQ, PostgreSQL and nginx, which MSPs, carriers, telecom
-  integrators and enterprises self-host or resell white-label as UCaaS. The platform is API-first: thirteen HTTP microservices
-  — authentication, stack configuration (confd), runtime call control (calld), call detail records, directories, call-centre
-  agents, presence and chat, phone auto-provisioning, webhooks, plugin management, the Asterisk Manager facade and initial
-  setup — each publish their own Swagger 2.0 contract totalling 932 operations, share a single X-Auth-Token bearer model
-  governed by 788 fine-grained ACL permissions, and emit 327 named events onto a RabbitMQ bus that wazo-webhookd relays
-  as HTTP webhooks and wazo-websocketd streams over WebSocket. There is no public multi-tenant API host: every base URL
-  is the customer''s own stack.'
+description: 'Wazo Communication Inc. builds the Wazo Platform, an open-source (GPL-3.0) programmable
+  unified-communications and contact-centre platform assembled from Asterisk, Kamailio, RabbitMQ, PostgreSQL
+  and nginx, which MSPs, carriers, telecom integrators and enterprises self-host or resell white-label
+  as UCaaS. The platform is API-first: thirteen HTTP microservices — authentication, stack configuration
+  (confd), runtime call control (calld), call detail records, directories, call-centre agents, presence
+  and chat, phone auto-provisioning, webhooks, plugin management, the Asterisk Manager facade and initial
+  setup — each publish their own Swagger 2.0 contract totalling 932 operations, share a single X-Auth-Token
+  bearer model governed by 788 fine-grained ACL permissions, and emit 327 named events onto a RabbitMQ
+  bus that wazo-webhookd relays as HTTP webhooks and wazo-websocketd streams over WebSocket. There is
+  no public multi-tenant API host: every base URL is the customer''s own stack.'
 deliveryModel:
   model: unknown
   open_source: unknown
@@ -44,7 +45,7 @@ x-type: company
 x-source: serena-portfolio
 specificationVersion: '0.23'
 created: '2026-08-17'
-modified: '2026-08-17'
+modified: '2026-09-16'
 tags:
 - Telephony
 - VoIP
@@ -89,10 +90,9 @@ tags_raw:
 - cdr
 apis:
 - name: Wazo Phone Provisioning API (wazo-provd)
-  description: >-
-    Phone auto-provisioning service. Manages device plugins, configuration templates, device registrations,
-    DHCP integration and the plugin repository used to provision desk phones and ATAs from vendors such
-    as Aastra/Mitel, Cisco, Fanvil, Gigaset, Htek, Polycom, Snom and Yealink.
+  description: Phone auto-provisioning service. Manages device plugins, configuration templates, device
+    registrations, DHCP integration and the plugin repository used to provision desk phones and ATAs from
+    vendors such as Aastra/Mitel, Cisco, Fanvil, Gigaset, Htek, Polycom, Snom and Yealink.
   humanURL: https://api.wazo.io/documentation/api/provisioning.html
   baseURL: https://{wazo_stack}/api/provd/0.2
   tags:
@@ -137,11 +137,11 @@ apis:
   - type: Overlay
     url: overlays/wazo-provd-overlay.yaml
 - name: Wazo Websocket Event Stream (wazo-websocketd)
-  description: >-
-    WebSocket gateway onto the Wazo internal event bus. An authenticated client subscribes to named platform
-    events (327 event types across confd, calld, agentd, dird, amid, sysconfd and webhookd) and receives
-    them as JSON frames in real time. There is no REST contract for this surface; the event catalogue
-    is captured as a webhook/event artifact rather than an AsyncAPI document because Wazo publishes none.
+  description: WebSocket gateway onto the Wazo internal event bus. An authenticated client subscribes
+    to named platform events (327 event types across confd, calld, agentd, dird, amid, sysconfd and webhookd)
+    and receives them as JSON frames in real time. There is no REST contract for this surface; the event
+    catalogue is captured as a webhook/event artifact rather than an AsyncAPI document because Wazo publishes
+    none.
   humanURL: https://api.wazo.io/documentation/overview/websocket.html
   baseURL: wss://{wazo_stack}/api/websocketd/
   tags:
@@ -10580,8 +10580,7 @@ apis:
     url: asyncapi/wazo-amid-asyncapi.yml
 - aid: wazo:wazo-recordings-announcements-api
   name: Wazo Recordings Announcements API
-  description: >-
-    The recordings-announcements API from Wazo — 1 operation(s) for recordings-announcements.
+  description: The recordings-announcements API from Wazo — 1 operation(s) for recordings-announcements.
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
@@ -13999,8 +13998,7 @@ apis:
     url: asyncapi/wazo-amid-asyncapi.yml
 - aid: wazo:wazo-voicemail-transcriptions-api
   name: Wazo Voicemail Transcriptions API
-  description: >-
-    The voicemail_transcriptions API from Wazo — 1 operation(s) for voicemail_transcriptions.
+  description: The voicemail_transcriptions API from Wazo — 1 operation(s) for voicemail_transcriptions.
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags: []
@@ -14262,7 +14260,7 @@ apis:
   - type: AsyncAPI
     url: asyncapi/wazo-amid-asyncapi.yml
 - aid: wazo:wazo-wazo-api
-  name: Wazo Wazo API
+  name: Wazo API
   description: The wazo API from Wazo — 1 operation(s) for wazo.
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
