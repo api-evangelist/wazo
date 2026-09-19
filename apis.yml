@@ -2562,7 +2562,7 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
-  - Conference
+  - Conferences
   tags_raw:
   - conference
   properties:
@@ -4014,7 +4014,7 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
-  - Emails
+  - Email
   tags_raw:
   - emails
   properties:
@@ -7561,7 +7561,7 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
-  - Market
+  - Markets
   tags_raw:
   - market
   properties:
@@ -9531,7 +9531,7 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
-  - Plugin
+  - Plugins
   tags_raw:
   - plugin
   properties:
@@ -11632,7 +11632,7 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
-  - Schedules
+  - Schedule
   tags_raw:
   - schedules
   properties:
@@ -13210,7 +13210,7 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
-  - Timezones
+  - Timezone
   tags_raw:
   - timezones
   properties:
@@ -13342,7 +13342,7 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
-  - Token
+  - Tokens
   tags_raw:
   - token
   properties:
