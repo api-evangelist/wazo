@@ -25,9 +25,7 @@ paths:
 
         formated for Thomson Phones. The results will be retrieved from a lookup query to
 
-        wazo-dird.
-
-        '
+        wazo-dird.'
       operationId: thomson_lookup
       tags:
       - thomson
@@ -52,12 +50,43 @@ paths:
       - $ref: '#/components/parameters/Offset'
       - $ref: '#/components/parameters/AcceptLanguage'
 components:
+  schemas:
+    ThomsonPhoneBook:
+      properties:
+        DirectoryEntry:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThomsonDirectoryEntry'
+    Error:
+      type: object
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    ThomsonDirectoryEntry:
+      properties:
+        Name:
+          type: string
+        Telephone:
+          type: string
   parameters:
-    Term:
-      name: term
-      in: query
-      description: A search term to look for
-      required: true
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
       schema:
         type: string
     Profile:
@@ -67,11 +96,11 @@ components:
       required: true
       schema:
         type: string
-    AcceptLanguage:
-      name: Accept-Language
-      in: header
-      required: false
-      description: The language to translate the query results in
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
+      required: true
       schema:
         type: string
     Offset:
@@ -98,8 +127,8 @@ components:
         type: integer
         default: 8
   responses:
-    ProfileInvalid:
-      description: The profile does not exist
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
       content:
         application/json:
           schema:
@@ -110,43 +139,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+    ProfileInvalid:
+      description: The profile does not exist
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  schemas:
-    Error:
-      type: object
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    ThomsonDirectoryEntry:
-      properties:
-        Name:
-          type: string
-        Telephone:
-          type: string
-    ThomsonPhoneBook:
-      properties:
-        DirectoryEntry:
-          type: array
-          items:
-            $ref: '#/components/schemas/ThomsonDirectoryEntry'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

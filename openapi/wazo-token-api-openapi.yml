@@ -14,7 +14,7 @@ info:
 servers:
 - url: /0.1
 tags:
-- name: token
+- name: Token
 paths:
   /saml/sso:
     post:
@@ -24,13 +24,11 @@ paths:
 
         provider. The redirection does not happen automatically, the client
 
-        has to use the `location` provided in the body of the response.
-
-        '
+        has to use the `location` provided in the body of the response.'
       summary: Creates and returns context and redirects to IdP login page
       operationId: samlSSO
       tags:
-      - token
+      - Token
       responses:
         '201':
           description: 'The `Location` contains the URL of the identity provider that should be
@@ -64,17 +62,11 @@ paths:
 
         The internal cache allows to retrieve the context and redirect the browser
 
-        to process the login.
-
-        '
-      summary: 'Processes the IdP response and redirects to requested URL, even if the authentication
-
-        failed to allow further processing by the frontend application.
-
-        '
+        to process the login.'
+      summary: Processes the IdP response and redirects to requested URL, even if the…
       operationId: processACS
       tags:
-      - token
+      - Token
       responses:
         '303':
           description: 'Redirect browser to process the login result. The `Location` header contains the
@@ -130,15 +122,13 @@ paths:
 
         the answer and confirm to the requester the logout was processed or notify
 
-        an error.
-
-        '
+        an error.'
       summary: Creates and returns data required to process the logout by the IdP
       security:
       - wazo_auth_token: []
       operationId: samlLogout
       tags:
-      - token
+      - Token
       responses:
         '201':
           description: 'SAML encoded Logout request to be forwarded to the provided redirect URL.
@@ -160,13 +150,11 @@ paths:
 
         a redirect to the `redirect_url` provided during the login phase
 
-        with logout confirmation in the URL''s query param.
-
-        '
+        with logout confirmation in the URL''s query param.'
       summary: Handles the logout response from the IDP
       operationId: samlLogoutResponse
       tags:
-      - token
+      - Token
       parameters:
       - in: query
         required: true
@@ -202,7 +190,7 @@ paths:
         The user''s email address can be used instead of the username if the email address is confirmed.
 
 
-        Creating  a token with the `access_type` *offline* will also create a refresh token which can be used
+        Creating a token with the `access_type` *offline* will also create a refresh token which can be used
 
         to create a new token without specifying the username and password.
 
@@ -210,12 +198,10 @@ paths:
         The username/password and refresh_token method of authentication are mutually exclusive
 
 
-        For more details about the backends, see http://documentation.wazo.community/en/latest/system/wazo-auth/stock_plugins.html#backends-plugins
-
-        '
+        For more details about the backends, see http://documentation.wazo.community/en/latest/system/wazo-auth/stock_plugins.html#backends-plugins'
       operationId: createToken
       tags:
-      - token
+      - Token
       security:
       - wazo_auth_basic: []
       parameters:
@@ -311,9 +297,9 @@ paths:
   /token/{token}:
     get:
       summary: Retrieves token data
-      description: Checks if a token is valid in a given context and return the token data.  If a scope is given, the token must have the necessary permissions for the ACL. If a tenant is given, the token must have that tenant in its sub-tenant subtree.
+      description: Checks if a token is valid in a given context and return the token data. If a scope is given, the token must have the necessary permissions for the ACL. If a tenant is given, the token must have that tenant in its sub-tenant subtree.
       tags:
-      - token
+      - Token
       security:
       - {}
       parameters:
@@ -345,11 +331,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getTokenByToken
+      x-operation-id-source: derived
     head:
       summary: Checks if a token is valid
-      description: Checks if a token is valid in a given context.  If a scope is given, the token must have the necessary permissions for the ACL. If a tenant is given, the token must have that tenant in its sub-tenant subtree.
+      description: Checks if a token is valid in a given context. If a scope is given, the token must have the necessary permissions for the ACL. If a tenant is given, the token must have that tenant in its sub-tenant subtree.
       tags:
-      - token
+      - Token
       security:
       - {}
       parameters:
@@ -377,10 +365,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: headTokenByToken
+      x-operation-id-source: derived
     delete:
       summary: Revoke a token
       tags:
-      - token
+      - Token
       security:
       - {}
       parameters:
@@ -394,12 +384,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: deleteTokenByToken
+      x-operation-id-source: derived
   /token/{token}/scopes/check:
     post:
       summary: Check a token against scopes
       description: Checks if a token is valid for given scopes.
       tags:
-      - token
+      - Token
       security:
       - {}
       parameters:
@@ -442,6 +434,8 @@ paths:
               $ref: '#/components/schemas/ScopeCheckRequest'
         description: The token scopes check parameters
         required: true
+      operationId: postTokenByTokenScopesCheck
+      x-operation-id-source: derived
   /tokens:
     get:
       operationId: listRefreshTokens
@@ -449,11 +443,9 @@ paths:
       description: '**Required ACL**: `auth.tokens.read`
 
 
-        Finds all refresh tokens and return the list. Access tokens are not included in the result.
-
-        '
+        Finds all refresh tokens and return the list. Access tokens are not included in the result.'
       tags:
-      - token
+      - Token
       security:
       - wazo_auth_token: []
       parameters:
@@ -499,11 +491,9 @@ paths:
         Finds all of a user''s refresh token and return the list. Access tokens are not included in the result.
 
 
-        Doing a query with the `user_uuid` `me` will result in the current user''s token being used.
-
-        '
+        Doing a query with the `user_uuid` `me` will result in the current user''s token being used.'
       tags:
-      - token
+      - Token
       security:
       - wazo_auth_token: []
       parameters:
@@ -556,11 +546,9 @@ paths:
 
         access tokens. Any tokens that are currently issued are still usable and should be
 
-        revoked if needed.
-
-        '
+        revoked if needed.'
       tags:
-      - token
+      - Token
       security:
       - wazo_auth_token: []
       parameters:
@@ -589,50 +577,49 @@ paths:
                 $ref: '#/components/schemas/APIError'
 components:
   schemas:
-    APIError:
+    RefreshTokenList:
       type: object
       properties:
-        timestamp:
-          type: number
-        message:
-          type: string
-        resource:
-          type: string
-        details:
-          type: object
-    RefreshToken:
-      type: object
+        total:
+          type: integer
+          description: The number of refresh tokens for that user
+        filtered:
+          type: integer
+          description: The number of refresh token matching the searched terms
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefreshToken'
+          description: A paginated list of refresh tokens
+    SAMLLoginContext:
       properties:
-        client_id:
+        redirect_url:
+          description: Where to redirect the browser once the login succeeded
           type: string
-          description: The `client_id` that was used to create this refresh token
-        created_at:
-          type: string
-          description: The time at which this token was created
-        mobile:
-          type: boolean
-          description: Indicate if that refresh token was created with a mobile session type
-        user_uuid:
-          type: string
-          description: The UUID of the user which created this refresh token
-        tenant_uuid:
-          type: string
-          description: The tenant UUID of the user which created this refresh token
-        metadata:
-          type: object
-          description: the persistent metadata tied to this refresh token
-    SAMLIdpResponse:
-      properties:
-        SAMLResponse:
-          description: Encoded SAML XML response
-          type: string
-        RelayState:
-          description: Relay state parameter
+        domain:
+          description: The domain name of the tenant
           type: string
       required:
-      - SAMLResponse
-      - RelayState
+      - redirect_url
+      - domain
       type: object
+    SAMLSSOResponse:
+      type: object
+      properties:
+        location:
+          description: 'The URL that the client should open to complete the authentication
+
+            request
+
+            '
+          type: string
+        saml_session_id:
+          type: string
+          description: 'The saml_session_id needs to be used to create a wazo-auth token
+
+            once the SAML authentication has been completed successfully
+
+            '
     ScopeCheckRequest:
       type: object
       properties:
@@ -647,35 +634,19 @@ components:
             type: string
       required:
       - scopes
-    ScopeList:
+    Error:
       type: object
       properties:
-        scopes:
+        reason:
           type: array
-          description: the scopes and their check result
           items:
-            type: object
-            description: 'JSON object with scopes as keys and boolean values whether the token is valid for the given scope, e.g. `{"confd.groups.create": true}`'
-    SAMLLogoutRequest:
-      type: object
-      properties:
-        location:
-          description: 'The URL that the client should open to complete the logout.
-
-            '
-          type: string
-    SAMLLoginContext:
-      properties:
-        redirect_url:
-          description: Where to redirect the browser once the login succeeded
-          type: string
-        domain:
-          description: The domain name of the tenant
-          type: string
-      required:
-      - redirect_url
-      - domain
-      type: object
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
     Token:
       type: object
       properties:
@@ -719,77 +690,73 @@ components:
               description: The list of allowed accesses for this token
             session_uuid:
               type: string
-    Error:
+    APIError:
       type: object
       properties:
-        reason:
-          type: array
-          items:
-            type: string
         timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
-    RefreshTokenList:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
+    ScopeList:
       type: object
       properties:
-        total:
-          type: integer
-          description: The number of refresh tokens for that user
-        filtered:
-          type: integer
-          description: The number of refresh token matching the searched terms
-        items:
+        scopes:
           type: array
+          description: the scopes and their check result
           items:
-            $ref: '#/components/schemas/RefreshToken'
-          description: A paginated list of refresh tokens
-    SAMLSSOResponse:
+            type: object
+            description: 'JSON object with scopes as keys and boolean values whether the token is valid for the given scope, e.g. `{"confd.groups.create": true}`'
+    SAMLLogoutRequest:
       type: object
       properties:
         location:
-          description: 'The URL that the client should open to complete the authentication
-
-            request
+          description: 'The URL that the client should open to complete the logout.
 
             '
           type: string
-        saml_session_id:
+    RefreshToken:
+      type: object
+      properties:
+        client_id:
           type: string
-          description: 'The saml_session_id needs to be used to create a wazo-auth token
-
-            once the SAML authentication has been completed successfully
-
-            '
+          description: The `client_id` that was used to create this refresh token
+        created_at:
+          type: string
+          description: The time at which this token was created
+        mobile:
+          type: boolean
+          description: Indicate if that refresh token was created with a mobile session type
+        user_uuid:
+          type: string
+          description: The UUID of the user which created this refresh token
+        tenant_uuid:
+          type: string
+          description: The tenant UUID of the user which created this refresh token
+        metadata:
+          type: object
+          description: the persistent metadata tied to this refresh token
+    SAMLIdpResponse:
+      properties:
+        SAMLResponse:
+          description: Encoded SAML XML response
+          type: string
+        RelayState:
+          description: Relay state parameter
+          type: string
+      required:
+      - SAMLResponse
+      - RelayState
+      type: object
   parameters:
     tenant:
       name: tenant
       in: query
       description: A tenant UUID to check against
       required: false
-      schema:
-        type: string
-    user_uuid_or_me:
-      name: user_uuid_or_me
-      in: path
-      description: The UUID of the user or `me` to refer to the user doing the query
-      required: true
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    client_id:
-      name: client_id
-      in: path
-      description: The client_id of the refresh token to revoke
-      required: true
       schema:
         type: string
     wazo_session_type:
@@ -810,13 +777,6 @@ components:
       schema:
         type: integer
         default: 0
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
     direction:
       required: false
       name: direction
@@ -827,26 +787,18 @@ components:
         enum:
         - asc
         - desc
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
     scope:
       name: scope
       in: query
       description: The required ACL
       required: false
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
     limit:
@@ -856,11 +808,47 @@ components:
       required: false
       schema:
         type: integer
+    client_id:
+      name: client_id
+      in: path
+      description: The client_id of the refresh token to revoke
+      required: true
+      schema:
+        type: string
+    user_uuid_or_me:
+      name: user_uuid_or_me
+      in: path
+      description: The UUID of the user or `me` to refer to the user doing the query
+      required: true
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
     token:
       name: token
       in: path
       description: The token to query
       required: true
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
       schema:
         type: string
   securitySchemes:

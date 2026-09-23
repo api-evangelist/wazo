@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Wizard API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -19,7 +19,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: wizard
+- name: Wizard
 paths:
   /wizard:
     get:
@@ -27,7 +27,7 @@ paths:
       summary: Get wizard status
       description: '**Required ACL:** none'
       tags:
-      - wizard
+      - Wizard
       responses:
         '200':
           description: Wizard status
@@ -43,7 +43,7 @@ paths:
 
         This API can only be used before wizard configuration.'
       tags:
-      - wizard
+      - Wizard
       responses:
         '201':
           description: Wizard passed
@@ -71,7 +71,7 @@ paths:
 
         This API can only be used before wizard configuration.'
       tags:
-      - wizard
+      - Wizard
       responses:
         '200':
           description: Wizard discover
@@ -83,32 +83,49 @@ paths:
           $ref: '#/components/responses/AlreadyConfiguredError'
 components:
   schemas:
-    WizardDiscover:
-      title: WizardDiscover
+    WizardConfigured:
+      title: WizardConfigured
       properties:
-        hostname:
-          type: string
-          description: System hostname
-        domain:
-          type: string
-          description: System domain name
-        timezone:
-          type: string
-          description: System timezone from file ``/etc/timezone``
-        nameservers:
-          type: array
-          maxItems: 3
-          items:
-            type: string
-          description: Nameservers from file ``/etc/resolv.conf``
-        interfaces:
-          type: array
-          items:
-            $ref: '#/components/schemas/WizardDiscoverInterface'
-        gateways:
-          type: array
-          items:
-            $ref: '#/components/schemas/WizardDiscoverGateway'
+        configured:
+          type: boolean
+          description: Whether Wazo has already been configured or not
+        configurable:
+          type: boolean
+          description: Whether all services which the wizard depends on are started or not
+        configurable_status:
+          type: object
+          description: A mapping of all dependencies and there statuses
+    WizardSteps:
+      title: WizardSteps
+      properties:
+        database:
+          type: boolean
+          default: true
+          description: Initialize Wazo database?
+        manage_services:
+          type: boolean
+          default: true
+          description: Enable/start Wazo services?
+        manage_hosts_file:
+          type: boolean
+          default: true
+          description: Modify /etc/hosts?
+        manage_resolv_file:
+          type: boolean
+          default: true
+          description: Modify /etc/resolv.conf?
+        commonconf:
+          type: boolean
+          default: true
+          description: Generate /etc/xivo/common.conf
+        provisioning:
+          type: boolean
+          default: true
+          description: Initialize wazo-provd database?
+        admin:
+          type: boolean
+          default: true
+          description: Create admin in wazo-auth?
     WizardNetwork:
       title: WizardNetwork
       properties:
@@ -144,6 +161,31 @@ components:
       - netmask
       - gateway
       - nameservers
+    Error:
+      type: array
+      items:
+        type: string
+    WizardDiscoverInterface:
+      title: WizardDiscoverInterface
+      properties:
+        interface:
+          type: string
+          description: Interface name (e.g. eth0)
+        ip_address:
+          type: string
+          description: IPv4 address of the interface
+        netmask:
+          type: string
+          description: Netmask of the IP address
+    WizardDiscoverGateway:
+      title: WizardDiscoverGateway
+      properties:
+        interface:
+          type: string
+          description: Interface name (e.g. eth0)
+        gateway:
+          type: string
+          description: Gateway IPv4 address
     Wizard:
       title: Wizard
       properties:
@@ -177,83 +219,41 @@ components:
       - license
       - timezone
       - network
-    WizardDiscoverInterface:
-      title: WizardDiscoverInterface
+    WizardDiscover:
+      title: WizardDiscover
       properties:
-        interface:
+        hostname:
           type: string
-          description: Interface name (e.g. eth0)
-        ip_address:
+          description: System hostname
+        domain:
           type: string
-          description: IPv4 address of the interface
-        netmask:
+          description: System domain name
+        timezone:
           type: string
-          description: Netmask of the IP address
-    WizardDiscoverGateway:
-      title: WizardDiscoverGateway
-      properties:
-        interface:
-          type: string
-          description: Interface name (e.g. eth0)
-        gateway:
-          type: string
-          description: Gateway IPv4 address
-    Error:
-      type: array
-      items:
-        type: string
-    WizardSteps:
-      title: WizardSteps
-      properties:
-        database:
-          type: boolean
-          default: true
-          description: Initialize Wazo database?
-        manage_services:
-          type: boolean
-          default: true
-          description: Enable/start Wazo services?
-        manage_hosts_file:
-          type: boolean
-          default: true
-          description: Modify /etc/hosts?
-        manage_resolv_file:
-          type: boolean
-          default: true
-          description: Modify /etc/resolv.conf?
-        commonconf:
-          type: boolean
-          default: true
-          description: Generate /etc/xivo/common.conf
-        provisioning:
-          type: boolean
-          default: true
-          description: Initialize wazo-provd database?
-        admin:
-          type: boolean
-          default: true
-          description: Create admin in wazo-auth?
-    WizardConfigured:
-      title: WizardConfigured
-      properties:
-        configured:
-          type: boolean
-          description: Whether Wazo has already been configured or not
-        configurable:
-          type: boolean
-          description: Whether all services which the wizard depends on are started or not
-        configurable_status:
-          type: object
-          description: A mapping of all dependencies and there statuses
+          description: System timezone from file ``/etc/timezone``
+        nameservers:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+          description: Nameservers from file ``/etc/resolv.conf``
+        interfaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/WizardDiscoverInterface'
+        gateways:
+          type: array
+          items:
+            $ref: '#/components/schemas/WizardDiscoverGateway'
   responses:
-    AlreadyConfiguredError:
-      description: The Wazo must not be configured
+    CreateError:
+      description: An error occurred when creating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
+    AlreadyConfiguredError:
+      description: The Wazo must not be configured
       content:
         application/json:
           schema:

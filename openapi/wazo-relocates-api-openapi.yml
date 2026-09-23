@@ -33,6 +33,8 @@ paths:
                 $ref: '#/components/schemas/RelocateList'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: getUsersMeRelocates
+      x-operation-id-source: derived
     post:
       summary: Initiate a relocate from the authenticated user
       description: '**Required ACL:** `calld.users.me.relocates.create`'
@@ -68,6 +70,8 @@ paths:
               $ref: '#/components/schemas/UserRelocateRequest'
         description: Parameters of the relocate
         required: true
+      operationId: postUsersMeRelocates
+      x-operation-id-source: derived
   /users/me/relocates/{relocate_uuid}:
     get:
       summary: Get details of a relocate
@@ -87,6 +91,8 @@ paths:
           $ref: '#/components/responses/NoSuchRelocate'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: getUsersMeRelocatesByRelocateUuid
+      x-operation-id-source: derived
   /users/me/relocates/{relocate_uuid}/cancel:
     put:
       summary: Cancel a relocate
@@ -104,6 +110,8 @@ paths:
           $ref: '#/components/responses/NoSuchRelocate'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeRelocatesByRelocateUuidCancel
+      x-operation-id-source: derived
   /users/me/relocates/{relocate_uuid}/complete:
     put:
       summary: Complete a relocate
@@ -121,22 +129,29 @@ paths:
           $ref: '#/components/responses/NoSuchRelocate'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeRelocatesByRelocateUuidComplete
+      x-operation-id-source: derived
 components:
+  responses:
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoSuchRelocate:
+      description: The specified relocate does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    RelocateCompletion:
-      type: string
-      default: answer
-      enum:
-      - answer
-      - api
-    RelocateCompletions:
-      type: array
-      items:
-        $ref: '#/components/schemas/RelocateCompletion'
-    UserRelocateLocation:
-      properties:
-        line:
-          $ref: '#/components/schemas/LocationLine'
     LocationLine:
       type: object
       properties:
@@ -148,49 +163,6 @@ components:
           description: the SIP contact to use when multiple registers are used
       required:
       - line_id
-    Timeout:
-      description: Number of seconds to wait for the recipient to answer
-      type: integer
-    UserRelocateRequest:
-      type: object
-      properties:
-        initiator_call:
-          description: Call ID of the relocate initiator. This call must be owned by the authenticated user.
-          type: string
-        destination:
-          type: string
-          description: What kind of destination the relocated call should be connected
-          enum:
-          - line
-          - mobile
-        location:
-          description: "Describes where exactly the relocated call should be connected. Attributes depend on the `destination` value. Example\n```\n{\n  ...\n  destination: line\n  location: {line_id: 14}\n}\n```\n"
-          type: object
-          $ref: '#/components/schemas/UserRelocateLocation'
-        completions:
-          $ref: '#/components/schemas/RelocateCompletions'
-        timeout:
-          $ref: '#/components/schemas/Timeout'
-        auto_answer:
-          type: boolean
-          description: 'Inform the destination phone that it should answer automatically. Limitation: this does not work on SCCP phones.'
-      example:
-        initiator_call: '123456.789'
-        destination: line
-        location:
-          line_id: 14
-          contact: 5f3ff5ga
-        completions:
-        - answer
-        auto_answer: false
-      required:
-      - initiator_call
-      - destination
-    RelocateList:
-      type: object
-      properties:
-        items:
-          $ref: '#/components/schemas/Relocate'
     Error:
       title: Error
       description: Error message for the client
@@ -229,6 +201,63 @@ components:
         initiator:
           description: The user UUID of the relocate initiator
           type: string
+    Timeout:
+      description: Number of seconds to wait for the recipient to answer
+      type: integer
+    RelocateCompletions:
+      type: array
+      items:
+        $ref: '#/components/schemas/RelocateCompletion'
+    RelocateList:
+      type: object
+      properties:
+        items:
+          $ref: '#/components/schemas/Relocate'
+    UserRelocateRequest:
+      type: object
+      properties:
+        initiator_call:
+          description: Call ID of the relocate initiator. This call must be owned by the authenticated user.
+          type: string
+        destination:
+          type: string
+          description: What kind of destination the relocated call should be connected
+          enum:
+          - line
+          - mobile
+        location:
+          description: "Describes where exactly the relocated call should be connected. Attributes depend on the `destination` value. Example\n```\n{\n  ...\n  destination: line\n  location: {line_id: 14}\n}\n```\n"
+          type: object
+          $ref: '#/components/schemas/UserRelocateLocation'
+        completions:
+          $ref: '#/components/schemas/RelocateCompletions'
+        timeout:
+          $ref: '#/components/schemas/Timeout'
+        auto_answer:
+          type: boolean
+          description: 'Inform the destination phone that it should answer automatically. Limitation: this does not work on SCCP phones.'
+      example:
+        initiator_call: '123456.789'
+        destination: line
+        location:
+          line_id: 14
+          contact: 5f3ff5ga
+        completions:
+        - answer
+        auto_answer: false
+      required:
+      - initiator_call
+      - destination
+    UserRelocateLocation:
+      properties:
+        line:
+          $ref: '#/components/schemas/LocationLine'
+    RelocateCompletion:
+      type: string
+      default: answer
+      enum:
+      - answer
+      - api
   parameters:
     RelocateUUID:
       name: relocate_uuid
@@ -237,25 +266,6 @@ components:
       required: true
       schema:
         type: string
-  responses:
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NoSuchRelocate:
-      description: The specified relocate does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

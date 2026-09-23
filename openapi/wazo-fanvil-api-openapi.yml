@@ -23,9 +23,7 @@ paths:
       summary: Given informations about how make request lookup for Fanvil Unified IP Phones
       description: 'The `input` query will return a XML to give informations about how make request
 
-        lookup for Fanvil Unified IP Phones.
-
-        '
+        lookup for Fanvil Unified IP Phones.'
       operationId: fanvil_input
       tags:
       - fanvil
@@ -47,9 +45,7 @@ paths:
 
         formated for Fanvil Unified IP Phones. The results will be retrieved from a lookup query to
 
-        wazo-dird.
-
-        '
+        wazo-dird.'
       operationId: fanvil_lookup
       tags:
       - fanvil
@@ -80,9 +76,7 @@ paths:
 
         formated for Fanvil Unified IP Phones. The results will be retrieved from a lookup query to
 
-        wazo-dird.
-
-        '
+        wazo-dird.'
       operationId: fanvil_lookup_v2
       tags:
       - fanvil
@@ -107,12 +101,10 @@ paths:
       - $ref: '#/components/parameters/AcceptLanguage'
   /fanvil/users/{user_uuid}/services/dnd/enable:
     get:
-      summary: Enable the DND service for a particular user.
+      summary: Enable the DND service for a particular user
       description: 'This `dnd` service endpoint will enable the user DND service through
 
-        `wazo-confd`.
-
-        '
+        `wazo-confd`.'
       operationId: fanvil_user_service_dnd_enable
       tags:
       - fanvil
@@ -131,12 +123,10 @@ paths:
       - $ref: '#/components/parameters/UserUUID'
   /fanvil/users/{user_uuid}/services/dnd/disable:
     get:
-      summary: Disable the DND service for a particular user.
+      summary: Disable the DND service for a particular user
       description: 'This `dnd` service endpoint will disable the user DND service through
 
-        `wazo-confd`.
-
-        '
+        `wazo-confd`.'
       operationId: fanvil_user_service_dnd_disable
       tags:
       - fanvil
@@ -154,20 +144,47 @@ paths:
       parameters:
       - $ref: '#/components/parameters/UserUUID'
 components:
+  responses:
+    NoSuchUser:
+      description: The user does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidDataError:
+      description: Data provided is invalid or a field is missing
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    LimitOffsetInvalid:
+      description: The limit or offset should be positive
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    FanvilDirectoryEntryV2:
+    FanvilInputItem:
       properties:
-        Name:
+        DisplayName:
           type: string
-        Telephone:
+        QueryStringParam:
           type: string
-        Mobile:
+        DefaultValue:
           type: string
-        Other:
-          type: string
-        Ring:
-          type: string
-        Group:
+        InputFlags:
           type: string
     FanvilIPPhoneDirectory:
       properties:
@@ -179,46 +196,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FanvilSoftKeyItem'
-    FanvilDirectoryEntry:
-      properties:
-        Name:
-          type: string
-        Telephone:
-          type: string
     PhoneBook:
       properties:
         DirectoryEntry:
           type: array
           items:
             $ref: '#/components/schemas/FanvilDirectoryEntryV2'
-    FanvilInputItem:
-      properties:
-        DisplayName:
-          type: string
-        QueryStringParam:
-          type: string
-        DefaultValue:
-          type: string
-        InputFlags:
-          type: string
-    FanvilSoftKeyItem:
-      properties:
-        Name:
-          type: string
-        URL:
-          type: string
-        position:
-          type: integer
-    FanvilIPPhoneInput:
-      properties:
-        Title:
-          type: string
-        Prompt:
-          type: string
-        URL:
-          type: string
-        InputItem:
-          $ref: '#/components/schemas/FanvilInputItem'
     Error:
       type: object
       title: Error
@@ -237,38 +220,73 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-  responses:
-    NoSuchUser:
-      description: The user does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    LimitOffsetInvalid:
-      description: The limit or offset should be positive
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    InvalidDataError:
-      description: Data provided is invalid or a field is missing
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+    FanvilSoftKeyItem:
+      properties:
+        Name:
+          type: string
+        URL:
+          type: string
+        position:
+          type: integer
+    FanvilDirectoryEntryV2:
+      properties:
+        Name:
+          type: string
+        Telephone:
+          type: string
+        Mobile:
+          type: string
+        Other:
+          type: string
+        Ring:
+          type: string
+        Group:
+          type: string
+    FanvilDirectoryEntry:
+      properties:
+        Name:
+          type: string
+        Telephone:
+          type: string
+    FanvilIPPhoneInput:
+      properties:
+        Title:
+          type: string
+        Prompt:
+          type: string
+        URL:
+          type: string
+        InputItem:
+          $ref: '#/components/schemas/FanvilInputItem'
   parameters:
+    UserUUID:
+      name: user_uuid
+      in: path
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
+    XivoUserUUID:
+      name: xivo_user_uuid
+      in: query
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
     Offset:
       name: offset
       in: query
@@ -285,38 +303,10 @@ components:
       schema:
         type: integer
         default: 16
-    UserUUID:
-      name: user_uuid
-      in: path
-      description: The user UUID of the user doing that query
-      required: true
-      schema:
-        type: string
     Term:
       name: term
       in: query
       description: A search term to look for
-      required: true
-      schema:
-        type: string
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
-      required: true
-      schema:
-        type: string
-    AcceptLanguage:
-      name: Accept-Language
-      in: header
-      required: false
-      description: The language to translate the query results in
-      schema:
-        type: string
-    XivoUserUUID:
-      name: xivo_user_uuid
-      in: query
-      description: The user UUID of the user doing that query
       required: true
       schema:
         type: string

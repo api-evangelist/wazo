@@ -10,7 +10,7 @@ info:
     backgroundColor: '#FAFAFA'
     altText: Wazo Logo
   version: '1.0'
-  description: 'Operations tagged status across 13 of this provider''s published API definitions: wazo-agentd-api-openapi.yml, wazo-amid-api-openapi.yml, wazo-auth-api-openapi.yml, wazo-call-logd-api-openapi.yml, wazo-calld-api-openapi.yml, wazo-chatd-api-openapi.yml, wazo-confd-api-openapi.yml, wazo-dird-api-openapi.yml, wazo-phoned-api-openapi.yml, wazo-plugind-api-openapi.yml, wazo-provd-api-openapi.yml, wazo-setupd-api-openapi.yml, wazo-webhookd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged status across 13 of this provider''s published API definitions: wazo-agentd-api-openapi.yml, wazo-amid-api-openapi.yml, wazo-auth-api-openapi.yml, wazo-call-logd-api-openapi.yml, wazo-calld-api-openapi.yml, wazo-chatd-api-openapi.yml, wazo-confd-api-openapi.yml, wazo-dird-api-openapi.yml, wazo-phoned-api-openapi.yml, wazo-plugind-api-openapi.yml, wazo-provd-openapi-original.yml, wazo-setupd-api-openapi.yml, wazo-webhookd-api-openapi.yml.'
 servers:
 - url: /1.0
 - url: /0.1
@@ -18,15 +18,15 @@ servers:
 - url: /0.2
 - url: /api/provd/0.2
 tags:
-- name: status
+- name: Status
 paths:
   /status:
     get:
-      summary: Get the status of wazo-agentd.
+      summary: Get the status of wazo-agentd
       description: '**Required ACL:** `agentd.status.read`'
       operationId: get_status
       tags:
-      - status
+      - Status
       responses:
         '200':
           description: The internal status of wazo-agentd
@@ -40,7 +40,7 @@ paths:
       summary: Check if wazo-auth is OK
       description: This endpoint is not authenticated
       tags:
-      - status
+      - Status
       responses:
         '200':
           description: wazo-auth is OK
@@ -48,10 +48,19 @@ paths:
           description: wazo-auth is missing a requirement
       security:
       - wazo_auth_token: []
+      operationId: headStatus
+      x-operation-id-source: derived
     servers:
     - url: /1.0
 components:
   schemas:
+    StatusSummary:
+      type: object
+      properties:
+        bus_consumer:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        service_token:
+          $ref: '#/components/schemas/ComponentWithStatus'
     StatusValue:
       type: string
       enum:
@@ -62,13 +71,6 @@ components:
       properties:
         status:
           $ref: '#/components/schemas/StatusValue'
-    StatusSummary:
-      type: object
-      properties:
-        bus_consumer:
-          $ref: '#/components/schemas/ComponentWithStatus'
-        service_token:
-          $ref: '#/components/schemas/ComponentWithStatus'
     StatusSummary_2:
       type: object
       properties:
@@ -205,7 +207,7 @@ x-refined-from:
 - wazo-dird-api-openapi.yml
 - wazo-phoned-api-openapi.yml
 - wazo-plugind-api-openapi.yml
-- wazo-provd-api-openapi.yml
+- wazo-provd-openapi-original.yml
 - wazo-setupd-api-openapi.yml
 - wazo-webhookd-api-openapi.yml
 x-xivo-name: agentd

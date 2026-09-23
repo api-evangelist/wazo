@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: calls
+- name: Calls
 paths:
   /calls:
     get:
@@ -44,7 +44,7 @@ paths:
         schema:
           type: boolean
       tags:
-      - calls
+      - Calls
       responses:
         '200':
           description: List currently active calls
@@ -59,18 +59,18 @@ paths:
                       $ref: '#/components/schemas/Call'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: getCalls
+      x-operation-id-source: derived
     post:
       summary: Make a new call
       description: '**Required ACL:** `calld.calls.create`
 
 
-        Create a new call from a phone to an extension.
-
-        '
+        Create a new call from a phone to an extension.'
       parameters:
       - $ref: '#/components/parameters/TenantUUID'
       tags:
-      - calls
+      - Calls
       responses:
         '201':
           description: The new call ID
@@ -93,6 +93,8 @@ paths:
               $ref: '#/components/schemas/CallRequest'
         description: Call parameters
         required: true
+      operationId: postCalls
+      x-operation-id-source: derived
   /calls/{call_id}:
     get:
       summary: Show a call
@@ -101,7 +103,7 @@ paths:
       - $ref: '#/components/parameters/TenantUUID'
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '200':
           description: Call
@@ -117,6 +119,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: getCallsByCallId
+      x-operation-id-source: derived
     delete:
       summary: Hangup a call
       description: '**Required ACL:** `calld.calls.{call_id}.delete`'
@@ -124,7 +128,7 @@ paths:
       - $ref: '#/components/parameters/TenantUUID'
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: Call has been hung up
@@ -136,6 +140,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: deleteCallsByCallId
+      x-operation-id-source: derived
   /calls/{call_id}/mute/start:
     put:
       summary: Mute a call
@@ -144,7 +150,7 @@ paths:
       - $ref: '#/components/parameters/TenantUUID'
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The call is now muted
@@ -156,6 +162,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putCallsByCallIdMuteStart
+      x-operation-id-source: derived
   /calls/{call_id}/mute/stop:
     put:
       summary: Unmute a call
@@ -164,7 +172,7 @@ paths:
       - $ref: '#/components/parameters/TenantUUID'
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The call is now unmuted
@@ -176,18 +184,20 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putCallsByCallIdMuteStop
+      x-operation-id-source: derived
   /calls/{call_id}/hold/start:
     put:
       summary: Hold a call
       description: '**Required ACL:** `calld.calls.{call_id}.hold.start.update`
 
 
-        This works **only** if the phone brand has a corresponding phoned plugin to handle the event. '
+        This works **only** if the phone brand has a corresponding phoned plugin to handle the event.'
       parameters:
       - $ref: '#/components/parameters/TenantUUID'
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The call is now held
@@ -199,18 +209,20 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putCallsByCallIdHoldStart
+      x-operation-id-source: derived
   /calls/{call_id}/hold/stop:
     put:
       summary: Unhold a call
       description: '**Required ACL:** `calld.calls.{call_id}.hold.stop.update`
 
 
-        This works **only** if the phone brand has a corresponding phoned plugin to handle the event. '
+        This works **only** if the phone brand has a corresponding phoned plugin to handle the event.'
       parameters:
       - $ref: '#/components/parameters/TenantUUID'
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The call is now unheld
@@ -222,6 +234,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putCallsByCallIdHoldStop
+      x-operation-id-source: derived
   /calls/{call_id}/record/start:
     put:
       summary: Start recording a call
@@ -230,7 +244,7 @@ paths:
       - $ref: '#/components/parameters/TenantUUID'
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: Recording has started for the call
@@ -248,6 +262,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putCallsByCallIdRecordStart
+      x-operation-id-source: derived
   /calls/{call_id}/record/stop:
     put:
       summary: Stop recording a call
@@ -256,7 +272,7 @@ paths:
       - $ref: '#/components/parameters/TenantUUID'
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: Recording has stopped for the call
@@ -274,6 +290,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putCallsByCallIdRecordStop
+      x-operation-id-source: derived
   /calls/{call_id}/record/pause:
     put:
       summary: Pause recording a call
@@ -282,7 +300,7 @@ paths:
       - $ref: '#/components/parameters/TenantUUID'
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: Recording has paused for the call
@@ -300,6 +318,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putCallsByCallIdRecordPause
+      x-operation-id-source: derived
   /calls/{call_id}/record/resume:
     put:
       summary: Resume recording a call
@@ -308,7 +328,7 @@ paths:
       - $ref: '#/components/parameters/TenantUUID'
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: Recording has resumed for the call
@@ -326,18 +346,20 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putCallsByCallIdRecordResume
+      x-operation-id-source: derived
   /calls/{call_id}/answer:
     put:
       summary: Answer a call
       description: '**Required ACL:** `calld.calls.{call_id}.answer.update`
 
 
-        This works **only** if the phone brand has a corresponding phoned plugin to handle the event. '
+        This works **only** if the phone brand has a corresponding phoned plugin to handle the event.'
       parameters:
       - $ref: '#/components/parameters/TenantUUID'
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The call is now answered
@@ -349,6 +371,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putCallsByCallIdAnswer
+      x-operation-id-source: derived
   /calls/{call_id}/dtmf:
     put:
       summary: Simulate a user pressing DTMF keys
@@ -358,7 +382,7 @@ paths:
       - $ref: '#/components/parameters/CallID'
       - $ref: '#/components/parameters/DTMFDigits'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The digits have been sent
@@ -370,6 +394,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putCallsByCallIdDtmf
+      x-operation-id-source: derived
   /calls/{call_id}/user/{user_uuid}:
     put:
       summary: Connect a call to a user
@@ -384,7 +410,7 @@ paths:
         schema:
           type: string
       tags:
-      - calls
+      - Calls
       responses:
         '200':
           description: The new call of the user (ringing side)
@@ -400,6 +426,8 @@ paths:
             schema:
               $ref: '#/components/schemas/ConnectCallToUserRequest'
         description: options affecting the call to the targeted user
+      operationId: putCallsByCallIdUserByUserUuid
+      x-operation-id-source: derived
   /users/me/calls:
     get:
       summary: List calls of a user
@@ -416,7 +444,7 @@ paths:
         schema:
           type: string
       tags:
-      - calls
+      - Calls
       responses:
         '200':
           description: List currently active calls of a user
@@ -431,16 +459,16 @@ paths:
                       $ref: '#/components/schemas/Call'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: getUsersMeCalls
+      x-operation-id-source: derived
     post:
       summary: Make a new call from a user
       description: '**Required ACL:** `calld.users.me.calls.create`
 
 
-        The user originator of the call is determined from the authentication token.
-
-        '
+        The user originator of the call is determined from the authentication token.'
       tags:
-      - calls
+      - Calls
       responses:
         '201':
           description: The new call ID
@@ -463,6 +491,8 @@ paths:
               $ref: '#/components/schemas/UserCallRequest'
         description: Parameters of the call
         required: true
+      operationId: postUsersMeCalls
+      x-operation-id-source: derived
   /users/me/calls/{call_id}:
     delete:
       summary: Hangup a call from a user
@@ -473,7 +503,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: Call has been hung up
@@ -491,6 +521,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: deleteUsersMeCallsByCallId
+      x-operation-id-source: derived
   /users/me/calls/{call_id}/mute/start:
     put:
       summary: Mute a call from user
@@ -501,7 +533,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The call is now muted
@@ -513,6 +545,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeCallsByCallIdMuteStart
+      x-operation-id-source: derived
   /users/me/calls/{call_id}/mute/stop:
     put:
       summary: Unmute a call from user
@@ -523,7 +557,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The call is now unmuted
@@ -535,6 +569,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeCallsByCallIdMuteStop
+      x-operation-id-source: derived
   /users/me/calls/{call_id}/hold/start:
     put:
       summary: Hold a call from user
@@ -545,7 +581,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The call is now held
@@ -557,6 +593,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeCallsByCallIdHoldStart
+      x-operation-id-source: derived
   /users/me/calls/{call_id}/hold/stop:
     put:
       summary: Unhold a call from user
@@ -567,7 +605,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The call is now unheld
@@ -579,6 +617,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeCallsByCallIdHoldStop
+      x-operation-id-source: derived
   /users/me/calls/{call_id}/record/start:
     put:
       summary: Start recording a call
@@ -586,7 +626,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: Recording has started for the call
@@ -604,6 +644,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeCallsByCallIdRecordStart
+      x-operation-id-source: derived
   /users/me/calls/{call_id}/record/stop:
     put:
       summary: Stop recording a call
@@ -611,7 +653,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: Recording has stopped for the call
@@ -629,6 +671,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeCallsByCallIdRecordStop
+      x-operation-id-source: derived
   /users/me/calls/{call_id}/record/pause:
     put:
       summary: Pause recording a call
@@ -636,7 +680,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: Recording has paused for the call
@@ -654,6 +698,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeCallsByCallIdRecordPause
+      x-operation-id-source: derived
   /users/me/calls/{call_id}/record/resume:
     put:
       summary: Resume recording a call
@@ -661,7 +707,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: Recording has resumed for the call
@@ -679,6 +725,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeCallsByCallIdRecordResume
+      x-operation-id-source: derived
   /users/me/calls/{call_id}/answer:
     put:
       summary: Answer a call from user
@@ -689,7 +737,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/CallID'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The call is now answered
@@ -701,6 +749,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeCallsByCallIdAnswer
+      x-operation-id-source: derived
   /users/me/calls/{call_id}/dtmf:
     put:
       summary: Simulate a user pressing DTMF keys
@@ -709,7 +759,7 @@ paths:
       - $ref: '#/components/parameters/CallID'
       - $ref: '#/components/parameters/DTMFDigits'
       tags:
-      - calls
+      - Calls
       responses:
         '204':
           description: The digits have been sent
@@ -721,6 +771,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putUsersMeCallsByCallIdDtmf
+      x-operation-id-source: derived
   /calls/{call_id}/park:
     put:
       summary: Park a call
@@ -730,7 +782,7 @@ paths:
       - $ref: '#/components/parameters/CallID'
       - $ref: '#/components/parameters/ParkCall'
       tags:
-      - calls
+      - Calls
       responses:
         '200':
           description: Parked call
@@ -742,6 +794,8 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '503':
           $ref: '#/components/responses/FullOrServiceUnavailable'
+      operationId: putCallsByCallIdPark
+      x-operation-id-source: derived
   /users/me/calls/{call_id}/park:
     put:
       summary: Park the user's connected (talking to) call
@@ -751,7 +805,7 @@ paths:
       - $ref: '#/components/parameters/CallID'
       - $ref: '#/components/parameters/ParkCall'
       tags:
-      - calls
+      - Calls
       responses:
         '200':
           description: Parked call
@@ -763,8 +817,119 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '503':
           $ref: '#/components/responses/FullOrServiceUnavailable'
+      operationId: putUsersMeCallsByCallIdPark
+      x-operation-id-source: derived
 components:
+  parameters:
+    ParkCall:
+      name: park_call
+      in: body
+      description: Payload required to park a call
+      required: true
+      schema:
+        $ref: '#/components/schemas/ParkCallBody'
+    CallID:
+      name: call_id
+      in: path
+      description: ID of the call
+      required: true
+      schema:
+        type: string
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    DTMFDigits:
+      name: digits
+      in: query
+      description: Digits to send via DTMF. Must contain only `0-9*#ABCD` (letters are case insensitive).
+      required: true
+      schema:
+        type: string
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    FullOrServiceUnavailable:
+      description: Parking is full or another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
+    CallRequest:
+      type: object
+      properties:
+        destination:
+          $ref: '#/components/schemas/CallRequestDestination'
+        source:
+          $ref: '#/components/schemas/CallRequestSource'
+        variables:
+          description: Channel variables to set
+          type: object
+      required:
+      - destination
+      - source
+    TalkingTo:
+      type: object
+      properties:
+        '{channel_id}':
+          type: string
+    ConnectCallToUserRequest:
+      type: object
+      properties:
+        timeout:
+          description: 'timeout in seconds for the dial attempt to the targeted user,
+
+            or null for no timeout(infinite ring time).
+
+            Omission leads to a default timeout of 30s.
+
+            '
+          type: integer
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    CallRequestDestination:
+      description: Destination parameters
+      type: object
+      properties:
+        extension:
+          type: string
+        context:
+          type: string
+        priority:
+          type: integer
+      required:
+      - extension
+      - context
+      - priority
     ParkCallBody:
       title: Information needed to park the call
       required:
@@ -795,6 +960,61 @@ components:
           type: integer
           minimum: 0
           example: 30
+    ParkedCallInfo:
+      description: Information returned when a call has been parked
+      properties:
+        slot:
+          description: Parking slot where this call has been parked
+          type: string
+          example: 501
+        timeout_at:
+          description: Timestamp when the call will timeout
+          type: string
+          format: date-time
+    CallRequestSource:
+      description: Caller parameters
+      type: object
+      properties:
+        user:
+          type: string
+          description: UUID of the user making the call
+        line_id:
+          type: integer
+          description: ID of the line of the user used to make the call. Default is the main line of the user.
+        from_mobile:
+          type: boolean
+          description: Start the call from the user's mobile phone. Default is False
+        all_lines:
+          type: boolean
+          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
+        auto_answer:
+          type: boolean
+          description: 'Inform the phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
+      required:
+      - user
+    UserCallRequest:
+      type: object
+      properties:
+        extension:
+          description: Extension to call
+          type: string
+        variables:
+          description: Channel variables to set
+          type: object
+        line_id:
+          type: integer
+          description: ID of the line of the user used to make the call. Default is the main line of the user.
+        from_mobile:
+          type: boolean
+          description: 'Start the call from the user''s mobile phone. Default is False. Limitation: this feature may return a wrong call_id if the outgoing call used to dial the mobile number has more than one associated trunk.'
+        all_lines:
+          type: boolean
+          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
+        auto_answer_caller:
+          type: boolean
+          description: 'Inform the caller phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
+      required:
+      - extension
     Call:
       type: object
       properties:
@@ -864,170 +1084,6 @@ components:
           enum:
           - active
           - inactive
-    TalkingTo:
-      type: object
-      properties:
-        '{channel_id}':
-          type: string
-    ParkedCallInfo:
-      description: Information returned when a call has been parked
-      properties:
-        slot:
-          description: Parking slot where this call has been parked
-          type: string
-          example: 501
-        timeout_at:
-          description: Timestamp when the call will timeout
-          type: string
-          format: date-time
-    UserCallRequest:
-      type: object
-      properties:
-        extension:
-          description: Extension to call
-          type: string
-        variables:
-          description: Channel variables to set
-          type: object
-        line_id:
-          type: integer
-          description: ID of the line of the user used to make the call. Default is the main line of the user.
-        from_mobile:
-          type: boolean
-          description: 'Start the call from the user''s mobile phone. Default is False. Limitation: this feature may return a wrong call_id if the outgoing call used to dial the mobile number has more than one associated trunk.'
-        all_lines:
-          type: boolean
-          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
-        auto_answer_caller:
-          type: boolean
-          description: 'Inform the caller phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
-      required:
-      - extension
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    CallRequestDestination:
-      description: Destination parameters
-      type: object
-      properties:
-        extension:
-          type: string
-        context:
-          type: string
-        priority:
-          type: integer
-      required:
-      - extension
-      - context
-      - priority
-    CallRequestSource:
-      description: Caller parameters
-      type: object
-      properties:
-        user:
-          type: string
-          description: UUID of the user making the call
-        line_id:
-          type: integer
-          description: ID of the line of the user used to make the call. Default is the main line of the user.
-        from_mobile:
-          type: boolean
-          description: Start the call from the user's mobile phone. Default is False
-        all_lines:
-          type: boolean
-          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
-        auto_answer:
-          type: boolean
-          description: 'Inform the phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
-      required:
-      - user
-    CallRequest:
-      type: object
-      properties:
-        destination:
-          $ref: '#/components/schemas/CallRequestDestination'
-        source:
-          $ref: '#/components/schemas/CallRequestSource'
-        variables:
-          description: Channel variables to set
-          type: object
-      required:
-      - destination
-      - source
-    ConnectCallToUserRequest:
-      type: object
-      properties:
-        timeout:
-          description: 'timeout in seconds for the dial attempt to the targeted user,
-
-            or null for no timeout(infinite ring time).
-
-            Omission leads to a default timeout of 30s.
-
-            '
-          type: integer
-  parameters:
-    TenantUUID:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    DTMFDigits:
-      name: digits
-      in: query
-      description: Digits to send via DTMF. Must contain only `0-9*#ABCD` (letters are case insensitive).
-      required: true
-      schema:
-        type: string
-    ParkCall:
-      name: park_call
-      in: body
-      description: Payload required to park a call
-      required: true
-      schema:
-        $ref: '#/components/schemas/ParkCallBody'
-    CallID:
-      name: call_id
-      in: path
-      description: ID of the call
-      required: true
-      schema:
-        type: string
-  responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    FullOrServiceUnavailable:
-      description: Parking is full or another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

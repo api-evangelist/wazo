@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: notifications
+- name: Notifications
 paths:
   /mobile/notifications:
     post:
@@ -27,7 +27,7 @@ paths:
       - $ref: '#/components/parameters/TenantUuidHeader'
       - $ref: '#/components/parameters/NotificationBody'
       tags:
-      - notifications
+      - Notifications
       responses:
         '204':
           description: An attempt to send the notification has been made
@@ -51,23 +51,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
     Notification:
       type: object
       properties:
@@ -95,19 +78,36 @@ components:
       - user_uuid
       - title
       - body
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
   parameters:
-    NotificationBody:
-      name: body
-      in: body
-      required: true
-      schema:
-        $ref: '#/components/schemas/Notification'
     TenantUuidHeader:
       name: Wazo-Tenant
       in: header
       description: The User's tenant UUID, defining the ownership of a given resource.
       schema:
         type: string
+    NotificationBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/Notification'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

@@ -17,7 +17,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: conferences
+- name: Conferences
 paths:
   /conferences/{conference_id}/participants:
     get:
@@ -26,7 +26,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/ConferenceID'
       tags:
-      - conferences
+      - Conferences
       responses:
         '200':
           description: The list of participant is returned
@@ -38,6 +38,8 @@ paths:
           $ref: '#/components/responses/NoSuchConference'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: getConferencesByConferenceIdParticipants
+      x-operation-id-source: derived
     servers:
     - url: /1.0
   /users/me/conferences/{conference_id}/participants:
@@ -47,7 +49,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/ConferenceID'
       tags:
-      - conferences
+      - Conferences
       responses:
         '200':
           description: The list of participant is returned
@@ -59,6 +61,8 @@ paths:
           $ref: '#/components/responses/NoSuchConference'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: getUsersMeConferencesByConferenceIdParticipants
+      x-operation-id-source: derived
     servers:
     - url: /1.0
   /conferences/{conference_id}/participants/{participant_id}:
@@ -69,7 +73,7 @@ paths:
       - $ref: '#/components/parameters/ConferenceID'
       - $ref: '#/components/parameters/ParticipantID'
       tags:
-      - conferences
+      - Conferences
       responses:
         '204':
           description: The participant was kicked from the conference
@@ -77,6 +81,8 @@ paths:
           $ref: '#/components/responses/NoSuchConference'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: deleteConferencesByConferenceIdParticipantsByParticipantId
+      x-operation-id-source: derived
     servers:
     - url: /1.0
   /conferences/{conference_id}/participants/{participant_id}/mute:
@@ -87,7 +93,7 @@ paths:
       - $ref: '#/components/parameters/ConferenceID'
       - $ref: '#/components/parameters/ParticipantID'
       tags:
-      - conferences
+      - Conferences
       responses:
         '204':
           description: The participant was muted
@@ -95,6 +101,8 @@ paths:
           $ref: '#/components/responses/NoSuchConference'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putConferencesByConferenceIdParticipantsByParticipantIdMute
+      x-operation-id-source: derived
     servers:
     - url: /1.0
   /conferences/{conference_id}/participants/{participant_id}/unmute:
@@ -105,7 +113,7 @@ paths:
       - $ref: '#/components/parameters/ConferenceID'
       - $ref: '#/components/parameters/ParticipantID'
       tags:
-      - conferences
+      - Conferences
       responses:
         '204':
           description: The participant was unmuted
@@ -113,6 +121,8 @@ paths:
           $ref: '#/components/responses/NoSuchConference'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: putConferencesByConferenceIdParticipantsByParticipantIdUnmute
+      x-operation-id-source: derived
     servers:
     - url: /1.0
   /conferences/{conference_id}/record:
@@ -122,7 +132,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/ConferenceID'
       tags:
-      - conferences
+      - Conferences
       responses:
         '204':
           description: The conference recording started
@@ -136,13 +146,15 @@ paths:
           $ref: '#/components/responses/NoSuchConference'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: postConferencesByConferenceIdRecord
+      x-operation-id-source: derived
     delete:
       summary: Stop recording a conference
       description: '**Required ACL:** `calld.conferences.{conference_id}.record.delete`'
       parameters:
       - $ref: '#/components/parameters/ConferenceID'
       tags:
-      - conferences
+      - Conferences
       responses:
         '204':
           description: The conference recording stopped
@@ -156,6 +168,8 @@ paths:
           $ref: '#/components/responses/NoSuchConference'
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
+      operationId: deleteConferencesByConferenceIdRecord
+      x-operation-id-source: derived
     servers:
     - url: /1.0
   /asterisk/confbridge/wazo_default_bridge:
@@ -164,7 +178,7 @@ paths:
       summary: List ConfBridge wazo_default_bridge options
       description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_bridge.read`'
       tags:
-      - conferences
+      - Conferences
       responses:
         '200':
           description: ConfBridge wazo_default_bridge
@@ -185,13 +199,11 @@ paths:
 
         All available configuration options are listed in the
 
-        [sample](https://raw.githubusercontent.com/asterisk/asterisk/master/configs/samples/confbridge.conf.sample)
+        sample
 
-        Asterisk configuration file.
-
-        '
+        Asterisk configuration file.'
       tags:
-      - conferences
+      - Conferences
       responses:
         '204':
           $ref: '#/components/responses/ResourceUpdated'
@@ -213,7 +225,7 @@ paths:
       summary: List ConfBridge wazo_default_user options
       description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_user.read`'
       tags:
-      - conferences
+      - Conferences
       responses:
         '200':
           description: ConfBridge wazo_default_user
@@ -227,7 +239,6 @@ paths:
       description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_user.update`
 
 
-
         **WARNING** This endpoint restore to default value or delete all fields that
 
         are not defined.
@@ -235,13 +246,11 @@ paths:
 
         All available configuration options are listed in the
 
-        [sample](https://raw.githubusercontent.com/asterisk/asterisk/master/configs/samples/confbridge.conf.sample)
+        sample
 
-        Asterisk configuration file.
-
-        '
+        Asterisk configuration file.'
       tags:
-      - conferences
+      - Conferences
       responses:
         '204':
           $ref: '#/components/responses/ResourceUpdated'
@@ -263,7 +272,7 @@ paths:
       summary: List conference
       description: '**Required ACL:** `confd.conferences.read`'
       tags:
-      - conferences
+      - Conferences
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -287,7 +296,7 @@ paths:
 
         All conferences have the same menu. Please consult the asterisk
 
-        [documentation](https://raw.githubusercontent.com/asterisk/asterisk/master/configs/samples/confbridge.conf.sample)
+        documentation
 
         for definitions:
 
@@ -322,11 +331,9 @@ paths:
 
         0 = admin_toggle_mute_participants''
 
-        ```
-
-        '
+        ```'
       tags:
-      - conferences
+      - Conferences
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -352,7 +359,7 @@ paths:
       summary: Get conference
       description: '**Required ACL:** `confd.conferences.{conference_id}.read`'
       tags:
-      - conferences
+      - Conferences
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/conferenceid'
@@ -370,7 +377,7 @@ paths:
       summary: Update conference
       description: '**Required ACL:** `confd.conferences.{conference_id}.update`'
       tags:
-      - conferences
+      - Conferences
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/conferenceid'
@@ -392,7 +399,7 @@ paths:
       summary: Delete conference
       description: '**Required ACL:** `confd.conferences.{conference_id}.delete`'
       tags:
-      - conferences
+      - Conferences
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/conferenceid'
@@ -411,7 +418,7 @@ paths:
       summary: Associate conference and extension
       description: '**Required ACL:** `confd.conferences.{conference_id}.extensions.{extension_id}.update`'
       tags:
-      - conferences
+      - Conferences
       parameters:
       - $ref: '#/components/parameters/conferenceid'
       - $ref: '#/components/parameters/extensionid'
@@ -427,7 +434,7 @@ paths:
       summary: Dissociate conference and extension
       description: '**Required ACL:** `confd.conferences.{conference_id}.extensions.{extension_id}.delete`'
       tags:
-      - conferences
+      - Conferences
       parameters:
       - $ref: '#/components/parameters/conferenceid'
       - $ref: '#/components/parameters/extensionid'
@@ -441,87 +448,6 @@ paths:
     servers:
     - url: /1.1
 components:
-  parameters:
-    ConferenceID:
-      name: conference_id
-      in: path
-      description: Unique identifier of the conference
-      required: true
-      schema:
-        type: string
-    ParticipantID:
-      name: participant_id
-      in: path
-      description: Unique identifier of the participant
-      required: true
-      schema:
-        type: string
-    conferenceid:
-      required: true
-      name: conference_id
-      in: path
-      description: Conference's ID
-      schema:
-        type: integer
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    extensionid:
-      required: true
-      name: extension_id
-      in: path
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
   responses:
     AnotherServiceUnavailable:
       description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
@@ -535,22 +461,20 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
     NotFoundError:
       description: The resource requested was not found on the server
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    GenericError:
-      description: An error occurred during the operation
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:
@@ -563,20 +487,15 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    DeleteError:
-      description: An error occurred when deleting the resource
+    CreateError:
+      description: An error occurred when creating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
   schemas:
-    ParticipantList:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Participant'
     Participant:
       type: object
       properties:
@@ -624,29 +543,27 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    ConferenceRelationExtensions:
+    ParticipantList:
+      type: object
       properties:
-        extensions:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Participant'
+    ConferenceRelationIncalls:
+      properties:
+        incalls:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
-    ConfBridgeConfiguration:
-      title: ConfBridgeConfiguration
-      description: 'This configuration will be in the file ''confbridge.conf'' used by asterisk.
-
-        Please consult the asterisk documentation for further details on available parameters.'
+            $ref: '#/components/schemas/ConferenceRelationIncall'
+    IncallRelationBase:
+      title: IncallRelation
       properties:
-        options:
-          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
-          type: object
-    IncallRelationExtensions:
-      properties:
-        extensions:
-          type: array
+        id:
+          type: integer
           readOnly: true
-          items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
+          description: The id of the incoming call
     ConferenceRelationBase:
       properties:
         id:
@@ -701,20 +618,15 @@ components:
             readOnly: true
       - $ref: '#/components/schemas/ConferenceRelationExtensions'
       - $ref: '#/components/schemas/ConferenceRelationIncalls'
-    ConferenceRelationIncall:
-      allOf:
-      - $ref: '#/components/schemas/IncallRelationBase'
-      - $ref: '#/components/schemas/IncallRelationExtensions'
-    ExtensionRelationBase:
+    ConfBridgeConfiguration:
+      title: ConfBridgeConfiguration
+      description: 'This configuration will be in the file ''confbridge.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
       properties:
-        id:
-          type: integer
-          description: Extension ID
-          readOnly: true
-        context:
-          type: string
-        exten:
-          type: string
+        options:
+          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
     ConferenceItems:
       title: ConferenceItems
       properties:
@@ -730,20 +642,115 @@ components:
       type: array
       items:
         type: string
-    ConferenceRelationIncalls:
-      properties:
-        incalls:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ConferenceRelationIncall'
-    IncallRelationBase:
-      title: IncallRelation
+    ConferenceRelationIncall:
+      allOf:
+      - $ref: '#/components/schemas/IncallRelationBase'
+      - $ref: '#/components/schemas/IncallRelationExtensions'
+    ExtensionRelationBase:
       properties:
         id:
           type: integer
+          description: Extension ID
           readOnly: true
-          description: The id of the incoming call
+        context:
+          type: string
+        exten:
+          type: string
+    IncallRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    ConferenceRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+  parameters:
+    ConferenceID:
+      name: conference_id
+      in: path
+      description: Unique identifier of the conference
+      required: true
+      schema:
+        type: string
+    ParticipantID:
+      name: participant_id
+      in: path
+      description: Unique identifier of the participant
+      required: true
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    conferenceid:
+      required: true
+      name: conference_id
+      in: path
+      description: Conference's ID
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

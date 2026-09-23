@@ -14,14 +14,14 @@ info:
 servers:
 - url: /0.1
 tags:
-- name: google
+- name: Google
 paths:
   /users/{user_uuid}/external/google:
     get:
       summary: Get a Google token
       description: '**Required ACL**: `auth.users.{user_uuid}.external.google.read`'
       tags:
-      - google
+      - Google
       parameters:
       - $ref: '#/components/parameters/user_uuid'
       responses:
@@ -43,16 +43,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
+      operationId: getUsersByUserUuidExternalGoogle
+      x-operation-id-source: derived
     post:
       summary: Ask for a verification URL and store code to get token
       description: '**Required ACL**: `auth.users.{user_uuid}.external.google.create`.
 
 
-        More info on Google permissions: https://developers.google.com/identity/protocols/googlescopes"
-
-        '
+        More info on Google permissions: https://developers.google.com/identity/protocols/googlescopes"'
       tags:
-      - google
+      - Google
       parameters:
       - $ref: '#/components/parameters/user_uuid'
       responses:
@@ -73,11 +73,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GooglePost'
+      operationId: postUsersByUserUuidExternalGoogle
+      x-operation-id-source: derived
     delete:
       summary: Delete a Google token
       description: '**Required ACL**: `auth.users.{user_uuid}.external.google.delete`'
       tags:
-      - google
+      - Google
       parameters:
       - $ref: '#/components/parameters/user_uuid'
       responses:
@@ -95,6 +97,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
+      operationId: deleteUsersByUserUuidExternalGoogle
+      x-operation-id-source: derived
     servers:
     - url: /0.1
   /backends/google/sources/{source_uuid}/contacts:
@@ -116,7 +120,7 @@ paths:
       - $ref: '#/components/parameters/search'
       summary: Retrieve all contacts from `google`
       tags:
-      - google
+      - Google
       responses:
         '200':
           description: 'Contacts as fetched from Google API and transformed to match the dird internals
@@ -159,7 +163,7 @@ paths:
       summary: Get google configuration
       description: '**Required ACL:** `dird.backends.google.sources.read`'
       tags:
-      - google
+      - Google
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -191,15 +195,13 @@ paths:
 
         * numbers: a list of phone numbers
 
-        * numbers_by_label: a map of type to numbers {''mobile'': <number>, ''home'': <number>, ...}. Types are defined by Google, currently known types include: ''home'', ''work'', ''mobile'', ''other'', ''main'', ''home_fax'', ''work_fax'', ''google_voice'', ''pager''.
+        * numbers_by_label: a map of type to numbers {''mobile'': , ''home'': , ...}. Types are defined by Google, currently known types include: ''home'', ''work'', ''mobile'', ''other'', ''main'', ''home_fax'', ''work_fax'', ''google_voice'', ''pager''.
 
-        * numbers_except_label: a map from type to every other number {''mobile'': [<number>, <number], ''home'': [<number>, <number>], ...}. See available types above. For example, the ''mobile'' key will contain the ''work'' and ''home'' numbers, but will exclude the ''mobile'' number.
+        * numbers_except_label: a map from type to every other number {''mobile'': [, , ], ...}. See available types above. For example, the ''mobile'' key will contain the ''work'' and ''home'' numbers, but will exclude the ''mobile'' number.
 
-        * emails: a list of email addresses
-
-        '
+        * emails: a list of email addresses'
       tags:
-      - google
+      - Google
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -253,7 +255,7 @@ paths:
       summary: Get a `google` source configuration
       description: '**Required ACL:** `dird.backends.google.sources.{source_uuid}.read`'
       tags:
-      - google
+      - Google
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -273,7 +275,7 @@ paths:
       summary: Update a `google` source configuration
       description: '**Required ACL:** `dird.backends.google.sources.{source_uuid}.update`'
       tags:
-      - google
+      - Google
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -304,7 +306,7 @@ paths:
       summary: Delete a `google` source configuration
       description: '**Required ACL:** `dird.backends.google.sources.{source_uuid}.delete`'
       tags:
-      - google
+      - Google
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -319,14 +321,6 @@ paths:
     - url: /0.1
 components:
   schemas:
-    GooglePostResult:
-      type: object
-      required:
-      - verification_url
-      properties:
-        verification_url:
-          type: string
-          description: The URL to confirm the authorization
     APIError:
       type: object
       properties:
@@ -338,6 +332,25 @@ components:
           type: string
         details:
           type: object
+    GooglePostResult:
+      type: object
+      required:
+      - verification_url
+      properties:
+        verification_url:
+          type: string
+          description: The URL to confirm the authorization
+    GooglePost:
+      type: object
+      properties:
+        scope:
+          description: Scope permissions requested
+          type: array
+          items:
+            type: string
+          default:
+          - https://www.googleapis.com/auth/userinfo.profile
+          - https://www.googleapis.com/auth/contacts
     GoogleGetResult:
       type: object
       properties:
@@ -354,17 +367,32 @@ components:
       - access_token
       - scope
       - token_expiration
-    GooglePost:
-      type: object
+    GoogleContactList:
       properties:
-        scope:
-          description: Scope permissions requested
+        items:
           type: array
           items:
-            type: string
-          default:
-          - https://www.googleapis.com/auth/userinfo.profile
-          - https://www.googleapis.com/auth/contacts
+            type: object
+          readOnly: true
+        total:
+          type: integer
+          description: The number of contacts matching the searched terms
+          readOnly: true
+        filtered:
+          type: integer
+          description: The number of contacts matching the searched terms
+          readOnly: true
+    ExternalServiceConfig:
+      properties:
+        host:
+          type: string
+          default: localhost
+        verify_certificate:
+          type: string
+          description: If the HTTPs certificates should be verified and the path of the certificate if a custom certificate is used.
+          default: 'true'
+        timeout:
+          type: number
     LegacyError:
       title: LegacyError
       description: Error message for the client
@@ -383,27 +411,6 @@ components:
         status_code:
           description: HTTP status code
           type: integer
-    SourceItems:
-      properties:
-        total:
-          type: integer
-          description: The number of configured sources for this backend
-          readOnly: true
-        filtered:
-          type: integer
-          description: The number of configured sources matching the searched terms for this backend
-          readOnly: true
-    WazoAuthConfigNoAuth:
-      title: Auth
-      allOf:
-      - $ref: '#/components/schemas/ExternalServiceConfig'
-      - properties:
-          port:
-            type: integer
-            default: 80
-          version:
-            type: string
-            default: '0.1'
     GoogleSourceItems:
       title: GoogleSourceItems
       allOf:
@@ -418,42 +425,6 @@ components:
         - items
         - total
         - filtered
-    ExternalServiceConfig:
-      properties:
-        host:
-          type: string
-          default: localhost
-        verify_certificate:
-          type: string
-          description: If the HTTPs certificates should be verified and the path of the certificate if a custom certificate is used.
-          default: 'true'
-        timeout:
-          type: number
-    GoogleContactList:
-      properties:
-        items:
-          type: array
-          items:
-            type: object
-          readOnly: true
-        total:
-          type: integer
-          description: The number of contacts matching the searched terms
-          readOnly: true
-        filtered:
-          type: integer
-          description: The number of contacts matching the searched terms
-          readOnly: true
-    GoogleSource:
-      title: GoogleSource
-      allOf:
-      - $ref: '#/components/schemas/Source'
-      - properties:
-          auth:
-            $ref: '#/components/schemas/WazoAuthConfigNoAuth'
-      - required:
-        - name
-        - auth
     Source:
       properties:
         uuid:
@@ -476,6 +447,37 @@ components:
         format_columns:
           type: object
           description: A mapping of new fields and a python format string to generate the new columns value
+    WazoAuthConfigNoAuth:
+      title: Auth
+      allOf:
+      - $ref: '#/components/schemas/ExternalServiceConfig'
+      - properties:
+          port:
+            type: integer
+            default: 80
+          version:
+            type: string
+            default: '0.1'
+    GoogleSource:
+      title: GoogleSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          auth:
+            $ref: '#/components/schemas/WazoAuthConfigNoAuth'
+      - required:
+        - name
+        - auth
+    SourceItems:
+      properties:
+        total:
+          type: integer
+          description: The number of configured sources for this backend
+          readOnly: true
+        filtered:
+          type: integer
+          description: The number of configured sources matching the searched terms for this backend
+          readOnly: true
   parameters:
     user_uuid:
       name: user_uuid
@@ -484,21 +486,6 @@ components:
       required: true
       schema:
         type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: The offset defines the number of items of the collection to skip
-      required: false
-      schema:
-        type: integer
-        default: 0
     offset:
       name: offset
       in: query
@@ -507,20 +494,6 @@ components:
       schema:
         type: integer
         default: 0
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
     direction:
       required: false
       name: direction
@@ -531,26 +504,11 @@ components:
         enum:
         - asc
         - desc
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
+    order:
       required: false
-      schema:
-        type: boolean
-        default: false
-    sourceuuid:
-      name: source_uuid
-      in: path
-      description: The source's UUID
-      required: true
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
+      name: order
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
     limit:
@@ -560,6 +518,50 @@ components:
       required: false
       schema:
         type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: The offset defines the number of items of the collection to skip
+      required: false
+      schema:
+        type: integer
+        default: 0
+    sourceuuid:
+      name: source_uuid
+      in: path
+      description: The source's UUID
+      required: true
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    Limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
   responses:
     NotFoundError:
       description: The resource requested was not found on the server
@@ -567,22 +569,22 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/APIError'
-    ResourceDeleted:
-      description: Resource was deleted successfully
     ResourceUpdated:
       description: Resource was updated successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
     UpdateError:
       description: An error occurred when updating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/APIError'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    ResourceDeleted:
+      description: Resource was deleted successfully
   securitySchemes:
     wazo_auth_basic:
       type: http

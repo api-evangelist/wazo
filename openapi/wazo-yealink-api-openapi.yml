@@ -25,9 +25,7 @@ paths:
 
         formated for Yealink Phones. The result will be retrieved from a lookup query
 
-        to wazo-dird.
-
-        '
+        to wazo-dird.'
       operationId: lookup_yealink
       deprecated: true
       tags:
@@ -59,9 +57,7 @@ paths:
 
         formated for Yealink Phones. The result will be retrieved from a lookup query
 
-        to wazo-dird.
-
-        '
+        to wazo-dird.'
       operationId: yealink_lookup
       tags:
       - yealink
@@ -87,12 +83,10 @@ paths:
       - $ref: '#/components/parameters/AcceptLanguage'
   /yealink/users/{user_uuid}/services/dnd/enable:
     get:
-      summary: Enable the DND service for a particular user.
+      summary: Enable the DND service for a particular user
       description: 'This `dnd` service endpoint will enable the user DND service through
 
-        `wazo-confd`.
-
-        '
+        `wazo-confd`.'
       operationId: yealink_user_service_dnd_enable
       tags:
       - yealink
@@ -111,12 +105,10 @@ paths:
       - $ref: '#/components/parameters/UserUUID'
   /yealink/users/{user_uuid}/services/dnd/disable:
     get:
-      summary: Disable the DND service for a particular user.
+      summary: Disable the DND service for a particular user
       description: 'This `dnd` service endpoint will disable the user DND service through
 
-        `wazo-confd`.
-
-        '
+        `wazo-confd`.'
       operationId: yealink_user_service_dnd_disable
       tags:
       - yealink
@@ -135,6 +127,13 @@ paths:
       - $ref: '#/components/parameters/UserUUID'
 components:
   parameters:
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
     UserUUID:
       name: user_uuid
       in: path
@@ -149,13 +148,6 @@ components:
       required: true
       schema:
         type: string
-    Limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
     Term:
       name: term
       in: query
@@ -163,6 +155,13 @@ components:
       required: true
       schema:
         type: string
+    Limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
     Offset:
       name: offset
       in: query
@@ -171,13 +170,6 @@ components:
       schema:
         type: integer
         default: 0
-    AcceptLanguage:
-      name: Accept-Language
-      in: header
-      required: false
-      description: The language to translate the query results in
-      schema:
-        type: string
     XivoUserUUID:
       name: xivo_user_uuid
       in: query
@@ -186,14 +178,8 @@ components:
       schema:
         type: string
   responses:
-    InvalidDataError:
-      description: Data provided is invalid or a field is missing
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ProfileInvalid:
-      description: The profile does not exist
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
       content:
         application/json:
           schema:
@@ -204,8 +190,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+    InvalidDataError:
+      description: Data provided is invalid or a field is missing
       content:
         application/json:
           schema:
@@ -216,13 +202,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    YealinkIPPhoneDirectory:
-      properties:
-        DirectoryEntry:
-          type: array
-          items:
-            $ref: '#/components/schemas/YealinkDirectoryEntry'
     Error:
       type: object
       title: Error
@@ -241,6 +227,12 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
+    YealinkIPPhoneDirectory:
+      properties:
+        DirectoryEntry:
+          type: array
+          items:
+            $ref: '#/components/schemas/YealinkDirectoryEntry'
     YealinkDirectoryEntry:
       properties:
         Name:

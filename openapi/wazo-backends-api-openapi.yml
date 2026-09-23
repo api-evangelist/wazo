@@ -14,12 +14,12 @@ info:
 servers:
 - url: /0.1
 tags:
-- name: backends
+- name: Backends
 paths:
   /backends:
     get:
       tags:
-      - backends
+      - Backends
       security:
       - {}
       description: Retrieves the list of activated wazo_auth.backends plugins
@@ -30,19 +30,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BackendList'
+      summary: Get backends
+      x-summary-source: derived
+      operationId: getBackends
+      x-operation-id-source: derived
   /backends/ldap:
     get:
       security:
       - wazo_auth_token: []
-      summary: 'Get current tenant''s LDAP backend configuration. If there is no configuration,
-
-        all the fields will be `null`.
-
-        '
+      summary: Get current tenant's LDAP backend configuration.
       description: '**Required ACL:** `auth.backends.ldap.read`'
       operationId: getLDAPBackendConfig
       tags:
-      - backends
+      - Backends
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -65,7 +65,7 @@ paths:
       description: '**Required ACL:** `auth.backends.ldap.update'
       operationId: updateLDAPBackendConfig
       tags:
-      - backends
+      - Backends
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -95,7 +95,7 @@ paths:
       description: '**Required ACL:** `auth.backends.ldap.delete`'
       operationId: deleteLDAPBackendConfig
       tags:
-      - backends
+      - Backends
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -138,7 +138,7 @@ paths:
       - wazo_auth_token: []
       summary: Delete current tenant's SAML backend configuration
       tags:
-      - backends
+      - Backends
     get:
       description: '**Required ACL:** `auth.backends.saml.read`'
       operationId: getSAMLBackendConfig
@@ -165,13 +165,9 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
       - wazo_auth_token: []
-      summary: 'Get current tenant''s SAML backend configuration. If there is no configuration,
-
-        all the fields will be `null`.
-
-        '
+      summary: Get current tenant's SAML backend configuration.
       tags:
-      - backends
+      - Backends
     post:
       description: '**Required ACL:** `auth.backends.saml.create'
       operationId: createSAMLBackendConfig
@@ -198,9 +194,9 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
       - wazo_auth_token: []
-      summary: Returns the created SAML configuration.
+      summary: Returns the created SAML configuration
       tags:
-      - backends
+      - Backends
       requestBody:
         content:
           multipart/form-data:
@@ -254,7 +250,7 @@ paths:
       - wazo_auth_token: []
       summary: Updates current tenant's SAML backend configuration
       tags:
-      - backends
+      - Backends
       requestBody:
         content:
           multipart/form-data:
@@ -280,9 +276,7 @@ paths:
       description: '**Required ACL:** `auth.backends.saml.read`
 
 
-        This endpoint allow to download tenant metadata file.
-
-        '
+        This endpoint allow to download tenant metadata file.'
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -313,12 +307,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      summary: Download the tenant's SAML metadata XML file.
+      summary: Download the tenant's SAML metadata XML file
       tags:
-      - backends
+      - Backends
+      operationId: getBackendsSamlMetadata
+      x-operation-id-source: derived
   /backends/saml/acs_url_template:
     get:
-      description: '**Required ACL:** `auth.backends.saml.read` This endpoint provides the tenant Assertion Consumer Service URL template. The `{{STACK_URL}}` must be replaced by the public URL of the stack, wazo-confd ingress can be used to retrieve previously configured data. '
+      description: '**Required ACL:** `auth.backends.saml.read` This endpoint provides the tenant Assertion Consumer Service URL template. The `{{STACK_URL}}` must be replaced by the public URL of the stack, wazo-confd ingress can be used to retrieve previously configured data.'
       responses:
         '200':
           description: Returns the URL to be used while configuring the Identity provider.
@@ -346,38 +342,11 @@ paths:
                 $ref: '#/components/schemas/Error'
       summary: Get tenant's ACS URL template to use in the IDP configuration
       tags:
-      - backends
+      - Backends
+      operationId: getBackendsSamlAcsUrlTemplate
+      x-operation-id-source: derived
 components:
   schemas:
-    SAMLAcsUrlTemplate:
-      properties:
-        acs_url:
-          type: string
-          description: The SAML ACS URL
-          format: uri
-      required:
-      - acs_url
-      type: object
-    BackendList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: string
-    Error:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
     LDAPBackendConfig:
       type: object
       required:
@@ -453,6 +422,28 @@ components:
 
             '
           example: '{user_login_attribute}={username}'
+    SAMLAcsUrlTemplate:
+      properties:
+        acs_url:
+          type: string
+          description: The SAML ACS URL
+          format: uri
+      required:
+      - acs_url
+      type: object
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
     LDAPBackendConfigEdit:
       allOf:
       - $ref: '#/components/schemas/LDAPBackendConfig'
@@ -463,6 +454,13 @@ components:
             description: 'The password to use to bind the `wazo-auth` service to the LDAP server.
 
               '
+    BackendList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: string
     SAMLBackendConfig:
       properties:
         domain_uuid:

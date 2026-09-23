@@ -14,14 +14,14 @@ info:
 servers:
 - url: /0.1
 tags:
-- name: mobile
+- name: Mobile
 paths:
   /users/{user_uuid}/external/mobile:
     get:
       summary: Get device tokens for push notifications
       description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.read`'
       tags:
-      - mobile
+      - Mobile
       parameters:
       - $ref: '#/components/parameters/user_uuid'
       responses:
@@ -37,11 +37,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
+      operationId: getUsersByUserUuidExternalMobile
+      x-operation-id-source: derived
     post:
       summary: Configure device tokens for push notifications
       description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.create`'
       tags:
-      - mobile
+      - Mobile
       parameters:
       - $ref: '#/components/parameters/user_uuid'
       responses:
@@ -63,11 +65,13 @@ paths:
             schema:
               $ref: '#/components/schemas/MobileData'
         required: true
+      operationId: postUsersByUserUuidExternalMobile
+      x-operation-id-source: derived
     put:
       summary: Update device tokens for push notifications
       description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.update`'
       tags:
-      - mobile
+      - Mobile
       parameters:
       - $ref: '#/components/parameters/user_uuid'
       responses:
@@ -89,22 +93,26 @@ paths:
             schema:
               $ref: '#/components/schemas/MobileData'
         required: true
+      operationId: putUsersByUserUuidExternalMobile
+      x-operation-id-source: derived
     delete:
       summary: Delete device tokens for push notifications
       description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.delete`'
       tags:
-      - mobile
+      - Mobile
       parameters:
       - $ref: '#/components/parameters/user_uuid'
       responses:
         '204':
           description: the mobile auth data was successfully deleted
+      operationId: deleteUsersByUserUuidExternalMobile
+      x-operation-id-source: derived
   /users/{user_uuid}/external/mobile/sender_id:
     get:
       summary: Get your Mobile sender_id
       description: '**Required ACL**: `auth.users.{user_uuid}.external.mobile.sender_id.read`'
       tags:
-      - mobile
+      - Mobile
       parameters:
       - $ref: '#/components/parameters/user_uuid'
       responses:
@@ -126,6 +134,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
+      operationId: getUsersByUserUuidExternalMobileSenderId
+      x-operation-id-source: derived
 components:
   parameters:
     user_uuid:
@@ -136,17 +146,6 @@ components:
       schema:
         type: string
   schemas:
-    APIError:
-      type: object
-      properties:
-        timestamp:
-          type: number
-        message:
-          type: string
-        resource:
-          type: string
-        details:
-          type: object
     MobileData:
       type: object
       properties:
@@ -168,6 +167,17 @@ components:
         apns_default_topic:
           type: string
           description: APNs topic for non-call notifications such as messages, voicemails, and missed calls (e.g. com.example.app). When set, overrides the server-wide mobile_apns_default_topic configuration.
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
   securitySchemes:
     wazo_auth_basic:
       type: http

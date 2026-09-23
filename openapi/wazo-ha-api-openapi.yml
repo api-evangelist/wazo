@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Ha API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -19,7 +19,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: ha
+- name: HA
 paths:
   /ha:
     get:
@@ -27,7 +27,7 @@ paths:
       summary: Get High Availability configuration
       description: '**Required ACL:** `confd.ha.read`'
       tags:
-      - ha
+      - HA
       responses:
         '200':
           description: High Availability configuration
@@ -40,7 +40,7 @@ paths:
       summary: Update High Availability configuration
       description: '**Required ACL:** `confd.ha.update`'
       tags:
-      - ha
+      - HA
       responses:
         '204':
           $ref: '#/components/responses/ResourceUpdated'
@@ -51,6 +51,9 @@ paths:
               $ref: '#/components/schemas/HA'
         required: true
 components:
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
   schemas:
     HA:
       title: HA
@@ -68,9 +71,6 @@ components:
           description: The remote IP address of the other machine in the HA cluster. Must be an IP address, a hostname is invalid.
       required:
       - node_type
-  responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
   securitySchemes:
     wazo_auth_token:
       type: apiKey

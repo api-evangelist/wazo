@@ -14,19 +14,19 @@ info:
 servers:
 - url: /0.1
 tags:
-- name: admin
+- name: Admin
 paths:
   /admin/users/{user_uuid}/emails:
     put:
       tags:
-      - admin
+      - Admin
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.admin.users.{user_uuid}.emails.update`
 
         Update all of the users email address at the same time.
 
-        If an existing address is missing from the list, it will be removed. An empty list will remove all addresses. If addresses are defined, one and only one address should be main. If the confirmed field is set to none or ommited the existing value will be reused if it exists, otherwise the address will not be confirmed. '
+        If an existing address is missing from the list, it will be removed. An empty list will remove all addresses. If addresses are defined, one and only one address should be main. If the confirmed field is set to none or ommited the existing value will be reused if it exists, otherwise the address will not be confirmed.'
       summary: Update email addresses
       parameters:
       - $ref: '#/components/parameters/user_uuid'
@@ -46,6 +46,8 @@ paths:
               $ref: '#/components/schemas/AdminUserEmailList'
         description: EmailAddressList
         required: true
+      operationId: putAdminUsersByUserUuidEmails
+      x-operation-id-source: derived
 components:
   parameters:
     user_uuid:

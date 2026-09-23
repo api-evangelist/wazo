@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Funckeys API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -372,30 +372,14 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 components:
   responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    ResourceUpdated:
-      description: Resource was updated successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     GenericError:
       description: An error occurred during the operation
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
@@ -406,7 +390,108 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+  parameters:
+    funckeyposition:
+      required: true
+      name: position
+      in: path
+      description: position of the funckey
+      schema:
+        type: integer
+    templateid:
+      required: true
+      name: template_id
+      in: path
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
   schemas:
+    UserFuncKeyTemplate:
+      title: UserFuncKeyTemplate
+      description: Association between a User and a FuncKey Template
+      properties:
+        user_id:
+          type: integer
+          format: int32
+          description: User's ID
+        template_id:
+          type: integer
+          format: int32
+          description: FuncKey Template's ID
+    FuncKey:
+      title: FuncKey
+      description: Further documentation at https://wazo-platform.org/uc-doc/api_sdk/rest_api/confd/func_keys
+      properties:
+        blf:
+          type: boolean
+        label:
+          type: string
+        destination:
+          type: object
+    FuncKeyDestinationItems:
+      title: FuncKeyDestinationItems
+      description: Description of func key destinations and their parameters
+      items:
+        $ref: '#/components/schemas/FuncKeyDestination'
+      type: array
     FuncKeyDestination:
       title: FuncKeyDestination
       properties:
@@ -432,34 +517,6 @@ components:
           type: string
         keys:
           type: object
-    FuncKeyDestinationItems:
-      title: FuncKeyDestinationItems
-      description: Description of func key destinations and their parameters
-      items:
-        $ref: '#/components/schemas/FuncKeyDestination'
-      type: array
-    FuncKey:
-      title: FuncKey
-      description: Further documentation at https://wazo-platform.org/uc-doc/api_sdk/rest_api/confd/func_keys
-      properties:
-        blf:
-          type: boolean
-        label:
-          type: string
-        destination:
-          type: object
-    UserFuncKeyTemplate:
-      title: UserFuncKeyTemplate
-      description: Association between a User and a FuncKey Template
-      properties:
-        user_id:
-          type: integer
-          format: int32
-          description: User's ID
-        template_id:
-          type: integer
-          format: int32
-          description: FuncKey Template's ID
     FuncKeyDestinationParameter:
       title: FuncKeyDestinationParameter
       properties:
@@ -478,63 +535,6 @@ components:
       type: array
       items:
         type: string
-  parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    useriduuid:
-      required: true
-      name: user_id
-      in: path
-      description: the user's ID or UUID
-      schema:
-        type: string
-    templateid:
-      required: true
-      name: template_id
-      in: path
-      schema:
-        type: integer
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    funckeyposition:
-      required: true
-      name: position
-      in: path
-      description: position of the funckey
-      schema:
-        type: integer
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
   securitySchemes:
     wazo_auth_token:
       type: apiKey

@@ -15,12 +15,12 @@ servers:
 - url: /0.1
 - url: /1.1
 tags:
-- name: groups
+- name: Groups
 paths:
   /groups/{group_uuid}/policies:
     get:
       tags:
-      - groups
+      - Groups
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.groups.{group_uuid}.policies.read`'
@@ -57,12 +57,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getGroupsByGroupUuidPolicies
+      x-operation-id-source: derived
     servers:
     - url: /0.1
   /groups/{group_uuid}/policies/{policy_uuid}:
     put:
       tags:
-      - groups
+      - Groups
       security:
       - wazo_auth_token: []
       operationId: addGroupPolicy
@@ -82,7 +84,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     delete:
       tags:
-      - groups
+      - Groups
       security:
       - wazo_auth_token: []
       operationId: removeGroupPolicy
@@ -110,7 +112,7 @@ paths:
       description: '**Required ACL:** `auth.groups.read`'
       operationId: listGroups
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -145,7 +147,7 @@ paths:
       description: '**Required ACL:** `auth.groups.create`'
       operationId: createGroups
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -179,7 +181,7 @@ paths:
   /groups/{group_uuid}:
     get:
       tags:
-      - groups
+      - Groups
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.groups.{group_uuid}.read'
@@ -212,10 +214,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getGroupsByGroupUuid
+      x-operation-id-source: derived
     delete:
       operationId: delete_group
       tags:
-      - groups
+      - Groups
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.groups.{group_uuid}.delete`'
@@ -251,7 +255,7 @@ paths:
       description: '**Required ACL:** `auth.groups.{group_uuid}.update`'
       operationId: editGroups
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/group_uuid'
@@ -286,7 +290,7 @@ paths:
   /groups/{group_uuid}/users:
     get:
       tags:
-      - groups
+      - Groups
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.groups.{group_uuid}.users.read`'
@@ -323,12 +327,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getGroupsByGroupUuidUsers
+      x-operation-id-source: derived
     servers:
     - url: /0.1
   /groups/{group_uuid}/users/{user_uuid}:
     put:
       tags:
-      - groups
+      - Groups
       security:
       - wazo_auth_token: []
       operationId: addUserGroup
@@ -348,7 +354,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     delete:
       tags:
-      - groups
+      - Groups
       security:
       - wazo_auth_token: []
       operationId: removeUserGroup
@@ -377,11 +383,9 @@ paths:
 
         **WARNING**
 
-        This endpoint remove all interceptors which are not defined.
-
-        '
+        This endpoint remove all interceptors which are not defined.'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/callpickupid'
@@ -412,11 +416,9 @@ paths:
 
         **WARNING**
 
-        This endpoint remove all targets which are not defined.
-
-        '
+        This endpoint remove all targets which are not defined.'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/callpickupid'
@@ -444,7 +446,7 @@ paths:
       summary: Associate group and call permission
       description: '**Required ACL:** `confd.groups.{group_uuid}.callpermissions.{call_permission_id}.update`'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/groupuuid'
@@ -461,7 +463,7 @@ paths:
       summary: Dissociate group and call permission
       description: '**Required ACL:** `confd.groups.{group_uuid}.callpermissions.{call_permission_id}.delete`'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/groupuuid'
@@ -483,7 +485,7 @@ paths:
       summary: Associate group and extension
       description: '**Required ACL:** `confd.groups.{group_uuid}.extensions.{extension_id}.update`'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/groupuuid'
       - $ref: '#/components/parameters/extensionid'
@@ -501,7 +503,7 @@ paths:
       summary: Dissociate group and extension
       description: '**Required ACL:** `confd.groups.{group_uuid}.extensions.{extension_id}.delete`'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/groupuuid'
       - $ref: '#/components/parameters/extensionid'
@@ -522,7 +524,7 @@ paths:
       summary: List all fallbacks for group
       description: '**Required ACL:** `confd.groups.{group_uuid}.fallbacks.read`'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/groupuuid'
       responses:
@@ -542,7 +544,7 @@ paths:
 
         **WARNING** This endpoint delete all fields that are not defined.'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/groupuuid'
       responses:
@@ -576,11 +578,9 @@ paths:
 
         **WARNING**
 
-        This endpoint remove all members which are not defined.
-
-        '
+        This endpoint remove all members which are not defined.'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/groupuuid'
       responses:
@@ -615,11 +615,9 @@ paths:
 
         **WARNING**
 
-        This endpoint remove all members which are not defined.
-
-        '
+        This endpoint remove all members which are not defined.'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/groupuuid'
       responses:
@@ -646,7 +644,7 @@ paths:
       summary: Associate group and schedule
       description: '**Required ACL:** `confd.groups.{group_uuid}.schedules.{schedule_id}.update`'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/groupuuid'
@@ -665,7 +663,7 @@ paths:
       summary: Dissociate group and schedule
       description: '**Required ACL:** `confd.groups.{group_uuid}.schedules.{schedule_id}.delete`'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/groupuuid'
@@ -689,7 +687,7 @@ paths:
 
         **WARNING** This endpoint remove all groups which are not defined.'
       tags:
-      - groups
+      - Groups
       parameters:
       - $ref: '#/components/parameters/useriduuid'
       responses:
@@ -711,216 +709,26 @@ paths:
     servers:
     - url: /1.1
 components:
-  parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    search_name:
-      name: name
-      in: query
-      description: The name of the group
-      required: false
-      schema:
-        type: string
-    search_uuid:
-      name: uuid
-      in: query
-      description: The UUID of the group
-      required: false
-      schema:
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    group_uuid:
-      name: group_uuid
-      in: path
-      description: The UUID of the group
-      required: true
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    search_policy_uuid:
-      name: policy_uuid
-      in: query
-      description: The UUID of the policy that the group must have.
-      schema:
-        type: string
-    search_user_uuid:
-      name: user_uuid
-      in: query
-      description: The UUID of the user
-      required: false
-      schema:
-        type: string
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    search_read_only:
-      name: read_only
-      in: query
-      description: Is the group managed by the system?
-      required: false
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    policy_uuid:
-      name: policy_uuid
-      in: path
-      description: The UUID or slug of the policy. The slug is unique within a tenant, hence the tenant must be specified.
-      required: true
-      schema:
-        type: string
-    search_policy_slug:
-      name: policy_slug
-      in: query
-      description: The slug of the policy that the group must have.
-      schema:
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    groupuuid:
-      required: true
-      name: group_uuid
-      in: path
-      description: the group's UUID
-      schema:
-        type: string
-    useriduuid:
-      required: true
-      name: user_id
-      in: path
-      description: the user's ID or UUID
-      schema:
-        type: string
-    callpickupid:
-      required: true
-      name: callpickup_id
-      in: path
-      description: Call Pickup's ID
-      schema:
-        type: integer
-    offset_2:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    extensionid:
-      required: true
-      name: extension_id
-      in: path
-      schema:
-        type: integer
-    scheduleid:
-      required: true
-      name: schedule_id
-      in: path
-      description: Schedule's ID
-      schema:
-        type: integer
-    callpermissionid:
-      required: true
-      name: callpermission_id
-      in: path
-      description: Call Permission's ID
-      schema:
-        type: integer
-    limit_2:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
   schemas:
+    GetPoliciesResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of policies matching the searched term
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyResult'
+          description: A paginated list of policies
+      required:
+      - total
+      - items
     GroupPut:
       type: object
       properties:
         name:
           type: string
-      required:
-      - name
-    UserEmail:
-      type: object
-      properties:
-        address:
-          type: string
-        main:
-          type: boolean
-        confirmed:
-          type: boolean
-    UserList:
-      type: object
-      properties:
-        total:
-          type: integer
-          description: The number of users
-        filtered:
-          type: integer
-          description: The number of users matching the searched term
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserResult'
-          description: A paginated list of users
-    Group:
-      type: object
-      properties:
-        name:
-          type: string
-        slug:
-          type: string
-          default: <name>
       required:
       - name
     GetGroupsResult:
@@ -941,30 +749,66 @@ components:
       - filtered
       - total
       - items
-    UserResult:
+    UserList:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of users
+        filtered:
+          type: integer
+          description: The number of users matching the searched term
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResult'
+          description: A paginated list of users
+    GroupResult:
       type: object
       properties:
         uuid:
           type: string
-        username:
+        name:
           type: string
-        firstname:
+        slug:
           type: string
-        lastname:
-          type: string
-        purpose:
-          type: string
-          enum:
-          - user
-          - internal
-          - external_api
         tenant_uuid:
           type: string
-        emails:
+        system_managed:
+          type: boolean
+          description: '*Deprecated* Please use `read_only`'
+        read_only:
+          type: boolean
+    Error:
+      type: object
+      properties:
+        reason:
           type: array
           items:
-            $ref: '#/components/schemas/UserEmail'
-        enabled:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    PolicyResult:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+      - properties:
+          uuid:
+            type: string
+          read_only:
+            type: boolean
+    UserEmail:
+      type: object
+      properties:
+        address:
+          type: string
+        main:
+          type: boolean
+        confirmed:
           type: boolean
     Policy:
       type: object
@@ -997,66 +841,99 @@ components:
             '
       required:
       - name
-    GetPoliciesResult:
+    Group:
       type: object
       properties:
-        total:
-          type: integer
-          description: The number of policies matching the searched term
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyResult'
-          description: A paginated list of policies
-      required:
-      - total
-      - items
-    GroupResult:
-      type: object
-      properties:
-        uuid:
-          type: string
         name:
           type: string
         slug:
           type: string
+          default: <name>
+      required:
+      - name
+    UserResult:
+      type: object
+      properties:
+        uuid:
+          type: string
+        username:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        purpose:
+          type: string
+          enum:
+          - user
+          - internal
+          - external_api
         tenant_uuid:
           type: string
-        system_managed:
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserEmail'
+        enabled:
           type: boolean
-          description: '*Deprecated* Please use `read_only`'
-        read_only:
-          type: boolean
-    PolicyResult:
-      type: object
+    DestinationApplicationVoicemail:
+      title: DestinationApplicationVoicemail
       allOf:
-      - $ref: '#/components/schemas/Policy'
+      - $ref: '#/components/schemas/DestinationApplication'
       - properties:
-          uuid:
+          application:
             type: string
-          read_only:
-            type: boolean
-    Error:
-      type: object
+            description: MUST be 'voicemail'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    CallPermissionRelationBase:
       properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
+        id:
           type: integer
-    GroupRelationCallPermissions:
-      description: call permissions configured for this group
+          readOnly: true
+          description: The id of the call permission
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name of the call permission
+      required:
+      - name
+    GroupRelationIncalls:
+      description: incalls configured for this group
       properties:
-        call_permissions:
+        incalls:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/CallPermissionRelationBase'
+            $ref: '#/components/schemas/GroupRelationIncall'
+    IncallRelationBase:
+      title: IncallRelation
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the incoming call
+    GroupRelationBase:
+      properties:
+        name:
+          type: string
+          description: The name of the group
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the group
+        uuid:
+          type: string
+          description: Group UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
     GroupRelationExtensions:
       description: extensions configured for this group
       properties:
@@ -1065,23 +942,43 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/ExtensionRelationBase'
-    DestinationApplicationDISA:
-      title: DestinationApplicationDISA
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'disa'
-          context:
-            type: integer
-            description: The context of the application
-          pin:
-            type: string
-            description: the pin of the application
-        required:
-        - application
-        - context
+    GroupItems:
+      title: GroupItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group_2'
+        total:
+          type: integer
+      required:
+      - total
+    GroupMemberExtensions:
+      properties:
+        extensions:
+          items:
+            $ref: '#/components/schemas/GroupMemberExtension'
+          type: array
+      required:
+      - extensions
+    DestinationIVR:
+      title: DestinationIVR
+      properties:
+        type:
+          type: string
+          description: MUST be 'ivr'
+        ivr_id:
+          type: integer
+          description: The id of the IVR
+      required:
+      - type
+      - ivr_id
+    UserGroupID:
+      properties:
+        id:
+          type: integer
+        uuid:
+          type: string
     GroupMemberUsers:
       properties:
         users:
@@ -1090,20 +987,171 @@ components:
           type: array
       required:
       - users
-    DestinationApplicationDirectory:
-      title: DestinationApplicationDirectory
+    DestinationType:
+      title: DestinationType
+      properties:
+        application:
+          $ref: '#/components/schemas/DestinationApplicationApplication'
+        conference:
+          $ref: '#/components/schemas/DestinationConference'
+        custom:
+          $ref: '#/components/schemas/DestinationCustom'
+        extension:
+          $ref: '#/components/schemas/DestinationExtension'
+        group:
+          $ref: '#/components/schemas/DestinationGroup'
+        hangup:
+          $ref: '#/components/schemas/DestinationHangupCause'
+        ivr:
+          $ref: '#/components/schemas/DestinationIVR'
+        none:
+          $ref: '#/components/schemas/DestinationNone'
+        outcall:
+          $ref: '#/components/schemas/DestinationOutcall'
+        queue:
+          $ref: '#/components/schemas/DestinationQueue'
+        sound:
+          $ref: '#/components/schemas/DestinationSound'
+        switchboard:
+          $ref: '#/components/schemas/DestinationSwitchboard'
+        user:
+          $ref: '#/components/schemas/DestinationUser'
+        voicemail:
+          $ref: '#/components/schemas/DestinationVoicemail'
+    GroupID:
+      properties:
+        id:
+          type: integer
+    GroupRelationMemberExtension:
+      description: an extension configured as a member of this group
+      properties:
+        priority:
+          type: integer
+          description: 'The priority of the extension member in the group.
+
+            Only used for linear ring strategy.
+
+            '
+        exten:
+          type: string
+          description: The extension number of the member
+        context:
+          type: string
+          description: The context of the member
+    GroupFallbacks:
+      properties:
+        noanswer_destination:
+          description: The destination to redirect the caller to when there are no answers
+          $ref: '#/components/schemas/DestinationType'
+        congestion_destination:
+          description: The destination to redirect the caller to when the group has exceeded max_calls
+          $ref: '#/components/schemas/DestinationType'
+      example:
+        noanswer_destination:
+          type: user
+          user_id: 1
+        congestion_destination:
+          type: user
+          user_id: 2
+    GroupRelationIncall:
+      description: an incall configured with this group as destination
+      allOf:
+      - $ref: '#/components/schemas/IncallRelationBase'
+      - $ref: '#/components/schemas/IncallRelationExtensions'
+    GroupsID:
+      properties:
+        groups:
+          items:
+            $ref: '#/components/schemas/GroupID'
+          type: array
+    GroupRelationCallPermissions:
+      description: call permissions configured for this group
+      properties:
+        call_permissions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/CallPermissionRelationBase'
+    UserGroupsID:
+      properties:
+        groups:
+          items:
+            $ref: '#/components/schemas/UserGroupID'
+          type: array
+    GroupRelationSchedules:
+      properties:
+        schedules:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ScheduleRelationBase'
+    DestinationApplicationCustom:
+      title: DestinationApplicationCustom
       allOf:
       - $ref: '#/components/schemas/DestinationApplication'
       - properties:
           application:
             type: string
-            description: MUST be 'directory'
-          context:
+            description: MUST be 'custom'
+          application_uuid:
+            type: string
+            description: The UUID of the application.
+      required:
+      - application
+      - application_uuid
+    DestinationHangupCause:
+      title: DestinationHangupCause
+      properties:
+        busy:
+          $ref: '#/components/schemas/DestinationHangupBusy'
+        congestion:
+          $ref: '#/components/schemas/DestinationHangupCongestion'
+        normal:
+          $ref: '#/components/schemas/DestinationHangupNormal'
+    GroupRelationMemberUser:
+      description: a user configured as a member of this group
+      allOf:
+      - $ref: '#/components/schemas/UserRelationBase'
+      - properties:
+          priority:
             type: integer
-            description: The context of the application
-        required:
-        - application
-        - context
+            description: 'The priority of the user member in the group.
+
+              Only used for linear ring strategy.
+
+              '
+    DestinationOutcall:
+      title: DestinationOutcall
+      properties:
+        type:
+          type: string
+          description: MUST be 'outcall'
+        exten:
+          type: string
+        outcall_id:
+          type: integer
+          description: The id of the outcall
+      required:
+      - type
+      - exten
+      - outcall_id
+    DestinationApplication:
+      title: DestinationApplication
+      properties:
+        type:
+          type: string
+          description: MUST be 'application'
+      required:
+      - type
+    GroupMemberExtension:
+      properties:
+        exten:
+          type: string
+        context:
+          type: string
+        priority:
+          type: integer
+          description: priority of extension in the group. Only used for linear ring strategy
     DestinationUser:
       title: DestinationUser
       properties:
@@ -1122,68 +1170,23 @@ components:
       required:
       - type
       - user_id
-    DestinationOutcall:
-      title: DestinationOutcall
-      properties:
-        type:
-          type: string
-          description: MUST be 'outcall'
-        exten:
-          type: string
-        outcall_id:
-          type: integer
-          description: The id of the outcall
+    DestinationHangupBusy:
+      title: DestinationHangupBusy
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'busy'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
       required:
-      - type
-      - exten
-      - outcall_id
-    GroupsID:
-      properties:
-        groups:
-          items:
-            $ref: '#/components/schemas/GroupID'
-          type: array
-    DestinationHangup:
-      title: DestinationHangup
-      properties:
-        type:
-          type: string
-          description: MUST be 'hangup'
-      required:
-      - type
-    DestinationQueue:
-      title: DestinationQueue
-      properties:
-        type:
-          type: string
-          description: MUST be 'queue'
-        queue_id:
-          type: integer
-          description: The id of the queue
-        ring_time:
-          type: number
-          format: float
-        skill_rule_id:
-          type: integer
-          description: The id of the skill rule
-        skill_rule_variables:
-          type: object
-          description: key-value where key represents the variable of the skill rule and value represents a value
-      required:
-      - type
-      - queue_id
-    DestinationConference:
-      title: DestinationConference
-      properties:
-        type:
-          type: string
-          description: MUST be 'conference'
-        conference_id:
-          type: integer
-          description: The id of the conference
-      required:
-      - type
-      - conference_id
+      - cause
+    Error_2:
+      type: array
+      items:
+        type: string
     DestinationGroup:
       title: DestinationGroup
       properties:
@@ -1199,53 +1202,156 @@ components:
       required:
       - type
       - group_id
-    DestinationHangupNormal:
-      title: DestinationHangupNormal
+    GroupMemberUser:
+      properties:
+        uuid:
+          type: string
+        priority:
+          type: integer
+          description: priority of user in the group. Only used for linear ring strategy
+      required:
+      - uuid
+    DestinationApplicationApplication:
+      title: DestinationApplicationApplication
+      properties:
+        callback_disa:
+          $ref: '#/components/schemas/DestinationApplicationCallbackDISA'
+        custom:
+          $ref: '#/components/schemas/DestinationApplicationCustom'
+        directory:
+          $ref: '#/components/schemas/DestinationApplicationDirectory'
+        disa:
+          $ref: '#/components/schemas/DestinationApplicationDISA'
+        fax_to_mail:
+          $ref: '#/components/schemas/DestinationApplicationFaxToMail'
+        voicemail:
+          $ref: '#/components/schemas/DestinationApplicationVoicemail'
+    DestinationHangup:
+      title: DestinationHangup
+      properties:
+        type:
+          type: string
+          description: MUST be 'hangup'
+      required:
+      - type
+    DestinationConference:
+      title: DestinationConference
+      properties:
+        type:
+          type: string
+          description: MUST be 'conference'
+        conference_id:
+          type: integer
+          description: The id of the conference
+      required:
+      - type
+      - conference_id
+    DestinationVoicemail:
+      title: DestinationVoicemail
+      properties:
+        type:
+          type: string
+          description: MUST be 'voicemail'
+        voicemail_id:
+          type: integer
+          description: The id of the voicemail
+        skip_instructions:
+          type: boolean
+          description: Skip the playback of instructions for leaving a message
+        greeting:
+          type: string
+          enum:
+          - busy
+          - unavailable
+          description: Play the specified greeting
+      required:
+      - type
+      - voicemail_id
+    ExtensionRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Extension ID
+          readOnly: true
+        context:
+          type: string
+        exten:
+          type: string
+    GroupRelationMembers:
+      description: members configured in this group
+      properties:
+        members:
+          type: object
+          readOnly: true
+          properties:
+            users:
+              description: users configured as members of this group
+              type: array
+              items:
+                $ref: '#/components/schemas/GroupRelationMemberUser'
+            extensions:
+              description: extensions configured as members of this group
+              type: array
+              items:
+                $ref: '#/components/schemas/GroupRelationMemberExtension'
+    DestinationExtension:
+      title: DestinationExtension
+      properties:
+        type:
+          type: string
+          description: MUST be 'extension'
+        exten:
+          type: string
+        context:
+          type: string
+          description: Context of the extension
+      required:
+      - type
+      - exten
+      - context
+    DestinationCustom:
+      title: DestinationCustom
+      properties:
+        type:
+          type: string
+          description: MUST be 'custom'
+        command:
+          type: string
+          description: The command to execute
+      required:
+      - type
+      - command
+    DestinationHangupCongestion:
+      title: DestinationHangupCongestion
       allOf:
       - $ref: '#/components/schemas/DestinationHangup'
       - properties:
           cause:
             type: string
-            description: MUST be 'normal'
+            description: MUST be 'congestion'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
       required:
       - cause
-    DestinationApplicationVoicemail:
-      title: DestinationApplicationVoicemail
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'voicemail'
-          context:
-            type: integer
-            description: The context of the application
-        required:
-        - application
-        - context
-    GroupRelationIncalls:
-      description: incalls configured for this group
+    GroupRelationFallbacks:
+      description: fallback options for calls to the group
       properties:
-        incalls:
-          type: array
+        fallbacks:
           readOnly: true
-          items:
-            $ref: '#/components/schemas/GroupRelationIncall'
-    GroupItems:
-      title: GroupItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Group_2'
-        total:
-          type: integer
-      required:
-      - total
-    GroupID:
+          $ref: '#/components/schemas/GroupFallbacks'
+    ScheduleRelationBase:
       properties:
         id:
           type: integer
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the schedule
     Group_2:
       title: Group
       allOf:
@@ -1350,151 +1456,107 @@ components:
       - $ref: '#/components/schemas/GroupRelationCallPermissions'
       - required:
         - label
-    GroupMemberUser:
+    UserRelationBase:
       properties:
         uuid:
           type: string
-        priority:
-          type: integer
-          description: priority of user in the group. Only used for linear ring strategy
-      required:
-      - uuid
-    DestinationHangupBusy:
-      title: DestinationHangupBusy
-      allOf:
-      - $ref: '#/components/schemas/DestinationHangup'
-      - properties:
-          cause:
-            type: string
-            description: MUST be 'busy'
-          timeout:
-            type: integer
-            description: The timeout of the hangup
-      required:
-      - cause
-    DestinationHangupCause:
-      title: DestinationHangupCause
-      properties:
-        busy:
-          $ref: '#/components/schemas/DestinationHangupBusy'
-        congestion:
-          $ref: '#/components/schemas/DestinationHangupCongestion'
-        normal:
-          $ref: '#/components/schemas/DestinationHangupNormal'
-    DestinationApplication:
-      title: DestinationApplication
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
+    DestinationQueue:
+      title: DestinationQueue
       properties:
         type:
           type: string
-          description: MUST be 'application'
-      required:
-      - type
-    DestinationType:
-      title: DestinationType
-      properties:
-        application:
-          $ref: '#/components/schemas/DestinationApplicationApplication'
-        conference:
-          $ref: '#/components/schemas/DestinationConference'
-        custom:
-          $ref: '#/components/schemas/DestinationCustom'
-        extension:
-          $ref: '#/components/schemas/DestinationExtension'
-        group:
-          $ref: '#/components/schemas/DestinationGroup'
-        hangup:
-          $ref: '#/components/schemas/DestinationHangupCause'
-        ivr:
-          $ref: '#/components/schemas/DestinationIVR'
-        none:
-          $ref: '#/components/schemas/DestinationNone'
-        outcall:
-          $ref: '#/components/schemas/DestinationOutcall'
-        queue:
-          $ref: '#/components/schemas/DestinationQueue'
-        sound:
-          $ref: '#/components/schemas/DestinationSound'
-        switchboard:
-          $ref: '#/components/schemas/DestinationSwitchboard'
-        user:
-          $ref: '#/components/schemas/DestinationUser'
-        voicemail:
-          $ref: '#/components/schemas/DestinationVoicemail'
-    GroupMemberExtension:
-      properties:
-        exten:
-          type: string
-        context:
-          type: string
-        priority:
+          description: MUST be 'queue'
+        queue_id:
           type: integer
-          description: priority of extension in the group. Only used for linear ring strategy
-    IncallRelationExtensions:
-      properties:
-        extensions:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
-    GroupRelationMembers:
-      description: members configured in this group
-      properties:
-        members:
+          description: The id of the queue
+        ring_time:
+          type: number
+          format: float
+        skill_rule_id:
+          type: integer
+          description: The id of the skill rule
+        skill_rule_variables:
           type: object
-          readOnly: true
-          properties:
-            users:
-              description: users configured as members of this group
-              type: array
-              items:
-                $ref: '#/components/schemas/GroupRelationMemberUser'
-            extensions:
-              description: extensions configured as members of this group
-              type: array
-              items:
-                $ref: '#/components/schemas/GroupRelationMemberExtension'
-    UserGroupID:
-      properties:
-        id:
-          type: integer
-        uuid:
-          type: string
-    DestinationCustom:
-      title: DestinationCustom
+          description: key-value where key represents the variable of the skill rule and value represents a value
+      required:
+      - type
+      - queue_id
+    DestinationNone:
+      title: DestinationNone
       properties:
         type:
           type: string
-          description: MUST be 'custom'
-        command:
-          type: string
-          description: The command to execute
+          description: MUST be 'none'
       required:
       - type
-      - command
-    GroupRelationSchedules:
-      properties:
-        schedules:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ScheduleRelationBase'
-    DestinationIVR:
-      title: DestinationIVR
-      properties:
-        type:
-          type: string
-          description: MUST be 'ivr'
-        ivr_id:
-          type: integer
-          description: The id of the IVR
-      required:
-      - type
-      - ivr_id
-    GroupRelationIncall:
-      description: an incall configured with this group as destination
+    DestinationApplicationDirectory:
+      title: DestinationApplicationDirectory
       allOf:
-      - $ref: '#/components/schemas/IncallRelationBase'
-      - $ref: '#/components/schemas/IncallRelationExtensions'
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'directory'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    DestinationApplicationCallbackDISA:
+      title: DestinationApplicationCallbackDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'callback_disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    DestinationSwitchboard:
+      title: DestinationSwitchboard
+      properties:
+        type:
+          type: string
+          description: MUST be 'switchboard'
+        switchboard_uuid:
+          type: string
+          description: The UUID of the switchboard.
+      required:
+      - type
+      - switchboard_uuid
+    DestinationApplicationDISA:
+      title: DestinationApplicationDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
     DestinationSound:
       title: DestinationSound
       properties:
@@ -1513,197 +1575,6 @@ components:
       required:
       - type
       - filename
-    ExtensionRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Extension ID
-          readOnly: true
-        context:
-          type: string
-        exten:
-          type: string
-    DestinationHangupCongestion:
-      title: DestinationHangupCongestion
-      allOf:
-      - $ref: '#/components/schemas/DestinationHangup'
-      - properties:
-          cause:
-            type: string
-            description: MUST be 'congestion'
-          timeout:
-            type: integer
-            description: The timeout of the hangup
-      required:
-      - cause
-    DestinationApplicationCustom:
-      title: DestinationApplicationCustom
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'custom'
-          application_uuid:
-            type: string
-            description: The UUID of the application.
-      required:
-      - application
-      - application_uuid
-    GroupFallbacks:
-      properties:
-        noanswer_destination:
-          description: The destination to redirect the caller to when there are no answers
-          $ref: '#/components/schemas/DestinationType'
-        congestion_destination:
-          description: The destination to redirect the caller to when the group has exceeded max_calls
-          $ref: '#/components/schemas/DestinationType'
-      example:
-        noanswer_destination:
-          type: user
-          user_id: 1
-        congestion_destination:
-          type: user
-          user_id: 2
-    DestinationVoicemail:
-      title: DestinationVoicemail
-      properties:
-        type:
-          type: string
-          description: MUST be 'voicemail'
-        voicemail_id:
-          type: integer
-          description: The id of the voicemail
-        skip_instructions:
-          type: boolean
-          description: Skip the playback of instructions for leaving a message
-        greeting:
-          type: string
-          enum:
-          - busy
-          - unavailable
-          description: Play the specified greeting
-      required:
-      - type
-      - voicemail_id
-    DestinationApplicationApplication:
-      title: DestinationApplicationApplication
-      properties:
-        callback_disa:
-          $ref: '#/components/schemas/DestinationApplicationCallbackDISA'
-        custom:
-          $ref: '#/components/schemas/DestinationApplicationCustom'
-        directory:
-          $ref: '#/components/schemas/DestinationApplicationDirectory'
-        disa:
-          $ref: '#/components/schemas/DestinationApplicationDISA'
-        fax_to_mail:
-          $ref: '#/components/schemas/DestinationApplicationFaxToMail'
-        voicemail:
-          $ref: '#/components/schemas/DestinationApplicationVoicemail'
-    GroupRelationMemberExtension:
-      description: an extension configured as a member of this group
-      properties:
-        priority:
-          type: integer
-          description: 'The priority of the extension member in the group.
-
-            Only used for linear ring strategy.
-
-            '
-        exten:
-          type: string
-          description: The extension number of the member
-        context:
-          type: string
-          description: The context of the member
-    DestinationSwitchboard:
-      title: DestinationSwitchboard
-      properties:
-        type:
-          type: string
-          description: MUST be 'switchboard'
-        switchboard_uuid:
-          type: string
-          description: The UUID of the switchboard.
-      required:
-      - type
-      - switchboard_uuid
-    ScheduleRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
-        name:
-          type: string
-          description: The name to identify the schedule
-    GroupMemberExtensions:
-      properties:
-        extensions:
-          items:
-            $ref: '#/components/schemas/GroupMemberExtension'
-          type: array
-      required:
-      - extensions
-    DestinationApplicationCallbackDISA:
-      title: DestinationApplicationCallbackDISA
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'callback_disa'
-          context:
-            type: integer
-            description: The context of the application
-          pin:
-            type: string
-            description: the pin of the application
-        required:
-        - application
-        - context
-    GroupRelationBase:
-      properties:
-        name:
-          type: string
-          description: The name of the group
-          readOnly: true
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the group
-        uuid:
-          type: string
-          description: Group UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-    GroupRelationFallbacks:
-      description: fallback options for calls to the group
-      properties:
-        fallbacks:
-          readOnly: true
-          $ref: '#/components/schemas/GroupFallbacks'
-    UserGroupsID:
-      properties:
-        groups:
-          items:
-            $ref: '#/components/schemas/UserGroupID'
-          type: array
-    Error_2:
-      type: array
-      items:
-        type: string
-    DestinationNone:
-      title: DestinationNone
-      properties:
-        type:
-          type: string
-          description: MUST be 'none'
-      required:
-      - type
     DestinationApplicationFaxToMail:
       title: DestinationApplicationFaxToMail
       allOf:
@@ -1718,92 +1589,203 @@ components:
       required:
       - application
       - email
-    IncallRelationBase:
-      title: IncallRelation
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the incoming call
-    UserRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: User UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-        firstname:
-          type: string
-          description: User firstname
-        lastname:
-          type: string
-          description: User lastname
-    CallPermissionRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the call permission
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
-        name:
-          type: string
-          description: The name of the call permission
-      required:
-      - name
-    GroupRelationMemberUser:
-      description: a user configured as a member of this group
+    DestinationHangupNormal:
+      title: DestinationHangupNormal
       allOf:
-      - $ref: '#/components/schemas/UserRelationBase'
+      - $ref: '#/components/schemas/DestinationHangup'
       - properties:
-          priority:
-            type: integer
-            description: 'The priority of the user member in the group.
-
-              Only used for linear ring strategy.
-
-              '
-    DestinationExtension:
-      title: DestinationExtension
-      properties:
-        type:
-          type: string
-          description: MUST be 'extension'
-        exten:
-          type: string
-        context:
-          type: string
-          description: Context of the extension
+          cause:
+            type: string
+            description: MUST be 'normal'
       required:
-      - type
-      - exten
-      - context
+      - cause
+    IncallRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+  parameters:
+    search_name:
+      name: name
+      in: query
+      description: The name of the group
+      required: false
+      schema:
+        type: string
+    search_read_only:
+      name: read_only
+      in: query
+      description: Is the group managed by the system?
+      required: false
+      schema:
+        type: string
+    search_policy_uuid:
+      name: policy_uuid
+      in: query
+      description: The UUID of the policy that the group must have.
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    search_uuid:
+      name: uuid
+      in: query
+      description: The UUID of the group
+      required: false
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    group_uuid:
+      name: group_uuid
+      in: path
+      description: The UUID of the group
+      required: true
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    search_user_uuid:
+      name: user_uuid
+      in: query
+      description: The UUID of the user
+      required: false
+      schema:
+        type: string
+    policy_uuid:
+      name: policy_uuid
+      in: path
+      description: The UUID or slug of the policy. The slug is unique within a tenant, hence the tenant must be specified.
+      required: true
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search_policy_slug:
+      name: policy_slug
+      in: query
+      description: The slug of the policy that the group must have.
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    groupuuid:
+      required: true
+      name: group_uuid
+      in: path
+      description: the group's UUID
+      schema:
+        type: string
+    offset_2:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
+    scheduleid:
+      required: true
+      name: schedule_id
+      in: path
+      description: Schedule's ID
+      schema:
+        type: integer
+    limit_2:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    callpickupid:
+      required: true
+      name: callpickup_id
+      in: path
+      description: Call Pickup's ID
+      schema:
+        type: integer
+    callpermissionid:
+      required: true
+      name: callpermission_id
+      in: path
+      description: Call Permission's ID
+      schema:
+        type: integer
   responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    ResourceUpdated:
-      description: Resource was updated successfully
     GenericError:
       description: An error occurred during the operation
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    UpdateError:
-      description: An error occurred when updating the resource
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
@@ -1814,6 +1796,22 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
   securitySchemes:
     wazo_auth_basic:
       type: http

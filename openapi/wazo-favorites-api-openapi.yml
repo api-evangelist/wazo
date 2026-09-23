@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-dird Favorites API
-  description: "Contacts and directories in Wazo are managed by the wazo-dird daemon. This service provides a public API that can be used to query the directories that are configured on a Wazo. \n\n\nA contact can contain various information such as a person's phone number, number, office number, department, office number, etc. The information displayed is selected via a profile. Directories can be aggregated using multiple data sources such as an LDAP server, a CSV file, another Wazo server, etc.\n\n\nPlease refer to [the documentation](https://wazo-platform.org/uc-doc) for further details.\n\n\nNote: The 0.1 API is currently in development. Major changes could still happen and new resources will be added over time."
+  description: Contacts and directories in Wazo are managed by the wazo-dird daemon.
   version: '0.1'
   license:
     name: GPL v3
@@ -19,7 +19,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: favorites
+- name: Favorites
 paths:
   /directories/favorites/{profile}:
     get:
@@ -30,7 +30,7 @@ paths:
         Get the list of favorite contacts for directories configured in the profile'
       operationId: list_favorites
       tags:
-      - favorites
+      - Favorites
       responses:
         '200':
           description: A list of contacts
@@ -54,7 +54,7 @@ paths:
         Add the contact from {directory} to the list of favorite contacts.'
       operationId: add_favorite
       tags:
-      - favorites
+      - Favorites
       responses:
         '204':
           description: Favorite added.
@@ -72,7 +72,7 @@ paths:
         Remove the contact from {directory} from the list of favorite contacts.'
       operationId: remove_favorite
       tags:
-      - favorites
+      - Favorites
       responses:
         '204':
           description: Favorite removed.
@@ -89,7 +89,53 @@ paths:
       - $ref: '#/components/parameters/Directory'
       - $ref: '#/components/parameters/FavoriteID'
 components:
+  responses:
+    DuplicateFavorite:
+      description: The contact has already been favorited
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
   schemas:
+    Relation:
+      properties:
+        xivo_id:
+          type: string
+        user_id:
+          type: string
+        user_uuid:
+          type: string
+        endpoint_id:
+          type: string
+        agent_id:
+          type: string
+        source_entry_id:
+          type: string
+    Contact:
+      properties:
+        column_values:
+          items:
+            type: string
+          type: array
+        relations:
+          $ref: '#/components/schemas/Relation'
+        source:
+          type: string
+        backend:
+          type: string
+          description: Backend type
     LegacyError:
       title: LegacyError
       description: Error message for the client
@@ -125,45 +171,25 @@ components:
             $ref: '#/components/schemas/Contact'
           type: array
           description: List of results
-    Contact:
-      properties:
-        column_values:
-          items:
-            type: string
-          type: array
-        relations:
-          $ref: '#/components/schemas/Relation'
-        source:
-          type: string
-        backend:
-          type: string
-          description: Backend type
-    Relation:
-      properties:
-        xivo_id:
-          type: string
-        user_id:
-          type: string
-        user_uuid:
-          type: string
-        endpoint_id:
-          type: string
-        agent_id:
-          type: string
-        source_entry_id:
-          type: string
   parameters:
-    FavoriteID:
-      name: contact
-      in: path
-      description: The ID of the contact. This ID is unique within the {directory}.
-      required: true
-      schema:
-        type: string
     Profile:
       name: profile
       in: path
       description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`. More precisely, it is the name of the "Direct directory" defined in the web interface.
+      required: true
+      schema:
+        type: string
+    Directory:
+      name: directory
+      in: path
+      description: The directory where the contact is stored.
+      required: true
+      schema:
+        type: string
+    FavoriteID:
+      name: contact
+      in: path
+      description: The ID of the contact. This ID is unique within the {directory}.
       required: true
       schema:
         type: string
@@ -174,32 +200,6 @@ components:
       required: false
       schema:
         type: string
-    Directory:
-      name: directory
-      in: path
-      description: The directory where the contact is stored.
-      required: true
-      schema:
-        type: string
-  responses:
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    DuplicateFavorite:
-      description: The contact has already been favorited
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: messages
+- name: Messages
 paths:
   /users/me/rooms/messages:
     get:
@@ -24,7 +24,7 @@ paths:
       summary: List rooms messages
       description: '**Required ACL:** `chatd.users.me.rooms.messages.read`'
       tags:
-      - messages
+      - Messages
       parameters:
       - $ref: '#/components/parameters/direction'
       - $ref: '#/components/parameters/limit'
@@ -47,7 +47,7 @@ paths:
       summary: Create room messages
       description: '**Required ACL:** `chatd.users.me.rooms.{room_uuid}.messages.create`'
       tags:
-      - messages
+      - Messages
       parameters:
       - $ref: '#/components/parameters/room_uuid'
       responses:
@@ -81,7 +81,7 @@ paths:
       summary: List room messages
       description: '**Required ACL:** `chatd.users.me.rooms.{room_uuid}.messages.read`'
       tags:
-      - messages
+      - Messages
       parameters:
       - $ref: '#/components/parameters/room_uuid'
       - $ref: '#/components/parameters/from_date'
@@ -103,45 +103,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 components:
   schemas:
-    APIError:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - properties:
-          resource:
-            description: Resource name of the error
-            type: string
-    Messages:
-      title: UserItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Message'
-        filtered:
-          type: integer
-        total:
-          type: integer
-    RoomRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of the room
-          readOnly: true
-    UserMessagePOST:
-      properties:
-        content:
-          type: string
-          description: The content of the message
-        alias:
-          type: string
-          description: Alias/nickname of the sender
-        sender_identity_uuid:
-          type: string
-          format: uuid
-          description: The UUID of the sender's identity to use for outbound delivery. Required when the room contains external participants.
-      required:
-      - content
     Message:
       properties:
         uuid:
@@ -172,6 +133,20 @@ components:
           readOnly: true
         room:
           $ref: '#/components/schemas/RoomRelationBase'
+    UserMessagePOST:
+      properties:
+        content:
+          type: string
+          description: The content of the message
+        alias:
+          type: string
+          description: Alias/nickname of the sender
+        sender_identity_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the sender's identity to use for outbound delivery. Required when the room contains external participants.
+      required:
+      - content
     MessageRecipient:
       properties:
         identity:
@@ -207,6 +182,31 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
+    Messages:
+      title: UserItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        filtered:
+          type: integer
+        total:
+          type: integer
+    APIError:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
+    RoomRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of the room
+          readOnly: true
     MessageDelivery:
       description: 'Delivery metadata for the message. Always present on the response.
 
@@ -232,19 +232,6 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/MessageRecipient'
-  responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
   parameters:
     room_uuid:
       name: room_uuid
@@ -253,13 +240,6 @@ components:
       required: true
       schema:
         type: string
-    from_date:
-      name: from_date
-      in: query
-      description: 'The date and time from which to retrieve messages. Example: 2019-06-12T10:00:00.000+00:00'
-      schema:
-        type: string
-        format: date-time
     offset:
       required: false
       name: offset
@@ -267,13 +247,13 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
-    order:
-      required: false
-      name: order
+    from_date:
+      name: from_date
       in: query
-      description: Name of the field to use for sorting the list of items returned.
+      description: 'The date and time from which to retrieve messages. Example: 2019-06-12T10:00:00.000+00:00'
       schema:
         type: string
+        format: date-time
     direction:
       required: false
       name: direction
@@ -284,6 +264,20 @@ components:
         enum:
         - asc
         - desc
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
     search:
       required: false
       name: search
@@ -307,13 +301,19 @@ components:
         type: string
         enum:
         - room_uuid
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

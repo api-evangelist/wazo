@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: subscriptions
+- name: Subscriptions
 paths:
   /subscriptions/services:
     get:
@@ -24,7 +24,7 @@ paths:
       description: '**Required ACL:** `webhookd.subscriptions.services.read`'
       operationId: getSubscriptionsServices
       tags:
-      - subscriptions
+      - Subscriptions
       responses:
         '200':
           description: The available services
@@ -38,7 +38,7 @@ paths:
       description: '**Required ACL:** `webhookd.subscriptions.read`'
       operationId: list_subscriptions
       tags:
-      - subscriptions
+      - Subscriptions
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -64,7 +64,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/SubscriptionBody'
       tags:
-      - subscriptions
+      - Subscriptions
       responses:
         '201':
           description: The subscription has been completed
@@ -82,7 +82,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/SubscriptionUUID'
       tags:
-      - subscriptions
+      - Subscriptions
       responses:
         '200':
           description: Details of the requested subscription
@@ -104,7 +104,7 @@ paths:
       - $ref: '#/components/parameters/SubscriptionUUID'
       - $ref: '#/components/parameters/SubscriptionBody'
       tags:
-      - subscriptions
+      - Subscriptions
       responses:
         '200':
           description: The requested subscription was edited
@@ -127,7 +127,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/SubscriptionUUID'
       tags:
-      - subscriptions
+      - Subscriptions
       responses:
         '204':
           description: The requested subscription was deleted
@@ -145,7 +145,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/SearchMetadata'
       tags:
-      - subscriptions
+      - Subscriptions
       responses:
         '200':
           description: List of the subscriptions of the user
@@ -167,7 +167,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/UserSubscriptionBody'
       tags:
-      - subscriptions
+      - Subscriptions
       responses:
         '201':
           description: The subscription has been completed
@@ -185,7 +185,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/SubscriptionUUID'
       tags:
-      - subscriptions
+      - Subscriptions
       responses:
         '200':
           description: Details of the requested subscription
@@ -207,7 +207,7 @@ paths:
       - $ref: '#/components/parameters/SubscriptionUUID'
       - $ref: '#/components/parameters/SubscriptionBody'
       tags:
-      - subscriptions
+      - Subscriptions
       responses:
         '200':
           description: Details of the updated subscription
@@ -228,7 +228,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/SubscriptionUUID'
       tags:
-      - subscriptions
+      - Subscriptions
       responses:
         '204':
           description: The requested subscription was deleted
@@ -246,7 +246,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/SubscriptionUUID'
       tags:
-      - subscriptions
+      - Subscriptions
       responses:
         '200':
           description: Details of the requested subscription
@@ -258,124 +258,9 @@ paths:
           $ref: '#/components/responses/AnotherServiceUnavailable'
 components:
   schemas:
-    ServiceConfig:
+    SubscriptionMetadata:
       type: object
-      additionalProperties:
-        type: string
-    UserSubscriptionRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        service:
-          type: string
-          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
-
-            '
-        config:
-          $ref: '#/components/schemas/HTTPServiceConfig'
-        events:
-          type: array
-          items:
-            type: string
-        tags:
-          $ref: '#/components/schemas/SubscriptionMetadata'
-      required:
-      - name
-      - service
-      - config
-      - events
-    SubscriptionRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        service:
-          type: string
-          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
-
-            '
-        config:
-          $ref: '#/components/schemas/HTTPServiceConfig'
-        events:
-          type: array
-          items:
-            type: string
-        events_user_uuid:
-          type: string
-          description: 'Only trigger webhook when an event occurs related to this user. Not compatible with all events. For more details, see: https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/user_filter.'
-        events_wazo_uuid:
-          type: string
-          description: Only trigger webhook when an event occurs on this Wazo.
-        tags:
-          type: object
-      required:
-      - name
-      - service
-      - config
-      - events
-    HTTPServiceLog:
-      type: object
-      properties:
-        request_method:
-          type: string
-        request_url:
-          type: string
-        request_headers:
-          type: object
-          additionalProperties:
-            type: string
-        request_body:
-          type: string
-        response_method:
-          type: string
-        response_url:
-          type: string
-        response_headers:
-          type: object
-          additionalProperties:
-            type: string
-        response_body:
-          type: string
-    SubscriptionLog:
-      type: object
-      properties:
-        uuid:
-          type: string
-        status:
-          type: string
-          enum:
-          - success
-          - failure
-          - error
-        started_at:
-          type: string
-          format: date-time
-        ended_at:
-          type: string
-          format: date-time
-        attempts:
-          type: integer
-          description: The current attempts
-        max_attempts:
-          type: integer
-          description: Limit of number of attempts
-        event:
-          type: string
-        detail:
-          description: output of the service
-          $ref: '#/components/schemas/HTTPServiceLog'
-    SubscriptionList:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Subscription'
-          readOnly: true
-        total:
-          type: integer
-          readOnly: true
+      description: Arbitrary key-value storage for this subscription. May be used to tag subscriptions. PUT replaces all metadata.
     Subscription:
       type: object
       properties:
@@ -404,6 +289,10 @@ components:
       - service
       - config
       - events
+    ServiceConfig:
+      type: object
+      additionalProperties:
+        type: string
     Services:
       type: object
       properties:
@@ -437,9 +326,6 @@ components:
       required:
       - url
       - method
-    SubscriptionMetadata:
-      type: object
-      description: Arbitrary key-value storage for this subscription. May be used to tag subscriptions. PUT replaces all metadata.
     Error:
       title: Error
       description: Error message for the client
@@ -457,6 +343,161 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
+    SubscriptionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        service:
+          type: string
+          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
+
+            '
+        config:
+          $ref: '#/components/schemas/HTTPServiceConfig'
+        events:
+          type: array
+          items:
+            type: string
+        events_user_uuid:
+          type: string
+          description: 'Only trigger webhook when an event occurs related to this user. Not compatible with all events. For more details, see: https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/user_filter.'
+        events_wazo_uuid:
+          type: string
+          description: Only trigger webhook when an event occurs on this Wazo.
+        tags:
+          type: object
+      required:
+      - name
+      - service
+      - config
+      - events
+    SubscriptionList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+          readOnly: true
+        total:
+          type: integer
+          readOnly: true
+    SubscriptionLog:
+      type: object
+      properties:
+        uuid:
+          type: string
+        status:
+          type: string
+          enum:
+          - success
+          - failure
+          - error
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+        attempts:
+          type: integer
+          description: The current attempts
+        max_attempts:
+          type: integer
+          description: Limit of number of attempts
+        event:
+          type: string
+        detail:
+          description: output of the service
+          $ref: '#/components/schemas/HTTPServiceLog'
+    UserSubscriptionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        service:
+          type: string
+          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
+
+            '
+        config:
+          $ref: '#/components/schemas/HTTPServiceConfig'
+        events:
+          type: array
+          items:
+            type: string
+        tags:
+          $ref: '#/components/schemas/SubscriptionMetadata'
+      required:
+      - name
+      - service
+      - config
+      - events
+    HTTPServiceLog:
+      type: object
+      properties:
+        request_method:
+          type: string
+        request_url:
+          type: string
+        request_headers:
+          type: object
+          additionalProperties:
+            type: string
+        request_body:
+          type: string
+        response_method:
+          type: string
+        response_url:
+          type: string
+        response_headers:
+          type: object
+          additionalProperties:
+            type: string
+        response_body:
+          type: string
+  parameters:
+    SubscriptionUUID:
+      name: subscription_uuid
+      description: The UUID of the subscription
+      in: path
+      required: true
+      schema:
+        type: string
+    UserSubscriptionBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/UserSubscriptionRequest'
+    SearchMetadata:
+      name: search_metadata
+      in: query
+      description: A search term formatted like "key:value" that will only match subscriptions having a metadata entry "key=value". May be given multiple times to filter more precisely on different metadata keys.
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    SubscriptionBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/SubscriptionRequest'
   responses:
     NotFoundError:
       description: The resource requested was not found on the server
@@ -482,47 +523,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  parameters:
-    SubscriptionUUID:
-      name: subscription_uuid
-      description: The UUID of the subscription
-      in: path
-      required: true
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    SearchMetadata:
-      name: search_metadata
-      in: query
-      description: A search term formatted like "key:value" that will only match subscriptions having a metadata entry "key=value". May be given multiple times to filter more precisely on different metadata keys.
-      schema:
-        type: string
-    SubscriptionBody:
-      name: body
-      in: body
-      required: true
-      schema:
-        $ref: '#/components/schemas/SubscriptionRequest'
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    UserSubscriptionBody:
-      name: body
-      in: body
-      required: true
-      schema:
-        $ref: '#/components/schemas/UserSubscriptionRequest'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

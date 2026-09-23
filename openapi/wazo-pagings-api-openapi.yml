@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Pagings API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -133,9 +133,7 @@ paths:
 
         **WARNING**
 
-        This endpoint remove all callers which are not defined.
-
-        '
+        This endpoint remove all callers which are not defined.'
       tags:
       - pagings
       parameters:
@@ -163,9 +161,7 @@ paths:
 
         **WARNING**
 
-        This endpoint remove all members which are not defined.
-
-        '
+        This endpoint remove all members which are not defined.'
       tags:
       - pagings
       parameters:
@@ -186,30 +182,14 @@ paths:
         required: true
 components:
   responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    ResourceUpdated:
-      description: Resource was updated successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     GenericError:
       description: An error occurred during the operation
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
@@ -220,24 +200,23 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
   schemas:
-    PagingRelationCallers:
-      properties:
-        callers:
-          readOnly: true
-          $ref: '#/components/schemas/PagingRelationMemberUsers'
-    PagingRelationMemberUsers:
-      properties:
-        users:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/UserRelationBase'
-    PagingRelationMembers:
-      properties:
-        members:
-          readOnly: true
-          $ref: '#/components/schemas/PagingRelationMemberUsers'
     PagingItems:
       title: PagingItems
       properties:
@@ -249,20 +228,6 @@ components:
           type: integer
       required:
       - total
-    UserUuid:
-      properties:
-        uuid:
-          type: string
-    UsersUuid:
-      properties:
-        users:
-          items:
-            $ref: '#/components/schemas/UserUuid'
-          type: array
-    Error:
-      type: array
-      items:
-        type: string
     Paging:
       title: Paging
       allOf:
@@ -310,6 +275,30 @@ components:
         - number
       - $ref: '#/components/schemas/PagingRelationCallers'
       - $ref: '#/components/schemas/PagingRelationMembers'
+    PagingRelationCallers:
+      properties:
+        callers:
+          readOnly: true
+          $ref: '#/components/schemas/PagingRelationMemberUsers'
+    PagingRelationMembers:
+      properties:
+        members:
+          readOnly: true
+          $ref: '#/components/schemas/PagingRelationMemberUsers'
+    Error:
+      type: array
+      items:
+        type: string
+    UsersUuid:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/UserUuid'
+          type: array
+    UserUuid:
+      properties:
+        uuid:
+          type: string
     UserRelationBase:
       properties:
         uuid:
@@ -322,14 +311,14 @@ components:
         lastname:
           type: string
           description: User lastname
+    PagingRelationMemberUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/UserRelationBase'
   parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
     offset:
       required: false
       name: offset
@@ -337,6 +326,16 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
     order:
       required: false
       name: order
@@ -351,16 +350,20 @@ components:
       description: Paging's ID
       schema:
         type: integer
-    direction:
+    limit:
       required: false
-      name: direction
+      name: limit
       in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
-        enum:
-        - asc
-        - desc
     recurse:
       name: recurse
       in: query
@@ -369,20 +372,13 @@ components:
       schema:
         type: boolean
         default: false
-    search:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
   securitySchemes:
     wazo_auth_token:
       type: apiKey

@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-dird Work In Progress API
-  description: "Contacts and directories in Wazo are managed by the wazo-dird daemon. This service provides a public API that can be used to query the directories that are configured on a Wazo. \n\n\nA contact can contain various information such as a person's phone number, number, office number, department, office number, etc. The information displayed is selected via a profile. Directories can be aggregated using multiple data sources such as an LDAP server, a CSV file, another Wazo server, etc.\n\n\nPlease refer to [the documentation](https://wazo-platform.org/uc-doc) for further details.\n\n\nNote: The 0.1 API is currently in development. Major changes could still happen and new resources will be added over time."
+  description: Contacts and directories in Wazo are managed by the wazo-dird daemon.
   version: '0.1'
   license:
     name: GPL v3
@@ -24,7 +24,7 @@ paths:
   /graphql:
     get:
       operationId: graphiql
-      summary: Show GraphiQL test interface for GraphQL in a browser. This is not a REST endpoint.
+      summary: Show GraphiQL test interface for GraphQL in a browser.
       tags:
       - work_in_progress
       responses:
@@ -32,7 +32,7 @@ paths:
           description: the web page for GraphiQL
     post:
       operationId: graphql_query
-      summary: Execute a GraphQL query. This is a GraphQL endpoint, not a REST endpoint.
+      summary: Execute a GraphQL query. This is a GraphQL endpoint, not a REST endpoint
       description: '**Required ACL:** `dird.graphql.{root_field_name}`, e.g. `dird.graphql.hello`'
       tags:
       - work_in_progress

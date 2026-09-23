@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Endpoints API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -19,7 +19,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: endpoints
+- name: Endpoints
 paths:
   /endpoints/custom:
     get:
@@ -27,7 +27,7 @@ paths:
       summary: List Custom endpoints
       description: '**Required ACL:** `confd.endpoints.custom.read`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -48,7 +48,7 @@ paths:
       summary: Create Custom endpoint
       description: '**Required ACL:** `confd.endpoints.custom.create`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -73,7 +73,7 @@ paths:
       summary: Get Custom Endpoint
       description: '**Required ACL:** `confd.endpoints.custom.{custom_id}.read`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/customid'
@@ -91,7 +91,7 @@ paths:
       summary: Update Custom Endpoint
       description: '**Required ACL:** `confd.endpoints.custom.{custom_id}.update`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/customid'
@@ -113,7 +113,7 @@ paths:
       summary: Delete Custom Endpoint
       description: '**Required ACL:** `confd.endpoints.custom.{custom_id}.delete`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/customid'
@@ -130,7 +130,7 @@ paths:
       summary: List IAX endpoints
       description: '**Required ACL:** `confd.endpoints.iax.read`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -151,7 +151,7 @@ paths:
       summary: Create IAX endpoint
       description: '**Required ACL:** `confd.endpoints.iax.create`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -175,7 +175,7 @@ paths:
       summary: Get IAX Endpoint
       description: '**Required ACL:** `confd.endpoints.iax.{iax_id}.read`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/iaxid'
@@ -193,7 +193,7 @@ paths:
       summary: Update IAX Endpoint
       description: '**Required ACL:** `confd.endpoints.iax.{iax_id}.update`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/iaxid'
@@ -215,7 +215,7 @@ paths:
       summary: Delete IAX Endpoint
       description: '**Required ACL:** `confd.endpoints.iax.{iax_id}.delete`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/iaxid'
@@ -232,7 +232,7 @@ paths:
       summary: List SCCP endpoints
       description: '**Required ACL:** `confd.endpoints.sccp.read`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -253,7 +253,7 @@ paths:
       summary: Create SCCP endpoint
       description: '**Required ACL:** `confd.endpoints.sccp.create`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -277,7 +277,7 @@ paths:
       summary: Get SCCP Endpoint
       description: '**Required ACL:** `confd.endpoints.sccp.{sccp_id}.read`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sccpid'
@@ -295,7 +295,7 @@ paths:
       summary: Update SCCP Endpoint
       description: '**Required ACL:** `confd.endpoints.sccp.{sccp_id}.update`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sccpid'
@@ -317,7 +317,7 @@ paths:
       summary: Delete SCCP Endpoint
       description: '**Required ACL:** `confd.endpoints.sccp.{sccp_id}.delete`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sccpid'
@@ -337,11 +337,9 @@ paths:
 
         List all SIP configurations, each individual configuration includes only fields that it
 
-        defines. Inherited fields from the templates or default values are not returned here.
-
-        '
+        defines. Inherited fields from the templates or default values are not returned here.'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -366,11 +364,9 @@ paths:
 
         Create a new SIP endpoint. This endpoint can inherit from other endpoints, only modify
 
-        fields that have to be modified.
-
-        '
+        fields that have to be modified.'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -394,7 +390,7 @@ paths:
       summary: Get SIP Endpoint
       description: '**Required ACL:** `confd.endpoints.sip.{sip_uuid}.read`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sipuuid'
@@ -413,7 +409,7 @@ paths:
       summary: Update SIP Endpoint
       description: '**Required ACL:** `confd.endpoints.sip.{sip_uuid}.update`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sipuuid'
@@ -435,7 +431,7 @@ paths:
       summary: Delete SIP Endpoint
       description: '**Required ACL:** `confd.endpoints.sip.{sip_uuid}.delete`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sipuuid'
@@ -455,11 +451,9 @@ paths:
 
         List all SIP configuration templates, each individual configuration includes only fields that it
 
-        defines. Inherited fields from the templates or default values are not returned here.
-
-        '
+        defines. Inherited fields from the templates or default values are not returned here.'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -483,11 +477,9 @@ paths:
 
         Create a new SIP endpoint configuration template. This endpoint can inherit from other templates,
 
-        only modify fields that have to be modified.
-
-        '
+        only modify fields that have to be modified.'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -511,7 +503,7 @@ paths:
       summary: Get SIP Endpoint template
       description: '**Required ACL:** `confd.endpoints.sip.templates.{template_uuid}.read`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/template_uuid'
@@ -529,7 +521,7 @@ paths:
       summary: Update SIP Endpoint Template
       description: '**Required ACL:** `confd.endpoints.sip.templates.{template_uuid}.update`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/template_uuid'
@@ -551,7 +543,7 @@ paths:
       summary: Delete SIP Endpoint Template
       description: '**Required ACL:** `confd.endpoints.sip.templates.{template_uuid}.delete`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/template_uuid'
@@ -568,7 +560,7 @@ paths:
       summary: Associate line and Custom endpoint
       description: '**Required ACL:** `confd.lines.{line_id}.endpoints.custom.{custom_id}.update`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/lineid'
       - $ref: '#/components/parameters/customid'
@@ -584,7 +576,7 @@ paths:
       summary: Dissociate line and Custom endpoint
       description: '**Required ACL:** `confd.lines.{line_id}.endpoints.custom.{custom_id}.delete`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/lineid'
       - $ref: '#/components/parameters/customid'
@@ -601,7 +593,7 @@ paths:
       summary: Associate line and SCCP endpoint
       description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sccp.{sccp_id}.update`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/lineid'
       - $ref: '#/components/parameters/sccpid'
@@ -617,7 +609,7 @@ paths:
       summary: Dissociate line and SCCP endpoint
       description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sccp.{sccp_id}.delete`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/lineid'
       - $ref: '#/components/parameters/sccpid'
@@ -634,7 +626,7 @@ paths:
       summary: Associate line and SIP endpoint
       description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sip.{sip_uuid}.update`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/lineid'
       - $ref: '#/components/parameters/sipuuid'
@@ -650,7 +642,7 @@ paths:
       summary: Dissociate line and SIP endpoint
       description: '**Required ACL:** `confd.lines.{line_id}.endpoints.sip.{sip_uuid}.delete`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/lineid'
       - $ref: '#/components/parameters/sipuuid'
@@ -667,7 +659,7 @@ paths:
       summary: Associate trunk and Custom endpoint
       description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.custom.{custom_id}.update`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/trunkid'
       - $ref: '#/components/parameters/customid'
@@ -683,7 +675,7 @@ paths:
       summary: Dissociate trunk and Custom endpoint
       description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.custom.{custom_id}.delete`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/trunkid'
       - $ref: '#/components/parameters/customid'
@@ -700,7 +692,7 @@ paths:
       summary: Associate trunk and IAX endpoint
       description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.iax.{iax_id}.update`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/trunkid'
       - $ref: '#/components/parameters/iaxid'
@@ -716,7 +708,7 @@ paths:
       summary: Dissociate trunk and IAX endpoint
       description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.iax.{iax_id}.delete`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/trunkid'
       - $ref: '#/components/parameters/iaxid'
@@ -733,7 +725,7 @@ paths:
       summary: Associate trunk and SIP endpoint
       description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.sip.{sip_uuid}.update`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/trunkid'
       - $ref: '#/components/parameters/sipuuid'
@@ -749,7 +741,7 @@ paths:
       summary: Dissociate trunk and SIP endpoint
       description: '**Required ACL:** `confd.trunks.{trunk_id}.endpoints.sip.{sip_uuid}.delete`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/trunkid'
       - $ref: '#/components/parameters/sipuuid'
@@ -766,7 +758,7 @@ paths:
       summary: Get SIP endpoint of a line for a user
       description: '**Required ACL:** `confd.users.{user_uuid}.lines.{line_id}.associated.endpoints.sip.read`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/useruuid'
       - $ref: '#/components/parameters/lineid'
@@ -786,7 +778,7 @@ paths:
       summary: Get SIP endpoint of main line for a user
       description: '**Required ACL:** `confd.users.{user_uuid}.lines.main.associated.endpoints.sip.read`'
       tags:
-      - endpoints
+      - Endpoints
       parameters:
       - $ref: '#/components/parameters/useruuid'
       - $ref: '#/components/parameters/endpoint_sip_view'
@@ -801,15 +793,151 @@ paths:
           description: Invalid `view`
 components:
   schemas:
-    SIPIdentifySectionOptions:
-      title: PJSIP Identify Section Options
-      $ref: '#/components/schemas/KeyValueOption'
     SIPTransportRelation:
       properties:
         uuid:
           type: string
       required:
       - uuid
+    SIPAuthSectionOptions:
+      title: PJSIP Auth Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    EndpointIAXRelationBase:
+      properties:
+        id:
+          type: integer
+          description: IAX Endpoint ID
+          readOnly: true
+        name:
+          type: string
+          description: IAX name
+          default: autogenerated
+    SIPIdentifySectionOptions:
+      title: PJSIP Identify Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    SIPEndpointSectionOptions:
+      title: SIP Endpoint Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    EndpointSccpRelationBase:
+      properties:
+        id:
+          type: integer
+          description: SCCP Endpoint ID
+          readOnly: true
+    EndpointCustom:
+      title: Custom Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointCustomRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          enabled:
+            type: boolean
+            description: Endpoint can be used when it is enabled
+            default: true
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+      - required:
+        - interface
+    TrunkRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the trunk
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+    EndpointIAXItems:
+      title: IAX Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointIAX'
+          type: array
+        total:
+          type: integer
+    EndpointCustomItems:
+      title: Custom Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointCustom'
+          type: array
+        total:
+          type: integer
+    EndpointSccpItems:
+      title: SCCP Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointSccp'
+          type: array
+        total:
+          type: integer
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    LineRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        name:
+          type: string
+          description: The name of the line
+          readOnly: true
+    EndpointSIPTemplatesRelation:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+        label:
+          type: string
+          description: The label of this resource
+          readOnly: true
+      required:
+      - uuid
+    SIPAORSectionOptions:
+      title: PJSIP AOR Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    Error:
+      type: array
+      items:
+        type: string
+    EndpointSccp:
+      title: SCCP Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointSccpRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          options:
+            description: "Advanced configuration options. Options are appended at the end of a \nSCCP account in the file 'sccp.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Because of database limitations, only the following options are allowed:\n\n * cid_name\n * cid_num\n * allow\n * disallow\n \nOptions must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in sip.conf will have the following form:\n\n```\n[1000]\nname1=value1\nname2=value2\n```\n"
+            type: array
+            items:
+              $ref: '#/components/schemas/KeyValueOption'
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+    EndpointRelationTrunk:
+      properties:
+        trunk:
+          $ref: '#/components/schemas/TrunkRelationBase'
+          readOnly: true
     EndpointSIP:
       title: SIP Endpoint
       properties:
@@ -880,62 +1008,9 @@ components:
         asterisk_id:
           type: string
           description: The ID of the Asterisk onto which this configuration applies.
-    EndpointRelationLine:
-      properties:
-        line:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LineRelationBase'
-    SIPAuthSectionOptions:
-      title: PJSIP Auth Section Options
+    SIPRegistrationSectionOptions:
+      title: PJSIP Registration Section Options
       $ref: '#/components/schemas/KeyValueOption'
-    EndpointSIPItems:
-      title: SIP Endpoints
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointSIP'
-          type: array
-        total:
-          type: integer
-    KeyValueOption:
-      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
-      title: Key Value
-      type: array
-      items:
-        type: string
-      maxItems: 2
-      minItems: 2
-      example:
-      - option
-      - value
-    EndpointSccpRelationBase:
-      properties:
-        id:
-          type: integer
-          description: SCCP Endpoint ID
-          readOnly: true
-    EndpointCustomItems:
-      title: Custom Endpoints
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointCustom'
-          type: array
-        total:
-          type: integer
-    EndpointSIPTemplatesRelation:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of this resource
-        label:
-          type: string
-          description: The label of this resource
-          readOnly: true
-      required:
-      - uuid
     EndpointCustomRelationBase:
       properties:
         id:
@@ -945,86 +1020,6 @@ components:
         interface:
           type: string
           description: Asterisk interface to use. (e.g. 'dahdi/i1')
-    TrunkRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the trunk
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
-    SIPAORSectionOptions:
-      title: PJSIP AOR Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    EndpointCustom:
-      title: Custom Endpoint
-      allOf:
-      - $ref: '#/components/schemas/EndpointCustomRelationBase'
-      - properties:
-          tenant_uuid:
-            type: string
-            description: The UUID of the tenant
-            readOnly: true
-          enabled:
-            type: boolean
-            description: Endpoint can be used when it is enabled
-            default: true
-      - $ref: '#/components/schemas/EndpointRelationTrunk'
-      - $ref: '#/components/schemas/EndpointRelationLine'
-      - required:
-        - interface
-    SIPEndpointSectionOptions:
-      title: SIP Endpoint Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    EndpointSccpItems:
-      title: SCCP Endpoints
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointSccp'
-          type: array
-        total:
-          type: integer
-    SIPRegistrationSectionOptions:
-      title: PJSIP Registration Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    EndpointSccp:
-      title: SCCP Endpoint
-      allOf:
-      - $ref: '#/components/schemas/EndpointSccpRelationBase'
-      - properties:
-          tenant_uuid:
-            type: string
-            description: The UUID of the tenant
-            readOnly: true
-          options:
-            description: "Advanced configuration options. Options are appended at the end of a \nSCCP account in the file 'sccp.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Because of database limitations, only the following options are allowed:\n\n * cid_name\n * cid_num\n * allow\n * disallow\n \nOptions must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in sip.conf will have the following form:\n\n```\n[1000]\nname1=value1\nname2=value2\n```\n"
-            type: array
-            items:
-              $ref: '#/components/schemas/KeyValueOption'
-      - $ref: '#/components/schemas/EndpointRelationTrunk'
-      - $ref: '#/components/schemas/EndpointRelationLine'
-    Error:
-      type: array
-      items:
-        type: string
-    EndpointRelationTrunk:
-      properties:
-        trunk:
-          $ref: '#/components/schemas/TrunkRelationBase'
-          readOnly: true
-    LineRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Line ID
-          readOnly: true
-        name:
-          type: string
-          description: The name of the line
-          readOnly: true
     EndpointIAX:
       title: IAX Endpoint
       allOf:
@@ -1054,42 +1049,37 @@ components:
             default: []
       - $ref: '#/components/schemas/EndpointRelationTrunk'
       - $ref: '#/components/schemas/EndpointRelationLine'
-    EndpointIAXItems:
-      title: IAX Endpoints
+    EndpointRelationLine:
+      properties:
+        line:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    EndpointSIPItems:
+      title: SIP Endpoints
       properties:
         items:
           items:
-            $ref: '#/components/schemas/EndpointIAX'
+            $ref: '#/components/schemas/EndpointSIP'
           type: array
         total:
           type: integer
-    EndpointIAXRelationBase:
-      properties:
-        id:
-          type: integer
-          description: IAX Endpoint ID
-          readOnly: true
-        name:
-          type: string
-          description: IAX name
-          default: autogenerated
   responses:
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     NotFoundError:
       description: The resource requested was not found on the server
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    GenericError:
-      description: An error occurred during the operation
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:
@@ -1102,46 +1092,21 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
+    CreateError:
+      description: An error occurred when creating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
   parameters:
-    sccpid:
+    sipuuid:
       required: true
-      name: sccp_id
+      name: sip_uuid
       in: path
-      schema:
-        type: integer
-    lineid:
-      required: true
-      name: line_id
-      in: path
-      schema:
-        type: integer
-    useruuid:
-      required: true
-      name: user_uuid
-      in: path
-      description: the user's UUID
       schema:
         type: string
-        format: uuid
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    customid:
-      required: true
-      name: custom_id
-      in: path
-      schema:
-        type: integer
     offset:
       required: false
       name: offset
@@ -1149,19 +1114,13 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    template_uuid:
-      required: true
-      name: template_uuid
+    trunkid:
+      description: Trunk's ID
+      name: trunk_id
       in: path
+      required: true
       schema:
-        type: string
+        type: integer
     direction:
       required: false
       name: direction
@@ -1172,19 +1131,23 @@ components:
         enum:
         - asc
         - desc
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
+    customid:
+      required: true
+      name: custom_id
+      in: path
       schema:
-        type: boolean
-        default: false
-    search:
+        type: integer
+    sccpid:
+      required: true
+      name: sccp_id
+      in: path
+      schema:
+        type: integer
+    order:
       required: false
-      name: search
+      name: order
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
     iaxid:
@@ -1193,28 +1156,26 @@ components:
       in: path
       schema:
         type: integer
-    query_string_uuid_filter:
-      in: query
-      name: uuid
+    limit:
       required: false
-      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-          format: uuid
-        maxItems: 20
-        minItems: 1
-        uniqueItems: true
-    trunkid:
-      description: Trunk's ID
-      name: trunk_id
-      in: path
-      required: true
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
       schema:
         type: integer
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
     endpoint_sip_view:
       required: false
       name: view
@@ -1234,19 +1195,50 @@ components:
         type: string
         enum:
         - merged
-    sipuuid:
+    useruuid:
       required: true
-      name: sip_uuid
+      name: user_uuid
+      in: path
+      description: the user's UUID
+      schema:
+        type: string
+        format: uuid
+    template_uuid:
+      required: true
+      name: template_uuid
       in: path
       schema:
         type: string
-    limit:
-      required: false
-      name: limit
+    recurse:
+      name: recurse
       in: query
-      description: Maximum number of items to return in the list
+      description: Should the query include sub-tenants
+      required: false
       schema:
-        type: integer
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    query_string_uuid_filter:
+      in: query
+      name: uuid
+      required: false
+      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          format: uuid
+        maxItems: 20
+        minItems: 1
+        uniqueItems: true
   securitySchemes:
     wazo_auth_token:
       type: apiKey

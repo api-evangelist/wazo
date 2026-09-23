@@ -43,6 +43,8 @@ paths:
                 $ref: '#/components/schemas/AgentsStatistics'
         '400':
           $ref: '#/components/responses/InvalidRequest'
+      operationId: getAgentsStatistics
+      x-operation-id-source: derived
   /agents/{agent_id}/statistics:
     get:
       summary: Statistics for a specific agent
@@ -75,6 +77,8 @@ paths:
           $ref: '#/components/responses/InvalidRequest'
         '404':
           $ref: '#/components/responses/NotFoundError'
+      operationId: getAgentsByAgentIdStatistics
+      x-operation-id-source: derived
 components:
   schemas:
     AgentQueueStatistic:
@@ -98,15 +102,6 @@ components:
         wrapup_time:
           type: integer
           description: Time this agent spent in wrap-up after calls on this queue, in seconds
-    AgentStatistics:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/AgentStatistic'
-        total:
-          type: integer
     AgentsStatistics:
       type: object
       properties:
@@ -116,6 +111,23 @@ components:
             $ref: '#/components/schemas/AgentStatistic'
         total:
           type: integer
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     AgentStatistic:
       type: object
       properties:
@@ -155,85 +167,16 @@ components:
           description: Per-queue breakdown of agent activity over this interval
           items:
             $ref: '#/components/schemas/AgentQueueStatistic'
-    Error:
-      title: Error
-      description: Error message for the client
+    AgentStatistics:
+      type: object
       properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-  responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentStatistic'
+        total:
+          type: integer
   parameters:
-    day_end_time:
-      name: day_end_time
-      description: The time at which a day ends, inclusively. Accepted format is `HH:MM`, minutes are ignored.
-      in: query
-      required: false
-      schema:
-        type: string
-    until:
-      name: until
-      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
-    from:
-      name: from
-      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    interval:
-      name: interval
-      description: Aggregation interval. An empty value means no interval, so an aggregation on all values.
-      in: query
-      required: false
-      schema:
-        type: string
-        enum:
-        - hour
-        - day
-        - month
-    day_start_time:
-      name: day_start_time
-      description: The time at which a day starts, inclusively. Accepted format is `HH:MM`, minutes are ignored.
-      in: query
-      required: false
-      schema:
-        type: string
     week_days:
       name: week_days
       description: The days of the week that should be included. A week starts on Monday (1) and ends on Sunday (7).
@@ -254,6 +197,31 @@ components:
         - 6
         - 7
         uniqueItems: true
+    day_start_time:
+      name: day_start_time
+      description: The time at which a day starts, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+      in: query
+      required: false
+      schema:
+        type: string
+    interval:
+      name: interval
+      description: Aggregation interval. An empty value means no interval, so an aggregation on all values.
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+        - hour
+        - day
+        - month
+    day_end_time:
+      name: day_end_time
+      description: The time at which a day ends, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+      in: query
+      required: false
+      schema:
+        type: string
     timezone:
       name: timezone
       description: 'Name of the timezone to use for dates and times. Example: America/New_York. Valid timezones
@@ -268,6 +236,42 @@ components:
       schema:
         type: string
         default: UTC
+    from:
+      name: from
+      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+  responses:
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

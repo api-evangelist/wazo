@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: rooms
+- name: Rooms
 paths:
   /users/me/rooms:
     post:
@@ -33,11 +33,9 @@ paths:
 
         This behaviour will disappear in the future and a 409 error will be
 
-        raised.
-
-        '
+        raised.'
       tags:
-      - rooms
+      - Rooms
       responses:
         '201':
           description: Room created
@@ -67,7 +65,7 @@ paths:
       summary: Get room
       description: '**Required ACL:** `chatd.users.me.rooms.read`'
       tags:
-      - rooms
+      - Rooms
       parameters:
       - $ref: '#/components/parameters/user_uuid_query'
       responses:
@@ -85,7 +83,7 @@ paths:
       summary: List rooms messages
       description: '**Required ACL:** `chatd.users.me.rooms.messages.read`'
       tags:
-      - rooms
+      - Rooms
       parameters:
       - $ref: '#/components/parameters/direction'
       - $ref: '#/components/parameters/limit'
@@ -108,7 +106,7 @@ paths:
       summary: Create room messages
       description: '**Required ACL:** `chatd.users.me.rooms.{room_uuid}.messages.create`'
       tags:
-      - rooms
+      - Rooms
       parameters:
       - $ref: '#/components/parameters/room_uuid'
       responses:
@@ -142,7 +140,7 @@ paths:
       summary: List room messages
       description: '**Required ACL:** `chatd.users.me.rooms.{room_uuid}.messages.read`'
       tags:
-      - rooms
+      - Rooms
       parameters:
       - $ref: '#/components/parameters/room_uuid'
       - $ref: '#/components/parameters/from_date'
@@ -164,71 +162,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 components:
   schemas:
-    APIError:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - properties:
-          resource:
-            description: Resource name of the error
-            type: string
-    Messages:
-      title: UserItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Message'
-        filtered:
-          type: integer
-        total:
-          type: integer
-    RoomRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of the room
-          readOnly: true
-    UserMessagePOST:
-      properties:
-        content:
-          type: string
-          description: The content of the message
-        alias:
-          type: string
-          description: Alias/nickname of the sender
-        sender_identity_uuid:
-          type: string
-          format: uuid
-          description: The UUID of the sender's identity to use for outbound delivery. Required when the room contains external participants.
-      required:
-      - content
-    RoomUser:
-      properties:
-        uuid:
-          type: string
-        tenant_uuid:
-          type: string
-          description: The tenant of the user_uuid. Default to the same tenant as the token owner
-        wazo_uuid:
-          type: string
-          description: The wazo of the tenant_uuid. Default to the same wazo as the token owner
-        identity:
-          type: string
-          description: The external identity of this participant (e.g. a phone number for SMS). When set, the participant is reachable via the matching connector backend.
-      required:
-      - uuid
-    Rooms:
-      title: Rooms
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Room'
-        filtered:
-          type: integer
-        total:
-          type: integer
     Message:
       properties:
         uuid:
@@ -259,21 +192,31 @@ components:
           readOnly: true
         room:
           $ref: '#/components/schemas/RoomRelationBase'
-    Room:
-      title: Room
-      allOf:
-      - $ref: '#/components/schemas/RoomRelationBase'
-      - properties:
-          name:
-            type: string
-            description: The name of the room
-          users:
-            type: array
-            maxItems: 100
-            items:
-              $ref: '#/components/schemas/RoomUser'
-        required:
-        - users
+    Rooms:
+      title: Rooms
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Room'
+        filtered:
+          type: integer
+        total:
+          type: integer
+    UserMessagePOST:
+      properties:
+        content:
+          type: string
+          description: The content of the message
+        alias:
+          type: string
+          description: Alias/nickname of the sender
+        sender_identity_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the sender's identity to use for outbound delivery. Required when the room contains external participants.
+      required:
+      - content
     MessageRecipient:
       properties:
         identity:
@@ -291,6 +234,78 @@ components:
         updated_at:
           type: string
           description: Timestamp of the latest status transition for this recipient
+          readOnly: true
+    RoomUser:
+      properties:
+        uuid:
+          type: string
+        tenant_uuid:
+          type: string
+          description: The tenant of the user_uuid. Default to the same tenant as the token owner
+        wazo_uuid:
+          type: string
+          description: The wazo of the tenant_uuid. Default to the same wazo as the token owner
+        identity:
+          type: string
+          description: The external identity of this participant (e.g. a phone number for SMS). When set, the participant is reachable via the matching connector backend.
+      required:
+      - uuid
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    Room:
+      title: Room
+      allOf:
+      - $ref: '#/components/schemas/RoomRelationBase'
+      - properties:
+          name:
+            type: string
+            description: The name of the room
+          users:
+            type: array
+            maxItems: 100
+            items:
+              $ref: '#/components/schemas/RoomUser'
+        required:
+        - users
+    Messages:
+      title: UserItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        filtered:
+          type: integer
+        total:
+          type: integer
+    APIError:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
+    RoomRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of the room
           readOnly: true
     MessageDelivery:
       description: 'Delivery metadata for the message. Always present on the response.
@@ -317,36 +332,6 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/MessageRecipient'
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-  responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
   parameters:
     room_uuid:
       name: room_uuid
@@ -355,13 +340,6 @@ components:
       required: true
       schema:
         type: string
-    from_date:
-      name: from_date
-      in: query
-      description: 'The date and time from which to retrieve messages. Example: 2019-06-12T10:00:00.000+00:00'
-      schema:
-        type: string
-        format: date-time
     offset:
       required: false
       name: offset
@@ -369,6 +347,23 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
+    from_date:
+      name: from_date
+      in: query
+      description: 'The date and time from which to retrieve messages. Example: 2019-06-12T10:00:00.000+00:00'
+      schema:
+        type: string
+        format: date-time
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
     order:
       required: false
       name: order
@@ -385,16 +380,13 @@ components:
         type: array
         items:
           type: string
-    direction:
+    limit:
       required: false
-      name: direction
+      name: limit
       in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      description: Maximum number of items to return in the list
       schema:
-        type: string
-        enum:
-        - asc
-        - desc
+        type: integer
     search:
       required: false
       name: search
@@ -418,13 +410,19 @@ components:
         type: string
         enum:
         - room_uuid
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

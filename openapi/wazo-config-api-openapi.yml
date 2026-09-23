@@ -16,7 +16,7 @@ servers:
 - url: /0.1
 - url: /0.2
 tags:
-- name: config
+- name: Config
 paths:
   /config:
     get:
@@ -24,22 +24,20 @@ paths:
       description: '**Required ACL:** `amid.config.read`'
       operationId: getConfig
       tags:
-      - config
+      - Config
       responses:
         '200':
           description: The configuration of the service
       security:
       - wazo_auth_token: []
     patch:
-      summary: Update the current configuration.
+      summary: Update the current configuration
       description: '**Required ACL:** `amid.config.update`
 
-        Changes are not persistent across service restart.
-
-        '
+        Changes are not persistent across service restart.'
       operationId: patchConfig
       tags:
-      - config
+      - Config
       parameters:
       - $ref: '#/components/parameters/ConfigPatch'
       responses:
@@ -52,6 +50,24 @@ paths:
     servers:
     - url: /1.0
 components:
+  parameters:
+    ConfigPatch:
+      name: ConfigPatch
+      in: body
+      required: true
+      description: See https://en.wikipedia.org/wiki/JSON_Patch.
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ConfigPatchItem'
+    configpatch:
+      name: config_patch
+      in: body
+      required: true
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ConfigPatchItem_2'
   schemas:
     ConfigPatchItem:
       properties:
@@ -75,24 +91,6 @@ components:
         value:
           type: object
           description: The new value for the resource.
-  parameters:
-    ConfigPatch:
-      name: ConfigPatch
-      in: body
-      required: true
-      description: See https://en.wikipedia.org/wiki/JSON_Patch.
-      schema:
-        type: array
-        items:
-          $ref: '#/components/schemas/ConfigPatchItem'
-    configpatch:
-      name: config_patch
-      in: body
-      required: true
-      schema:
-        type: array
-        items:
-          $ref: '#/components/schemas/ConfigPatchItem_2'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

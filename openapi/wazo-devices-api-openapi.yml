@@ -10,14 +10,14 @@ info:
     backgroundColor: '#FAFAFA'
     altText: Wazo Logo
   version: '1.0'
-  description: 'Operations tagged devices across 2 of this provider''s published API definitions: wazo-confd-api-openapi.yml, wazo-provd-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged devices across 2 of this provider''s published API definitions: wazo-confd-api-openapi.yml, wazo-provd-openapi-original.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /1.1
 - url: /api/provd/0.2
 security:
 - wazo_auth_token: []
 tags:
-- name: devices
+- name: Devices
 paths:
   /devices:
     get:
@@ -25,7 +25,7 @@ paths:
       summary: List devices
       description: '**Required ACL:** `confd.devices.read`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -48,7 +48,7 @@ paths:
       summary: Create device
       description: '**Required ACL:** `confd.devices.create`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -74,7 +74,7 @@ paths:
       summary: Get device
       description: '**Required ACL:** `confd.devices.{device_id}.read`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/deviceid'
@@ -92,7 +92,7 @@ paths:
       summary: Update device
       description: '**Required ACL:** `confd.devices.{device_id}.update`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/deviceid'
@@ -117,7 +117,7 @@ paths:
 
         A device can not be deleted if it is linked to a line. You must dissociate the line and the device first.'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/deviceid'
@@ -139,7 +139,7 @@ paths:
 
         Resets a device into ‘autoprov’ mode. Once in autoprov, a device can be reprovisionned using another provisioning code. The device’s configuration will be lost when reset to autoprov mode.'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/deviceid'
@@ -161,7 +161,7 @@ paths:
 
         Synchronize a device’s configuration. Used when a configuration has been modified and the changes need to be sent to the device.'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/deviceid'
@@ -180,7 +180,7 @@ paths:
       summary: List unallocated devices
       description: '**Required ACL:** `confd.devices.unallocated.read`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/order'
       - $ref: '#/components/parameters/direction'
@@ -204,7 +204,7 @@ paths:
       summary: Assign unallocated device tenant
       description: '**Required ACL:** `confd.devices.unallocated.{device_id}.update`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/deviceid'
@@ -223,7 +223,7 @@ paths:
       summary: List lines associated to device
       description: '**Required ACL:** `confd.devices.{device_id}.lines.read`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/deviceid'
@@ -244,7 +244,7 @@ paths:
       summary: Get Device associated to Line
       description: '**Required ACL:** `confd.lines.{line_id}.devices.read`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/lineid'
@@ -271,7 +271,7 @@ paths:
       summary: Associate line and device
       description: '**Required ACL:** `confd.lines.{line_id}.devices.{device_id}.update`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/lineid'
@@ -288,7 +288,7 @@ paths:
       summary: Dissociate line and device
       description: '**Required ACL:** `confd.lines.{line_id}.devices.{device_id}.delete`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/lineid'
@@ -308,11 +308,9 @@ paths:
       description: '**Required ACL:** `provd.dev_mgr.read`
 
 
-        The device manager resource represents the entry point to the wazo-provd device REST API
-
-        '
+        The device manager resource represents the entry point to the wazo-provd device REST API'
       tags:
-      - devices
+      - Devices
       responses:
         '200':
           description: Links to the different devices resources
@@ -320,6 +318,8 @@ paths:
             application/vnd.proformatique.provd+json:
               schema:
                 $ref: '#/components/schemas/LinksObject'
+      operationId: getDevMgr
+      x-operation-id-source: derived
     servers:
     - url: /api/provd/0.2
   /dev_mgr/devices:
@@ -327,7 +327,7 @@ paths:
       summary: List and find devices
       description: '**Required ACL:** `provd.dev_mgr.devices.read`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/SearchQuery'
       - $ref: '#/components/parameters/SearchFields'
@@ -339,11 +339,13 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/DevicesResponse'
+      operationId: getDevMgrDevices
+      x-operation-id-source: derived
     post:
       summary: Create a device
       description: '**Required ACL:** `provd.dev_mgr.devices.create`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/TenantUUID'
       responses:
@@ -359,6 +361,8 @@ paths:
             schema:
               $ref: '#/components/schemas/DeviceObject'
         description: Device to create
+      operationId: postDevMgrDevices
+      x-operation-id-source: derived
     servers:
     - url: /api/provd/0.2
   /dev_mgr/devices/{device_id}:
@@ -367,11 +371,9 @@ paths:
       description: '**Required ACL:** `provd.dev_mgr.devices.{device_id}.read`
 
 
-        Get a device using its ID
-
-        '
+        Get a device using its ID'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/DeviceId'
       - $ref: '#/components/parameters/TenantUUID'
@@ -380,16 +382,16 @@ paths:
           $ref: '#/components/responses/DeviceUniqueResponse'
         '404':
           $ref: '#/components/responses/NoSuchResourceError'
+      operationId: getDevMgrDevicesByDeviceId
+      x-operation-id-source: derived
     put:
       summary: Update a device
       description: '**Required ACL:** `provd.dev_mgr.devices.{device_id}.update`
 
 
-        Every field must be specified, otherwise they will be omitted
-
-        '
+        Every field must be specified, otherwise they will be omitted'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/DeviceId'
       - $ref: '#/components/parameters/TenantUUID'
@@ -408,11 +410,13 @@ paths:
             schema:
               $ref: '#/components/schemas/DeviceObject'
         description: Device information to update
+      operationId: putDevMgrDevicesByDeviceId
+      x-operation-id-source: derived
     delete:
       summary: Delete a device
       description: '**Required ACL:** `provd.dev_mgr.devices.{device_id}.delete`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/DeviceId'
       - $ref: '#/components/parameters/TenantUUID'
@@ -421,6 +425,8 @@ paths:
           $ref: '#/components/responses/NoContentResponse'
         '404':
           $ref: '#/components/responses/NoSuchResourceError'
+      operationId: deleteDevMgrDevicesByDeviceId
+      x-operation-id-source: derived
     servers:
     - url: /api/provd/0.2
   /dev_mgr/synchronize:
@@ -428,7 +434,7 @@ paths:
       summary: Synchronize a device
       description: '**Required ACL:** `provd.dev_mgr.synchronize.create`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/DeviceIdBody'
       - $ref: '#/components/parameters/TenantUUID'
@@ -442,6 +448,8 @@ paths:
                 type: string
         '415':
           $ref: '#/components/responses/UnsupportedMediaError'
+      operationId: postDevMgrSynchronize
+      x-operation-id-source: derived
     servers:
     - url: /api/provd/0.2
   /dev_mgr/synchronize/{operation_id}:
@@ -449,7 +457,7 @@ paths:
       summary: Get the status of a synchronize Operation In Progress
       description: '**Required ACL:** `provd.operation.read`'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/OperationId'
       responses:
@@ -461,6 +469,8 @@ paths:
                 $ref: '#/components/schemas/OperationInProgressObject'
         '404':
           $ref: '#/components/responses/NoSuchResourceError'
+      operationId: getDevMgrSynchronizeByOperationId
+      x-operation-id-source: derived
     delete:
       summary: Delete the Operation In Progress
       description: '**Required ACL:** `provd.operation.delete`
@@ -469,11 +479,9 @@ paths:
         This does not cancel the underlying operation; it only deletes the monitor
 
 
-        Every monitor that is created should be deleted, else they won''t be freed by the process and they will accumulate, taking memory
-
-        '
+        Every monitor that is created should be deleted, else they won''t be freed by the process and they will accumulate, taking memory'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/OperationId'
       responses:
@@ -481,6 +489,8 @@ paths:
           $ref: '#/components/responses/NoContentResponse'
         '404':
           $ref: '#/components/responses/NoSuchResourceError'
+      operationId: deleteDevMgrSynchronizeByOperationId
+      x-operation-id-source: derived
     servers:
     - url: /api/provd/0.2
   /dev_mgr/reconfigure:
@@ -489,11 +499,9 @@ paths:
       description: '**Required ACL:** `provd.dev_mgr.reconfigure.create`
 
 
-        Regenerate the configuration file for the specified device
-
-        '
+        Regenerate the configuration file for the specified device'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/DeviceIdBody'
       - $ref: '#/components/parameters/TenantUUID'
@@ -502,6 +510,8 @@ paths:
           $ref: '#/components/responses/NoContentResponse'
         '400':
           $ref: '#/components/responses/BadRequestError'
+      operationId: postDevMgrReconfigure
+      x-operation-id-source: derived
     servers:
     - url: /api/provd/0.2
   /dev_mgr/dhcpinfo:
@@ -510,39 +520,105 @@ paths:
       description: '**Required ACL:** `provd.dev_mgr.dhcpinfo.create`
 
 
-        The provisioning server either creates a new device or changes the information of the device with the same MAC address
-
-        '
+        The provisioning server either creates a new device or changes the information of the device with the same MAC address'
       tags:
-      - devices
+      - Devices
       parameters:
       - $ref: '#/components/parameters/DeviceDHCPInfo'
       - $ref: '#/components/parameters/TenantUUID'
       responses:
         '204':
           $ref: '#/components/responses/NoContentResponse'
+      operationId: postDevMgrDhcpinfo
+      x-operation-id-source: derived
     servers:
     - url: /api/provd/0.2
 components:
+  responses:
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    NoContentResponse:
+      description: No content
+    InternalServerError:
+      description: Internal Server Error. The IP or MAC address may be malformed
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    DeviceUniqueResponse:
+      description: A complete device response
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/DeviceObject'
+    UnsupportedMediaError:
+      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    DevicesResponse:
+      description: A list of devices
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/DevicesList'
+    NoSuchResourceError:
+      description: No such resource. The provided id does not exist
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    BadRequestError:
+      description: Bad request. The device ID, IP or MAC may be invalid
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    DeviceCreationResponse:
+      description: Device creation response
+      headers:
+        Location:
+          description: Location of the newly created device
+          schema:
+            type: string
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/IdObject'
   schemas:
-    DeviceItems:
-      title: DeviceItems
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/Device'
-          type: array
-        total:
-          type: integer
-      required:
-      - total
-    DeviceOptions:
-      title: DeviceOptions
-      description: List of standard keys
-      properties:
-        switchboard:
-          type: boolean
-          description: Indicate if this device is a switchboard
     LineDeviceItems:
       title: LineDeviceItems
       properties:
@@ -554,21 +630,6 @@ components:
           type: integer
       required:
       - total
-    LineDevice:
-      title: LineDevice
-      properties:
-        line_id:
-          type: integer
-          description: Line's ID
-          readOnly: true
-        device_id:
-          type: string
-          description: Device's ID
-          readOnly: true
-    Error:
-      type: array
-      items:
-        type: string
     Device:
       title: Device
       properties:
@@ -632,98 +693,39 @@ components:
           type: boolean
           description: Indicates if the device is a new device, ie in the master tenant
           readOnly: true
-    DevicesList:
-      description: A list of devices
+    DeviceOptions:
+      title: DeviceOptions
+      description: List of standard keys
       properties:
-        devices:
-          type: array
+        switchboard:
+          type: boolean
+          description: Indicate if this device is a switchboard
+    Error:
+      type: array
+      items:
+        type: string
+    DeviceItems:
+      title: DeviceItems
+      properties:
+        items:
           items:
-            $ref: '#/components/schemas/Device_2'
-    IdObject:
-      properties:
-        id:
-          type: string
-      example:
-        id: abcdef1234567890
-    DeviceObject:
-      description: A device object
-      properties:
-        device:
-          $ref: '#/components/schemas/Device_2'
-    DHCPInfo:
-      type: object
-      properties:
-        ip:
-          type: string
-          description: The IP address of the device
-        mac:
-          type: string
-          description: The MAC address of the device
-        op:
-          type: string
-          enum:
-          - commit
-          description: The operation to perform
-        options:
+            $ref: '#/components/schemas/Device'
           type: array
-          items:
-            type: string
-            description: 'The option string. The first 3 characters are the option number, the following pairs of dot-separated hexadecimal numbers are the option value characters.
-
-              '
-    ErrorMessage:
-      description: Error message response
-      type: string
-    LinksObject:
-      description: Links object
-      type: object
+        total:
+          type: integer
+      required:
+      - total
+    LineDevice:
+      title: LineDevice
       properties:
-        links:
-          type: array
-          description: Links to different resources
-          items:
-            $ref: '#/components/schemas/LinkObject'
-    OperationInProgressObject:
-      properties:
-        status:
+        line_id:
+          type: integer
+          description: Line's ID
+          readOnly: true
+        device_id:
           type: string
-          description: 'The ``status`` field describes the current status of the operation. The format is
-
-            ``[label|]state[;current[/end]](\(sub_oips\))*``. Here are some examples:
-
-
-            * progress
-
-            * download|progress
-
-            * download|progress;10
-
-            * download|progress;10/100
-
-            * download|progress(file_1|progress;20/100)(file_2|waiting;0/50)
-
-            * download|progress;20/150(file_1|progress)(file_2|waiting)
-
-            * op|progress(op1|progress(op11|progress)(op12|waiting))(op2|progress)
-
-
-            The state of an operation is either ``waiting``, ``progress``, ``success`` or ``fail``.
-
-            '
-    DHCPInfoObject:
-      properties:
-        dhcp_info:
-          $ref: '#/components/schemas/DHCPInfo'
-    LinkObject:
-      description: Link Object
-      type: object
-      properties:
-        href:
-          type: string
-          description: Location of the resource
-        rel:
-          type: string
-          description: Relation to the resource
+          description: Device's ID
+          readOnly: true
     Device_2:
       description: A device schema
       properties:
@@ -769,104 +771,99 @@ components:
           type: boolean
           description: Indicates if the device is a new device, ie in the master tenant
           readOnly: true
-  responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UnsupportedMediaError:
-      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    DeviceCreationResponse:
-      description: Device creation response
-      headers:
-        Location:
-          description: Location of the newly created device
-          schema:
-            type: string
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/IdObject'
-    DevicesResponse:
+    LinksObject:
+      description: Links object
+      type: object
+      properties:
+        links:
+          type: array
+          description: Links to different resources
+          items:
+            $ref: '#/components/schemas/LinkObject'
+    IdObject:
+      properties:
+        id:
+          type: string
+      example:
+        id: abcdef1234567890
+    DHCPInfoObject:
+      properties:
+        dhcp_info:
+          $ref: '#/components/schemas/DHCPInfo'
+    DeviceObject:
+      description: A device object
+      properties:
+        device:
+          $ref: '#/components/schemas/Device_2'
+    DevicesList:
       description: A list of devices
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/DevicesList'
-    InternalServerError:
-      description: Internal Server Error. The IP or MAC address may be malformed
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    NoSuchResourceError:
-      description: No such resource. The provided id does not exist
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    DeviceUniqueResponse:
-      description: A complete device response
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/DeviceObject'
-    BadRequestError:
-      description: Bad request. The device ID, IP or MAC may be invalid
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    NoContentResponse:
-      description: No content
+      properties:
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Device_2'
+    ErrorMessage:
+      description: Error message response
+      type: string
+    DHCPInfo:
+      type: object
+      properties:
+        ip:
+          type: string
+          description: The IP address of the device
+        mac:
+          type: string
+          description: The MAC address of the device
+        op:
+          type: string
+          enum:
+          - commit
+          description: The operation to perform
+        options:
+          type: array
+          items:
+            type: string
+            description: 'The option string. The first 3 characters are the option number, the following pairs of dot-separated hexadecimal numbers are the option value characters.
+
+              '
+    LinkObject:
+      description: Link Object
+      type: object
+      properties:
+        href:
+          type: string
+          description: Location of the resource
+        rel:
+          type: string
+          description: Relation to the resource
+    OperationInProgressObject:
+      properties:
+        status:
+          type: string
+          description: 'The ``status`` field describes the current status of the operation. The format is
+
+            ``[label|]state[;current[/end]](\(sub_oips\))*``. Here are some examples:
+
+
+            * progress
+
+            * download|progress
+
+            * download|progress;10
+
+            * download|progress;10/100
+
+            * download|progress(file_1|progress;20/100)(file_2|waiting;0/50)
+
+            * download|progress;20/150(file_1|progress)(file_2|waiting)
+
+            * op|progress(op1|progress(op11|progress)(op12|waiting))(op2|progress)
+
+
+            The state of an operation is either ``waiting``, ``progress``, ``success`` or ``fail``.
+
+            '
   parameters:
-    lineid:
-      required: true
-      name: line_id
-      in: path
-      schema:
-        type: integer
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
     offset:
       required: false
       name: offset
@@ -874,13 +871,6 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
     direction:
       required: false
       name: direction
@@ -891,14 +881,6 @@ components:
         enum:
         - asc
         - desc
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
     deviceid:
       required: true
       name: device_id
@@ -906,11 +888,11 @@ components:
       description: Device's ID
       schema:
         type: string
-    search:
+    order:
       required: false
-      name: search
+      name: order
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
     limit:
@@ -920,6 +902,72 @@ components:
       description: Maximum number of items to return in the list
       schema:
         type: integer
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    DeviceId:
+      required: true
+      name: device_id
+      in: path
+      description: Device ID
+      schema:
+        type: string
+    DeviceIdBody:
+      description: Device ID body definition
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/IdObject'
+    Skip:
+      name: skip
+      in: query
+      description: 'An integer specifing the number of entries to skip.
+
+
+        Example: 10
+
+        '
+      required: false
+      schema:
+        type: integer
+    OperationId:
+      required: true
+      name: operation_id
+      in: path
+      description: Operation In Progress ID
+      schema:
+        type: string
+    DeviceDHCPInfo:
+      description: DHCP request information
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/DHCPInfoObject'
     TenantUUID:
       name: Wazo-Tenant
       in: header
@@ -948,11 +996,23 @@ components:
         enum:
         - ASC
         - DESC
-    OperationId:
-      required: true
-      name: operation_id
-      in: path
-      description: Operation In Progress ID
+    Recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      schema:
+        type: boolean
+        default: false
+    SearchFields:
+      name: fields
+      in: query
+      description: 'A list of fields, separated by comma.
+
+
+        Example: `mac,ip`
+
+        '
+      required: false
       schema:
         type: string
     SearchQuery:
@@ -967,56 +1027,6 @@ components:
       required: false
       schema:
         type: string
-    DeviceIdBody:
-      description: Device ID body definition
-      name: body
-      in: body
-      schema:
-        $ref: '#/components/schemas/IdObject'
-    DeviceId:
-      required: true
-      name: device_id
-      in: path
-      description: Device ID
-      schema:
-        type: string
-    SearchFields:
-      name: fields
-      in: query
-      description: 'A list of fields, separated by comma.
-
-
-        Example: `mac,ip`
-
-        '
-      required: false
-      schema:
-        type: string
-    DeviceDHCPInfo:
-      description: DHCP request information
-      name: body
-      in: body
-      schema:
-        $ref: '#/components/schemas/DHCPInfoObject'
-    Skip:
-      name: skip
-      in: query
-      description: 'An integer specifing the number of entries to skip.
-
-
-        Example: 10
-
-        '
-      required: false
-      schema:
-        type: integer
-    Recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      schema:
-        type: boolean
-        default: false
   securitySchemes:
     wazo_auth_token:
       type: apiKey
@@ -1024,7 +1034,7 @@ components:
       in: header
 x-refined-from:
 - wazo-confd-api-openapi.yml
-- wazo-provd-api-openapi.yml
+- wazo-provd-openapi-original.yml
 x-xivo-name: agentd
 x-xivo-port: 9493
 x-apievangelist-source:

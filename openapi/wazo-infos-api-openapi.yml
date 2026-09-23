@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Infos API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -19,7 +19,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: infos
+- name: Infos
 paths:
   /infos:
     get:
@@ -27,7 +27,7 @@ paths:
       summary: Get server info
       description: '**Required ACL:** `confd.infos.read`'
       tags:
-      - infos
+      - Infos
       responses:
         '200':
           description: Server information

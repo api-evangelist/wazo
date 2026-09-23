@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: command
+- name: Command
 paths:
   /action/Command:
     post:
@@ -27,11 +27,9 @@ paths:
         This endpoint sends a command to the Asterisk Manager.
 
 
-        See https://docs.asterisk.org/Latest_API/API_Documentation/AMI_Actions/ for more details about the AMI message parameters.
-
-        '
+        See https://docs.asterisk.org/Latest_API/API_Documentation/AMI_Actions/ for more details about the AMI message parameters.'
       tags:
-      - command
+      - Command
       responses:
         '200':
           description: The Asterisk Manager response
@@ -66,6 +64,8 @@ paths:
 
 
           '
+      operationId: postActionCommand
+      x-operation-id-source: derived
 components:
   schemas:
     Error:

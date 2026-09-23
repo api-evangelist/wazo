@@ -14,14 +14,14 @@ info:
 servers:
 - url: /0.1
 tags:
-- name: external
+- name: External
 paths:
   /external/{auth_type}/config:
     get:
       description: '**Required ACL**: `auth.{auth_type}.external.config.read`'
       summary: Retrieve the client id and client secret
       tags:
-      - external
+      - External
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/auth_type'
@@ -44,11 +44,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getExternalByAuthTypeConfig
+      x-operation-id-source: derived
     delete:
       description: '**Required ACL**: `auth.{auth_type}.external.config.delete`'
       summary: Delete the client id and client secret
       tags:
-      - external
+      - External
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/auth_type'
@@ -67,11 +69,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: deleteExternalByAuthTypeConfig
+      x-operation-id-source: derived
     post:
       description: '**Required ACL**: `auth.{auth_type}.external.config.create`'
       summary: Add configuration for the given auth_type
       tags:
-      - external
+      - External
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/auth_type'
@@ -103,11 +107,13 @@ paths:
               $ref: '#/components/schemas/ExternalConfig'
         description: JSON object holding configuration for the given authentication type
         required: true
+      operationId: postExternalByAuthTypeConfig
+      x-operation-id-source: derived
     put:
       description: '**Required ACL**: `auth.{auth_type}.external.config.update`'
       summary: Update configuration for the given auth_type
       tags:
-      - external
+      - External
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/auth_type'
@@ -133,12 +139,14 @@ paths:
               $ref: '#/components/schemas/ExternalConfig'
         description: JSON object holding configuration for the given authentication type
         required: true
+      operationId: putExternalByAuthTypeConfig
+      x-operation-id-source: derived
   /external/{auth_type}/users:
     get:
       description: '**Required ACL**: `auth.{auth_type}.external.users`'
       summary: Retrieves the list of connected users to this external source
       tags:
-      - external
+      - External
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/auth_type'
@@ -164,18 +172,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getExternalByAuthTypeUsers
+      x-operation-id-source: derived
   /users/{user_uuid}/external:
     get:
       tags:
-      - external
+      - External
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.users.{user_uuid}.external.read`
 
 
-        This list should not contain any sensible information
-
-        '
+        This list should not contain any sensible information'
       summary: Retrieves the list of the users external auth data
       parameters:
       - $ref: '#/components/parameters/user_uuid'
@@ -191,8 +199,104 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExternalAuthList'
+      operationId: getUsersByUserUuidExternal
+      x-operation-id-source: derived
 components:
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    auth_type:
+      name: auth_type
+      in: path
+      description: External auth type name
+      required: true
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
   schemas:
+    ExternalAuth:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The external auth type name
+        enabled:
+          type: boolean
+        data:
+          type: object
+        plugin_info:
+          type: object
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
     ExternalAuthList:
       type: object
       properties:
@@ -252,6 +356,12 @@ components:
 
             '
           type: string
+    ExternalAuthUser:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
     ExternalAuthUserList:
       type: object
       properties:
@@ -276,106 +386,6 @@ components:
       - filtered
       - total
       - items
-    Error:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
-    ExternalAuthUser:
-      type: object
-      properties:
-        uuid:
-          type: string
-          format: uuid
-    ExternalAuth:
-      type: object
-      properties:
-        type:
-          type: string
-          description: The external auth type name
-        enabled:
-          type: boolean
-        data:
-          type: object
-        plugin_info:
-          type: object
-  parameters:
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    auth_type:
-      name: auth_type
-      in: path
-      description: External auth type name
-      required: true
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
   securitySchemes:
     wazo_auth_basic:
       type: http

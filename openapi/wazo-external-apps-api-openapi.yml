@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd External Apps API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -19,7 +19,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: external_apps
+- name: External Apps
 paths:
   /external/apps:
     get:
@@ -27,7 +27,7 @@ paths:
       summary: List external apps
       description: '**Required ACL:** `confd.external.apps.read`'
       tags:
-      - external_apps
+      - External Apps
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -49,7 +49,7 @@ paths:
       summary: Create external app
       description: '**Required ACL:** `confd.external.apps.{app_name}.create`'
       tags:
-      - external_apps
+      - External Apps
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/externalappname'
@@ -74,7 +74,7 @@ paths:
       summary: Get external app
       description: '**Required ACL:** `confd.external.apps.{app_name}.read`'
       tags:
-      - external_apps
+      - External Apps
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/externalappname'
@@ -92,7 +92,7 @@ paths:
       summary: Update external app
       description: '**Required ACL:** `confd.external.apps.{app_name}.update`'
       tags:
-      - external_apps
+      - External Apps
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/externalappname'
@@ -114,7 +114,7 @@ paths:
       summary: Delete external app
       description: '**Required ACL:** `confd.external.apps.{app_name}.delete`'
       tags:
-      - external_apps
+      - External Apps
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/externalappname'
@@ -131,7 +131,7 @@ paths:
       summary: List user external apps
       description: '**Required ACL:** `confd.users.{user_uuid}.external.apps.read`'
       tags:
-      - external_apps
+      - External Apps
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/useruuid'
@@ -154,7 +154,7 @@ paths:
       summary: Create user external app
       description: '**Required ACL:** `confd.users.{user_uuid}.external.apps.{app_name}.create`'
       tags:
-      - external_apps
+      - External Apps
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/useruuid'
@@ -180,7 +180,7 @@ paths:
       summary: Get user external app
       description: '**Required ACL:** `confd.users.{user_uuid}.external.apps.{app_name}.read`'
       tags:
-      - external_apps
+      - External Apps
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/useruuid'
@@ -200,7 +200,7 @@ paths:
       summary: Update user external app
       description: '**Required ACL:** `confd.users.{user_uuid}.external.apps.{app_name}.update`'
       tags:
-      - external_apps
+      - External Apps
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/useruuid'
@@ -223,7 +223,7 @@ paths:
       summary: Delete user external app
       description: '**Required ACL:** `confd.users.{user_uuid}.external.apps.{app_name}.delete`'
       tags:
-      - external_apps
+      - External Apps
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/useruuid'
@@ -236,51 +236,31 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
-  responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    ResourceUpdated:
-      description: Resource was updated successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
+    offset:
       required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
       schema:
         type: string
-    useruuid:
-      required: true
-      name: user_uuid
-      in: path
-      description: the user's UUID
+        enum:
+        - asc
+        - desc
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
-        format: uuid
     user_external_app_view:
       required: false
       name: view
@@ -305,20 +285,28 @@ components:
         type: string
         enum:
         - fallback
-    offset:
+    limit:
       required: false
-      name: offset
+      name: limit
       in: query
-      description: Number of items to skip over in the list. Useful for pagination.
+      description: Maximum number of items to return in the list
       schema:
         type: integer
-    order:
+    search:
       required: false
-      name: order
+      name: search
       in: query
-      description: Name of the field to use for sorting the list of items returned.
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
+    useruuid:
+      required: true
+      name: user_uuid
+      in: path
+      description: the user's UUID
+      schema:
+        type: string
+        format: uuid
     externalappname:
       required: true
       name: app_name
@@ -326,16 +314,6 @@ components:
       description: External App's name
       schema:
         type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
     recurse:
       name: recurse
       in: query
@@ -344,32 +322,27 @@ components:
       schema:
         type: boolean
         default: false
-    search:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
   schemas:
-    ExternalAppItems:
-      title: ExternalAppItems
+    UserExternalApp:
+      title: UserExternalApp
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExternalApp'
-        total:
-          type: integer
-      required:
-      - total
+        name:
+          type: string
+          description: The name to identify the external app
+          readOnly: true
+        label:
+          type: string
+          description: The label of the external app
+        configuration:
+          type: object
+          description: Arbitrary settings needed by an external app
     ExternalApp:
       title: ExternalApp
       properties:
@@ -387,19 +360,21 @@ components:
         configuration:
           type: object
           description: Arbitrary settings needed by an external app
-    UserExternalApp:
-      title: UserExternalApp
+    Error:
+      type: array
+      items:
+        type: string
+    ExternalAppItems:
+      title: ExternalAppItems
       properties:
-        name:
-          type: string
-          description: The name to identify the external app
-          readOnly: true
-        label:
-          type: string
-          description: The label of the external app
-        configuration:
-          type: object
-          description: Arbitrary settings needed by an external app
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalApp'
+        total:
+          type: integer
+      required:
+      - total
     UserExternalAppItems:
       title: UserExternalAppItems
       properties:
@@ -411,10 +386,35 @@ components:
           type: integer
       required:
       - total
-    Error:
-      type: array
-      items:
-        type: string
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
   securitySchemes:
     wazo_auth_token:
       type: apiKey

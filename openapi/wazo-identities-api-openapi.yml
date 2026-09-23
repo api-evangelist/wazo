@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: identities
+- name: Identities
 paths:
   /identities:
     get:
@@ -29,11 +29,9 @@ paths:
 
         tenant. The `Wazo-Tenant` header scopes the result; each
 
-        item includes its owner (`user_uuid`) and `tenant_uuid`.
-
-        '
+        item includes its owner (`user_uuid`) and `tenant_uuid`.'
       tags:
-      - identities
+      - Identities
       parameters:
       - $ref: '#/components/parameters/tenant_uuid'
       - $ref: '#/components/parameters/limit'
@@ -85,11 +83,9 @@ paths:
 
         Creates an external identity for the user named in the body
 
-        on a configured backend.
-
-        '
+        on a configured backend.'
       tags:
-      - identities
+      - Identities
       parameters:
       - $ref: '#/components/parameters/tenant_uuid'
       responses:
@@ -123,7 +119,7 @@ paths:
       summary: Get an identity by UUID
       description: '**Required ACL:** `chatd.identities.{identity_uuid}.read`'
       tags:
-      - identities
+      - Identities
       parameters:
       - $ref: '#/components/parameters/tenant_uuid'
       - $ref: '#/components/parameters/identity_uuid'
@@ -142,11 +138,9 @@ paths:
       description: '**Required ACL:** `chatd.identities.{identity_uuid}.update`
 
 
-        Updates one or more mutable fields.
-
-        '
+        Updates one or more mutable fields.'
       tags:
-      - identities
+      - Identities
       parameters:
       - $ref: '#/components/parameters/tenant_uuid'
       - $ref: '#/components/parameters/identity_uuid'
@@ -180,7 +174,7 @@ paths:
       summary: Delete an identity
       description: '**Required ACL:** `chatd.identities.{identity_uuid}.delete`'
       tags:
-      - identities
+      - Identities
       parameters:
       - $ref: '#/components/parameters/tenant_uuid'
       - $ref: '#/components/parameters/identity_uuid'
@@ -200,11 +194,9 @@ paths:
 
         `room_uuid` is provided, returns only identities usable to
 
-        reach the other participants of that room.
-
-        '
+        reach the other participants of that room.'
       tags:
-      - identities
+      - Identities
       parameters:
       - name: room_uuid
         in: query
@@ -225,6 +217,78 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
+  parameters:
+    identity_user_uuid_filter:
+      name: user_uuid
+      in: query
+      required: false
+      description: 'Filter by user_uuid. Comma-separated list — a row matches if its
+
+        user_uuid is any of the listed values (logical OR).
+
+        '
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    tenant_uuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    identity_value_filter:
+      name: identity
+      in: query
+      required: false
+      description: Filter by exact identity value
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    identity_type_filter:
+      name: type
+      in: query
+      required: false
+      description: Filter by exact messaging type
+      schema:
+        type: string
+    identity_uuid:
+      name: identity_uuid
+      in: path
+      description: The UUID of the identity
+      required: true
+      schema:
+        type: string
+        format: uuid
+    identity_backend_filter:
+      name: backend
+      in: query
+      required: false
+      description: Filter by exact backend name
+      schema:
+        type: string
   schemas:
     IdentityCreateRequest:
       title: IdentityCreateRequest
@@ -260,33 +324,6 @@ components:
       - backend
       - type
       - identity
-    APIError:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - properties:
-          resource:
-            description: Resource name of the error
-            type: string
-    UserIdentity:
-      title: UserIdentity
-      properties:
-        uuid:
-          type: string
-          description: The UUID of the identity
-          readOnly: true
-        backend:
-          type: string
-          description: The connector backend name
-          maxLength: 64
-        type:
-          type: string
-          description: The messaging type
-          maxLength: 32
-        identity:
-          type: string
-          description: The external identity value
-          maxLength: 256
     IdentityUpdateRequest:
       title: IdentityUpdateRequest
       description: 'Partial update — every field is optional.
@@ -308,16 +345,6 @@ components:
             size ≤4096 chars.
 
             '
-    UserIdentityList:
-      title: UserIdentityList
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserIdentity'
-        total:
-          type: integer
-          description: The number of results
     IdentityList:
       title: IdentityList
       properties:
@@ -331,6 +358,33 @@ components:
         total:
           type: integer
           description: Unfiltered count in the tenant scope
+    UserIdentityList:
+      title: UserIdentityList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserIdentity'
+        total:
+          type: integer
+          description: The number of results
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     Identity:
       title: Identity
       allOf:
@@ -355,23 +409,33 @@ components:
               ≤1024 chars, total serialized size ≤4096 chars.
 
               '
-    Error:
-      title: Error
-      description: Error message for the client
+    UserIdentity:
+      title: UserIdentity
       properties:
-        message:
-          description: Human readable explanation of the error
+        uuid:
           type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          description: The UUID of the identity
+          readOnly: true
+        backend:
           type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
+          description: The connector backend name
+          maxLength: 64
+        type:
+          type: string
+          description: The messaging type
+          maxLength: 32
+        identity:
+          type: string
+          description: The external identity value
+          maxLength: 256
+    APIError:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
   responses:
     NotFoundError:
       description: The resource requested was not found on the server
@@ -385,86 +449,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
     InvalidRequest:
       description: Invalid request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/APIError'
-  parameters:
-    tenant_uuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    identity_uuid:
-      name: identity_uuid
-      in: path
-      description: The UUID of the identity
-      required: true
-      schema:
-        type: string
-        format: uuid
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    identity_value_filter:
-      name: identity
-      in: query
-      required: false
-      description: Filter by exact identity value
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    identity_backend_filter:
-      name: backend
-      in: query
-      required: false
-      description: Filter by exact backend name
-      schema:
-        type: string
-    identity_user_uuid_filter:
-      name: user_uuid
-      in: query
-      required: false
-      description: 'Filter by user_uuid. Comma-separated list — a row matches if its
-
-        user_uuid is any of the listed values (logical OR).
-
-        '
-      schema:
-        type: string
-    identity_type_filter:
-      name: type
-      in: query
-      required: false
-      description: Filter by exact messaging type
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
+    ResourceDeleted:
+      description: Resource was deleted successfully
   securitySchemes:
     wazo_auth_token:
       type: apiKey

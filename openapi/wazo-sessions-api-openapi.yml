@@ -14,7 +14,7 @@ info:
 servers:
 - url: /0.1
 tags:
-- name: sessions
+- name: Sessions
 paths:
   /sessions:
     get:
@@ -24,7 +24,7 @@ paths:
       description: '**Required ACL:** `auth.sessions.read`'
       operationId: listSessions
       tags:
-      - sessions
+      - Sessions
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -47,7 +47,7 @@ paths:
     delete:
       operationId: delete_session
       tags:
-      - sessions
+      - Sessions
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.sessions.{session_uuid}.delete`'
@@ -66,7 +66,7 @@ paths:
   /users/{user_uuid}/sessions:
     get:
       tags:
-      - sessions
+      - Sessions
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.users.{user_uuid}.sessions.read`'
@@ -101,11 +101,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getUsersByUserUuidSessions
+      x-operation-id-source: derived
   /users/{user_uuid}/sessions/{session_uuid}:
     delete:
       operationId: user_delete_session
       tags:
-      - sessions
+      - Sessions
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.users.{user_uuid}.sessions.{session_uuid}.delete`'
@@ -123,18 +125,52 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 components:
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    session_uuid:
+      name: session_uuid
+      in: path
+      description: The UUID of the session
+      required: true
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
   schemas:
-    SessionResult:
-      type: object
-      properties:
-        uuid:
-          type: string
-        user_uuid:
-          type: string
-        tenant_uuid:
-          type: string
-        mobile:
-          type: boolean
     GetSessionsResult:
       type: object
       properties:
@@ -166,51 +202,17 @@ components:
             type: string
         status_code:
           type: integer
-  parameters:
-    session_uuid:
-      name: session_uuid
-      in: path
-      description: The UUID of the session
-      required: true
-      schema:
-        type: string
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
+    SessionResult:
+      type: object
+      properties:
+        uuid:
+          type: string
+        user_uuid:
+          type: string
+        tenant_uuid:
+          type: string
+        mobile:
+          type: boolean
   securitySchemes:
     wazo_auth_basic:
       type: http

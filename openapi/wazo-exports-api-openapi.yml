@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: exports
+- name: Exports
 paths:
   /cdr/recordings/media/export:
     post:
@@ -24,11 +24,9 @@ paths:
       description: '**Required ACL:** `call-logd.cdr.recordings.media.export.create`
 
 
-        This endpoint creates a new export and returns its UUID.
-
-        '
+        This endpoint creates a new export and returns its UUID.'
       tags:
-      - exports
+      - Exports
       parameters:
       - $ref: '#/components/parameters/from'
       - $ref: '#/components/parameters/until'
@@ -64,12 +62,14 @@ paths:
                   items:
                     type: string
         description: The CDR IDs list from which to create an export
+      operationId: postCdrRecordingsMediaExport
+      x-operation-id-source: derived
   /exports/{export_uuid}:
     get:
       summary: Get an export by the given UUID
       description: '**Required ACL:** `call-logd.exports.{export_uuid}.read`'
       tags:
-      - exports
+      - Exports
       parameters:
       - $ref: '#/components/parameters/export_uuid'
       responses:
@@ -81,16 +81,16 @@ paths:
                 $ref: '#/components/schemas/Export'
         '404':
           $ref: '#/components/responses/NotFoundError'
+      operationId: getExportsByExportUuid
+      x-operation-id-source: derived
   /exports/{export_uuid}/download:
     get:
       summary: Download an export as a ZIP archive by the given UUID
       description: '**Required ACL:** `call-logd.exports.{export_uuid}.download.read`
 
-        This endpoint allow to use `?token={token_uuid}` and `?tenant={tenant_uuid}` query string to bypass headers
-
-        '
+        This endpoint allow to use `?token={token_uuid}` and `?tenant={tenant_uuid}` query string to bypass headers'
       tags:
-      - exports
+      - Exports
       parameters:
       - $ref: '#/components/parameters/export_uuid'
       responses:
@@ -100,50 +100,29 @@ paths:
           $ref: '#/components/responses/NotDoneYetError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+      operationId: getExportsByExportUuidDownload
+      x-operation-id-source: derived
 components:
   parameters:
-    search:
-      required: false
-      name: search
-      in: query
-      description: Filter list of items
+    export_uuid:
+      name: export_uuid
+      description: UUID of the given export
+      required: true
+      in: path
       schema:
         type: string
-    number:
-      required: false
-      name: number
+    from_id:
+      name: from_id
+      description: Ignore CDR created before the given CDR ID.
       in: query
-      description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
+      required: false
       schema:
-        type: string
+        type: integer
     tags:
       required: false
       name: tags
       in: query
       description: Filter by tags. Each tag MUST be separated by a coma (,). Many tag will perform a logical AND.
-      schema:
-        type: array
-        items:
-          type: string
-    email:
-      name: email
-      description: E-mail address
-      in: query
-      schema:
-        type: string
-    until:
-      name: until
-      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
-    user_uuid:
-      required: false
-      name: user_uuid
-      in: query
-      description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will perform a logical OR.
       schema:
         type: array
         items:
@@ -156,6 +135,21 @@ components:
       schema:
         type: boolean
         default: false
+    email:
+      name: email
+      description: E-mail address
+      in: query
+      schema:
+        type: string
+    user_uuid:
+      required: false
+      name: user_uuid
+      in: query
+      description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will perform a logical OR.
+      schema:
+        type: array
+        items:
+          type: string
     from:
       name: from
       description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
@@ -164,6 +158,13 @@ components:
       schema:
         type: string
         format: date-time
+    search:
+      required: false
+      name: search
+      in: query
+      description: Filter list of items
+      schema:
+        type: string
     tenantuuid:
       name: Wazo-Tenant
       in: header
@@ -171,6 +172,21 @@ components:
       required: false
       schema:
         type: string
+    number:
+      required: false
+      name: number
+      in: query
+      description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
+      schema:
+        type: string
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
     call_direction:
       required: false
       name: call_direction
@@ -182,34 +198,24 @@ components:
         - internal
         - inbound
         - outbound
-    from_id:
-      name: from_id
-      description: Ignore CDR created before the given CDR ID.
-      in: query
-      required: false
-      schema:
-        type: integer
-    export_uuid:
-      name: export_uuid
-      description: UUID of the given export
-      required: true
-      in: path
-      schema:
-        type: string
-  responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotDoneYetError:
-      description: Not done yet
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     Export:
       type: object
       properties:
@@ -232,23 +238,19 @@ components:
           - finished
           - deleted
           - error
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotDoneYetError:
+      description: Not done yet
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

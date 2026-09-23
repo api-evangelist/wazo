@@ -16,14 +16,14 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: retention
+- name: Retention
 paths:
   /retention:
     get:
       summary: Retention configuration
       description: '**Required ACL:** `call-logd.retention.read`'
       tags:
-      - retention
+      - Retention
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -35,16 +35,16 @@ paths:
                 $ref: '#/components/schemas/Retention'
         '400':
           $ref: '#/components/responses/InvalidRequest'
+      operationId: getRetention
+      x-operation-id-source: derived
     put:
       summary: Update retention configuration
       description: '**Required ACL:** `call-logd.retention.update`
 
 
-        **WARNING** This endpoint reset undefined keys to `null`.
-
-        '
+        **WARNING** This endpoint reset undefined keys to `null`.'
       tags:
-      - retention
+      - Retention
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -59,8 +59,42 @@ paths:
               $ref: '#/components/schemas/Retention'
         description: The retention configuration to apply
         required: true
+      operationId: putRetention
+      x-operation-id-source: derived
 components:
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+  responses:
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     Retention:
       type: object
       properties:
@@ -79,38 +113,6 @@ components:
         default_recording_days:
           type: integer
           readOnly: true
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-  responses:
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-  parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

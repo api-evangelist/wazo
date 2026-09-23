@@ -14,12 +14,12 @@ info:
 servers:
 - url: /0.1
 tags:
-- name: policies
+- name: Policies
 paths:
   /groups/{group_uuid}/policies/{policy_uuid}:
     put:
       tags:
-      - policies
+      - Policies
       security:
       - wazo_auth_token: []
       operationId: addGroupPolicy
@@ -39,7 +39,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     delete:
       tags:
-      - policies
+      - Policies
       security:
       - wazo_auth_token: []
       operationId: removeGroupPolicy
@@ -65,7 +65,7 @@ paths:
       description: '**Required ACL:** `auth.policies.read`'
       operationId: listPolicies
       tags:
-      - policies
+      - Policies
       parameters:
       - $ref: '#/components/parameters/order'
       - $ref: '#/components/parameters/direction'
@@ -96,12 +96,10 @@ paths:
 
         Create a new ACL policy set that can be associated to a user, an administrator, a service or a backend.
 
-        An ACL policy is a list of ACL or ACL templates that is used to create a token
-
-        '
+        An ACL policy is a list of ACL or ACL templates that is used to create a token'
       operationId: createPolicies
       tags:
-      - policies
+      - Policies
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -133,7 +131,7 @@ paths:
   /policies/{policy_uuid}:
     get:
       tags:
-      - policies
+      - Policies
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.policies.{policy_uuid}.read'
@@ -166,10 +164,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getPoliciesByPolicyUuid
+      x-operation-id-source: derived
     delete:
       operationId: delete_policy
       tags:
-      - policies
+      - Policies
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.policies.{policy_uuid}.delete`'
@@ -205,7 +205,7 @@ paths:
       description: '**Required ACL:** `auth.policies.{policy_uuid}.update`'
       operationId: editPolicies
       tags:
-      - policies
+      - Policies
       parameters:
       - $ref: '#/components/parameters/policy_uuid'
       - $ref: '#/components/parameters/tenantuuid'
@@ -241,7 +241,7 @@ paths:
       - wazo_auth_token: []
       operationId: deletePolicyAccess
       tags:
-      - policies
+      - Policies
       description: '**Required ACL:** `auth.policies.{policy_uuid}.update`'
       summary: Dissociate an access from a policy
       parameters:
@@ -262,7 +262,7 @@ paths:
       - wazo_auth_token: []
       operationId: addPolicyAccess
       tags:
-      - policies
+      - Policies
       description: '**Required ACL:** `auth.policies.{policy_uuid}.update`'
       summary: Associate an access to a policy
       parameters:
@@ -281,7 +281,7 @@ paths:
   /users/{user_uuid}/policies:
     get:
       tags:
-      - policies
+      - Policies
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.users.{user_uuid}.policies.read`'
@@ -318,10 +318,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getUsersByUserUuidPolicies
+      x-operation-id-source: derived
   /users/{user_uuid}/policies/{policy_uuid}:
     put:
       tags:
-      - policies
+      - Policies
       security:
       - wazo_auth_token: []
       operationId: addUserPolicy
@@ -341,7 +343,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     delete:
       tags:
-      - policies
+      - Policies
       security:
       - wazo_auth_token: []
       operationId: removeUserPolicy
@@ -360,99 +362,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 components:
-  parameters:
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    group_uuid:
-      name: group_uuid
-      in: path
-      description: The UUID of the group
-      required: true
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    access:
-      name: access
-      in: path
-      description: The access to add
-      required: true
-      schema:
-        type: string
-    policy_uuid:
-      name: policy_uuid
-      in: path
-      description: The UUID or slug of the policy. The slug is unique within a tenant, hence the tenant must be specified.
-      required: true
-      schema:
-        type: string
   schemas:
-    PolicyResult:
+    GetPoliciesResult:
       type: object
-      allOf:
-      - $ref: '#/components/schemas/Policy'
-      - properties:
-          uuid:
-            type: string
-          read_only:
-            type: boolean
+      properties:
+        total:
+          type: integer
+          description: The number of policies matching the searched term
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyResult'
+          description: A paginated list of policies
+      required:
+      - total
+      - items
     Error:
       type: object
       properties:
@@ -466,6 +390,15 @@ components:
             type: string
         status_code:
           type: integer
+    PolicyResult:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+      - properties:
+          uuid:
+            type: string
+          read_only:
+            type: boolean
     Policy:
       type: object
       properties:
@@ -497,20 +430,89 @@ components:
             '
       required:
       - name
-    GetPoliciesResult:
-      type: object
-      properties:
-        total:
-          type: integer
-          description: The number of policies matching the searched term
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyResult'
-          description: A paginated list of policies
-      required:
-      - total
-      - items
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    group_uuid:
+      name: group_uuid
+      in: path
+      description: The UUID of the group
+      required: true
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    access:
+      name: access
+      in: path
+      description: The access to add
+      required: true
+      schema:
+        type: string
+    policy_uuid:
+      name: policy_uuid
+      in: path
+      description: The UUID or slug of the policy. The slug is unique within a tenant, hence the tenant must be specified.
+      required: true
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
   securitySchemes:
     wazo_auth_basic:
       type: http

@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: setup
+- name: Setup
 paths:
   /setup:
     post:
@@ -25,7 +25,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/SetupBody'
       tags:
-      - setup
+      - Setup
       responses:
         '201':
           description: The setup has been completed
@@ -36,7 +36,21 @@ paths:
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
 components:
+  parameters:
+    SetupBody:
+      name: body
+      in: body
+      required: true
+      description: Setup options
+      schema:
+        $ref: '#/components/schemas/SetupRequest'
   responses:
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     AnotherServiceUnavailable:
       description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
       content:
@@ -49,20 +63,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-  parameters:
-    SetupBody:
-      name: body
-      in: body
-      required: true
-      description: Setup options
-      schema:
-        $ref: '#/components/schemas/SetupRequest'
   schemas:
     Error:
       title: Error

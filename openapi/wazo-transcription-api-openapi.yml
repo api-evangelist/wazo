@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Transcription API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -19,23 +19,19 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: transcription
+- name: Transcription
 paths:
   /voicemails/transcription:
     get:
       summary: Retrieve the voicemail transcription configuration for the tenant
-      description: '
-
-        Returns the current transcription settings, including whether automatic
+      description: 'Returns the current transcription settings, including whether automatic
 
         transcription is enabled for the tenant''s voicemails.
 
-        **required_acl**: `confd.voicemails.transcription.read`
-
-        '
+        **required_acl**: `confd.voicemails.transcription.read`'
       operationId: get_voicemail_transcription_config
       tags:
-      - transcription
+      - Transcription
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -48,11 +44,11 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
     put:
-      summary: Update the voicemail transcription configuration for the tenant.
+      summary: Update the voicemail transcription configuration for the tenant
       description: '**required_acl**: `confd.voicemails.transcription.update`'
       operationId: update_voicemail_transcription_config
       tags:
-      - transcription
+      - Transcription
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -70,19 +66,6 @@ paths:
         description: Voicemail transcription configuration
         required: true
 components:
-  responses:
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
     Error:
       type: array
@@ -98,6 +81,19 @@ components:
           example: true
       required:
       - enabled
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
     tenantuuid:
       name: Wazo-Tenant

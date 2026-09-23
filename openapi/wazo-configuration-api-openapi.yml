@@ -20,7 +20,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: configuration
+- name: Configuration
 paths:
   /configuration/live_reload:
     get:
@@ -28,7 +28,7 @@ paths:
       summary: Get live reload status
       description: '**Required ACL:** `confd.configuration.live_reload.read`'
       tags:
-      - configuration
+      - Configuration
       responses:
         '200':
           description: Live reload status
@@ -41,7 +41,7 @@ paths:
       summary: Update live reload status
       description: '**Required ACL:** `confd.configuration.live_reload.update`'
       tags:
-      - configuration
+      - Configuration
       responses:
         '204':
           $ref: '#/components/responses/ResourceUpdated'
@@ -60,7 +60,7 @@ paths:
       operationId: list_backend
       summary: List all loaded backends
       tags:
-      - configuration
+      - Configuration
       description: '**Required ACL:** `dird.backends.read`'
       parameters:
       - $ref: '#/components/parameters/search'
@@ -83,7 +83,7 @@ paths:
       summary: Get all `conference` source configurations
       description: '**Required ACL:** `dird.backends.conference.sources.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -103,7 +103,7 @@ paths:
       summary: Configure a source for the `conference` backend
       description: '**Required ACL:** `dird.backends.conference.sources.create`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -145,7 +145,7 @@ paths:
       summary: Get a `conference` source configuration
       description: '**Required ACL:** `dird.backends.conference.sources.{source_uuid}.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -163,7 +163,7 @@ paths:
       summary: Update a `conference` source configuration
       description: '**Required ACL:** `dird.backends.conference.sources.{source_uuid}.update`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -192,7 +192,7 @@ paths:
       summary: Delete a `conference` source configuration
       description: '**Required ACL:** `dird.backends.conference.sources.{source_uuid}.delete`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -209,7 +209,7 @@ paths:
       summary: List all loaded services
       description: '**Required ACL:** `dird.services.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/order'
       - $ref: '#/components/parameters/direction'
@@ -230,7 +230,7 @@ paths:
       summary: Get all `csv` source configurations
       description: '**Required ACL:** `dird.backends.csv.sources.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -250,7 +250,7 @@ paths:
       summary: Configure a source for the `csv` backend
       description: '**Required ACL:** `dird.backends.csv.sources.create`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -293,7 +293,7 @@ paths:
       summary: Get a `csv` source configuration
       description: '**Required ACL:** `dird.backends.csv.sources.{source_uuid}.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -311,7 +311,7 @@ paths:
       summary: Update a `csv` source configuration
       description: '**Required ACL:** `dird.backends.csv.sources.{source_uuid}.update`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -340,7 +340,7 @@ paths:
       summary: Delete a `csv` source configuration
       description: '**Required ACL:** `dird.backends.csv.sources.{source_uuid}.delete`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -357,7 +357,7 @@ paths:
       summary: Get all `csv_ws` source configurations
       description: '**Required ACL:** `dird.backends.csv_ws.sources.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -377,7 +377,7 @@ paths:
       summary: Configure a source for the `csv_ws` backend
       description: '**Required ACL:** `dird.backends.csv_ws.sources.create`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -422,7 +422,7 @@ paths:
       summary: Get a `csv_ws` source configuration
       description: '**Required ACL:** `dird.backends.csv_ws.sources.{source_uuid}.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -440,7 +440,7 @@ paths:
       summary: Update a `csv_ws` source configuration
       description: '**Required ACL:** `dird.backends.csv_ws.sources.{source_uuid}.update`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -469,7 +469,7 @@ paths:
       summary: Delete a `csv_ws` source configuration
       description: '**Required ACL:** `dird.backends.csv_ws.sources.{source_uuid}.delete`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -486,7 +486,7 @@ paths:
       summary: List displays
       description: '**Required ACL:** `dird.displays.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -506,7 +506,7 @@ paths:
       description: '**Required ACL:** `dird.displays.create`'
       operationId: create_display
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -548,7 +548,7 @@ paths:
       summary: Get display
       description: '**Required ACL:** `dird.displays.{display_uuid}.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/displayuuid'
@@ -566,7 +566,7 @@ paths:
       summary: Update display
       description: '**Required ACL:** `dird.displays.{display_uuid}.update`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/displayuuid'
@@ -589,7 +589,7 @@ paths:
       summary: Delete display
       description: '**Required ACL:** `dird.displays.{display_uuid}.delete`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/displayuuid'
@@ -606,7 +606,7 @@ paths:
       summary: Get google configuration
       description: '**Required ACL:** `dird.backends.google.sources.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -636,15 +636,13 @@ paths:
 
         * numbers: a list of phone numbers
 
-        * numbers_by_label: a map of type to numbers {''mobile'': <number>, ''home'': <number>, ...}. Types are defined by Google, currently known types include: ''home'', ''work'', ''mobile'', ''other'', ''main'', ''home_fax'', ''work_fax'', ''google_voice'', ''pager''.
+        * numbers_by_label: a map of type to numbers {''mobile'': , ''home'': , ...}. Types are defined by Google, currently known types include: ''home'', ''work'', ''mobile'', ''other'', ''main'', ''home_fax'', ''work_fax'', ''google_voice'', ''pager''.
 
-        * numbers_except_label: a map from type to every other number {''mobile'': [<number>, <number], ''home'': [<number>, <number>], ...}. See available types above. For example, the ''mobile'' key will contain the ''work'' and ''home'' numbers, but will exclude the ''mobile'' number.
+        * numbers_except_label: a map from type to every other number {''mobile'': [, , ], ...}. See available types above. For example, the ''mobile'' key will contain the ''work'' and ''home'' numbers, but will exclude the ''mobile'' number.
 
-        * emails: a list of email addresses
-
-        '
+        * emails: a list of email addresses'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -696,7 +694,7 @@ paths:
       summary: Get a `google` source configuration
       description: '**Required ACL:** `dird.backends.google.sources.{source_uuid}.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -714,7 +712,7 @@ paths:
       summary: Update a `google` source configuration
       description: '**Required ACL:** `dird.backends.google.sources.{source_uuid}.update`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -743,7 +741,7 @@ paths:
       summary: Delete a `google` source configuration
       description: '**Required ACL:** `dird.backends.google.sources.{source_uuid}.delete`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -760,7 +758,7 @@ paths:
       summary: Get all `ldap` source configurations
       description: '**Required ACL:** `dird.backends.ldap.sources.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -780,7 +778,7 @@ paths:
       summary: Configure a source for the `ldap` backend
       description: '**Required ACL:** `dird.backends.ldap.sources.create`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -830,7 +828,7 @@ paths:
       summary: Get a `ldap` source configuration
       description: '**Required ACL:** `dird.backends.ldap.sources.{source_uuid}.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -848,7 +846,7 @@ paths:
       summary: Update a `ldap` source configuration
       description: '**Required ACL:** `dird.backends.ldap.sources.{source_uuid}.update`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -877,7 +875,7 @@ paths:
       summary: Delete a `ldap` source configuration
       description: '**Required ACL:** `dird.backends.ldap.sources.{source_uuid}.delete`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -894,7 +892,7 @@ paths:
       summary: Get microsoft configuration
       description: '**Required ACL:** `dird.backends.microsoft.sources.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -914,7 +912,7 @@ paths:
       summary: Configure a source for the microsoft backend
       description: '**Required ACL:** `dird.backends.microsoft.sources.create`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -964,7 +962,7 @@ paths:
       summary: Get a `microsoft` source configuration
       description: '**Required ACL:** `dird.backends.microsoft.sources.{source_uuid}.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -982,7 +980,7 @@ paths:
       summary: Update a `microsoft` source configuration
       description: '**Required ACL:** `dird.backends.microsoft.sources.{source_uuid}.update`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -1011,7 +1009,7 @@ paths:
       summary: Delete a `microsoft` source configuration
       description: '**Required ACL:** `dird.backends.microsoft.sources.{source_uuid}.delete`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -1028,7 +1026,7 @@ paths:
       summary: Get all `personal` source configurations
       description: '**Required ACL:** `dird.backends.personal.sources.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -1048,7 +1046,7 @@ paths:
       summary: Configure a source for the `personal` backend
       description: '**Required ACL:** `dird.backends.personal.sources.create`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -1088,7 +1086,7 @@ paths:
       summary: Get a `personal` source configuration
       description: '**Required ACL:** `dird.backends.personal.sources.{source_uuid}.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -1106,7 +1104,7 @@ paths:
       summary: Update a `personal` source configuration
       description: '**Required ACL:** `dird.backends.personal.sources.{source_uuid}.update`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -1135,7 +1133,7 @@ paths:
       summary: Delete a `personal` source configuration
       description: '**Required ACL:** `dird.backends.personal.sources.{source_uuid}.delete`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -1152,7 +1150,7 @@ paths:
       summary: Get all `phonebook` source configurations
       description: '**Required ACL:** `dird.backends.phonebook.sources.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -1172,7 +1170,7 @@ paths:
       summary: Configure a source for the `phonebook` backend
       description: '**Required ACL:** `dird.backends.phonebook.sources.create`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -1213,7 +1211,7 @@ paths:
       summary: Get a `phonebook` source configuration
       description: '**Required ACL:** `dird.backends.phonebook.sources.{source_uuid}.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -1231,7 +1229,7 @@ paths:
       summary: Update a `phonebook` source configuration
       description: '**Required ACL:** `dird.backends.phonebook.sources.{source_uuid}.update`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -1260,7 +1258,7 @@ paths:
       summary: Delete a `phonebook` source configuration
       description: '**Required ACL:** `dird.backends.phonebook.sources.{source_uuid}.delete`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -1277,7 +1275,7 @@ paths:
       summary: Create a new configuration profile
       description: '**Required ACL:** `dird.profiles.create`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -1302,7 +1300,7 @@ paths:
       summary: List all configured profiles
       description: '**Required ACL:** `dird.profiles.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -1326,7 +1324,7 @@ paths:
       summary: Get a profile configuration
       description: '**Required ACL:** `dird.profiles.{profile_uuid}.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/profileuuid'
@@ -1344,7 +1342,7 @@ paths:
       summary: Update a profile configuration
       description: '**Required ACL:** `dird.profiles.{profile_uuid}.update`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/profileuuid'
@@ -1369,7 +1367,7 @@ paths:
       summary: Delete a profile configuration
       description: '**Required ACL:** `dird.profiles.{profile_uuid}.delete`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/profileuuid'
@@ -1386,7 +1384,7 @@ paths:
       summary: List all configured sources
       description: '**Required ACL:** `dird.sources.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -1410,7 +1408,7 @@ paths:
       summary: Get all `wazo` source configurations
       description: '**Required ACL:** `dird.backends.wazo.sources.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -1430,7 +1428,7 @@ paths:
       summary: Configure a source for the `wazo` backend
       description: '**Required ACL:** `dird.backends.wazo.sources.create`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -1472,7 +1470,7 @@ paths:
       summary: Get a `wazo` source configuration
       description: '**Required ACL:** `dird.backends.wazo.sources.{source_uuid}.read`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -1490,7 +1488,7 @@ paths:
       summary: Update a `wazo` source configuration
       description: '**Required ACL:** `dird.backends.wazo.sources.{source_uuid}.update`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -1519,7 +1517,7 @@ paths:
       summary: Delete a `wazo` source configuration
       description: '**Required ACL:** `dird.backends.wazo.sources.{source_uuid}.delete`'
       tags:
-      - configuration
+      - Configuration
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/sourceuuid'
@@ -1531,34 +1529,153 @@ paths:
     servers:
     - url: /0.1
 components:
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    DuplicateError:
+      description: The name already exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    UpdateError_2:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    ResourceDeleted:
+      description: Resource was deleted successfully
   schemas:
-    Error:
-      type: array
-      items:
-        type: string
     LiveReload:
       title: LiveReload
       properties:
         enabled:
           type: boolean
-    LegacyError:
-      title: LegacyError
-      description: Error message for the client
-      properties:
-        timestamp:
-          description: Time at which the error occured
-          type: array
-          items:
-            type: number
-            format: timestamp
-        reason:
-          description: Human readable explanation of the error
-          type: array
-          items:
+    Error:
+      type: array
+      items:
+        type: string
+    WazoAuthConfig:
+      title: Auth
+      allOf:
+      - $ref: '#/components/schemas/ExternalServiceConfig'
+      - $ref: '#/components/schemas/WazoAuthConfigNoAuth'
+      - properties:
+          key_file:
             type: string
-        status_code:
-          description: HTTP status code
+            description: The path the the file containing the credentials
+          username:
+            type: string
+            description: The username to use when not using a key_file
+          password:
+            type: string
+            description: The password to use when not using a key_file
+    BackendItems:
+      title: BackendItems
+      allOf:
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Backend'
+            readOnly: true
+          total:
+            type: integer
+            description: The number of backends
+            readOnly: true
+          filtered:
+            type: integer
+            description: The number of backends matching the search filters
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    SourceListItems:
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceListItem'
+          readOnly: true
+        total:
           type: integer
+          description: The number of sources
+          readOnly: true
+        filtered:
+          type: integer
+          description: The number of sources matching the search filters
+          readOnly: true
+      required:
+      - items
+      - total
+      - filtered
+    PersonalSource:
+      title: PersonalSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - required:
+        - name
+    CSVSource:
+      title: CSVSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          file:
+            type: string
+            description: The path of the CSV file
+          separator:
+            type: string
+            description: The field separator in the CSV
+            default: ','
+          unique_column:
+            type: string
+            description: The column to use for favorites
+      - required:
+        - name
+    WazoSource:
+      title: WazoSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          auth:
+            $ref: '#/components/schemas/WazoAuthConfig'
+          confd:
+            $ref: '#/components/schemas/ConfdConfig'
+      - required:
+        - name
+        - auth
+        - confd
+    ServiceConfiguration:
+      title: Service
+      properties:
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceIdentifier'
+            default: []
+        options:
+          type: object
+          description: Service specific configuration options
     MicrosoftSource:
       title: MicrosoftSource
       description: 'In addition to the keys defined by the [Microsoft API](https://docs.microsoft.com/en-us/graph/api/resources/contact?view=graph-rest-1.0#),
@@ -1586,26 +1703,91 @@ components:
         - name
         - auth
         - confd
-    DisplayIdentifier:
-      title: DisplayUUID
+    ProfileItems:
+      title: ProfileItems
+      allOf:
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Profile'
+            readOnly: true
+          total:
+            type: integer
+            description: The number of configured profiles
+            readOnly: true
+          filtered:
+            type: integer
+            description: The number of configured profiles matching the searched terms
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    Service:
+      title: Service
+      allOf:
+      - properties:
+          name:
+            type: string
+            readOnly: true
+      - required:
+        - name
+    ConferenceSourceItems:
+      title: ConferenceSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ConferenceSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    ExternalServiceConfig:
+      properties:
+        host:
+          type: string
+          default: localhost
+        verify_certificate:
+          type: string
+          description: If the HTTPs certificates should be verified and the path of the certificate if a custom certificate is used.
+          default: 'true'
+        timeout:
+          type: number
+    SourceIdentifier:
+      title: SourceUUID
       allOf:
       - properties:
           uuid:
             type: string
-            description: The display's UUID
+            description: The source's UUID
       - required:
         - uuid
-    APIError:
-      type: object
-      properties:
-        timestamp:
-          type: number
-        message:
-          type: string
-        resource:
-          type: string
-        details:
-          type: object
+    ServiceItems:
+      title: ServiceItems
+      allOf:
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Service'
+            readOnly: true
+          total:
+            type: integer
+            description: The number of services
+            readOnly: true
+          filtered:
+            type: integer
+            description: The number of services matching the search filters
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
     MicrosoftSourceItems:
       title: MicrosoftSourceItems
       allOf:
@@ -1620,46 +1802,162 @@ components:
         - items
         - total
         - filtered
-    SourceListItems:
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SourceListItem'
-          readOnly: true
-        total:
-          type: integer
-          description: The number of sources
-          readOnly: true
-        filtered:
-          type: integer
-          description: The number of sources matching the search filters
-          readOnly: true
-      required:
-      - items
-      - total
-      - filtered
-    BackendItems:
-      title: BackendItems
+    PhonebookSourceItems:
+      title: PhonebookSourceItems
       allOf:
+      - $ref: '#/components/schemas/SourceItems'
       - properties:
           items:
             type: array
             items:
-              $ref: '#/components/schemas/Backend'
-            readOnly: true
-          total:
-            type: integer
-            description: The number of backends
-            readOnly: true
-          filtered:
-            type: integer
-            description: The number of backends matching the search filters
+              $ref: '#/components/schemas/PhonebookSource'
             readOnly: true
       - required:
         - items
         - total
         - filtered
+    LDAPSourceItems:
+      title: LDAPSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/LDAPSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    DisplayIdentifier:
+      title: DisplayUUID
+      allOf:
+      - properties:
+          uuid:
+            type: string
+            description: The display's UUID
+      - required:
+        - uuid
+    PhonebookSource:
+      title: PhonebookSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          name:
+            readOnly: true
+          phonebook_uuid:
+            type: string
+            readOnly: true
+          phonebook_name:
+            type: string
+            readOnly: true
+          phonebook_description:
+            type: string
+            readOnly: true
+      - required:
+        - phonebook_uuid
+    GoogleSourceItems:
+      title: GoogleSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/GoogleSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    DisplayItems:
+      title: DisplayItems
+      allOf:
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Display'
+            readOnly: true
+          total:
+            type: integer
+            description: The number of configured displays
+            readOnly: true
+          filtered:
+            type: integer
+            description: The number of configured displays matching the searched terms
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    LegacyError:
+      title: LegacyError
+      description: Error message for the client
+      properties:
+        timestamp:
+          description: Time at which the error occured
+          type: array
+          items:
+            type: number
+            format: timestamp
+        reason:
+          description: Human readable explanation of the error
+          type: array
+          items:
+            type: string
+        status_code:
+          description: HTTP status code
+          type: integer
+    DisplayColumn:
+      title: Column
+      allOf:
+      - properties:
+          field:
+            type: string
+            description: The name of the field to display in this column
+          title:
+            type: string
+            description: A human readable name for this column
+          type:
+            type: string
+            description: The type of this column
+          default:
+            type: string
+            description: A default value if theres no result in this column
+          number_display:
+            type: string
+            description: A format string that overrides the default display. for number columns only.
+      - required:
+        - name
+    CSVSourceItems:
+      title: CSVSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/CSVSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    ConferenceSource:
+      title: ConferenceSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          auth:
+            $ref: '#/components/schemas/WazoAuthConfig'
+          confd:
+            $ref: '#/components/schemas/ConfdConfig'
+      - required:
+        - name
+        - auth
+        - confd
     Profile:
       title: Profile
       allOf:
@@ -1679,72 +1977,51 @@ components:
                 $ref: '#/components/schemas/ServiceConfiguration'
       - required:
         - name
-    SourceListItem:
+    ConfdConfig:
+      title: Confd
+      allOf:
+      - $ref: '#/components/schemas/ExternalServiceConfig'
+      - properties:
+          port:
+            type: integer
+            default: 9486
+          https:
+            type: boolean
+            default: true
+          version:
+            type: string
+            default: '1.1'
+    Source:
       properties:
         uuid:
           type: string
-          description: The UUID of the source
-          readOnly: true
-        backend:
-          type: string
-          description: The backend of this source
+          description: The source's UUID
           readOnly: true
         name:
           type: string
-          description: The name of the source
-          readOnly: true
-      required:
-      - uuid
-      - backend
-      - name
-    PhonebookSource:
-      title: PhonebookSource
+          description: The source's name
+        searched_columns:
+          type: array
+          items:
+            type: string
+            description: A list of columns which should be searched when doing a look up
+        first_matched_columns:
+          type: array
+          items:
+            type: string
+          description: A list of columns which should be searched when doing a reverse look up
+        format_columns:
+          type: object
+          description: A mapping of new fields and a python format string to generate the new columns value
+    Backend:
+      title: Backend
       allOf:
-      - $ref: '#/components/schemas/Source'
       - properties:
           name:
-            readOnly: true
-          phonebook_uuid:
             type: string
             readOnly: true
-          phonebook_name:
-            type: string
-            readOnly: true
-          phonebook_description:
-            type: string
-            readOnly: true
-      - required:
-        - phonebook_uuid
-    PersonalSource:
-      title: PersonalSource
-      allOf:
-      - $ref: '#/components/schemas/Source'
       - required:
         - name
-    SourceItems:
-      properties:
-        total:
-          type: integer
-          description: The number of configured sources for this backend
-          readOnly: true
-        filtered:
-          type: integer
-          description: The number of configured sources matching the searched terms for this backend
-          readOnly: true
-    PhonebookSourceItems:
-      title: PhonebookSourceItems
-      allOf:
-      - $ref: '#/components/schemas/SourceItems'
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/PhonebookSource'
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
     WazoAuthConfigNoAuth:
       title: Auth
       allOf:
@@ -1756,33 +2033,108 @@ components:
           version:
             type: string
             default: '0.1'
-    ConferenceSource:
-      title: ConferenceSource
+    Display:
+      title: Display
+      allOf:
+      - properties:
+          uuid:
+            type: string
+            description: The display's UUID
+            readOnly: true
+          name:
+            type: string
+            description: The name of the display
+          columns:
+            type: array
+            items:
+              $ref: '#/components/schemas/DisplayColumn'
+            default: []
+      - required:
+        - name
+    GoogleSource:
+      title: GoogleSource
       allOf:
       - $ref: '#/components/schemas/Source'
       - properties:
           auth:
-            $ref: '#/components/schemas/WazoAuthConfig'
-          confd:
-            $ref: '#/components/schemas/ConfdConfig'
+            $ref: '#/components/schemas/WazoAuthConfigNoAuth'
       - required:
         - name
         - auth
-        - confd
-    WazoSourceItems:
-      title: WazoSourceItems
+    CSVWSSourceItems:
+      title: CSVWSSourceItems
       allOf:
       - $ref: '#/components/schemas/SourceItems'
       - properties:
           items:
             type: array
             items:
-              $ref: '#/components/schemas/WazoSource'
+              $ref: '#/components/schemas/CSVWSSource'
             readOnly: true
       - required:
         - items
         - total
         - filtered
+    PersonalSourceItems:
+      title: PersonalSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/PersonalSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    CSVWSSource:
+      title: CSVWSSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          lookup_url:
+            type: string
+            description: The URL used to search the remote CSV
+          list_url:
+            type: string
+            description: The URL used to list all values
+          delimiter:
+            type: string
+            description: The field separator in the CSV
+            default: ','
+          timeout:
+            type: number
+            description: The timeout on the remote HTTP queries
+            default: 10.0
+          unique_column:
+            type: string
+            description: The column to use for favorites
+      - required:
+        - name
+        - lookup_url
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
+    SourceItems:
+      properties:
+        total:
+          type: integer
+          description: The number of configured sources for this backend
+          readOnly: true
+        filtered:
+          type: integer
+          description: The number of configured sources matching the searched terms for this backend
+          readOnly: true
     LDAPSource:
       title: LDAPSource
       allOf:
@@ -1824,415 +2176,39 @@ components:
         - name
         - ldap_uri
         - ldap_base_dn
-    LDAPSourceItems:
-      title: LDAPSourceItems
+    WazoSourceItems:
+      title: WazoSourceItems
       allOf:
       - $ref: '#/components/schemas/SourceItems'
       - properties:
           items:
             type: array
             items:
-              $ref: '#/components/schemas/LDAPSource'
+              $ref: '#/components/schemas/WazoSource'
             readOnly: true
       - required:
         - items
         - total
         - filtered
-    GoogleSourceItems:
-      title: GoogleSourceItems
-      allOf:
-      - $ref: '#/components/schemas/SourceItems'
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/GoogleSource'
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    DisplayItems:
-      title: DisplayItems
-      allOf:
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/Display'
-            readOnly: true
-          total:
-            type: integer
-            description: The number of configured displays
-            readOnly: true
-          filtered:
-            type: integer
-            description: The number of configured displays matching the searched terms
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    ConferenceSourceItems:
-      title: ConferenceSourceItems
-      allOf:
-      - $ref: '#/components/schemas/SourceItems'
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ConferenceSource'
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    WazoAuthConfig:
-      title: Auth
-      allOf:
-      - $ref: '#/components/schemas/ExternalServiceConfig'
-      - $ref: '#/components/schemas/WazoAuthConfigNoAuth'
-      - properties:
-          key_file:
-            type: string
-            description: The path the the file containing the credentials
-          username:
-            type: string
-            description: The username to use when not using a key_file
-          password:
-            type: string
-            description: The password to use when not using a key_file
-    Backend:
-      title: Backend
-      allOf:
-      - properties:
-          name:
-            type: string
-            readOnly: true
-      - required:
-        - name
-    ServiceConfiguration:
-      title: Service
-      properties:
-        sources:
-          type: array
-          items:
-            $ref: '#/components/schemas/SourceIdentifier'
-            default: []
-        options:
-          type: object
-          description: Service specific configuration options
-    PersonalSourceItems:
-      title: PersonalSourceItems
-      allOf:
-      - $ref: '#/components/schemas/SourceItems'
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/PersonalSource'
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    ServiceItems:
-      title: ServiceItems
-      allOf:
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/Service'
-            readOnly: true
-          total:
-            type: integer
-            description: The number of services
-            readOnly: true
-          filtered:
-            type: integer
-            description: The number of services matching the search filters
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    ProfileItems:
-      title: ProfileItems
-      allOf:
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/Profile'
-            readOnly: true
-          total:
-            type: integer
-            description: The number of configured profiles
-            readOnly: true
-          filtered:
-            type: integer
-            description: The number of configured profiles matching the searched terms
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    DisplayColumn:
-      title: Column
-      allOf:
-      - properties:
-          field:
-            type: string
-            description: The name of the field to display in this column
-          title:
-            type: string
-            description: A human readable name for this column
-          type:
-            type: string
-            description: The type of this column
-          default:
-            type: string
-            description: A default value if theres no result in this column
-          number_display:
-            type: string
-            description: A format string that overrides the default display. for number columns only.
-      - required:
-        - name
-    ExternalServiceConfig:
-      properties:
-        host:
-          type: string
-          default: localhost
-        verify_certificate:
-          type: string
-          description: If the HTTPs certificates should be verified and the path of the certificate if a custom certificate is used.
-          default: 'true'
-        timeout:
-          type: number
-    ConfdConfig:
-      title: Confd
-      allOf:
-      - $ref: '#/components/schemas/ExternalServiceConfig'
-      - properties:
-          port:
-            type: integer
-            default: 9486
-          https:
-            type: boolean
-            default: true
-          version:
-            type: string
-            default: '1.1'
-    GoogleSource:
-      title: GoogleSource
-      allOf:
-      - $ref: '#/components/schemas/Source'
-      - properties:
-          auth:
-            $ref: '#/components/schemas/WazoAuthConfigNoAuth'
-      - required:
-        - name
-        - auth
-    CSVWSSourceItems:
-      title: CSVWSSourceItems
-      allOf:
-      - $ref: '#/components/schemas/SourceItems'
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/CSVWSSource'
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    WazoSource:
-      title: WazoSource
-      allOf:
-      - $ref: '#/components/schemas/Source'
-      - properties:
-          auth:
-            $ref: '#/components/schemas/WazoAuthConfig'
-          confd:
-            $ref: '#/components/schemas/ConfdConfig'
-      - required:
-        - name
-        - auth
-        - confd
-    CSVSourceItems:
-      title: CSVSourceItems
-      allOf:
-      - $ref: '#/components/schemas/SourceItems'
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/CSVSource'
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    SourceIdentifier:
-      title: SourceUUID
-      allOf:
-      - properties:
-          uuid:
-            type: string
-            description: The source's UUID
-      - required:
-        - uuid
-    CSVWSSource:
-      title: CSVWSSource
-      allOf:
-      - $ref: '#/components/schemas/Source'
-      - properties:
-          lookup_url:
-            type: string
-            description: The URL used to search the remote CSV
-          list_url:
-            type: string
-            description: The URL used to list all values
-          delimiter:
-            type: string
-            description: The field separator in the CSV
-            default: ','
-          timeout:
-            type: number
-            description: The timeout on the remote HTTP queries
-            default: 10.0
-          unique_column:
-            type: string
-            description: The column to use for favorites
-      - required:
-        - name
-        - lookup_url
-    CSVSource:
-      title: CSVSource
-      allOf:
-      - $ref: '#/components/schemas/Source'
-      - properties:
-          file:
-            type: string
-            description: The path of the CSV file
-          separator:
-            type: string
-            description: The field separator in the CSV
-            default: ','
-          unique_column:
-            type: string
-            description: The column to use for favorites
-      - required:
-        - name
-    Source:
+    SourceListItem:
       properties:
         uuid:
           type: string
-          description: The source's UUID
+          description: The UUID of the source
+          readOnly: true
+        backend:
+          type: string
+          description: The backend of this source
           readOnly: true
         name:
           type: string
-          description: The source's name
-        searched_columns:
-          type: array
-          items:
-            type: string
-            description: A list of columns which should be searched when doing a look up
-        first_matched_columns:
-          type: array
-          items:
-            type: string
-          description: A list of columns which should be searched when doing a reverse look up
-        format_columns:
-          type: object
-          description: A mapping of new fields and a python format string to generate the new columns value
-    Service:
-      title: Service
-      allOf:
-      - properties:
-          name:
-            type: string
-            readOnly: true
-      - required:
-        - name
-    Display:
-      title: Display
-      allOf:
-      - properties:
-          uuid:
-            type: string
-            description: The display's UUID
-            readOnly: true
-          name:
-            type: string
-            description: The name of the display
-          columns:
-            type: array
-            items:
-              $ref: '#/components/schemas/DisplayColumn'
-            default: []
-      - required:
-        - name
-  responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
-    DuplicateError:
-      description: The name already exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
-    UpdateError_2:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
+          description: The name of the source
+          readOnly: true
+      required:
+      - uuid
+      - backend
+      - name
   parameters:
-    displayuuid:
-      required: true
-      name: display_uuid
-      in: path
-      description: the display's UUID
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: The offset defines the number of items of the collection to skip
-      required: false
-      schema:
-        type: integer
-        default: 0
     offset:
       name: offset
       in: query
@@ -2241,13 +2217,6 @@ components:
       schema:
         type: integer
         default: 0
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
     profileuuid:
       required: true
       name: profile_uuid
@@ -2265,33 +2234,18 @@ components:
         enum:
         - asc
         - desc
-    Limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    sourceuuid:
-      name: source_uuid
-      in: path
-      description: The source's UUID
+    displayuuid:
       required: true
+      name: display_uuid
+      in: path
+      description: the display's UUID
       schema:
         type: string
-    search:
+    order:
       required: false
-      name: search
+      name: order
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
     limit:
@@ -2301,6 +2255,50 @@ components:
       required: false
       schema:
         type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: The offset defines the number of items of the collection to skip
+      required: false
+      schema:
+        type: integer
+        default: 0
+    sourceuuid:
+      name: source_uuid
+      in: path
+      description: The source's UUID
+      required: true
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    Limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

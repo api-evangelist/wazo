@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Asterisk API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -48,11 +48,9 @@ paths:
 
         All available configuration options are listed in the
 
-        [sample](https://raw.githubusercontent.com/asterisk/asterisk/master/configs/samples/confbridge.conf.sample)
+        sample
 
-        Asterisk configuration file.
-
-        '
+        Asterisk configuration file.'
       tags:
       - asterisk
       responses:
@@ -88,7 +86,6 @@ paths:
       description: '**Required ACL:** `confd.asterisk.confbridge.wazo_default_user.update`
 
 
-
         **WARNING** This endpoint restore to default value or delete all fields that
 
         are not defined.
@@ -96,11 +93,9 @@ paths:
 
         All available configuration options are listed in the
 
-        [sample](https://raw.githubusercontent.com/asterisk/asterisk/master/configs/samples/confbridge.conf.sample)
+        sample
 
-        Asterisk configuration file.
-
-        '
+        Asterisk configuration file.'
       tags:
       - asterisk
       responses:
@@ -337,9 +332,7 @@ paths:
 
         List all available configuration options for PJSIP, those values are
 
-        used to validate to content of POST and PUT requests.
-
-        '
+        used to validate to content of POST and PUT requests.'
       operationId: show_pjsip_doc
       responses:
         '200':
@@ -380,9 +373,7 @@ paths:
 
         **WARNING** This endpoint restore to default value or delete all fields that
 
-        are not defined.
-
-        '
+        are not defined.'
       tags:
       - asterisk
       responses:
@@ -421,9 +412,7 @@ paths:
 
         **WARNING** This endpoint restore to default value or delete all fields that
 
-        are not defined.
-
-        '
+        are not defined.'
       tags:
       - asterisk
       responses:
@@ -673,6 +662,21 @@ components:
       - ip_address
       - netmask
       - limit
+    PJSIPGlobal:
+      description: 'PJSIP global configuration.
+
+        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
+
+        '
+      properties:
+        options:
+          type: object
+      example:
+        options:
+          max_forwards: '5'
+          keep_alive_interval: '30'
+          user_agent: Wazo
+          debug: false
     VoicemailGeneral:
       title: VoicemailGeneral
       description: 'Voicemail general configuration. This configuration will be in the file ''voicemail.conf'' used by asterisk.
@@ -682,45 +686,6 @@ components:
         options:
           description: "General Voicemail options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
           type: object
-    ConfBridgeConfiguration:
-      title: ConfBridgeConfiguration
-      description: 'This configuration will be in the file ''confbridge.conf'' used by asterisk.
-
-        Please consult the asterisk documentation for further details on available parameters.'
-      properties:
-        options:
-          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
-          type: object
-    IAXCallNumberLimitss:
-      title: IAXCallNumberLimitss
-      properties:
-        items:
-          description: 'IAX callnumberlimits configuration. This configuration will be in the file ''iax.conf'' used by asterisk.
-
-            Please consult the asterisk documentation for further details on available parameters.'
-          type: array
-          items:
-            $ref: '#/components/schemas/IAXCallNumberLimits'
-    RTPConfiguration:
-      title: RTPConfiguration
-      description: 'This configuration will be in the file ''rtp.conf'' used by asterisk.
-
-        Please consult the asterisk documentation for further details on available parameters.'
-      properties:
-        options:
-          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
-          type: object
-    KeyValueOption:
-      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
-      title: Key Value
-      type: array
-      items:
-        type: string
-      maxItems: 2
-      minItems: 2
-      example:
-      - option
-      - value
     PJSIPConfigurationOptions:
       properties:
         aor:
@@ -768,45 +733,27 @@ components:
           items:
             $ref: '#/components/schemas/PJSIPConfigurationOption'
           type: array
-    VoicemailZoneMessages:
-      title: VoicemailZoneMessages
-      properties:
-        items:
-          description: 'Voicemail zonemessages configuration. This configuration will be in the file ''voicemail.conf'' used by asterisk.
+    HEPConfiguration:
+      title: HEPConfiguration
+      description: 'This configuration will be in the file ''hep.conf'' used by asterisk.
 
-            Please consult the asterisk documentation for further details on available parameters.'
-          type: array
-          items:
-            $ref: '#/components/schemas/VoicemailZoneMessage'
-    PJSIPGlobal:
-      description: 'PJSIP global configuration.
-
-        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
-
-        '
+        Please consult the asterisk documentation for further details on available parameters.'
       properties:
         options:
+          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
           type: object
       example:
         options:
-          max_forwards: '5'
-          keep_alive_interval: '30'
-          user_agent: Wazo
-          debug: false
-    PJSIPConfigurationOption:
+          enabled: 'yes'
+    FeaturesConfiguration:
+      title: FeaturesConfiguration
+      description: 'This configuration will be in the file ''features.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
       properties:
-        name:
-          type: string
-          description: The name of the option
-        synopsis:
-          type: string
-          description: A brief description of the option
-        description:
-          type: string
-          description: A long description of the option
-        default:
-          type: string
-          description: The default value for this option
+        options:
+          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
     VoicemailZoneMessage:
       title: VoicemailZoneMessage
       properties:
@@ -822,12 +769,25 @@ components:
       required:
       - name
       - timezone
-    SCCPGeneral:
-      title: SCCPGeneral
-      description: SCCP general configuration. This configuration will be in the file 'sccp.conf' used by asterisk.
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    ConfBridgeConfiguration:
+      title: ConfBridgeConfiguration
+      description: 'This configuration will be in the file ''confbridge.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
       properties:
         options:
-          description: "General SCCP options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
           type: object
     PJSIPSystem:
       description: 'PJSIP system configuration.
@@ -844,6 +804,16 @@ components:
           compact_headers: 'yes'
           disable_tcp_switch: 'yes'
           follow_early_media_fork: 'no'
+    IAXCallNumberLimitss:
+      title: IAXCallNumberLimitss
+      properties:
+        items:
+          description: 'IAX callnumberlimits configuration. This configuration will be in the file ''iax.conf'' used by asterisk.
+
+            Please consult the asterisk documentation for further details on available parameters.'
+          type: array
+          items:
+            $ref: '#/components/schemas/IAXCallNumberLimits'
     QueueGeneral:
       title: QueueGeneral
       description: 'Queue general configuration. This configuration will be in the file ''queue.conf'' used by asterisk.
@@ -853,27 +823,10 @@ components:
         options:
           description: "General Queue options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
           type: object
-    FeaturesConfiguration:
-      title: FeaturesConfiguration
-      description: 'This configuration will be in the file ''features.conf'' used by asterisk.
-
-        Please consult the asterisk documentation for further details on available parameters.'
-      properties:
-        options:
-          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
-          type: object
-    HEPConfiguration:
-      title: HEPConfiguration
-      description: 'This configuration will be in the file ''hep.conf'' used by asterisk.
-
-        Please consult the asterisk documentation for further details on available parameters.'
-      properties:
-        options:
-          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
-          type: object
-      example:
-        options:
-          enabled: 'yes'
+    Error:
+      type: array
+      items:
+        type: string
     IAXGeneral:
       title: IAXGeneral
       description: 'IAX general configuration. This configuration will be in the file ''iax.conf'' used by asterisk.
@@ -888,10 +841,46 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/KeyValueOption'
-    Error:
-      type: array
-      items:
-        type: string
+    PJSIPConfigurationOption:
+      properties:
+        name:
+          type: string
+          description: The name of the option
+        synopsis:
+          type: string
+          description: A brief description of the option
+        description:
+          type: string
+          description: A long description of the option
+        default:
+          type: string
+          description: The default value for this option
+    RTPConfiguration:
+      title: RTPConfiguration
+      description: 'This configuration will be in the file ''rtp.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
+      properties:
+        options:
+          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    SCCPGeneral:
+      title: SCCPGeneral
+      description: SCCP general configuration. This configuration will be in the file 'sccp.conf' used by asterisk.
+      properties:
+        options:
+          description: "General SCCP options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    VoicemailZoneMessages:
+      title: VoicemailZoneMessages
+      properties:
+        items:
+          description: 'Voicemail zonemessages configuration. This configuration will be in the file ''voicemail.conf'' used by asterisk.
+
+            Please consult the asterisk documentation for further details on available parameters.'
+          type: array
+          items:
+            $ref: '#/components/schemas/VoicemailZoneMessage'
   responses:
     NotFoundError:
       description: The resource requested was not found on the server

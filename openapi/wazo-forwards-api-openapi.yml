@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Forwards API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -94,42 +94,7 @@ paths:
               $ref: '#/components/schemas/UserForward'
         required: true
 components:
-  responses:
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-  parameters:
-    useriduuid:
-      required: true
-      name: user_id
-      in: path
-      description: the user's ID or UUID
-      schema:
-        type: string
-    forward:
-      required: true
-      name: forward_name
-      in: path
-      description: the forward name
-      schema:
-        type: string
-        enum:
-        - busy
-        - noanswer
-        - unconditional
   schemas:
-    UserForward:
-      title: UserForward
-      properties:
-        enabled:
-          type: boolean
-        destination:
-          type: string
     UserForwards:
       title: UserForwards
       properties:
@@ -143,6 +108,41 @@ components:
       type: array
       items:
         type: string
+    UserForward:
+      title: UserForward
+      properties:
+        enabled:
+          type: boolean
+        destination:
+          type: string
+  parameters:
+    forward:
+      required: true
+      name: forward_name
+      in: path
+      description: the forward name
+      schema:
+        type: string
+        enum:
+        - busy
+        - noanswer
+        - unconditional
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

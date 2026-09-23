@@ -16,21 +16,19 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: endpoint
+- name: Endpoint
 paths:
   /endpoints/{endpoint_name}/hold/start:
     put:
-      summary: Start hold for a particular endpoint.
+      summary: Start hold for a particular endpoint
       description: '**Required ACL:** `phoned.endpoints.{endpoint_name}.hold.start`
 
         The endpoint plugin will search for a matching plugin and use its
 
-        service to send the correct SIP INFO to the endpoint.
-
-        '
+        service to send the correct SIP INFO to the endpoint.'
       operationId: endpoint_hold_start
       tags:
-      - endpoint
+      - Endpoint
       responses:
         '204':
           description: Hold was started
@@ -42,17 +40,15 @@ paths:
       - $ref: '#/components/parameters/EndpointName'
   /endpoints/{endpoint_name}/hold/stop:
     put:
-      summary: Stop hold for a particular endpoint.
+      summary: Stop hold for a particular endpoint
       description: '**Required ACL:** `phoned.endpoints.{endpoint_name}.hold.stop`
 
         The endpoint plugin will search for a matching plugin and use its
 
-        service to send the correct SIP INFO to the endpoint.
-
-        '
+        service to send the correct SIP INFO to the endpoint.'
       operationId: endpoint_hold_stop
       tags:
-      - endpoint
+      - Endpoint
       responses:
         '204':
           description: Hold was stopped
@@ -64,17 +60,15 @@ paths:
       - $ref: '#/components/parameters/EndpointName'
   /endpoints/{endpoint_name}/answer:
     put:
-      summary: Answer call on a particular endpoint.
+      summary: Answer call on a particular endpoint
       description: '**Required ACL:** `phoned.endpoints.{endpoint_name}.answer`
 
         The endpoint plugin will search for a matching plugin and use its
 
-        service to send the correct SIP INFO to the endpoint.
-
-        '
+        service to send the correct SIP INFO to the endpoint.'
       operationId: endpoint_answer
       tags:
-      - endpoint
+      - Endpoint
       responses:
         '204':
           description: Answered command was sent
@@ -85,6 +79,27 @@ paths:
       parameters:
       - $ref: '#/components/parameters/EndpointName'
 components:
+  parameters:
+    EndpointName:
+      name: endpoint_name
+      in: path
+      description: The endpoint name
+      required: true
+      schema:
+        type: string
+  responses:
+    NoSuchEndpoint:
+      description: The endpoint does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NowhereToRouteEndpoint:
+      description: Nowhere to route the requested endpoint
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
     Error:
       type: object
@@ -104,27 +119,6 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-  responses:
-    NowhereToRouteEndpoint:
-      description: Nowhere to route the requested endpoint
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NoSuchEndpoint:
-      description: The endpoint does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-  parameters:
-    EndpointName:
-      name: endpoint_name
-      in: path
-      description: The endpoint name
-      required: true
-      schema:
-        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

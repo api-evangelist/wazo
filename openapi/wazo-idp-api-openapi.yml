@@ -14,17 +14,15 @@ info:
 servers:
 - url: /0.1
 tags:
-- name: idp
+- name: IDP
 paths:
   /idp:
     get:
       tags:
-      - idp
+      - IDP
       security:
       - wazo_auth_token: []
-      description: 'Returns a list of valid identity provider types that are available
-
-        '
+      description: Returns a list of valid identity provider types that are available
       summary: List identity provider types
       responses:
         '200':
@@ -33,12 +31,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IDPList'
+      operationId: getIdp
+      x-operation-id-source: derived
   /idp/{idp_type}/users:
     put:
       operationId: updateUsersIDP
       summary: Associate multiple users to a IDP
       tags:
-      - idp
+      - IDP
       parameters:
       - $ref: '#/components/parameters/idp_type'
       responses:
@@ -66,7 +66,7 @@ paths:
   /idp/{idp_type}/users/{user_uuid}:
     put:
       tags:
-      - idp
+      - IDP
       security:
       - wazo_auth_token: []
       operationId: addUserIDP
@@ -86,7 +86,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     delete:
       tags:
-      - idp
+      - IDP
       security:
       - wazo_auth_token: []
       operationId: removeIDPUser
@@ -121,20 +121,25 @@ components:
       schema:
         type: string
   schemas:
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
     IDPUser:
       properties:
         uuid:
           type: string
       required:
       - uuid
-    IDPUsers:
-      properties:
-        users:
-          items:
-            $ref: '#/components/schemas/IDPUser'
-          type: array
-      required:
-      - users
     IDPList:
       type: object
       properties:
@@ -149,19 +154,14 @@ components:
           items:
             $ref: '#/components/schemas/IDP'
           description: A paginated list of authentication methods
-    Error:
-      type: object
+    IDPUsers:
       properties:
-        reason:
-          type: array
+        users:
           items:
-            type: string
-        timestamp:
+            $ref: '#/components/schemas/IDPUser'
           type: array
-          items:
-            type: string
-        status_code:
-          type: integer
+      required:
+      - users
     IDP:
       type: object
       properties:

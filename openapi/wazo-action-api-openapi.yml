@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: action
+- name: Action
 paths:
   /action/{action}:
     post:
@@ -27,9 +27,7 @@ paths:
         The Action endpoint sends an action to the Asterisk Manager.
 
 
-        See https://docs.asterisk.org/Latest_API/API_Documentation/AMI_Actions/ for more details about the AMI message parameters.
-
-        '
+        See https://docs.asterisk.org/Latest_API/API_Documentation/AMI_Actions/ for more details about the AMI message parameters.'
       parameters:
       - name: action
         in: path
@@ -38,7 +36,7 @@ paths:
         schema:
           type: string
       tags:
-      - action
+      - Action
       responses:
         '200':
           description: The Asterisk Manager responses
@@ -75,8 +73,15 @@ paths:
 
 
           For Action: Originate, you should always use Async: True'
+      operationId: postActionByAction
+      x-operation-id-source: derived
 components:
   schemas:
+    Response:
+      properties:
+        response:
+          type: string
+          description: Name of the action response
     ActionArguments:
       properties: {}
       example:
@@ -99,11 +104,6 @@ components:
           type: string
         details:
           type: object
-    Response:
-      properties:
-        response:
-          type: string
-          description: Name of the action response
   securitySchemes:
     wazo_auth_token:
       type: apiKey

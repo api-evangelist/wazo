@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: faxes
+- name: Faxes
 paths:
   /faxes:
     post:
@@ -52,7 +52,7 @@ paths:
         schema:
           type: integer
       tags:
-      - faxes
+      - Faxes
       responses:
         '201':
           description: Fax send request accepted
@@ -72,6 +72,8 @@ paths:
               format: binary
         description: The fax file content, in PDF format
         required: true
+      operationId: postFaxes
+      x-operation-id-source: derived
   /users/me/faxes:
     post:
       summary: Send a fax as the user detected from the token
@@ -100,7 +102,7 @@ paths:
         schema:
           type: integer
       tags:
-      - faxes
+      - Faxes
       responses:
         '201':
           description: Fax send request accepted
@@ -120,6 +122,8 @@ paths:
               format: binary
         description: The fax file content, in PDF format
         required: true
+      operationId: postUsersMeFaxes
+      x-operation-id-source: derived
 components:
   schemas:
     Fax:
@@ -170,14 +174,14 @@ components:
           type: number
           format: timestamp
   responses:
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+    InvalidRequest:
+      description: Invalid request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    InvalidRequest:
-      description: Invalid request
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
       content:
         application/json:
           schema:

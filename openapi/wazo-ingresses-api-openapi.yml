@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Ingresses API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -126,43 +126,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
-  responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    ResourceUpdated:
-      description: Resource was updated successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
     offset:
       required: false
       name: offset
@@ -170,13 +134,6 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
     direction:
       required: false
       name: direction
@@ -187,21 +144,20 @@ components:
         enum:
         - asc
         - desc
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
+    order:
       required: false
-      schema:
-        type: boolean
-        default: false
-    search:
-      required: false
-      name: search
+      name: order
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
     ingress_fallback_view:
       description: 'Allows to fallback on master tenant config if the current tenant has no ingress set.
 
@@ -216,35 +172,35 @@ components:
         enum:
         - default
         - fallback
-    limit:
+    search:
       required: false
-      name: limit
+      name: search
       in: query
-      description: Maximum number of items to return in the list
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
-        type: integer
+        type: string
     http_ingress_uuid:
       required: true
       name: http_ingress_uuid
       in: path
       schema:
         type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
   schemas:
-    HTTPIngressItems:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/HTTPIngress'
-    HTTPIngressRequest:
-      type: object
-      properties:
-        uri:
-          type: string
-          description: The public URI to contact this stack HTTP API
-      required:
-      - uri
     HTTPIngress:
       type: object
       allOf:
@@ -253,10 +209,54 @@ components:
           uuid:
             type: string
             readOnly: true
+    HTTPIngressItems:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/HTTPIngress'
     Error:
       type: array
       items:
         type: string
+    HTTPIngressRequest:
+      type: object
+      properties:
+        uri:
+          type: string
+          description: The public URI to contact this stack HTTP API
+      required:
+      - uri
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
   securitySchemes:
     wazo_auth_token:
       type: apiKey

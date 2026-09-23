@@ -44,9 +44,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
+      operationId: getUsersByUserUuidExternalMicrosoft
+      x-operation-id-source: derived
     post:
       summary: Ask for a verification URL and store code to get token
-      description: "**Required ACL**: `auth.users.{user_uuid}.external.microsoft.create`.\n\n More info on Microsoft permissions: https://docs.microsoft.com/en-us/graph/permissions-reference"
+      description: '**Required ACL**: `auth.users.{user_uuid}.external.microsoft.create`.
+
+
+        More info on Microsoft permissions: https://docs.microsoft.com/en-us/graph/permissions-reference'
       tags:
       - microsoft
       parameters:
@@ -69,6 +74,8 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/MicrosoftPost'
+      operationId: postUsersByUserUuidExternalMicrosoft
+      x-operation-id-source: derived
     delete:
       summary: Delete a Microsoft token
       description: '**Required ACL**: `auth.users.{user_uuid}.external.microsoft.delete`'
@@ -91,6 +98,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIError'
+      operationId: deleteUsersByUserUuidExternalMicrosoft
+      x-operation-id-source: derived
     servers:
     - url: /0.1
   /users/{user_uuid}/teams/presence:
@@ -120,17 +129,6 @@ paths:
     - url: /1.0
 components:
   schemas:
-    APIError:
-      type: object
-      properties:
-        timestamp:
-          type: number
-        message:
-          type: string
-        resource:
-          type: string
-        details:
-          type: object
     MicrosoftGetResult:
       type: object
       properties:
@@ -147,6 +145,17 @@ components:
       - access_token
       - scope
       - token_expiration
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
     MicrosoftPostResult:
       type: object
       required:

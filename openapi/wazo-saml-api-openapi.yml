@@ -14,7 +14,7 @@ info:
 servers:
 - url: /0.1
 tags:
-- name: saml
+- name: SAML
 paths:
   /saml/sso:
     post:
@@ -24,13 +24,11 @@ paths:
 
         provider. The redirection does not happen automatically, the client
 
-        has to use the `location` provided in the body of the response.
-
-        '
+        has to use the `location` provided in the body of the response.'
       summary: Creates and returns context and redirects to IdP login page
       operationId: samlSSO
       tags:
-      - saml
+      - SAML
       responses:
         '201':
           description: 'The `Location` contains the URL of the identity provider that should be
@@ -64,17 +62,11 @@ paths:
 
         The internal cache allows to retrieve the context and redirect the browser
 
-        to process the login.
-
-        '
-      summary: 'Processes the IdP response and redirects to requested URL, even if the authentication
-
-        failed to allow further processing by the frontend application.
-
-        '
+        to process the login.'
+      summary: Processes the IdP response and redirects to requested URL, even if the…
       operationId: processACS
       tags:
-      - saml
+      - SAML
       responses:
         '303':
           description: 'Redirect browser to process the login result. The `Location` header contains the
@@ -130,15 +122,13 @@ paths:
 
         the answer and confirm to the requester the logout was processed or notify
 
-        an error.
-
-        '
+        an error.'
       summary: Creates and returns data required to process the logout by the IdP
       security:
       - wazo_auth_token: []
       operationId: samlLogout
       tags:
-      - saml
+      - SAML
       responses:
         '201':
           description: 'SAML encoded Logout request to be forwarded to the provided redirect URL.
@@ -160,13 +150,11 @@ paths:
 
         a redirect to the `redirect_url` provided during the login phase
 
-        with logout confirmation in the URL''s query param.
-
-        '
+        with logout confirmation in the URL''s query param.'
       summary: Handles the logout response from the IDP
       operationId: samlLogoutResponse
       tags:
-      - saml
+      - SAML
       parameters:
       - in: query
         required: true
@@ -193,18 +181,6 @@ paths:
             '
 components:
   schemas:
-    SAMLIdpResponse:
-      properties:
-        SAMLResponse:
-          description: Encoded SAML XML response
-          type: string
-        RelayState:
-          description: Relay state parameter
-          type: string
-      required:
-      - SAMLResponse
-      - RelayState
-      type: object
     SAMLLoginContext:
       properties:
         redirect_url:
@@ -217,14 +193,6 @@ components:
       - redirect_url
       - domain
       type: object
-    SAMLLogoutRequest:
-      type: object
-      properties:
-        location:
-          description: 'The URL that the client should open to complete the logout.
-
-            '
-          type: string
     Error:
       type: object
       properties:
@@ -238,6 +206,14 @@ components:
             type: string
         status_code:
           type: integer
+    SAMLLogoutRequest:
+      type: object
+      properties:
+        location:
+          description: 'The URL that the client should open to complete the logout.
+
+            '
+          type: string
     SAMLSSOResponse:
       type: object
       properties:
@@ -255,6 +231,18 @@ components:
             once the SAML authentication has been completed successfully
 
             '
+    SAMLIdpResponse:
+      properties:
+        SAMLResponse:
+          description: Encoded SAML XML response
+          type: string
+        RelayState:
+          description: Relay state parameter
+          type: string
+      required:
+      - SAMLResponse
+      - RelayState
+      type: object
   securitySchemes:
     wazo_auth_basic:
       type: http

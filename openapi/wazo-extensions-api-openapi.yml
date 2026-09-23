@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Extensions API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -19,7 +19,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: extensions
+- name: Extensions
 paths:
   /conferences/{conference_id}/extensions/{extension_id}:
     put:
@@ -27,7 +27,7 @@ paths:
       summary: Associate conference and extension
       description: '**Required ACL:** `confd.conferences.{conference_id}.extensions.{extension_id}.update`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/conferenceid'
       - $ref: '#/components/parameters/extensionid'
@@ -43,7 +43,7 @@ paths:
       summary: Dissociate conference and extension
       description: '**Required ACL:** `confd.conferences.{conference_id}.extensions.{extension_id}.delete`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/conferenceid'
       - $ref: '#/components/parameters/extensionid'
@@ -60,7 +60,7 @@ paths:
       summary: List extensions
       description: '**Required ACL:** `confd.extensions.read`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/recurse'
@@ -102,7 +102,7 @@ paths:
 
         The extension number must be included in one of the extension ranges for the given context.'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       responses:
@@ -127,7 +127,7 @@ paths:
       summary: Get extension
       description: '**Required ACL:** `confd.extensions.{extension_id}.read`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/extensionid'
       responses:
@@ -147,7 +147,7 @@ paths:
 
         The new extension number must be included in one of the extension ranges for the new context.'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/extensionid'
       responses:
@@ -171,7 +171,7 @@ paths:
 
         An extension can not be deleted if it is associated to a line. You must delete the association first.'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/extensionid'
       responses:
@@ -185,7 +185,7 @@ paths:
       summary: List extensions features
       description: '**Required ACL:** `confd.extensions.features.read`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/order'
       - $ref: '#/components/parameters/direction'
@@ -205,7 +205,7 @@ paths:
       summary: Get extension feature
       description: '**Required ACL:** `confd.extensions.features.{extension_uuid}.read`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/extensionuuid'
       responses:
@@ -222,7 +222,7 @@ paths:
       summary: Update extension
       description: '**Required ACL:** `confd.extensions.features.{extension_uuid}.update`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/extensionuuid'
       responses:
@@ -244,7 +244,7 @@ paths:
       summary: Associate group and extension
       description: '**Required ACL:** `confd.groups.{group_uuid}.extensions.{extension_id}.update`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/groupuuid'
       - $ref: '#/components/parameters/extensionid'
@@ -260,7 +260,7 @@ paths:
       summary: Dissociate group and extension
       description: '**Required ACL:** `confd.groups.{group_uuid}.extensions.{extension_id}.delete`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/groupuuid'
       - $ref: '#/components/parameters/extensionid'
@@ -277,7 +277,7 @@ paths:
       summary: Associate incall and extension
       description: '**Required ACL:** `confd.incalls.{incall_id}.extensions.{extension_id}.update`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/incallid'
       - $ref: '#/components/parameters/extensionid'
@@ -293,7 +293,7 @@ paths:
       summary: Dissociate incall and extension
       description: '**Required ACL:** `confd.incalls.{incall_id}.extensions.{extension_id}.delete`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/incallid'
       - $ref: '#/components/parameters/extensionid'
@@ -313,7 +313,7 @@ paths:
 
         Any devices that are attached to a line must be removed before dissociating an extension from its line. A device can be dissociated by resetting it to autoprov mode.'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/lineid'
       - $ref: '#/components/parameters/extensionid'
@@ -332,7 +332,7 @@ paths:
 
         Because of technical limitations, a line can only have a single ‘internal’ extension associated (i.e. an extension with a context of type ‘internal’)'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/lineid'
       - $ref: '#/components/parameters/extensionid'
@@ -351,7 +351,7 @@ paths:
 
         The extension number must be included in one of the extension ranges for the given context.'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/lineid'
@@ -383,7 +383,7 @@ paths:
       summary: Associate outcall and extension
       description: '**Required ACL:** `confd.outcalls.{outcall_id}.extensions.{extension_id}.update`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/outcallid'
       - $ref: '#/components/parameters/extensionid'
@@ -405,7 +405,7 @@ paths:
       summary: Dissociate outcall and extension
       description: '**Required ACL:** `confd.outcalls.{outcall_id}.extensions.{extension_id}.delete`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/outcallid'
       - $ref: '#/components/parameters/extensionid'
@@ -422,7 +422,7 @@ paths:
       summary: Associate parking_lot and extension
       description: '**Required ACL:** `confd.parkinglots.{parking_lot_id}.extensions.{extension_id}.update`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/parkinglotid'
       - $ref: '#/components/parameters/extensionid'
@@ -438,7 +438,7 @@ paths:
       summary: Dissociate parking lot and extension
       description: '**Required ACL:** `confd.parkinglots.{parking_lot_id}.extensions.{extension_id}.delete`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/parkinglotid'
       - $ref: '#/components/parameters/extensionid'
@@ -455,7 +455,7 @@ paths:
       summary: Associate queue and extension
       description: '**Required ACL:** `confd.queues.{queue_id}.extensions.{extension_id}.update`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/queueid'
@@ -472,7 +472,7 @@ paths:
       summary: Dissociate queue and extension
       description: '**Required ACL:** `confd.queues.{queue_id}.extensions.{extension_id}.delete`'
       tags:
-      - extensions
+      - Extensions
       parameters:
       - $ref: '#/components/parameters/tenantuuid'
       - $ref: '#/components/parameters/queueid'
@@ -485,12 +485,121 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
+  parameters:
+    groupuuid:
+      required: true
+      name: group_uuid
+      in: path
+      description: the group's UUID
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    conferenceid:
+      required: true
+      name: conference_id
+      in: path
+      description: Conference's ID
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
+    queueid:
+      required: true
+      name: queue_id
+      in: path
+      description: Queue’s ID
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    outcallid:
+      required: true
+      name: outcall_id
+      in: path
+      description: Outgoing call's ID
+      schema:
+        type: integer
+    parkinglotid:
+      required: true
+      name: parking_lot_id
+      in: path
+      description: Parking Lot's ID
+      schema:
+        type: integer
+    incallid:
+      required: true
+      name: incall_id
+      in: path
+      description: Incoming call's ID
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    extensionuuid:
+      required: true
+      name: extension_uuid
+      in: path
+      schema:
+        type: string
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
   schemas:
-    ExtensionRelationConference:
-      properties:
-        conference:
-          readOnly: true
-          $ref: '#/components/schemas/ConferenceRelationBase'
     ExtensionItems:
       title: ExtensionItems
       properties:
@@ -502,6 +611,66 @@ components:
           type: integer
       required:
       - total
+    GroupRelationBase:
+      properties:
+        name:
+          type: string
+          description: The name of the group
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the group
+        uuid:
+          type: string
+          description: Group UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+    IncallRelationBase:
+      title: IncallRelation
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the incoming call
+    ExtensionRelationConference:
+      properties:
+        conference:
+          readOnly: true
+          $ref: '#/components/schemas/ConferenceRelationBase'
+    ConferenceRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: name to identify the conference
+    OutcallRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the outgoing call
+        name:
+          type: string
+          description: The name of the outcall
+    ExtensionRelationQueue:
+      properties:
+        queue:
+          readOnly: true
+          $ref: '#/components/schemas/QueueRelationBase'
+    QueueRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the queue
+        name:
+          type: string
+          description: The name of the queue. Cannot be modified
+        label:
+          type: string
+          description: The label of the queue
     ExtensionRelationLines:
       properties:
         lines:
@@ -509,33 +678,21 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/LineRelationBase'
-    OutcallExtension:
-      title: OutcallExtension
+    ExtensionRelationIncall:
       properties:
-        external_prefix:
-          type: string
-          description: The prefix added to the outgoing call when sent on the trunk
-        prefix:
-          type: string
-          description: The prefix that the user need to dial before the pattern
-        strip_digits:
-          type: integer
-          description: The number of leading digits to strip
-        caller_id:
-          type: string
-    ParkingLotRelationBase:
+        incall:
+          readOnly: true
+          $ref: '#/components/schemas/IncallRelationBase'
+    LineRelationBase:
       properties:
         id:
           type: integer
+          description: Line ID
           readOnly: true
         name:
           type: string
-          description: name to identify the parking lot
-    ExtensionRelationParkingLot:
-      properties:
-        parking_lot:
+          description: The name of the line
           readOnly: true
-          $ref: '#/components/schemas/ParkingLotRelationBase'
     ExtensionFeature:
       title: ExtensionFeature
       properties:
@@ -557,6 +714,44 @@ components:
           description: If False the extension feature is disabled
       required:
       - exten
+    ExtensionRelationGroup:
+      properties:
+        group:
+          readOnly: true
+          $ref: '#/components/schemas/GroupRelationBase'
+    ExtensionFeatureItems:
+      title: ExtensionFeatureItems
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ExtensionFeature'
+          type: array
+        total:
+          type: integer
+      required:
+      - total
+    ExtensionRelationOutcall:
+      properties:
+        outcall:
+          readOnly: true
+          $ref: '#/components/schemas/OutcallRelationBase'
+    ExtensionRelationParkingLot:
+      properties:
+        parking_lot:
+          readOnly: true
+          $ref: '#/components/schemas/ParkingLotRelationBase'
+    Error:
+      type: array
+      items:
+        type: string
+    ParkingLotRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: name to identify the parking lot
     Extension:
       title: Extension
       allOf:
@@ -582,61 +777,20 @@ components:
       - required:
         - context
         - exten
-    ExtensionRelationOutcall:
+    OutcallExtension:
+      title: OutcallExtension
       properties:
-        outcall:
-          readOnly: true
-          $ref: '#/components/schemas/OutcallRelationBase'
-    ExtensionRelationQueue:
-      properties:
-        queue:
-          readOnly: true
-          $ref: '#/components/schemas/QueueRelationBase'
-    ExtensionRelationGroup:
-      properties:
-        group:
-          readOnly: true
-          $ref: '#/components/schemas/GroupRelationBase'
-    ExtensionFeatureItems:
-      title: ExtensionFeatureItems
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ExtensionFeature'
-          type: array
-        total:
-          type: integer
-      required:
-      - total
-    ConferenceRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
+        external_prefix:
           type: string
-          description: name to identify the conference
-    QueueRelationBase:
-      properties:
-        id:
+          description: The prefix added to the outgoing call when sent on the trunk
+        prefix:
+          type: string
+          description: The prefix that the user need to dial before the pattern
+        strip_digits:
           type: integer
-          readOnly: true
-          description: The id of the queue
-        name:
+          description: The number of leading digits to strip
+        caller_id:
           type: string
-          description: The name of the queue. Cannot be modified
-        label:
-          type: string
-          description: The label of the queue
-    OutcallRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the outgoing call
-        name:
-          type: string
-          description: The name of the outcall
     ExtensionRelationBase:
       properties:
         id:
@@ -647,177 +801,15 @@ components:
           type: string
         exten:
           type: string
-    ExtensionRelationIncall:
-      properties:
-        incall:
-          readOnly: true
-          $ref: '#/components/schemas/IncallRelationBase'
-    GroupRelationBase:
-      properties:
-        name:
-          type: string
-          description: The name of the group
-          readOnly: true
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the group
-        uuid:
-          type: string
-          description: Group UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-    Error:
-      type: array
-      items:
-        type: string
-    IncallRelationBase:
-      title: IncallRelation
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the incoming call
-    LineRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Line ID
-          readOnly: true
-        name:
-          type: string
-          description: The name of the line
-          readOnly: true
-  parameters:
-    extensionuuid:
-      required: true
-      name: extension_uuid
-      in: path
-      schema:
-        type: string
-    queueid:
-      required: true
-      name: queue_id
-      in: path
-      description: Queue’s ID
-      schema:
-        type: integer
-    outcallid:
-      required: true
-      name: outcall_id
-      in: path
-      description: Outgoing call's ID
-      schema:
-        type: integer
-    conferenceid:
-      required: true
-      name: conference_id
-      in: path
-      description: Conference's ID
-      schema:
-        type: integer
-    lineid:
-      required: true
-      name: line_id
-      in: path
-      schema:
-        type: integer
-    groupuuid:
-      required: true
-      name: group_uuid
-      in: path
-      description: the group's UUID
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    parkinglotid:
-      required: true
-      name: parking_lot_id
-      in: path
-      description: Parking Lot's ID
-      schema:
-        type: integer
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    incallid:
-      required: true
-      name: incall_id
-      in: path
-      description: Incoming call's ID
-      schema:
-        type: integer
-    extensionid:
-      required: true
-      name: extension_id
-      in: path
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
   responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     GenericError:
       description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
@@ -830,6 +822,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
   securitySchemes:
     wazo_auth_token:
       type: apiKey

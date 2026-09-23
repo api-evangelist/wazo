@@ -16,7 +16,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: connectors
+- name: Connectors
 paths:
   /connectors:
     get:
@@ -27,11 +27,9 @@ paths:
 
         Returns supported types and tenant-configured state for
 
-        each registered backend.
-
-        '
+        each registered backend.'
       tags:
-      - connectors
+      - Connectors
       parameters:
       - $ref: '#/components/parameters/tenant_uuid'
       responses:
@@ -52,11 +50,9 @@ paths:
 
         credentials live (`scope`). The body is class-level metadata —
 
-        identical across tenants.
-
-        '
+        identical across tenants.'
       tags:
-      - connectors
+      - Connectors
       parameters:
       - $ref: '#/components/parameters/tenant_uuid'
       - name: backend
@@ -104,11 +100,9 @@ paths:
 
         Each item carries the backend-reported identity and its
 
-        binding to a Wazo user (``null`` when unbound).
-
-        '
+        binding to a Wazo user (``null`` when unbound).'
       tags:
-      - connectors
+      - Connectors
       parameters:
       - $ref: '#/components/parameters/tenant_uuid'
       - name: backend
@@ -159,11 +153,9 @@ paths:
 
         **Body size**: capped at 4 MB at the nginx layer. Bodies above
 
-        the cap are rejected with HTTP 413 before reaching chatd.
-
-        '
+        the cap are rejected with HTTP 413 before reaching chatd.'
       tags:
-      - connectors
+      - Connectors
       security: []
       responses:
         '204':
@@ -201,7 +193,7 @@ paths:
       summary: Receive incoming webhook with backend hint
       description: Dispatches an incoming webhook, trying the specified backend first.
       tags:
-      - connectors
+      - Connectors
       security: []
       parameters:
       - name: backend
@@ -250,6 +242,34 @@ components:
           description: Locale tag, e.g. `en_US`.
         value:
           type: string
+    ConnectorAuthSchemaField:
+      title: ConnectorAuthSchemaField
+      properties:
+        name:
+          type: string
+          description: Machine-readable field name (used as the form key).
+        type:
+          type: string
+          enum:
+          - string
+          - secret
+          - select
+          - boolean
+          - integer
+          - url
+        required:
+          type: boolean
+        default:
+          type: string
+        label:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectorLocalizedLabel'
+        choices:
+          type: array
+          items:
+            type: string
+          description: Allowed values; only emitted when `type` is `select`.
     APIError:
       type: object
       allOf:
@@ -258,6 +278,25 @@ components:
           resource:
             description: Resource name of the error
             type: string
+    ConnectorList:
+      title: ConnectorList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Connector'
+        total:
+          type: integer
+          description: The number of results
+    ConnectorIdentityBinding:
+      title: ConnectorIdentityBinding
+      properties:
+        identity_uuid:
+          type: string
+          description: The UUID of the bound UserIdentity row
+        user_uuid:
+          type: string
+          description: The UUID of the user the identity is bound to
     Connector:
       title: Connector
       properties:
@@ -293,58 +332,6 @@ components:
             ``poll`` and ``listen`` need none.
 
             '
-    ConnectorIdentityItem:
-      title: ConnectorIdentityItem
-      properties:
-        identity:
-          type: string
-          description: The external identity value
-        capabilities:
-          type: array
-          items:
-            type: string
-          description: Messaging capabilities of this identity (e.g. ["sms"], ["sms", "mms"])
-        binding:
-          $ref: '#/components/schemas/ConnectorIdentityBinding'
-          description: Wazo binding for this identity, or null when unbound
-    ConnectorList:
-      title: ConnectorList
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Connector'
-        total:
-          type: integer
-          description: The number of results
-    ConnectorAuthSchemaField:
-      title: ConnectorAuthSchemaField
-      properties:
-        name:
-          type: string
-          description: Machine-readable field name (used as the form key).
-        type:
-          type: string
-          enum:
-          - string
-          - secret
-          - select
-          - boolean
-          - integer
-          - url
-        required:
-          type: boolean
-        default:
-          type: string
-        label:
-          type: array
-          items:
-            $ref: '#/components/schemas/ConnectorLocalizedLabel'
-        choices:
-          type: array
-          items:
-            type: string
-          description: Allowed values; only emitted when `type` is `select`.
     Error:
       title: Error
       description: Error message for the client
@@ -362,25 +349,6 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    ConnectorIdentityBinding:
-      title: ConnectorIdentityBinding
-      properties:
-        identity_uuid:
-          type: string
-          description: The UUID of the bound UserIdentity row
-        user_uuid:
-          type: string
-          description: The UUID of the user the identity is bound to
-    ConnectorIdentityList:
-      title: ConnectorIdentityList
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ConnectorIdentityItem'
-        total:
-          type: integer
-          description: The number of results
     ConnectorAuthSchema:
       title: ConnectorAuthSchema
       properties:
@@ -401,6 +369,30 @@ components:
           description: Fields required to collect the credentials.
           items:
             $ref: '#/components/schemas/ConnectorAuthSchemaField'
+    ConnectorIdentityItem:
+      title: ConnectorIdentityItem
+      properties:
+        identity:
+          type: string
+          description: The external identity value
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: Messaging capabilities of this identity (e.g. ["sms"], ["sms", "mms"])
+        binding:
+          $ref: '#/components/schemas/ConnectorIdentityBinding'
+          description: Wazo binding for this identity, or null when unbound
+    ConnectorIdentityList:
+      title: ConnectorIdentityList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectorIdentityItem'
+        total:
+          type: integer
+          description: The number of results
   responses:
     AnotherServiceUnavailable:
       description: Another service is unavailable (e.g. wazo-auth, wazo-confd, ...)

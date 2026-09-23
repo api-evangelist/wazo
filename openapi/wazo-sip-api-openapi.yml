@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Sip API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -30,9 +30,7 @@ paths:
 
         List all SIP configurations, each individual configuration includes only fields that it
 
-        defines. Inherited fields from the templates or default values are not returned here.
-
-        '
+        defines. Inherited fields from the templates or default values are not returned here.'
       tags:
       - sip
       parameters:
@@ -59,9 +57,7 @@ paths:
 
         Create a new SIP endpoint. This endpoint can inherit from other endpoints, only modify
 
-        fields that have to be modified.
-
-        '
+        fields that have to be modified.'
       tags:
       - sip
       parameters:
@@ -148,9 +144,7 @@ paths:
 
         List all SIP configuration templates, each individual configuration includes only fields that it
 
-        defines. Inherited fields from the templates or default values are not returned here.
-
-        '
+        defines. Inherited fields from the templates or default values are not returned here.'
       tags:
       - sip
       parameters:
@@ -176,9 +170,7 @@ paths:
 
         Create a new SIP endpoint configuration template. This endpoint can inherit from other templates,
 
-        only modify fields that have to be modified.
-
-        '
+        only modify fields that have to be modified.'
       tags:
       - sip
       parameters:
@@ -295,9 +287,7 @@ paths:
 
         List all available configuration options for PJSIP, those values are
 
-        used to validate to content of POST and PUT requests.
-
-        '
+        used to validate to content of POST and PUT requests.'
       operationId: show_pjsip_doc
       responses:
         '200':
@@ -338,9 +328,7 @@ paths:
 
         **WARNING** This endpoint restore to default value or delete all fields that
 
-        are not defined.
-
-        '
+        are not defined.'
       tags:
       - sip
       responses:
@@ -379,9 +367,7 @@ paths:
 
         **WARNING** This endpoint restore to default value or delete all fields that
 
-        are not defined.
-
-        '
+        are not defined.'
       tags:
       - sip
       responses:
@@ -428,9 +414,7 @@ paths:
         tenants'' administrators.
 
 
-        There should always be atleast one transport configured on the system.
-
-        '
+        There should always be atleast one transport configured on the system.'
       tags:
       - sip
       responses:
@@ -496,9 +480,7 @@ paths:
 
         Deletes a transport, all associated configuration will be assigned to
 
-        the `fallback` transport.
-
-        '
+        the `fallback` transport.'
       tags:
       - sip
       parameters:
@@ -552,6 +534,164 @@ components:
           type: string
       required:
       - uuid
+    SIPTransport:
+      properties:
+        uuid:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueOption'
+      required:
+      - name
+      - options
+      example:
+        name: transport-udp
+        options:
+        - - protocol
+          - udp
+        - - bind
+          - 0.0.0.0:5060
+    SIPAuthSectionOptions:
+      title: PJSIP Auth Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    SIPTransportItems:
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPTransport'
+        total:
+          type: integer
+    PJSIPGlobal:
+      description: 'PJSIP global configuration.
+
+        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
+
+        '
+      properties:
+        options:
+          type: object
+      example:
+        options:
+          max_forwards: '5'
+          keep_alive_interval: '30'
+          user_agent: Wazo
+          debug: false
+    SIPIdentifySectionOptions:
+      title: PJSIP Identify Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    SIPEndpointSectionOptions:
+      title: SIP Endpoint Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    PJSIPConfigurationOptions:
+      properties:
+        aor:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        auth:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        contact:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        domain_alias:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        endpoint:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        global:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        registration:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        system:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+        transport:
+          description: A list of all configuration options for this section
+          items:
+            $ref: '#/components/schemas/PJSIPConfigurationOption'
+          type: array
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    PJSIPSystem:
+      description: 'PJSIP system configuration.
+
+        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
+
+        '
+      properties:
+        options:
+          type: object
+      example:
+        options:
+          accept_multiple_sdp_answers: 'yes'
+          compact_headers: 'yes'
+          disable_tcp_switch: 'yes'
+          follow_early_media_fork: 'no'
+    EndpointSIPTemplatesRelation:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+        label:
+          type: string
+          description: The label of this resource
+          readOnly: true
+      required:
+      - uuid
+    SIPAORSectionOptions:
+      title: PJSIP AOR Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    Error:
+      type: array
+      items:
+        type: string
+    PJSIPConfigurationOption:
+      properties:
+        name:
+          type: string
+          description: The name of the option
+        synopsis:
+          type: string
+          description: A brief description of the option
+        description:
+          type: string
+          description: A long description of the option
+        default:
+          type: string
+          description: The default value for this option
     EndpointSIP:
       title: SIP Endpoint
       properties:
@@ -622,17 +762,9 @@ components:
         asterisk_id:
           type: string
           description: The ID of the Asterisk onto which this configuration applies.
-    SIPAuthSectionOptions:
-      title: PJSIP Auth Section Options
+    SIPRegistrationSectionOptions:
+      title: PJSIP Registration Section Options
       $ref: '#/components/schemas/KeyValueOption'
-    SIPTransportItems:
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SIPTransport'
-        total:
-          type: integer
     EndpointSIPItems:
       title: SIP Endpoints
       properties:
@@ -642,181 +774,15 @@ components:
           type: array
         total:
           type: integer
-    KeyValueOption:
-      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
-      title: Key Value
-      type: array
-      items:
-        type: string
-      maxItems: 2
-      minItems: 2
-      example:
-      - option
-      - value
-    PJSIPConfigurationOptions:
-      properties:
-        aor:
-          description: A list of all configuration options for this section
-          items:
-            $ref: '#/components/schemas/PJSIPConfigurationOption'
-          type: array
-        auth:
-          description: A list of all configuration options for this section
-          items:
-            $ref: '#/components/schemas/PJSIPConfigurationOption'
-          type: array
-        contact:
-          description: A list of all configuration options for this section
-          items:
-            $ref: '#/components/schemas/PJSIPConfigurationOption'
-          type: array
-        domain_alias:
-          description: A list of all configuration options for this section
-          items:
-            $ref: '#/components/schemas/PJSIPConfigurationOption'
-          type: array
-        endpoint:
-          description: A list of all configuration options for this section
-          items:
-            $ref: '#/components/schemas/PJSIPConfigurationOption'
-          type: array
-        global:
-          description: A list of all configuration options for this section
-          items:
-            $ref: '#/components/schemas/PJSIPConfigurationOption'
-          type: array
-        registration:
-          description: A list of all configuration options for this section
-          items:
-            $ref: '#/components/schemas/PJSIPConfigurationOption'
-          type: array
-        system:
-          description: A list of all configuration options for this section
-          items:
-            $ref: '#/components/schemas/PJSIPConfigurationOption'
-          type: array
-        transport:
-          description: A list of all configuration options for this section
-          items:
-            $ref: '#/components/schemas/PJSIPConfigurationOption'
-          type: array
-    PJSIPGlobal:
-      description: 'PJSIP global configuration.
-
-        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
-
-        '
-      properties:
-        options:
-          type: object
-      example:
-        options:
-          max_forwards: '5'
-          keep_alive_interval: '30'
-          user_agent: Wazo
-          debug: false
-    PJSIPConfigurationOption:
-      properties:
-        name:
-          type: string
-          description: The name of the option
-        synopsis:
-          type: string
-          description: A brief description of the option
-        description:
-          type: string
-          description: A long description of the option
-        default:
-          type: string
-          description: The default value for this option
-    EndpointSIPTemplatesRelation:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of this resource
-        label:
-          type: string
-          description: The label of this resource
-          readOnly: true
-      required:
-      - uuid
-    PJSIPSystem:
-      description: 'PJSIP system configuration.
-
-        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
-
-        '
-      properties:
-        options:
-          type: object
-      example:
-        options:
-          accept_multiple_sdp_answers: 'yes'
-          compact_headers: 'yes'
-          disable_tcp_switch: 'yes'
-          follow_early_media_fork: 'no'
-    SIPAORSectionOptions:
-      title: PJSIP AOR Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    SIPEndpointSectionOptions:
-      title: SIP Endpoint Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    SIPRegistrationSectionOptions:
-      title: PJSIP Registration Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    Error:
-      type: array
-      items:
-        type: string
-    SIPIdentifySectionOptions:
-      title: PJSIP Identify Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    SIPTransport:
-      properties:
-        uuid:
-          type: string
-          readOnly: true
-        name:
-          type: string
-        options:
-          type: array
-          items:
-            $ref: '#/components/schemas/KeyValueOption'
-      required:
-      - name
-      - options
-      example:
-        name: transport-udp
-        options:
-        - - protocol
-          - udp
-        - - bind
-          - 0.0.0.0:5060
   responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    ResourceUpdated:
-      description: Resource was updated successfully
     GenericError:
       description: An error occurred during the operation
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
@@ -827,34 +793,23 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
   parameters:
-    lineid:
-      required: true
-      name: line_id
-      in: path
-      schema:
-        type: integer
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    transportuuid:
-      required: true
-      name: transport_uuid
-      in: path
-      description: The UUID of the transport
-      schema:
-        type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
     fallback_transport:
       required: false
       name: fallback
@@ -866,19 +821,26 @@ components:
         '
       schema:
         type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    template_uuid:
+    sipuuid:
       required: true
-      name: template_uuid
+      name: sip_uuid
       in: path
       schema:
         type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    trunkid:
+      description: Trunk's ID
+      name: trunk_id
+      in: path
+      required: true
+      schema:
+        type: integer
     direction:
       required: false
       name: direction
@@ -889,43 +851,20 @@ components:
         enum:
         - asc
         - desc
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
+    order:
       required: false
-      schema:
-        type: boolean
-        default: false
-    search:
-      required: false
-      name: search
+      name: order
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
-    query_string_uuid_filter:
-      in: query
-      name: uuid
-      required: false
-      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-          format: uuid
-        maxItems: 20
-        minItems: 1
-        uniqueItems: true
-    trunkid:
-      description: Trunk's ID
-      name: trunk_id
-      in: path
+    transportuuid:
       required: true
+      name: transport_uuid
+      in: path
+      description: The UUID of the transport
       schema:
-        type: integer
+        type: string
     limit:
       required: false
       name: limit
@@ -933,6 +872,19 @@ components:
       description: Maximum number of items to return in the list
       schema:
         type: integer
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
     endpoint_sip_view:
       required: false
       name: view
@@ -952,12 +904,42 @@ components:
         type: string
         enum:
         - merged
-    sipuuid:
+    template_uuid:
       required: true
-      name: sip_uuid
+      name: template_uuid
       in: path
       schema:
         type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    query_string_uuid_filter:
+      in: query
+      name: uuid
+      required: false
+      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          format: uuid
+        maxItems: 20
+        minItems: 1
+        uniqueItems: true
   securitySchemes:
     wazo_auth_token:
       type: apiKey

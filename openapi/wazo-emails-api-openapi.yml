@@ -15,12 +15,12 @@ servers:
 - url: /0.1
 - url: /1.1
 tags:
-- name: emails
+- name: Emails
 paths:
   /emails/{email_uuid}/confirm:
     put:
       tags:
-      - emails
+      - Emails
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.emails.{email_uuid}.confirm.update`'
@@ -36,15 +36,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: putEmailsByEmailUuidConfirm
+      x-operation-id-source: derived
     get:
       tags:
-      - emails
+      - Emails
       description: '**Required ACL**: `auth.emails.{email_uuid}.confirm.update`
 
 
-        The token should be in the URL instead of being in the HTTP headers
-
-        '
+        The token should be in the URL instead of being in the HTTP headers'
       summary: Confirm an email address
       parameters:
       - $ref: '#/components/parameters/email_uuid'
@@ -58,19 +58,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getEmailsByEmailUuidConfirm
+      x-operation-id-source: derived
     servers:
     - url: /0.1
   /admin/users/{user_uuid}/emails:
     put:
       tags:
-      - emails
+      - Emails
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.admin.users.{user_uuid}.emails.update`
 
         Update all of the users email address at the same time.
 
-        If an existing address is missing from the list, it will be removed. An empty list will remove all addresses. If addresses are defined, one and only one address should be main. If the confirmed field is set to none or ommited the existing value will be reused if it exists, otherwise the address will not be confirmed. '
+        If an existing address is missing from the list, it will be removed. An empty list will remove all addresses. If addresses are defined, one and only one address should be main. If the confirmed field is set to none or ommited the existing value will be reused if it exists, otherwise the address will not be confirmed.'
       summary: Update email addresses
       parameters:
       - $ref: '#/components/parameters/user_uuid'
@@ -90,19 +92,21 @@ paths:
               $ref: '#/components/schemas/AdminUserEmailList'
         description: EmailAddressList
         required: true
+      operationId: putAdminUsersByUserUuidEmails
+      x-operation-id-source: derived
     servers:
     - url: /0.1
   /users/{user_uuid}/emails:
     put:
       tags:
-      - emails
+      - Emails
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.users.{user_uuid}.emails.update`
 
         Update all of the users email address at the same time.
 
-        If an existing address is missing from the list, it will be removed. An empty list will remove all addresses. If addresses are defined, one and only one address should be main. All new address are created unconfirmed. '
+        If an existing address is missing from the list, it will be removed. An empty list will remove all addresses. If addresses are defined, one and only one address should be main. All new address are created unconfirmed.'
       summary: Update email addresses
       parameters:
       - $ref: '#/components/parameters/user_uuid'
@@ -122,12 +126,14 @@ paths:
               $ref: '#/components/schemas/UserEmailList'
         description: EmailAddressList
         required: true
+      operationId: putUsersByUserUuidEmails
+      x-operation-id-source: derived
     servers:
     - url: /0.1
   /users/{user_uuid}/emails/{email_uuid}/confirm:
     get:
       tags:
-      - emails
+      - Emails
       security:
       - wazo_auth_token: []
       description: '**Required ACL**: `auth.users.{user_uuid}.emails.{email_uuid}.confirm.read`'
@@ -146,6 +152,8 @@ paths:
                 $ref: '#/components/schemas/Error'
         '409':
           description: Already confirmed
+      operationId: getUsersByUserUuidEmailsByEmailUuidConfirm
+      x-operation-id-source: derived
     servers:
     - url: /0.1
   /emails:
@@ -154,7 +162,7 @@ paths:
       summary: Get e-mail configuration
       description: '**Required ACL:** `confd.emails.read`'
       tags:
-      - emails
+      - Emails
       responses:
         '200':
           description: E-mail configuration
@@ -171,7 +179,7 @@ paths:
 
         **WARNING** This endpoint restore to default value or delete all fields that are not defined.'
       tags:
-      - emails
+      - Emails
       responses:
         '204':
           $ref: '#/components/responses/ResourceUpdated'
@@ -189,7 +197,42 @@ paths:
     servers:
     - url: /1.1
 components:
+  parameters:
+    email_confirm_token:
+      name: token
+      in: query
+      description: The UUID of the token used to confirm the email address
+      required: true
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    email_uuid:
+      name: email_uuid
+      in: path
+      description: The UUID of the email
+      required: true
+      schema:
+        type: string
   schemas:
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
     UserEmailList:
       type: object
       properties:
@@ -222,19 +265,10 @@ components:
             required:
             - addresses
             - main
-    Error:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
+    Error_2:
+      type: array
+      items:
+        type: string
     RewritingRule:
       title: Rewriting rule
       properties:
@@ -246,10 +280,6 @@ components:
           type: string
           description: The replacement for the matched rule
           example: '`no-reply@example.org`'
-    Error_2:
-      type: array
-      items:
-        type: string
     EmailConfig:
       title: E-mail configuration
       properties:
@@ -280,37 +310,15 @@ components:
 
             '
           type: string
-  parameters:
-    email_confirm_token:
-      name: token
-      in: query
-      description: The UUID of the token used to confirm the email address
-      required: true
-      schema:
-        type: string
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    email_uuid:
-      name: email_uuid
-      in: path
-      description: The UUID of the email
-      required: true
-      schema:
-        type: string
   responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
     UpdateError:
       description: An error occurred when updating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    ResourceUpdated:
-      description: Resource was updated successfully
   securitySchemes:
     wazo_auth_basic:
       type: http

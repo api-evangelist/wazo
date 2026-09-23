@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: wazo-confd Registers API
-  description: "Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc. Resources can be associated together to provide additional functionality. For example: By associating a voicemail with a user, calls will automatically fallback on to the voicemail when the user cannot answer.\n\nImplementation notes\n====================\n\nErrors\n------\n\nResponses containing errors will have a status code in the 400 or 500 class. A list of error messages will be returned in the body of the response as a JSON-encoded array:\n\n~~~\n[\n    \"Input error - User not found\",\n    \"Resource error - User not associated to a line\"\n]\n~~~\n\n\nUpdating resources via PUT\n--------------------------\n\nWhen updating a resource, all fields become optional. In other words, only values that have been changed need to be sent to the server. Please note that this behavior may change in future versions of the API."
+  description: Confd exposes an API for managing core resources on a Wazo server such as users, extensions, devices, voicemails, queues, etc.
   version: '1.1'
   license:
     name: GPL v3
@@ -19,7 +19,7 @@ servers:
 security:
 - wazo_auth_token: []
 tags:
-- name: registers
+- name: Registers
 paths:
   /registers/iax:
     get:
@@ -27,7 +27,7 @@ paths:
       summary: List registers iax
       description: '**Required ACL:** `confd.registers.iax.read`'
       tags:
-      - registers
+      - Registers
       parameters:
       - $ref: '#/components/parameters/order'
       - $ref: '#/components/parameters/direction'
@@ -46,7 +46,7 @@ paths:
       summary: Create register_iax
       description: '**Required ACL:** `confd.registers.iax.create`'
       tags:
-      - registers
+      - Registers
       responses:
         '201':
           description: Register IAX created
@@ -69,7 +69,7 @@ paths:
       summary: Get register IAX
       description: '**Required ACL:** `confd.registers.iax.{register_iax_id}.read`'
       tags:
-      - registers
+      - Registers
       parameters:
       - $ref: '#/components/parameters/registeriaxid'
       responses:
@@ -86,7 +86,7 @@ paths:
       summary: Update register IAX
       description: '**Required ACL:** `confd.registers.iax.{register_iax_id}.update`'
       tags:
-      - registers
+      - Registers
       parameters:
       - $ref: '#/components/parameters/registeriaxid'
       responses:
@@ -107,7 +107,7 @@ paths:
       summary: Delete register IAX
       description: '**Required ACL:** `confd.registers.iax.{register_iax_id}.delete`'
       tags:
-      - registers
+      - Registers
       parameters:
       - $ref: '#/components/parameters/registeriaxid'
       responses:
@@ -123,7 +123,7 @@ paths:
       summary: Associate trunk and IAX register
       description: '**Required ACL:** `confd.trunks.{trunk_id}.registers.iax.{iax_id}.update`'
       tags:
-      - registers
+      - Registers
       parameters:
       - $ref: '#/components/parameters/trunkid'
       - $ref: '#/components/parameters/iaxid'
@@ -139,7 +139,7 @@ paths:
       summary: Dissociate trunk and IAX register
       description: '**Required ACL:** `confd.trunks.{trunk_id}.registers.iax.{iax_id}.delete`'
       tags:
-      - registers
+      - Registers
       parameters:
       - $ref: '#/components/parameters/trunkid'
       - $ref: '#/components/parameters/iaxid'
@@ -152,30 +152,14 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 components:
   responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    ResourceUpdated:
-      description: Resource was updated successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     GenericError:
       description: An error occurred during the operation
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
@@ -186,6 +170,81 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+  parameters:
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    trunkid:
+      description: Trunk's ID
+      name: trunk_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    iaxid:
+      required: true
+      name: iax_id
+      in: path
+      schema:
+        type: integer
+    registeriaxid:
+      description: Register IAX's ID
+      name: register_iax_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
   schemas:
     RegisterIAXItems:
       title: RegisterItems
@@ -196,6 +255,16 @@ components:
             $ref: '#/components/schemas/RegisterIAX'
         total:
           type: integer
+    Error:
+      type: array
+      items:
+        type: string
+    RegisterIAXRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the register IAX
     RegisterIAX:
       title: Register IAX
       allOf:
@@ -221,75 +290,6 @@ components:
             description: The callback context to use for the register
         required:
         - remote_host
-    Error:
-      type: array
-      items:
-        type: string
-    RegisterIAXRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the register IAX
-  parameters:
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    registeriaxid:
-      description: Register IAX's ID
-      name: register_iax_id
-      in: path
-      required: true
-      schema:
-        type: integer
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    iaxid:
-      required: true
-      name: iax_id
-      in: path
-      schema:
-        type: integer
-    trunkid:
-      description: Trunk's ID
-      name: trunk_id
-      in: path
-      required: true
-      schema:
-        type: integer
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
   securitySchemes:
     wazo_auth_token:
       type: apiKey
