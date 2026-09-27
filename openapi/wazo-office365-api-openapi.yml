@@ -75,6 +75,16 @@ paths:
                 $ref: '#/components/schemas/LegacyError'
 components:
   parameters:
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
     limit:
       name: limit
       in: query
@@ -82,6 +92,14 @@ components:
       required: false
       schema:
         type: integer
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
     order:
       required: false
       name: order
@@ -96,14 +114,6 @@ components:
       description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
     tenantuuid:
       name: Wazo-Tenant
       in: header
@@ -111,32 +121,7 @@ components:
       required: false
       schema:
         type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
   schemas:
-    Office365ContactList:
-      properties:
-        items:
-          type: array
-          items:
-            type: object
-          readOnly: true
-        total:
-          type: integer
-          description: The number of contacts
-          readOnly: true
-        filtered:
-          type: integer
-          description: The number of contacts matching the searched terms
-          readOnly: true
     LegacyError:
       title: LegacyError
       description: Error message for the client
@@ -155,6 +140,21 @@ components:
         status_code:
           description: HTTP status code
           type: integer
+    Office365ContactList:
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+          readOnly: true
+        total:
+          type: integer
+          description: The number of contacts
+          readOnly: true
+        filtered:
+          type: integer
+          description: The number of contacts matching the searched terms
+          readOnly: true
   securitySchemes:
     wazo_auth_token:
       type: apiKey

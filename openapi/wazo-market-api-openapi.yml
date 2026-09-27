@@ -77,34 +77,6 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    name:
-      required: true
-      name: name
-      in: path
-      description: The plugin's name
-      schema:
-        type: string
-    installed_filter:
-      required: false
-      name: installed
-      in: query
-      description: Filter installed plugins
-      schema:
-        type: boolean
-    name_filter:
-      required: false
-      name: name
-      in: query
-      description: Search by name
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
     namespace:
       required: true
       name: namespace
@@ -119,27 +91,20 @@ components:
       description: Search by namespace
       schema:
         type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
+    name:
+      required: true
+      name: name
+      in: path
+      description: The plugin's name
       schema:
         type: string
-    search:
+    name_filter:
       required: false
-      name: search
+      name: name
       in: query
-      description: Filter list of items, this search is applied to all fields and is not strict (eba matches Sébastien)
+      description: Search by name
       schema:
         type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
     direction:
       required: false
       name: direction
@@ -150,34 +115,42 @@ components:
         enum:
         - asc
         - desc
-  responses:
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: Plugin not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Filter list of items, this search is applied to all fields and is not strict (eba matches Sébastien)
+      schema:
+        type: string
+    installed_filter:
+      required: false
+      name: installed
+      in: query
+      description: Filter installed plugins
+      schema:
+        type: boolean
   schemas:
-    MarketPluginList:
-      type: object
-      properties:
-        namespace:
-          type: string
-          description: The namespace of the plugin
-        name:
-          type: string
-          description: The name of the plugin
-        versions:
-          type: array
-          items:
-            $ref: '#/components/schemas/VersionInfo'
-          description: Version specific information
     Error:
       title: Error
       description: Error message for the client
@@ -198,20 +171,6 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    GetMarketResult:
-      type: object
-      properties:
-        total:
-          type: integer
-          description: The number of plugins available on the market
-        filtered:
-          type: integer
-          description: The number of plugins matching the given search
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/MarketPluginList'
-          description: A list of plugins
     VersionInfo:
       type: object
       properties:
@@ -227,6 +186,47 @@ components:
         upgradable:
           type: boolean
           description: An indication wether installing this version would be an upgrade on not. Unstalled plugins are marked as upgradable.
+    GetMarketResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of plugins available on the market
+        filtered:
+          type: integer
+          description: The number of plugins matching the given search
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarketPluginList'
+          description: A list of plugins
+    MarketPluginList:
+      type: object
+      properties:
+        namespace:
+          type: string
+          description: The namespace of the plugin
+        name:
+          type: string
+          description: The name of the plugin
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/VersionInfo'
+          description: Version specific information
+  responses:
+    NotFoundError:
+      description: Plugin not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

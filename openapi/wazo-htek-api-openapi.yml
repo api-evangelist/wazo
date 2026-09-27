@@ -82,20 +82,6 @@ components:
           items:
             $ref: '#/components/schemas/DirectoryEntry'
   parameters:
-    AcceptLanguage:
-      name: Accept-Language
-      in: header
-      required: false
-      description: The language to translate the query results in
-      schema:
-        type: string
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
-      required: true
-      schema:
-        type: string
     Term:
       name: term
       in: query
@@ -103,13 +89,13 @@ components:
       required: true
       schema:
         type: string
-    Limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
       required: false
+      description: The language to translate the query results in
       schema:
-        type: integer
+        type: string
     Offset:
       name: offset
       in: query
@@ -118,6 +104,20 @@ components:
       schema:
         type: integer
         default: 0
+    Limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
     XivoUserUUID:
       name: xivo_user_uuid
       in: query
@@ -126,12 +126,6 @@ components:
       schema:
         type: string
   responses:
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     LimitOffsetInvalid:
       description: The limit or offset should be positive
       content:
@@ -140,6 +134,12 @@ components:
             $ref: '#/components/schemas/Error'
     ProfileInvalid:
       description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
       content:
         application/json:
           schema:

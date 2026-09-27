@@ -236,28 +236,61 @@ paths:
           * Line delimiter: `\r\n`.'
         required: true
 components:
+  responses:
+    PersonalContactIDInvalid:
+      description: The personal contact does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    DuplicateContact:
+      description: This contact already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
   schemas:
-    Relation:
+    PhonebookContact:
       properties:
-        xivo_id:
+        id:
           type: string
-        user_id:
-          type: string
-        user_uuid:
-          type: string
-        endpoint_id:
-          type: string
-        agent_id:
-          type: string
-        source_entry_id:
-          type: string
-    ContactBodySample:
-      description: Those are only example attributes. The API accepts any arbitrary attributes.
-      properties:
+          readOnly: true
         firstname:
           type: string
         lastname:
           type: string
+      additionalProperties:
+        type: string
+    ContactImportResponse:
+      properties:
+        created:
+          type: array
+          items:
+            type: object
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactImportFailure'
+    ContactImportFailure:
+      properties:
+        line:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: string
     LegacyError:
       title: LegacyError
       description: Error message for the client
@@ -276,39 +309,6 @@ components:
         status_code:
           description: HTTP status code
           type: integer
-    ContactImportResponse:
-      properties:
-        created:
-          type: array
-          items:
-            type: object
-        failed:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContactImportFailure'
-    PhonebookContact:
-      properties:
-        id:
-          type: string
-          readOnly: true
-        firstname:
-          type: string
-        lastname:
-          type: string
-      additionalProperties:
-        type: string
-    ContactImportFailure:
-      properties:
-        line:
-          type: integer
-        errors:
-          type: array
-          items:
-            type: string
-    PhonebookContactList:
-      type: array
-      items:
-        $ref: '#/components/schemas/PhonebookContact'
     Contact:
       properties:
         column_values:
@@ -322,54 +322,37 @@ components:
         backend:
           type: string
           description: Backend type
-  responses:
-    PersonalContactIDInvalid:
-      description: The personal contact does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    DuplicateContact:
-      description: This contact already exists
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
+    PhonebookContactList:
+      type: array
+      items:
+        $ref: '#/components/schemas/PhonebookContact'
+    ContactBodySample:
+      description: Those are only example attributes. The API accepts any arbitrary attributes.
+      properties:
+        firstname:
+          type: string
+        lastname:
+          type: string
+    Relation:
+      properties:
+        xivo_id:
+          type: string
+        user_id:
+          type: string
+        user_uuid:
+          type: string
+        endpoint_id:
+          type: string
+        agent_id:
+          type: string
+        source_entry_id:
+          type: string
   parameters:
-    direction:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`. More precisely, it is the name of the "Direct directory" defined in the web interface.
-      required: true
       schema:
         type: string
     Offset:
@@ -387,6 +370,23 @@ components:
       description: The ID of the personal contact.
       schema:
         type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
     Limit:
       name: limit
       in: query
@@ -394,11 +394,11 @@ components:
       required: false
       schema:
         type: integer
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`. More precisely, it is the name of the "Direct directory" defined in the web interface.
+      required: true
       schema:
         type: string
   securitySchemes:

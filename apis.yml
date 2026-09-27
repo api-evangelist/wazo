@@ -55,7 +55,7 @@ tags:
 - SIP
 - asterisk
 - WebRTC
-- Open-Source
+- Open Source
 - Self-Hosted
 - White Label
 - PBX
@@ -67,6 +67,7 @@ tags:
 - Chat
 - Presence
 - CDR
+- Real-Time
 tags_raw:
 - telephony
 - voip
@@ -88,6 +89,8 @@ tags_raw:
 - chat
 - presence
 - cdr
+- Open-Source
+- Real-Time
 apis:
 - name: Wazo Phone Provisioning API (wazo-provd)
   description: Phone auto-provisioning service. Manages device plugins, configuration templates, device

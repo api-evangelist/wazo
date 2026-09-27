@@ -137,14 +137,6 @@ paths:
       operationId: getUsersByUserUuidExternalMobileSenderId
       x-operation-id-source: derived
 components:
-  parameters:
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
   schemas:
     MobileData:
       type: object
@@ -178,6 +170,14 @@ components:
           type: string
         details:
           type: object
+  parameters:
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_basic:
       type: http

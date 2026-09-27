@@ -1004,13 +1004,6 @@ paths:
     - url: /1.1
 components:
   schemas:
-    ApplicationSnoops:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApplicationSnoop'
     ApplicationNode:
       type: object
       properties:
@@ -1020,98 +1013,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApplicationCall'
-    ApplicationNodeCallRequest:
-      type: object
-      properties:
-        id:
-          type: string
-    ApplicationSnoopPut:
-      type: object
-      properties:
-        whisper_mode:
-          type: string
-          enum:
-          - in
-          - out
-          - none
-          - both
-    Application:
-      type: object
-      properties:
-        destination_node_uuid:
-          type: string
-    ApplicationNodes:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApplicationNode'
-    ApplicationSnoop:
-      type: object
-      properties:
-        uuid:
-          type: string
-          readOnly: true
-        snooped_call_id:
-          type: string
-          readOnly: true
-        snooping_call_id:
-          type: string
-        whisper_mode:
-          type: string
-          enum:
-          - in
-          - out
-          - none
-          - both
-      required:
-      - snooping_call_id
-      - whisper_mode
-    ApplicationNodeRequest:
-      type: object
-      properties:
-        calls:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApplicationNodeCallRequest'
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    ApplicationCallRequestToExten:
-      type: object
-      properties:
-        exten:
-          type: string
-        context:
-          type: string
-        autoanswer:
-          type: boolean
-          default: false
-        variables:
-          type: object
-          description: channel variables that should be assigned on this new channel
-        displayed_caller_id_name:
-          type: string
-        displayed_caller_id_number:
-          type: string
-      required:
-      - exten
-      - context
     ApplicationCall:
       type: object
       properties:
@@ -1150,25 +1051,6 @@ components:
           type: object
         snoops:
           type: object
-    ApplicationCalls:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApplicationCall'
-    ApplicationPlayback:
-      type: object
-      properties:
-        uuid:
-          type: string
-          readOnly: true
-        uri:
-          type: string
-        language:
-          type: string
-        state:
-          type: string
     ApplicationCallRequestToUser:
       type: object
       properties:
@@ -1186,6 +1068,152 @@ components:
           type: string
       required:
       - user_uuid
+    ApplicationCalls:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationCall'
+    ApplicationSnoop:
+      type: object
+      properties:
+        uuid:
+          type: string
+          readOnly: true
+        snooped_call_id:
+          type: string
+          readOnly: true
+        snooping_call_id:
+          type: string
+        whisper_mode:
+          type: string
+          enum:
+          - in
+          - out
+          - none
+          - both
+      required:
+      - snooping_call_id
+      - whisper_mode
+    ApplicationNodeRequest:
+      type: object
+      properties:
+        calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationNodeCallRequest'
+    ApplicationSnoopPut:
+      type: object
+      properties:
+        whisper_mode:
+          type: string
+          enum:
+          - in
+          - out
+          - none
+          - both
+    ApplicationSnoops:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationSnoop'
+    ApplicationNodes:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationNode'
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    ApplicationPlayback:
+      type: object
+      properties:
+        uuid:
+          type: string
+          readOnly: true
+        uri:
+          type: string
+        language:
+          type: string
+        state:
+          type: string
+    Application:
+      type: object
+      properties:
+        destination_node_uuid:
+          type: string
+    ApplicationCallRequestToExten:
+      type: object
+      properties:
+        exten:
+          type: string
+        context:
+          type: string
+        autoanswer:
+          type: boolean
+          default: false
+        variables:
+          type: object
+          description: channel variables that should be assigned on this new channel
+        displayed_caller_id_name:
+          type: string
+        displayed_caller_id_number:
+          type: string
+      required:
+      - exten
+      - context
+    ApplicationNodeCallRequest:
+      type: object
+      properties:
+        id:
+          type: string
+    ApplicationRelationLines:
+      properties:
+        lines:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    ApplicationItems:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Application_2'
+    ApplicationDestinationNode:
+      type: object
+      properties:
+        music_on_hold:
+          type: string
+          description: Name of the MOH category to use for music on hold
+        answer:
+          type: boolean
+          description: Automatically answer the call when the call enters the destination node
+        type:
+          type: string
+          description: type of the default node
+          enum:
+          - holding
     ApplicationRelationBase:
       properties:
         uuid:
@@ -1195,6 +1223,20 @@ components:
         name:
           type: string
           description: Application name
+    LineRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        name:
+          type: string
+          description: The name of the line
+          readOnly: true
+    Error_2:
+      type: array
+      items:
+        type: string
     Application_2:
       type: object
       allOf:
@@ -1212,48 +1254,6 @@ components:
           destination_options:
             $ref: '#/components/schemas/ApplicationDestinationNode'
       - $ref: '#/components/schemas/ApplicationRelationLines'
-    LineRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Line ID
-          readOnly: true
-        name:
-          type: string
-          description: The name of the line
-          readOnly: true
-    ApplicationItems:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Application_2'
-    Error_2:
-      type: array
-      items:
-        type: string
-    ApplicationDestinationNode:
-      type: object
-      properties:
-        music_on_hold:
-          type: string
-          description: Name of the MOH category to use for music on hold
-        answer:
-          type: boolean
-          description: Automatically answer the call when the call enters the destination node
-        type:
-          type: string
-          description: type of the default node
-          enum:
-          - holding
-    ApplicationRelationLines:
-      properties:
-        lines:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LineRelationBase'
   parameters:
     ApplicationPlaybackUUID:
       name: playback_uuid
@@ -1266,27 +1266,6 @@ components:
       name: moh_uuid
       in: path
       description: UUID of the music on hold
-      required: true
-      schema:
-        type: string
-    ApplicationSnoopUUID:
-      name: snoop_uuid
-      in: path
-      description: UUID of the snoop
-      required: true
-      schema:
-        type: string
-    ApplicationNodeUUID:
-      name: node_uuid
-      in: path
-      description: UUID of the node
-      required: true
-      schema:
-        type: string
-    ApplicationUUID:
-      name: application_uuid
-      in: path
-      description: UUID of the application
       required: true
       schema:
         type: string
@@ -1304,11 +1283,39 @@ components:
       required: true
       schema:
         type: string
-    offset:
+    ApplicationNodeUUID:
+      name: node_uuid
+      in: path
+      description: UUID of the node
+      required: true
+      schema:
+        type: string
+    ApplicationUUID:
+      name: application_uuid
+      in: path
+      description: UUID of the application
+      required: true
+      schema:
+        type: string
+    ApplicationSnoopUUID:
+      name: snoop_uuid
+      in: path
+      description: UUID of the snoop
+      required: true
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: string
+    application_uuid:
+      required: true
+      name: application_uuid
+      in: path
+      description: Application's UUID
       schema:
         type: integer
     direction:
@@ -1321,20 +1328,6 @@ components:
         enum:
         - asc
         - desc
-    application_uuid:
-      required: true
-      name: application_uuid
-      in: path
-      description: Application's UUID
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
     limit:
       required: false
       name: limit
@@ -1342,17 +1335,31 @@ components:
       description: Maximum number of items to return in the list
       schema:
         type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
     lineid:
       required: true
       name: line_id
       in: path
       schema:
         type: integer
-    search:
+    offset:
       required: false
-      name: search
+      name: offset
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
     recurse:
@@ -1363,13 +1370,6 @@ components:
       schema:
         type: boolean
         default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
   responses:
     AnotherServiceUnavailable:
       description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
@@ -1377,8 +1377,10 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    GenericError:
-      description: An error occurred during the operation
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
@@ -1389,28 +1391,26 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
     CreateError:
       description: An error occurred when creating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
     ResourceDeleted:
       description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

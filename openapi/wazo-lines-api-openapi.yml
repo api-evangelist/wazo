@@ -555,181 +555,37 @@ paths:
     servers:
     - url: /1.1
 components:
-  responses:
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-  parameters:
-    TenantUUID:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    sipuuid:
-      required: true
-      name: sip_uuid
-      in: path
-      schema:
-        type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    extensionid:
-      required: true
-      name: extension_id
-      in: path
-      schema:
-        type: integer
-    customid:
-      required: true
-      name: custom_id
-      in: path
-      schema:
-        type: integer
-    sccpid:
-      required: true
-      name: sccp_id
-      in: path
-      schema:
-        type: integer
-    deviceid:
-      required: true
-      name: device_id
-      in: path
-      description: Device's ID
-      schema:
-        type: string
-    application_uuid:
-      required: true
-      name: application_uuid
-      in: path
-      description: Application's UUID
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    lineid:
-      required: true
-      name: line_id
-      in: path
-      schema:
-        type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    endpoint_sip_view:
-      required: false
-      name: view
-      in: query
-      description: 'Different view of the SIP endpoint
-
-
-        The `default` view, when the argument is omitted, is to include only options that
-
-        are defined on the specified endpoint.
-
-
-        The `merged` view includes all options from included templates.
-
-        '
-      schema:
-        type: string
-        enum:
-        - merged
-    useruuid:
-      required: true
-      name: user_uuid
-      in: path
-      description: the user's UUID
-      schema:
-        type: string
-        format: uuid
-    useriduuid:
-      required: true
-      name: user_id
-      in: path
-      description: the user's ID or UUID
-      schema:
-        type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
   schemas:
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    EndpointLines:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointLine'
+        total:
+          type: integer
+          description: The number of line endpoint
+        filtered:
+          type: integer
+          description: The number of line endpoint matching the searched terms
     EndpointLine:
       type: object
       properties:
@@ -748,42 +604,66 @@ components:
         current_call_count:
           type: integer
           description: The number of ongoing calls on that line
-    EndpointLines:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/EndpointLine'
-        total:
-          type: integer
-          description: The number of line endpoint
-        filtered:
-          type: integer
-          description: The number of line endpoint matching the searched terms
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    SIPTransportRelation:
+    EndpointSIPTemplatesRelation:
       properties:
         uuid:
           type: string
+          description: The UUID of this resource
+        label:
+          type: string
+          description: The label of this resource
+          readOnly: true
       required:
       - uuid
+    Extension:
+      title: Extension
+      allOf:
+      - $ref: '#/components/schemas/ExtensionRelationBase'
+      - properties:
+          commented:
+            type: boolean
+            description: If True the extension is disabled. Deprecated, use enabled instead
+          enabled:
+            type: boolean
+            description: If False the extension is disabled.
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+      - $ref: '#/components/schemas/ExtensionRelationConference'
+      - $ref: '#/components/schemas/ExtensionRelationGroup'
+      - $ref: '#/components/schemas/ExtensionRelationIncall'
+      - $ref: '#/components/schemas/ExtensionRelationLines'
+      - $ref: '#/components/schemas/ExtensionRelationOutcall'
+      - $ref: '#/components/schemas/ExtensionRelationParkingLot'
+      - $ref: '#/components/schemas/ExtensionRelationQueue'
+      - required:
+        - context
+        - exten
+    EndpointCustom:
+      title: Custom Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointCustomRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          enabled:
+            type: boolean
+            description: Endpoint can be used when it is enabled
+            default: true
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+      - required:
+        - interface
+    EndpointRelationLine:
+      properties:
+        line:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
     LineDeviceItems:
       title: LineDeviceItems
       properties:
@@ -795,57 +675,128 @@ components:
           type: integer
       required:
       - total
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    LineRelationUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/UserRelationBase'
+    ExtensionRelationOutcall:
+      properties:
+        outcall:
+          readOnly: true
+          $ref: '#/components/schemas/OutcallRelationBase'
+    ExtensionRelationGroup:
+      properties:
+        group:
+          readOnly: true
+          $ref: '#/components/schemas/GroupRelationBase'
+    ExtensionRelationConference:
+      properties:
+        conference:
+          readOnly: true
+          $ref: '#/components/schemas/ConferenceRelationBase'
+    TrunkRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the trunk
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+    EndpointCustomRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Custom Endpoint ID
+          readOnly: true
+        interface:
+          type: string
+          description: Asterisk interface to use. (e.g. 'dahdi/i1')
+    OutcallRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the outgoing call
+        name:
+          type: string
+          description: The name of the outcall
+    SIPAORSectionOptions:
+      title: PJSIP AOR Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    EndpointRelationTrunk:
+      properties:
+        trunk:
+          $ref: '#/components/schemas/TrunkRelationBase'
+          readOnly: true
     SIPAuthSectionOptions:
       title: PJSIP Auth Section Options
       $ref: '#/components/schemas/KeyValueOption'
-    Line:
-      title: Line
+    LineEndpointCustom:
+      title: LineEndpointCustom
+      properties:
+        endpoint_custom:
+          $ref: '#/components/schemas/EndpointCustom'
+    ExtensionRelationQueue:
+      properties:
+        queue:
+          readOnly: true
+          $ref: '#/components/schemas/QueueRelationBase'
+    LineRelationEndpoints:
+      properties:
+        endpoint_sip:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointSipRelationBase'
+        endpoint_sccp:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointSccpRelationBase'
+        endpoint_custom:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointCustomRelationBase'
+    ExtensionRelationLines:
+      properties:
+        lines:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    LineExtensions:
+      title: LineExtensions
+      properties:
+        extensions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    ExtensionRelationBase:
       properties:
         id:
           type: integer
-          description: Line ID
+          description: Extension ID
           readOnly: true
         context:
           type: string
-          description: The name of an internal context
-        position:
-          type: integer
-          description: Line's position on the device
-        caller_id_name:
+        exten:
           type: string
-          description: Name to display when calling
-        caller_id_num:
-          type: string
-          description: Number to display when calling
-        provisioning_code:
-          type: string
-          description: Code used to provision a device
-        registrar:
-          type: string
-          description: Name of the template line used by the device
-      required:
-      - context
-    GroupRelationBase:
+    LineEndpointSIP:
+      title: LineEndpointSIP
       properties:
-        name:
-          type: string
-          description: The name of the group
-          readOnly: true
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the group
-        uuid:
-          type: string
-          description: Group UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-    IncallRelationBase:
-      title: IncallRelation
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the incoming call
+        endpoint_sip:
+          $ref: '#/components/schemas/EndpointSIP'
     ApplicationRelationBase:
       properties:
         uuid:
@@ -855,9 +806,23 @@ components:
         name:
           type: string
           description: Application name
-    SIPIdentifySectionOptions:
-      title: PJSIP Identify Section Options
-      $ref: '#/components/schemas/KeyValueOption'
+    EndpointSipRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+          readOnly: true
+        name:
+          type: string
+          description: The name of the PJSIP entity, auto-generated if missing
+        label:
+          type: string
+          description: The human readable name for this configuration
+        auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint. Only `username` is supported
     LineView:
       title: Line
       allOf:
@@ -913,56 +878,62 @@ components:
       - $ref: '#/components/schemas/LineRelationEndpoints'
       - $ref: '#/components/schemas/LineRelationExtensions'
       - $ref: '#/components/schemas/LineRelationUsers'
-    ExtensionRelationConference:
+    LineRelationExtensions:
       properties:
-        conference:
+        extensions:
+          type: array
           readOnly: true
-          $ref: '#/components/schemas/ConferenceRelationBase'
-    SIPEndpointSectionOptions:
-      title: SIP Endpoint Section Options
-      $ref: '#/components/schemas/KeyValueOption'
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    Line:
+      title: Line
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        context:
+          type: string
+          description: The name of an internal context
+        position:
+          type: integer
+          description: Line's position on the device
+        caller_id_name:
+          type: string
+          description: Name to display when calling
+        caller_id_num:
+          type: string
+          description: Number to display when calling
+        provisioning_code:
+          type: string
+          description: Code used to provision a device
+        registrar:
+          type: string
+          description: Name of the template line used by the device
+      required:
+      - context
     EndpointSccpRelationBase:
       properties:
         id:
           type: integer
           description: SCCP Endpoint ID
           readOnly: true
-    EndpointCustom:
-      title: Custom Endpoint
-      allOf:
-      - $ref: '#/components/schemas/EndpointCustomRelationBase'
-      - properties:
-          tenant_uuid:
-            type: string
-            description: The UUID of the tenant
-            readOnly: true
-          enabled:
-            type: boolean
-            description: Endpoint can be used when it is enabled
-            default: true
-      - $ref: '#/components/schemas/EndpointRelationTrunk'
-      - $ref: '#/components/schemas/EndpointRelationLine'
-      - required:
-        - interface
-    TrunkRelationBase:
+    LineRelationBase:
       properties:
         id:
           type: integer
+          description: Line ID
           readOnly: true
-          description: The id of the trunk
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
-    OutcallRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the outgoing call
         name:
           type: string
-          description: The name of the outcall
+          description: The name of the line
+          readOnly: true
+    SIPTransportRelation:
+      properties:
+        uuid:
+          type: string
+      required:
+      - uuid
     ConferenceRelationBase:
       properties:
         id:
@@ -971,27 +942,47 @@ components:
         name:
           type: string
           description: name to identify the conference
-    KeyValueOption:
-      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
-      title: Key Value
-      type: array
-      items:
-        type: string
-      maxItems: 2
-      minItems: 2
-      example:
-      - option
-      - value
-    ExtensionRelationQueue:
+    LineID:
       properties:
-        queue:
+        id:
+          type: integer
+    GroupRelationBase:
+      properties:
+        name:
+          type: string
+          description: The name of the group
           readOnly: true
-          $ref: '#/components/schemas/QueueRelationBase'
-    LineEndpointSIP:
-      title: LineEndpointSIP
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the group
+        uuid:
+          type: string
+          description: Group UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+    IncallRelationBase:
+      title: IncallRelation
       properties:
-        endpoint_sip:
-          $ref: '#/components/schemas/EndpointSIP'
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the incoming call
+    LineItems:
+      title: LineItems
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/LineView'
+          type: array
+        total:
+          type: integer
+      required:
+      - total
+    ExtensionRelationParkingLot:
+      properties:
+        parking_lot:
+          readOnly: true
+          $ref: '#/components/schemas/ParkingLotRelationBase'
     QueueRelationBase:
       properties:
         id:
@@ -1004,112 +995,6 @@ components:
         label:
           type: string
           description: The label of the queue
-    ExtensionRelationLines:
-      properties:
-        lines:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LineRelationBase'
-    LineItems:
-      title: LineItems
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/LineView'
-          type: array
-        total:
-          type: integer
-      required:
-      - total
-    ExtensionRelationIncall:
-      properties:
-        incall:
-          readOnly: true
-          $ref: '#/components/schemas/IncallRelationBase'
-    LineRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Line ID
-          readOnly: true
-        name:
-          type: string
-          description: The name of the line
-          readOnly: true
-    EndpointSipRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of this resource
-          readOnly: true
-        name:
-          type: string
-          description: The name of the PJSIP entity, auto-generated if missing
-        label:
-          type: string
-          description: The human readable name for this configuration
-        auth_section_options:
-          type: array
-          items:
-            $ref: '#/components/schemas/SIPAuthSectionOptions'
-          description: A list of PJSIP auth section options for this endpoint. Only `username` is supported
-    ExtensionRelationGroup:
-      properties:
-        group:
-          readOnly: true
-          $ref: '#/components/schemas/GroupRelationBase'
-    EndpointSIPTemplatesRelation:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of this resource
-        label:
-          type: string
-          description: The label of this resource
-          readOnly: true
-      required:
-      - uuid
-    LineEndpointSCCP:
-      title: LineEndpointSCCP
-      properties:
-        endpoint_sccp:
-          $ref: '#/components/schemas/EndpointSccp'
-    ExtensionRelationOutcall:
-      properties:
-        outcall:
-          readOnly: true
-          $ref: '#/components/schemas/OutcallRelationBase'
-    LineRelationApplication:
-      properties:
-        application:
-          $ref: '#/components/schemas/ApplicationRelationBase'
-    ExtensionRelationParkingLot:
-      properties:
-        parking_lot:
-          readOnly: true
-          $ref: '#/components/schemas/ParkingLotRelationBase'
-    EndpointRelationLine:
-      properties:
-        line:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LineRelationBase'
-    SIPAORSectionOptions:
-      title: PJSIP AOR Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    LineRelationExtensions:
-      properties:
-        extensions:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
-    Error_2:
-      type: array
-      items:
-        type: string
     ParkingLotRelationBase:
       properties:
         id:
@@ -1118,103 +1003,20 @@ components:
         name:
           type: string
           description: name to identify the parking lot
-    EndpointSccp:
-      title: SCCP Endpoint
+    LineCreate:
+      title: LineCreate
       allOf:
-      - $ref: '#/components/schemas/EndpointSccpRelationBase'
-      - properties:
-          tenant_uuid:
-            type: string
-            description: The UUID of the tenant
-            readOnly: true
-          options:
-            description: "Advanced configuration options. Options are appended at the end of a \nSCCP account in the file 'sccp.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Because of database limitations, only the following options are allowed:\n\n * cid_name\n * cid_num\n * allow\n * disallow\n \nOptions must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in sip.conf will have the following form:\n\n```\n[1000]\nname1=value1\nname2=value2\n```\n"
-            type: array
-            items:
-              $ref: '#/components/schemas/KeyValueOption'
-      - $ref: '#/components/schemas/EndpointRelationTrunk'
-      - $ref: '#/components/schemas/EndpointRelationLine'
+      - $ref: '#/components/schemas/Line'
+      - $ref: '#/components/schemas/LineExtensions'
+      - $ref: '#/components/schemas/LineEndpointSIP'
+      - $ref: '#/components/schemas/LineEndpointSCCP'
+      - $ref: '#/components/schemas/LineEndpointCustom'
     LinesID:
       properties:
         lines:
           items:
             $ref: '#/components/schemas/LineID'
           type: array
-    LineRelationEndpoints:
-      properties:
-        endpoint_sip:
-          readOnly: true
-          $ref: '#/components/schemas/EndpointSipRelationBase'
-        endpoint_sccp:
-          readOnly: true
-          $ref: '#/components/schemas/EndpointSccpRelationBase'
-        endpoint_custom:
-          readOnly: true
-          $ref: '#/components/schemas/EndpointCustomRelationBase'
-    ExtensionRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Extension ID
-          readOnly: true
-        context:
-          type: string
-        exten:
-          type: string
-    EndpointRelationTrunk:
-      properties:
-        trunk:
-          $ref: '#/components/schemas/TrunkRelationBase'
-          readOnly: true
-    Extension:
-      title: Extension
-      allOf:
-      - $ref: '#/components/schemas/ExtensionRelationBase'
-      - properties:
-          commented:
-            type: boolean
-            description: If True the extension is disabled. Deprecated, use enabled instead
-          enabled:
-            type: boolean
-            description: If False the extension is disabled.
-          tenant_uuid:
-            type: string
-            description: The UUID of the tenant
-            readOnly: true
-      - $ref: '#/components/schemas/ExtensionRelationConference'
-      - $ref: '#/components/schemas/ExtensionRelationGroup'
-      - $ref: '#/components/schemas/ExtensionRelationIncall'
-      - $ref: '#/components/schemas/ExtensionRelationLines'
-      - $ref: '#/components/schemas/ExtensionRelationOutcall'
-      - $ref: '#/components/schemas/ExtensionRelationParkingLot'
-      - $ref: '#/components/schemas/ExtensionRelationQueue'
-      - required:
-        - context
-        - exten
-    LineEndpointCustom:
-      title: LineEndpointCustom
-      properties:
-        endpoint_custom:
-          $ref: '#/components/schemas/EndpointCustom'
-    LineRelationUsers:
-      properties:
-        users:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/UserRelationBase'
-    UserRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: User UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-        firstname:
-          type: string
-          description: User firstname
-        lastname:
-          type: string
-          description: User lastname
     EndpointSIP:
       title: SIP Endpoint
       properties:
@@ -1285,17 +1087,61 @@ components:
         asterisk_id:
           type: string
           description: The ID of the Asterisk onto which this configuration applies.
+    EndpointSccp:
+      title: SCCP Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointSccpRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          options:
+            description: "Advanced configuration options. Options are appended at the end of a \nSCCP account in the file 'sccp.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Because of database limitations, only the following options are allowed:\n\n * cid_name\n * cid_num\n * allow\n * disallow\n \nOptions must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in sip.conf will have the following form:\n\n```\n[1000]\nname1=value1\nname2=value2\n```\n"
+            type: array
+            items:
+              $ref: '#/components/schemas/KeyValueOption'
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+    Error_2:
+      type: array
+      items:
+        type: string
+    SIPEndpointSectionOptions:
+      title: SIP Endpoint Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    SIPIdentifySectionOptions:
+      title: PJSIP Identify Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    LineRelationApplication:
+      properties:
+        application:
+          $ref: '#/components/schemas/ApplicationRelationBase'
+    LineEndpointSCCP:
+      title: LineEndpointSCCP
+      properties:
+        endpoint_sccp:
+          $ref: '#/components/schemas/EndpointSccp'
+    ExtensionRelationIncall:
+      properties:
+        incall:
+          readOnly: true
+          $ref: '#/components/schemas/IncallRelationBase'
+    UserRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
     SIPRegistrationSectionOptions:
       title: PJSIP Registration Section Options
       $ref: '#/components/schemas/KeyValueOption'
-    LineCreate:
-      title: LineCreate
-      allOf:
-      - $ref: '#/components/schemas/Line'
-      - $ref: '#/components/schemas/LineExtensions'
-      - $ref: '#/components/schemas/LineEndpointSIP'
-      - $ref: '#/components/schemas/LineEndpointSCCP'
-      - $ref: '#/components/schemas/LineEndpointCustom'
     LineDevice:
       title: LineDevice
       properties:
@@ -1307,26 +1153,180 @@ components:
           type: string
           description: Device's ID
           readOnly: true
-    EndpointCustomRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Custom Endpoint ID
-          readOnly: true
-        interface:
-          type: string
-          description: Asterisk interface to use. (e.g. 'dahdi/i1')
-    LineID:
-      properties:
-        id:
-          type: integer
-    LineExtensions:
-      title: LineExtensions
-      properties:
-        extensions:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
+  parameters:
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    sipuuid:
+      required: true
+      name: sip_uuid
+      in: path
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    application_uuid:
+      required: true
+      name: application_uuid
+      in: path
+      description: Application's UUID
+      schema:
+        type: integer
+    endpoint_sip_view:
+      required: false
+      name: view
+      in: query
+      description: 'Different view of the SIP endpoint
+
+
+        The `default` view, when the argument is omitted, is to include only options that
+
+        are defined on the specified endpoint.
+
+
+        The `merged` view includes all options from included templates.
+
+        '
+      schema:
+        type: string
+        enum:
+        - merged
+    useruuid:
+      required: true
+      name: user_uuid
+      in: path
+      description: the user's UUID
+      schema:
+        type: string
+        format: uuid
+    deviceid:
+      required: true
+      name: device_id
+      in: path
+      description: Device's ID
+      schema:
+        type: string
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    customid:
+      required: true
+      name: custom_id
+      in: path
+      schema:
+        type: integer
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    sccpid:
+      required: true
+      name: sccp_id
+      in: path
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

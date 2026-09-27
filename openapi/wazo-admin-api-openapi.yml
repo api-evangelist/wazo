@@ -49,14 +49,6 @@ paths:
       operationId: putAdminUsersByUserUuidEmails
       x-operation-id-source: derived
 components:
-  parameters:
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
   schemas:
     AdminUserEmailList:
       type: object
@@ -88,6 +80,14 @@ components:
             type: string
         status_code:
           type: integer
+  parameters:
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_basic:
       type: http

@@ -244,14 +244,22 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    Param:
-      description: A configuration parameter
+    ErrorMessage:
+      description: Error message response
+      type: string
+    ProvisioningKey:
+      description: Provisioning Key configuration
       properties:
         param:
-          $ref: '#/components/schemas/ParamObject'
+          type: string
+          description: Provisioning key used to authenticate request to fetch provisioning configuration file
       example:
         param:
-          value: http://provd.wazo.community/plugins/2/stable
+          value: a1b2c3d4e5f6g7h8
+    ParamObject:
+      properties:
+        value:
+          type: string
     GeneralConfigObject:
       properties:
         description:
@@ -262,19 +270,14 @@ components:
           $ref: '#/components/schemas/LinksObject'
         value:
           type: string
-    HttpsProxy:
-      title: HTTPS proxy configuration
+    Param:
+      description: A configuration parameter
       properties:
         param:
-          type: string
-          description: The proxy for HTTPS requests. Format is `host:port`
+          $ref: '#/components/schemas/ParamObject'
       example:
         param:
-          value: example.com:8081
-    ParamObject:
-      properties:
-        value:
-          type: string
+          value: http://provd.wazo.community/plugins/2/stable
     LinksObject:
       description: Links object
       type: object
@@ -284,6 +287,24 @@ components:
           description: Links to different resources
           items:
             $ref: '#/components/schemas/LinkObject'
+    HttpsProxy:
+      title: HTTPS proxy configuration
+      properties:
+        param:
+          type: string
+          description: The proxy for HTTPS requests. Format is `host:port`
+      example:
+        param:
+          value: example.com:8081
+    FtpProxy:
+      title: FTP proxy configuration
+      properties:
+        param:
+          type: string
+          description: The proxy for FTP requests. Format is `http://[user:password@]host:port`
+      example:
+        param:
+          value: http://root:secret@example.com:8082
     HttpProxy:
       title: HTTP proxy configuration
       properties:
@@ -293,6 +314,25 @@ components:
       example:
         param:
           value: http://root:secret@example.com:8080
+    LinkObject:
+      description: Link Object
+      type: object
+      properties:
+        href:
+          type: string
+          description: Location of the resource
+        rel:
+          type: string
+          description: Relation to the resource
+    Locale:
+      title: Locale configuration
+      properties:
+        param:
+          type: string
+          description: 'The current locale. For example: `en_US`'
+      example:
+        param:
+          value: en_US
     Nat:
       title: NAT configuration
       properties:
@@ -308,15 +348,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GeneralConfigObject'
-    ProvisioningKey:
-      description: Provisioning Key configuration
-      properties:
-        param:
-          type: string
-          description: Provisioning key used to authenticate request to fetch provisioning configuration file
-      example:
-        param:
-          value: a1b2c3d4e5f6g7h8
     PluginServer:
       title: Plugin server configuration
       properties:
@@ -326,48 +357,17 @@ components:
       example:
         param:
           value: http://provd.wazo.community/plugins/2/stable/
-    ErrorMessage:
-      description: Error message response
-      type: string
-    Locale:
-      title: Locale configuration
-      properties:
-        param:
-          type: string
-          description: 'The current locale. For example: `en_US`'
-      example:
-        param:
-          value: en_US
-    FtpProxy:
-      title: FTP proxy configuration
-      properties:
-        param:
-          type: string
-          description: The proxy for FTP requests. Format is `http://[user:password@]host:port`
-      example:
-        param:
-          value: http://root:secret@example.com:8082
-    LinkObject:
-      description: Link Object
-      type: object
-      properties:
-        href:
-          type: string
-          description: Location of the resource
-        rel:
-          type: string
-          description: Relation to the resource
   responses:
     NoContentResponse:
       description: No content
-    UnsupportedMediaError:
-      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
+    NoSuchResourceError:
+      description: No such resource. The provided id does not exist
       content:
         application/vnd.proformatique.provd+json:
           schema:
             $ref: '#/components/schemas/ErrorMessage'
-    NoSuchResourceError:
-      description: No such resource. The provided id does not exist
+    UnsupportedMediaError:
+      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
       content:
         application/vnd.proformatique.provd+json:
           schema:
@@ -385,6 +385,12 @@ components:
       description: The tenant's UUID, defining the ownership of a given resource
       schema:
         type: string
+    ParamBody:
+      description: Configuration parameter body definition
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/Param'
     ParamId:
       required: true
       name: param_id
@@ -392,12 +398,6 @@ components:
       description: Configuration parameter ID
       schema:
         type: string
-    ParamBody:
-      description: Configuration parameter body definition
-      name: body
-      in: body
-      schema:
-        $ref: '#/components/schemas/Param'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

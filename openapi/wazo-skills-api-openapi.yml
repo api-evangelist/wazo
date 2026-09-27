@@ -268,180 +268,17 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
-  responses:
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-  parameters:
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    skillruleid:
-      required: true
-      name: skillrule_id
-      in: path
-      description: Skill's ID
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    agentid:
-      required: true
-      name: agent_id
-      in: path
-      description: Agent’s ID
-      schema:
-        type: integer
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    skillid:
-      required: true
-      name: skill_id
-      in: path
-      description: Skill's ID
-      schema:
-        type: integer
   schemas:
-    AgentSkillRelationBase:
-      properties:
-        skill_weight:
-          type: integer
-          description: Skill's weight.
-    SkillRelationAgent:
-      allOf:
-      - $ref: '#/components/schemas/AgentRelationBase'
-      - $ref: '#/components/schemas/AgentSkillRelationBase'
-    Skill:
-      title: Skill
-      allOf:
-      - $ref: '#/components/schemas/SkillRelationBase'
-      - properties:
-          description:
-            type: string
-      - $ref: '#/components/schemas/SkillRelationAgents'
-      - required:
-        - name
     SkillRuleRule:
       title: SkillRuleRule
       properties:
         definition:
           type: string
           description: The rule definition
-    SkillRelationAgents:
-      properties:
-        agents:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/SkillRelationAgent'
-    SkillRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
-        name:
-          type: string
-          description: The name to identify the skill
-    AgentSkill:
-      title: AgentSkill
+    SkillRelationAgent:
       allOf:
+      - $ref: '#/components/schemas/AgentRelationBase'
       - $ref: '#/components/schemas/AgentSkillRelationBase'
-    Error:
-      type: array
-      items:
-        type: string
-    SkillItems:
-      title: SkillItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Skill'
-        total:
-          type: integer
-      required:
-      - total
     SkillRuleItems:
       title: SkillRuleItems
       properties:
@@ -453,6 +290,32 @@ components:
           type: integer
       required:
       - total
+    SkillRelationAgents:
+      properties:
+        agents:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/SkillRelationAgent'
+    Skill:
+      title: Skill
+      allOf:
+      - $ref: '#/components/schemas/SkillRelationBase'
+      - properties:
+          description:
+            type: string
+      - $ref: '#/components/schemas/SkillRelationAgents'
+      - required:
+        - name
+    AgentSkillRelationBase:
+      properties:
+        skill_weight:
+          type: integer
+          description: Skill's weight.
+    AgentSkill:
+      title: AgentSkill
+      allOf:
+      - $ref: '#/components/schemas/AgentSkillRelationBase'
     AgentRelationBase:
       properties:
         id:
@@ -466,6 +329,10 @@ components:
         number:
           type: string
           description: Agent number. Cannot be modified after creation
+    Error:
+      type: array
+      items:
+        type: string
     SkillRule:
       title: SkillRule
       properties:
@@ -485,6 +352,139 @@ components:
             $ref: '#/components/schemas/SkillRuleRule'
       required:
       - name
+    SkillItems:
+      title: SkillItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+        total:
+          type: integer
+      required:
+      - total
+    SkillRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the skill
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    agentid:
+      required: true
+      name: agent_id
+      in: path
+      description: Agent’s ID
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    skillruleid:
+      required: true
+      name: skillrule_id
+      in: path
+      description: Skill's ID
+      schema:
+        type: integer
+    skillid:
+      required: true
+      name: skill_id
+      in: path
+      description: Skill's ID
+      schema:
+        type: integer
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

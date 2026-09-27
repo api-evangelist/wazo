@@ -151,6 +151,17 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
+    qos_thresholds:
+      name: qos_thresholds
+      description: The steps of quality of service times used for the interval generation.
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: integer
+          minimum: 1
+        uniqueItems: true
     day_start_time:
       name: day_start_time
       description: The time at which a day starts, inclusively. Accepted format is `HH:MM`, minutes are ignored.
@@ -158,6 +169,42 @@ components:
       required: false
       schema:
         type: string
+    qos_threshold:
+      name: qos_threshold
+      description: The number of seconds representing a good quality of service.
+      in: query
+      required: false
+      schema:
+        type: integer
+    from:
+      name: from
+      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    day_end_time:
+      name: day_end_time
+      description: The time at which a day ends, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+      in: query
+      required: false
+      schema:
+        type: string
+    timezone:
+      name: timezone
+      description: 'Name of the timezone to use for dates and times. Example: America/New_York. Valid timezones
+
+        are defined by the <a href="https://en.wikipedia.org/wiki/Tz_database">Time Zone Database</a>
+
+        version installed on the server.
+
+        '
+      in: query
+      required: false
+      schema:
+        type: string
+        default: UTC
     week_days:
       name: week_days
       description: The days of the week that should be included. A week starts on Monday (1) and ends on Sunday (7).
@@ -189,37 +236,9 @@ components:
         - hour
         - day
         - month
-    day_end_time:
-      name: day_end_time
-      description: The time at which a day ends, inclusively. Accepted format is `HH:MM`, minutes are ignored.
-      in: query
-      required: false
-      schema:
-        type: string
-    qos_threshold:
-      name: qos_threshold
-      description: The number of seconds representing a good quality of service.
-      in: query
-      required: false
-      schema:
-        type: integer
-    timezone:
-      name: timezone
-      description: 'Name of the timezone to use for dates and times. Example: America/New_York. Valid timezones
-
-        are defined by the <a href="https://en.wikipedia.org/wiki/Tz_database">Time Zone Database</a>
-
-        version installed on the server.
-
-        '
-      in: query
-      required: false
-      schema:
-        type: string
-        default: UTC
-    from:
-      name: from
-      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
       in: query
       required: false
       schema:
@@ -232,39 +251,16 @@ components:
       required: false
       schema:
         type: string
-    until:
-      name: until
-      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
-    qos_thresholds:
-      name: qos_thresholds
-      description: The steps of quality of service times used for the interval generation.
-      in: query
-      required: false
-      schema:
-        type: array
-        items:
-          type: integer
-          minimum: 1
-        uniqueItems: true
-  responses:
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
+    QueueStatistics:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/QueueStatistic'
+        total:
+          type: integer
     Error:
       title: Error
       description: Error message for the client
@@ -282,51 +278,6 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    QueueQoSStatistic:
-      type: object
-      properties:
-        from:
-          type: string
-          description: Start of the statistic interval.
-        until:
-          type: string
-          description: End of the statistic interval.
-        tenant_uuid:
-          type: string
-          format: uuid
-          description: Tenant UUID of the corresponding queue.
-        queue_id:
-          type: integer
-          description: ID of the corresponding queue.
-        queue_name:
-          type: string
-          description: Name of the corresponding queue.
-        quality_of_service:
-          type: array
-          items:
-            type: object
-            properties:
-              min:
-                type: integer
-                description: Minimum of the QoS interval
-              max:
-                type: integer
-                description: Maximum of the QoS interval
-              answered:
-                type: integer
-                description: Number of calls answered by an agent.
-              abandoned:
-                type: integer
-                description: Number of calls that were abandoned while they were waiting for an answer.
-    QueueStatistics:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/QueueStatistic'
-        total:
-          type: integer
     QueuesStatistics:
       type: object
       properties:
@@ -334,15 +285,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/QueueStatistic'
-        total:
-          type: integer
-    QueueQoSStatistics:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/QueueQoSStatistic'
         total:
           type: integer
     QueueStatistic:
@@ -396,6 +338,64 @@ components:
           type: number
           format: float
           description: Percentage based on the number of calls answered in less than the defined quality of service threshold over the number of answered calls.
+    QueueQoSStatistics:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/QueueQoSStatistic'
+        total:
+          type: integer
+    QueueQoSStatistic:
+      type: object
+      properties:
+        from:
+          type: string
+          description: Start of the statistic interval.
+        until:
+          type: string
+          description: End of the statistic interval.
+        tenant_uuid:
+          type: string
+          format: uuid
+          description: Tenant UUID of the corresponding queue.
+        queue_id:
+          type: integer
+          description: ID of the corresponding queue.
+        queue_name:
+          type: string
+          description: Name of the corresponding queue.
+        quality_of_service:
+          type: array
+          items:
+            type: object
+            properties:
+              min:
+                type: integer
+                description: Minimum of the QoS interval
+              max:
+                type: integer
+                description: Maximum of the QoS interval
+              answered:
+                type: integer
+                description: Number of calls answered by an agent.
+              abandoned:
+                type: integer
+                description: Number of calls that were abandoned while they were waiting for an answer.
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

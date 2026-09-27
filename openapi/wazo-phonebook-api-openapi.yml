@@ -762,155 +762,80 @@ paths:
       operationId: deleteTenantsByTenantPhonebooksByPhonebookIdContactsByContactId
       x-operation-id-source: derived
 components:
-  responses:
-    DuplicateContact:
-      description: This contact already exists
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    DuplicatePhonebook:
-      description: This phonebook already exists
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    InvalidTenant:
-      description: The tenant is not a valid ascii alphanumeric string
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    InvalidParameters:
-      description: Invalid parameters
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    PhonebookContactListResponse:
-      description: A list of contacts
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              total:
-                type: integer
-                description: The total number of contacts
-              items:
-                $ref: '#/components/schemas/PhonebookContactList'
-  parameters:
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    PhonebookID:
-      name: phonebook_id
-      required: true
-      in: path
-      description: The phonebook's ID
-      schema:
-        type: integer
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    PhonebookUUID:
-      name: phonebook_uuid
-      required: true
-      in: path
-      description: The phonebook's UUID
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    Tenant:
-      name: tenant
-      in: path
-      description: The tenant defines the ownership of a given resource.
-      required: true
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: The offset defines the number of items of the collection to skip
-      required: false
-      schema:
-        type: integer
-        default: 0
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    Limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    ContactID:
-      name: contact_id
-      in: path
-      required: true
-      description: The ID of contact.
-      schema:
-        type: string
   schemas:
-    ContactBodySample:
-      description: Those are only example attributes. The API accepts any arbitrary attributes.
+    Phonebook:
       properties:
+        id:
+          type: integer
+        uuid:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    PhonebookContact:
+      properties:
+        id:
+          type: string
+          readOnly: true
         firstname:
           type: string
         lastname:
           type: string
+      additionalProperties:
+        type: string
+    ContactImportResponse:
+      properties:
+        created:
+          type: array
+          items:
+            type: object
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactImportFailure'
+    PhonebookContactImportError:
+      description: Error(s) during contact import
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        properties:
+          details:
+            type: object
+            properties:
+              errors:
+                description: A list of errors concerning separate contact entries
+                type: array
+                items:
+                  type: object
+                  properties:
+                    contact:
+                      description: The contact entry as parsed from the request csv input
+                      type: object
+                      additionalProperties:
+                        type: string
+                    message:
+                      type: string
+                      description: Human readable description of the error
+                    index:
+                      type: integer
+                      description: the zero-based index of the contact entry in the request csv input(excluding the header)
+    PhonebookBody:
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+      - name
+    ContactImportFailure:
+      properties:
+        line:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: string
     LegacyError:
       title: LegacyError
       description: Error message for the client
@@ -929,40 +854,17 @@ components:
         status_code:
           description: HTTP status code
           type: integer
-    ContactImportResponse:
+    PhonebookContactList:
+      type: array
+      items:
+        $ref: '#/components/schemas/PhonebookContact'
+    ContactBodySample:
+      description: Those are only example attributes. The API accepts any arbitrary attributes.
       properties:
-        created:
-          type: array
-          items:
-            type: object
-        failed:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContactImportFailure'
-    PhonebookContactImportResponse:
-      $ref: '#/components/schemas/ContactImportResponse'
-      properties:
-        created:
-          $ref: '#/components/schemas/PhonebookContactList'
-    PhonebookContact:
-      properties:
-        id:
-          type: string
-          readOnly: true
         firstname:
           type: string
         lastname:
           type: string
-      additionalProperties:
-        type: string
-    ContactImportFailure:
-      properties:
-        line:
-          type: integer
-        errors:
-          type: array
-          items:
-            type: string
     Error:
       title: Error
       description: Error message for the client
@@ -990,54 +892,152 @@ components:
         resource:
           description: an identifier for the resource type concerned by the error
           type: string
-    PhonebookContactImportError:
-      description: Error(s) during contact import
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        properties:
-          details:
+    PhonebookContactImportResponse:
+      $ref: '#/components/schemas/ContactImportResponse'
+      properties:
+        created:
+          $ref: '#/components/schemas/PhonebookContactList'
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    DuplicatePhonebook:
+      description: This phonebook already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    InvalidParameters:
+      description: Invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    PhonebookContactListResponse:
+      description: A list of contacts
+      content:
+        application/json:
+          schema:
             type: object
             properties:
-              errors:
-                description: A list of errors concerning separate contact entries
-                type: array
-                items:
-                  type: object
-                  properties:
-                    contact:
-                      description: The contact entry as parsed from the request csv input
-                      type: object
-                      additionalProperties:
-                        type: string
-                    message:
-                      type: string
-                      description: Human readable description of the error
-                    index:
-                      type: integer
-                      description: the zero-based index of the contact entry in the request csv input(excluding the header)
-    Phonebook:
-      properties:
-        id:
-          type: integer
-        uuid:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-    PhonebookContactList:
-      type: array
-      items:
-        $ref: '#/components/schemas/PhonebookContact'
-    PhonebookBody:
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-      required:
-      - name
+              total:
+                type: integer
+                description: The total number of contacts
+              items:
+                $ref: '#/components/schemas/PhonebookContactList'
+    DuplicateContact:
+      description: This contact already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    InvalidTenant:
+      description: The tenant is not a valid ascii alphanumeric string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    PhonebookUUID:
+      name: phonebook_uuid
+      required: true
+      in: path
+      description: The phonebook's UUID
+      schema:
+        type: string
+    Tenant:
+      name: tenant
+      in: path
+      description: The tenant defines the ownership of a given resource.
+      required: true
+      schema:
+        type: string
+    PhonebookID:
+      name: phonebook_id
+      required: true
+      in: path
+      description: The phonebook's ID
+      schema:
+        type: integer
+    Offset:
+      name: offset
+      in: query
+      description: The offset defines the number of items of the collection to skip
+      required: false
+      schema:
+        type: integer
+        default: 0
+    ContactID:
+      name: contact_id
+      in: path
+      required: true
+      description: The ID of contact.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

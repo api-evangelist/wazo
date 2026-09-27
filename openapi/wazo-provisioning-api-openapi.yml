@@ -51,9 +51,6 @@ paths:
               $ref: '#/components/schemas/ProvisioningNetworking'
         required: true
 components:
-  responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
   schemas:
     ProvisioningNetworking:
       title: Provisioning Networking
@@ -68,6 +65,9 @@ components:
         provision_http_base_url:
           type: string
           description: The base URL on which the provisioning server will be accessible from outside the network.
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
   securitySchemes:
     wazo_auth_token:
       type: apiKey

@@ -103,101 +103,19 @@ paths:
       operationId: getExportsByExportUuidDownload
       x-operation-id-source: derived
 components:
-  parameters:
-    export_uuid:
-      name: export_uuid
-      description: UUID of the given export
-      required: true
-      in: path
-      schema:
-        type: string
-    from_id:
-      name: from_id
-      description: Ignore CDR created before the given CDR ID.
-      in: query
-      required: false
-      schema:
-        type: integer
-    tags:
-      required: false
-      name: tags
-      in: query
-      description: Filter by tags. Each tag MUST be separated by a coma (,). Many tag will perform a logical AND.
-      schema:
-        type: array
-        items:
-          type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    email:
-      name: email
-      description: E-mail address
-      in: query
-      schema:
-        type: string
-    user_uuid:
-      required: false
-      name: user_uuid
-      in: query
-      description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will perform a logical OR.
-      schema:
-        type: array
-        items:
-          type: string
-    from:
-      name: from
-      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
-    search:
-      required: false
-      name: search
-      in: query
-      description: Filter list of items
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    number:
-      required: false
-      name: number
-      in: query
-      description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
-      schema:
-        type: string
-    until:
-      name: until
-      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
-    call_direction:
-      required: false
-      name: call_direction
-      in: query
-      description: Filter list of items
-      schema:
-        type: string
-        enum:
-        - internal
-        - inbound
-        - outbound
+  responses:
+    NotDoneYetError:
+      description: Not done yet
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
     Error:
       title: Error
@@ -238,19 +156,101 @@ components:
           - finished
           - deleted
           - error
-  responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotDoneYetError:
-      description: Not done yet
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+  parameters:
+    user_uuid:
+      required: false
+      name: user_uuid
+      in: query
+      description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will perform a logical OR.
+      schema:
+        type: array
+        items:
+          type: string
+    call_direction:
+      required: false
+      name: call_direction
+      in: query
+      description: Filter list of items
+      schema:
+        type: string
+        enum:
+        - internal
+        - inbound
+        - outbound
+    tags:
+      required: false
+      name: tags
+      in: query
+      description: Filter by tags. Each tag MUST be separated by a coma (,). Many tag will perform a logical AND.
+      schema:
+        type: array
+        items:
+          type: string
+    from:
+      name: from
+      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    number:
+      required: false
+      name: number
+      in: query
+      description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    email:
+      name: email
+      description: E-mail address
+      in: query
+      schema:
+        type: string
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    search:
+      required: false
+      name: search
+      in: query
+      description: Filter list of items
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    from_id:
+      name: from_id
+      description: Ignore CDR created before the given CDR ID.
+      in: query
+      required: false
+      schema:
+        type: integer
+    export_uuid:
+      name: export_uuid
+      description: UUID of the given export
+      required: true
+      in: path
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

@@ -102,7 +102,84 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
+  parameters:
+    search_distinct:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    room_uuid:
+      name: room_uuid
+      in: path
+      description: The UUID of the room
+      required: true
+      schema:
+        type: string
+    distinct:
+      required: false
+      name: distinct
+      in: query
+      description: Distinct list results by field. Always picks the latest entry. Required if `search` is not specified.
+      schema:
+        type: string
+        enum:
+        - room_uuid
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    from_date:
+      name: from_date
+      in: query
+      description: 'The date and time from which to retrieve messages. Example: 2019-06-12T10:00:00.000+00:00'
+      schema:
+        type: string
+        format: date-time
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned. Required if `distinct` is not specified.
+      schema:
+        type: string
   schemas:
+    APIError:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
     Message:
       properties:
         uuid:
@@ -133,20 +210,23 @@ components:
           readOnly: true
         room:
           $ref: '#/components/schemas/RoomRelationBase'
-    UserMessagePOST:
+    Messages:
+      title: UserItems
       properties:
-        content:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        filtered:
+          type: integer
+        total:
+          type: integer
+    RoomRelationBase:
+      properties:
+        uuid:
           type: string
-          description: The content of the message
-        alias:
-          type: string
-          description: Alias/nickname of the sender
-        sender_identity_uuid:
-          type: string
-          format: uuid
-          description: The UUID of the sender's identity to use for outbound delivery. Required when the room contains external participants.
-      required:
-      - content
+          description: The UUID of the room
+          readOnly: true
     MessageRecipient:
       properties:
         identity:
@@ -182,31 +262,6 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    Messages:
-      title: UserItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Message'
-        filtered:
-          type: integer
-        total:
-          type: integer
-    APIError:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - properties:
-          resource:
-            description: Resource name of the error
-            type: string
-    RoomRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of the room
-          readOnly: true
     MessageDelivery:
       description: 'Delivery metadata for the message. Always present on the response.
 
@@ -232,75 +287,20 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/MessageRecipient'
-  parameters:
-    room_uuid:
-      name: room_uuid
-      in: path
-      description: The UUID of the room
-      required: true
-      schema:
-        type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    from_date:
-      name: from_date
-      in: query
-      description: 'The date and time from which to retrieve messages. Example: 2019-06-12T10:00:00.000+00:00'
-      schema:
-        type: string
-        format: date-time
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned. Required if `distinct` is not specified.
-      schema:
-        type: string
-    search_distinct:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    distinct:
-      required: false
-      name: distinct
-      in: query
-      description: Distinct list results by field. Always picks the latest entry. Required if `search` is not specified.
-      schema:
-        type: string
-        enum:
-        - room_uuid
+    UserMessagePOST:
+      properties:
+        content:
+          type: string
+          description: The content of the message
+        alias:
+          type: string
+          description: Alias/nickname of the sender
+        sender_identity_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the sender's identity to use for outbound delivery. Required when the room contains external participants.
+      required:
+      - content
   responses:
     NotFoundError:
       description: The resource requested was not found on the server

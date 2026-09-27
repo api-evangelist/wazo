@@ -68,6 +68,18 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    CommandResponse:
+      properties:
+        response:
+          type: array
+          items:
+            type: string
+    Command:
+      properties:
+        command:
+          type: string
+      required:
+      - command
     Error:
       properties:
         timestamp:
@@ -79,18 +91,6 @@ components:
           type: string
         details:
           type: object
-    Command:
-      properties:
-        command:
-          type: string
-      required:
-      - command
-    CommandResponse:
-      properties:
-        response:
-          type: array
-          items:
-            type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

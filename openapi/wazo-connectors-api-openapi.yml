@@ -234,6 +234,47 @@ paths:
         required: true
 components:
   schemas:
+    ConnectorIdentityItem:
+      title: ConnectorIdentityItem
+      properties:
+        identity:
+          type: string
+          description: The external identity value
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: Messaging capabilities of this identity (e.g. ["sms"], ["sms", "mms"])
+        binding:
+          $ref: '#/components/schemas/ConnectorIdentityBinding'
+          description: Wazo binding for this identity, or null when unbound
+    ConnectorIdentityList:
+      title: ConnectorIdentityList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectorIdentityItem'
+        total:
+          type: integer
+          description: The number of results
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     ConnectorLocalizedLabel:
       title: ConnectorLocalizedLabel
       properties:
@@ -242,6 +283,15 @@ components:
           description: Locale tag, e.g. `en_US`.
         value:
           type: string
+    ConnectorIdentityBinding:
+      title: ConnectorIdentityBinding
+      properties:
+        identity_uuid:
+          type: string
+          description: The UUID of the bound UserIdentity row
+        user_uuid:
+          type: string
+          description: The UUID of the user the identity is bound to
     ConnectorAuthSchemaField:
       title: ConnectorAuthSchemaField
       properties:
@@ -278,25 +328,6 @@ components:
           resource:
             description: Resource name of the error
             type: string
-    ConnectorList:
-      title: ConnectorList
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Connector'
-        total:
-          type: integer
-          description: The number of results
-    ConnectorIdentityBinding:
-      title: ConnectorIdentityBinding
-      properties:
-        identity_uuid:
-          type: string
-          description: The UUID of the bound UserIdentity row
-        user_uuid:
-          type: string
-          description: The UUID of the user the identity is bound to
     Connector:
       title: Connector
       properties:
@@ -332,23 +363,6 @@ components:
             ``poll`` and ``listen`` need none.
 
             '
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
     ConnectorAuthSchema:
       title: ConnectorAuthSchema
       properties:
@@ -369,37 +383,16 @@ components:
           description: Fields required to collect the credentials.
           items:
             $ref: '#/components/schemas/ConnectorAuthSchemaField'
-    ConnectorIdentityItem:
-      title: ConnectorIdentityItem
-      properties:
-        identity:
-          type: string
-          description: The external identity value
-        capabilities:
-          type: array
-          items:
-            type: string
-          description: Messaging capabilities of this identity (e.g. ["sms"], ["sms", "mms"])
-        binding:
-          $ref: '#/components/schemas/ConnectorIdentityBinding'
-          description: Wazo binding for this identity, or null when unbound
-    ConnectorIdentityList:
-      title: ConnectorIdentityList
+    ConnectorList:
+      title: ConnectorList
       properties:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/ConnectorIdentityItem'
+            $ref: '#/components/schemas/Connector'
         total:
           type: integer
           description: The number of results
-  responses:
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
     tenant_uuid:
       name: Wazo-Tenant
@@ -408,6 +401,13 @@ components:
       required: false
       schema:
         type: string
+  responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

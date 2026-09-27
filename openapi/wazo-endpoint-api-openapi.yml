@@ -79,6 +79,19 @@ paths:
       parameters:
       - $ref: '#/components/parameters/EndpointName'
 components:
+  responses:
+    NowhereToRouteEndpoint:
+      description: Nowhere to route the requested endpoint
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoSuchEndpoint:
+      description: The endpoint does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
     EndpointName:
       name: endpoint_name
@@ -87,19 +100,6 @@ components:
       required: true
       schema:
         type: string
-  responses:
-    NoSuchEndpoint:
-      description: The endpoint does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NowhereToRouteEndpoint:
-      description: Nowhere to route the requested endpoint
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
     Error:
       type: object

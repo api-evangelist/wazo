@@ -132,54 +132,7 @@ paths:
       operationId: putUsersMeRelocatesByRelocateUuidComplete
       x-operation-id-source: derived
 components:
-  responses:
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NoSuchRelocate:
-      description: The specified relocate does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
-    LocationLine:
-      type: object
-      properties:
-        line_id:
-          type: integer
-          description: the ID of the line where the relocated call should be connected
-        contact:
-          type: string
-          description: the SIP contact to use when multiple registers are used
-      required:
-      - line_id
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
     Relocate:
       type: object
       properties:
@@ -201,18 +154,27 @@ components:
         initiator:
           description: The user UUID of the relocate initiator
           type: string
-    Timeout:
-      description: Number of seconds to wait for the recipient to answer
-      type: integer
-    RelocateCompletions:
-      type: array
-      items:
-        $ref: '#/components/schemas/RelocateCompletion'
-    RelocateList:
-      type: object
+    Error:
+      title: Error
+      description: Error message for the client
       properties:
-        items:
-          $ref: '#/components/schemas/Relocate'
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    UserRelocateLocation:
+      properties:
+        line:
+          $ref: '#/components/schemas/LocationLine'
     UserRelocateRequest:
       type: object
       properties:
@@ -248,10 +210,29 @@ components:
       required:
       - initiator_call
       - destination
-    UserRelocateLocation:
+    RelocateList:
+      type: object
       properties:
-        line:
-          $ref: '#/components/schemas/LocationLine'
+        items:
+          $ref: '#/components/schemas/Relocate'
+    RelocateCompletions:
+      type: array
+      items:
+        $ref: '#/components/schemas/RelocateCompletion'
+    LocationLine:
+      type: object
+      properties:
+        line_id:
+          type: integer
+          description: the ID of the line where the relocated call should be connected
+        contact:
+          type: string
+          description: the SIP contact to use when multiple registers are used
+      required:
+      - line_id
+    Timeout:
+      description: Number of seconds to wait for the recipient to answer
+      type: integer
     RelocateCompletion:
       type: string
       default: answer
@@ -266,6 +247,25 @@ components:
       required: true
       schema:
         type: string
+  responses:
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoSuchRelocate:
+      description: The specified relocate does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

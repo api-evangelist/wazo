@@ -129,6 +129,28 @@ paths:
     - url: /1.0
 components:
   schemas:
+    MicrosoftPost:
+      type: object
+      properties:
+        scope:
+          description: Scope permissions requested
+          type: array
+          items:
+            type: string
+          default:
+          - offline_access
+          - Contacts.Read
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
     MicrosoftGetResult:
       type: object
       properties:
@@ -145,17 +167,6 @@ components:
       - access_token
       - scope
       - token_expiration
-    APIError:
-      type: object
-      properties:
-        timestamp:
-          type: number
-        message:
-          type: string
-        resource:
-          type: string
-        details:
-          type: object
     MicrosoftPostResult:
       type: object
       required:
@@ -164,25 +175,6 @@ components:
         verification_url:
           type: string
           description: The URL to confirm the authorization
-    MicrosoftPost:
-      type: object
-      properties:
-        scope:
-          description: Scope permissions requested
-          type: array
-          items:
-            type: string
-          default:
-          - offline_access
-          - Contacts.Read
-    APIError_2:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - properties:
-          resource:
-            description: Resource name of the error
-            type: string
     Error:
       title: Error
       description: Error message for the client
@@ -200,6 +192,14 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
+    APIError_2:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
   parameters:
     user_uuid:
       name: user_uuid

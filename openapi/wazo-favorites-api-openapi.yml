@@ -89,53 +89,24 @@ paths:
       - $ref: '#/components/parameters/Directory'
       - $ref: '#/components/parameters/FavoriteID'
 components:
-  responses:
-    DuplicateFavorite:
-      description: The contact has already been favorited
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
   schemas:
-    Relation:
+    ContactList:
       properties:
-        xivo_id:
-          type: string
-        user_id:
-          type: string
-        user_uuid:
-          type: string
-        endpoint_id:
-          type: string
-        agent_id:
-          type: string
-        source_entry_id:
-          type: string
-    Contact:
-      properties:
-        column_values:
+        column_headers:
+          type: array
+          description: Labels for the headers
           items:
             type: string
+        column_types:
           type: array
-        relations:
-          $ref: '#/components/schemas/Relation'
-        source:
-          type: string
-        backend:
-          type: string
-          description: Backend type
+          description: Data types for the headers
+          items:
+            type: string
+        results:
+          items:
+            $ref: '#/components/schemas/Contact'
+          type: array
+          description: List of results
     LegacyError:
       title: LegacyError
       description: Error message for the client
@@ -154,28 +125,57 @@ components:
         status_code:
           description: HTTP status code
           type: integer
-    ContactList:
+    Contact:
       properties:
-        column_headers:
-          type: array
-          description: Labels for the headers
+        column_values:
           items:
             type: string
-        column_types:
           type: array
-          description: Data types for the headers
-          items:
-            type: string
-        results:
-          items:
-            $ref: '#/components/schemas/Contact'
-          type: array
-          description: List of results
+        relations:
+          $ref: '#/components/schemas/Relation'
+        source:
+          type: string
+        backend:
+          type: string
+          description: Backend type
+    Relation:
+      properties:
+        xivo_id:
+          type: string
+        user_id:
+          type: string
+        user_uuid:
+          type: string
+        endpoint_id:
+          type: string
+        agent_id:
+          type: string
+        source_entry_id:
+          type: string
+  responses:
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    DuplicateFavorite:
+      description: The contact has already been favorited
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
   parameters:
-    Profile:
-      name: profile
+    FavoriteID:
+      name: contact
       in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`. More precisely, it is the name of the "Direct directory" defined in the web interface.
+      description: The ID of the contact. This ID is unique within the {directory}.
       required: true
       schema:
         type: string
@@ -186,10 +186,10 @@ components:
       required: true
       schema:
         type: string
-    FavoriteID:
-      name: contact
+    Profile:
+      name: profile
       in: path
-      description: The ID of the contact. This ID is unique within the {directory}.
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`. More precisely, it is the name of the "Direct directory" defined in the web interface.
       required: true
       schema:
         type: string

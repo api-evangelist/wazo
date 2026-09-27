@@ -126,89 +126,13 @@ paths:
       parameters:
       - $ref: '#/components/parameters/UserUUID'
 components:
-  parameters:
-    AcceptLanguage:
-      name: Accept-Language
-      in: header
-      required: false
-      description: The language to translate the query results in
-      schema:
-        type: string
-    UserUUID:
-      name: user_uuid
-      in: path
-      description: The user UUID of the user doing that query
-      required: true
-      schema:
-        type: string
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
-      required: true
-      schema:
-        type: string
-    Term:
-      name: term
-      in: query
-      description: A search term to look for
-      required: true
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    Offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    XivoUserUUID:
-      name: xivo_user_uuid
-      in: query
-      description: The user UUID of the user doing that query
-      required: true
-      schema:
-        type: string
-  responses:
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NoSuchUser:
-      description: The user does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    InvalidDataError:
-      description: Data provided is invalid or a field is missing
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    LimitOffsetInvalid:
-      description: The limit or offset should be positive
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
+    YealinkDirectoryEntry:
+      properties:
+        Name:
+          type: string
+        Telephone:
+          type: string
     Error:
       type: object
       title: Error
@@ -233,12 +157,88 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/YealinkDirectoryEntry'
-    YealinkDirectoryEntry:
-      properties:
-        Name:
-          type: string
-        Telephone:
-          type: string
+  parameters:
+    UserUUID:
+      name: user_uuid
+      in: path
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
+      required: true
+      schema:
+        type: string
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    Limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
+    XivoUserUUID:
+      name: xivo_user_uuid
+      in: query
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+  responses:
+    LimitOffsetInvalid:
+      description: The limit or offset should be positive
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidDataError:
+      description: Data provided is invalid or a field is missing
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoSuchUser:
+      description: The user does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

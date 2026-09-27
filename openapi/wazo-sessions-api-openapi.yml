@@ -125,70 +125,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 components:
-  parameters:
-    limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    session_uuid:
-      name: session_uuid
-      in: path
-      description: The UUID of the session
-      required: true
-      schema:
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
   schemas:
-    GetSessionsResult:
-      type: object
-      properties:
-        total:
-          type: integer
-          description: The number of sessions.
-        filtered:
-          type: integer
-          description: The number of sessions matching the searched term.
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SessionResult'
-          description: A paginated list of sessions
-      required:
-      - filtered
-      - total
-      - items
     Error:
       type: object
       properties:
@@ -213,6 +150,69 @@ components:
           type: string
         mobile:
           type: boolean
+    GetSessionsResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of sessions.
+        filtered:
+          type: integer
+          description: The number of sessions matching the searched term.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionResult'
+          description: A paginated list of sessions
+      required:
+      - filtered
+      - total
+      - items
+  parameters:
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    session_uuid:
+      name: session_uuid
+      in: path
+      description: The UUID of the session
+      required: true
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_basic:
       type: http

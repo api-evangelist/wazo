@@ -54,13 +54,6 @@ paths:
     - url: /1.0
 components:
   schemas:
-    StatusSummary:
-      type: object
-      properties:
-        bus_consumer:
-          $ref: '#/components/schemas/ComponentWithStatus'
-        service_token:
-          $ref: '#/components/schemas/ComponentWithStatus'
     StatusValue:
       type: string
       enum:
@@ -71,6 +64,13 @@ components:
       properties:
         status:
           $ref: '#/components/schemas/StatusValue'
+    StatusSummary:
+      type: object
+      properties:
+        bus_consumer:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        service_token:
+          $ref: '#/components/schemas/ComponentWithStatus'
     StatusSummary_2:
       type: object
       properties:
@@ -91,13 +91,6 @@ components:
           $ref: '#/components/schemas/ComponentWithStatus'
         service_token:
           $ref: '#/components/schemas/ComponentWithStatus'
-    PluginsStatus:
-      type: object
-      properties:
-        endpoints:
-          $ref: '#/components/schemas/ComponentWithStatus'
-        voicemails:
-          $ref: '#/components/schemas/VoicemailsStatus'
     VoicemailsStatus:
       type: object
       allOf:
@@ -116,6 +109,13 @@ components:
           $ref: '#/components/schemas/ComponentWithStatus'
         plugins:
           $ref: '#/components/schemas/PluginsStatus'
+    PluginsStatus:
+      type: object
+      properties:
+        endpoints:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        voicemails:
+          $ref: '#/components/schemas/VoicemailsStatus'
     StatusSummary_5:
       type: object
       properties:

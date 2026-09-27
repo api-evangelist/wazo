@@ -51,10 +51,11 @@ paths:
       - $ref: '#/components/parameters/AcceptLanguage'
 components:
   parameters:
-    set_first:
-      name: set_first
-      in: query
-      description: A search term to look for
+    UserUUID:
+      name: user_uuid
+      in: path
+      description: The user UUID of the user doing that query
+      required: true
       schema:
         type: string
     AcceptLanguage:
@@ -64,17 +65,10 @@ components:
       description: The language to translate the query results in
       schema:
         type: string
-    UserUUID:
-      name: user_uuid
-      in: path
-      description: The user UUID of the user doing that query
-      required: true
-      schema:
-        type: string
-    first:
-      name: first
+    count:
+      name: count
       in: query
-      description: The offset defines the offsets the start by the number specified
+      description: The limit defines the number of individual objects that are returned
       schema:
         type: integer
     Profile:
@@ -84,31 +78,18 @@ components:
       required: true
       schema:
         type: string
-    count:
-      name: count
+    first:
+      name: first
       in: query
-      description: The limit defines the number of individual objects that are returned
+      description: The offset defines the offsets the start by the number specified
       schema:
         type: integer
-  responses:
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    LimitOffsetInvalid:
-      description: The limit or offset should be positive
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+    set_first:
+      name: set_first
+      in: query
+      description: A search term to look for
+      schema:
+        type: string
   schemas:
     entry:
       properties:
@@ -176,6 +157,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/entry'
+  responses:
+    LimitOffsetInvalid:
+      description: The limit or offset should be positive
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

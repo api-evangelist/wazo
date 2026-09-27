@@ -186,8 +186,10 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 components:
   responses:
-    GenericError:
-      description: An error occurred during the operation
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
@@ -198,31 +200,27 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     CreateError:
       description: An error occurred when creating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     ResourceDeleted:
       description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    ContextRelationContext:
-      $ref: '#/components/schemas/ContextRelationBase'
     ContextId:
       title: ContextId
       properties:
@@ -242,6 +240,24 @@ components:
           type: string
           description: The name used by Asterisk
           readOnly: true
+    ContextRelationContexts:
+      properties:
+        contexts:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ContextRelationContext'
+    ContextRange:
+      title: ContextRange
+      properties:
+        start:
+          type: string
+          default: <start>
+        end:
+          type: string
+          default: <end>
+      required:
+      - start
     ContextRangeItems:
       title: ContextRangeItems
       properties:
@@ -262,35 +278,6 @@ components:
           end: 1014
         - start: 1025
           end: 1999
-    ContextRange:
-      title: ContextRange
-      properties:
-        start:
-          type: string
-          default: <start>
-        end:
-          type: string
-          default: <end>
-      required:
-      - start
-    ContextsId:
-      title: ContextsId
-      properties:
-        contexts:
-          items:
-            $ref: '#/components/schemas/ContextId'
-          type: array
-    ContextRelationContexts:
-      properties:
-        contexts:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ContextRelationContext'
-    Error:
-      type: array
-      items:
-        type: string
     ContextIncallRange:
       title: ContextIncallRange
       allOf:
@@ -300,6 +287,17 @@ components:
             type: integer
             default: 0
             description: The length of the did
+    ContextsId:
+      title: ContextsId
+      properties:
+        contexts:
+          items:
+            $ref: '#/components/schemas/ContextId'
+          type: array
+    Error:
+      type: array
+      items:
+        type: string
     ContextItems:
       title: ContextItems
       properties:
@@ -311,6 +309,8 @@ components:
           type: integer
       required:
       - total
+    ContextRelationContext:
+      $ref: '#/components/schemas/ContextRelationBase'
     Context:
       title: Context
       allOf:
@@ -362,23 +362,13 @@ components:
       - required:
         - label
   parameters:
-    offset:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
       schema:
         type: string
-        enum:
-        - asc
-        - desc
     contextid:
       required: true
       name: context_id
@@ -386,13 +376,6 @@ components:
       description: context's ID
       schema:
         type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
     rangetype:
       required: true
       name: range_type
@@ -406,6 +389,16 @@ components:
         - queue
         - conference
         - incall
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
     limit:
       required: false
       name: limit
@@ -413,28 +406,13 @@ components:
       description: Maximum number of items to return in the list
       schema:
         type: integer
-    search:
+    offset:
       required: false
-      name: search
+      name: offset
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      description: Number of items to skip over in the list. Useful for pagination.
       schema:
-        type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
+        type: integer
     availability:
       required: false
       name: availability
@@ -446,6 +424,28 @@ components:
         - available
         - all
         default: available
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

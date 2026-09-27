@@ -95,6 +95,52 @@ components:
         configurable_status:
           type: object
           description: A mapping of all dependencies and there statuses
+    Wizard:
+      title: Wizard
+      properties:
+        admin_password:
+          type: string
+          description: Wazo administrator ``root`` password
+        license:
+          type: boolean
+          description: 'Accept/decline the GPLv3: http://www.gnu.org/licenses/gpl-3.0.en.html'
+        timezone:
+          type: string
+          description: 'System timezone. Example: America/Montreal. For the complete list of supported timezones, see ``/usr/share/zoneinfo/``'
+        language:
+          type: string
+          default: en_US
+          enum:
+          - de_DE
+          - en_US
+          - es_ES
+          - fr_FR
+          - fr_CA
+          - it_IT
+          - nl_NL
+          description: The language in which the Wazo will play sounds
+        network:
+          $ref: '#/components/schemas/WizardNetwork'
+        steps:
+          $ref: '#/components/schemas/WizardSteps'
+      required:
+      - admin_password
+      - license
+      - timezone
+      - network
+    Error:
+      type: array
+      items:
+        type: string
+    WizardDiscoverGateway:
+      title: WizardDiscoverGateway
+      properties:
+        interface:
+          type: string
+          description: Interface name (e.g. eth0)
+        gateway:
+          type: string
+          description: Gateway IPv4 address
     WizardSteps:
       title: WizardSteps
       properties:
@@ -126,6 +172,44 @@ components:
           type: boolean
           default: true
           description: Create admin in wazo-auth?
+    WizardDiscover:
+      title: WizardDiscover
+      properties:
+        hostname:
+          type: string
+          description: System hostname
+        domain:
+          type: string
+          description: System domain name
+        timezone:
+          type: string
+          description: System timezone from file ``/etc/timezone``
+        nameservers:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+          description: Nameservers from file ``/etc/resolv.conf``
+        interfaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/WizardDiscoverInterface'
+        gateways:
+          type: array
+          items:
+            $ref: '#/components/schemas/WizardDiscoverGateway'
+    WizardDiscoverInterface:
+      title: WizardDiscoverInterface
+      properties:
+        interface:
+          type: string
+          description: Interface name (e.g. eth0)
+        ip_address:
+          type: string
+          description: IPv4 address of the interface
+        netmask:
+          type: string
+          description: Netmask of the IP address
     WizardNetwork:
       title: WizardNetwork
       properties:
@@ -161,90 +245,6 @@ components:
       - netmask
       - gateway
       - nameservers
-    Error:
-      type: array
-      items:
-        type: string
-    WizardDiscoverInterface:
-      title: WizardDiscoverInterface
-      properties:
-        interface:
-          type: string
-          description: Interface name (e.g. eth0)
-        ip_address:
-          type: string
-          description: IPv4 address of the interface
-        netmask:
-          type: string
-          description: Netmask of the IP address
-    WizardDiscoverGateway:
-      title: WizardDiscoverGateway
-      properties:
-        interface:
-          type: string
-          description: Interface name (e.g. eth0)
-        gateway:
-          type: string
-          description: Gateway IPv4 address
-    Wizard:
-      title: Wizard
-      properties:
-        admin_password:
-          type: string
-          description: Wazo administrator ``root`` password
-        license:
-          type: boolean
-          description: 'Accept/decline the GPLv3: http://www.gnu.org/licenses/gpl-3.0.en.html'
-        timezone:
-          type: string
-          description: 'System timezone. Example: America/Montreal. For the complete list of supported timezones, see ``/usr/share/zoneinfo/``'
-        language:
-          type: string
-          default: en_US
-          enum:
-          - de_DE
-          - en_US
-          - es_ES
-          - fr_FR
-          - fr_CA
-          - it_IT
-          - nl_NL
-          description: The language in which the Wazo will play sounds
-        network:
-          $ref: '#/components/schemas/WizardNetwork'
-        steps:
-          $ref: '#/components/schemas/WizardSteps'
-      required:
-      - admin_password
-      - license
-      - timezone
-      - network
-    WizardDiscover:
-      title: WizardDiscover
-      properties:
-        hostname:
-          type: string
-          description: System hostname
-        domain:
-          type: string
-          description: System domain name
-        timezone:
-          type: string
-          description: System timezone from file ``/etc/timezone``
-        nameservers:
-          type: array
-          maxItems: 3
-          items:
-            type: string
-          description: Nameservers from file ``/etc/resolv.conf``
-        interfaces:
-          type: array
-          items:
-            $ref: '#/components/schemas/WizardDiscoverInterface'
-        gateways:
-          type: array
-          items:
-            $ref: '#/components/schemas/WizardDiscoverGateway'
   responses:
     CreateError:
       description: An error occurred when creating the resource

@@ -448,54 +448,24 @@ paths:
     servers:
     - url: /1.1
 components:
-  responses:
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NoSuchConference:
-      description: The specified conference does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    ResourceDeleted:
-      description: Resource was deleted successfully
   schemas:
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     Participant:
       type: object
       properties:
@@ -526,23 +496,6 @@ components:
         user_uuid:
           description: The UUID of the participant's user. `null` when there is no user.
           type: string
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
     ParticipantList:
       type: object
       properties:
@@ -550,28 +503,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Participant'
-    ConferenceRelationIncalls:
+    ConfBridgeConfiguration:
+      title: ConfBridgeConfiguration
+      description: 'This configuration will be in the file ''confbridge.conf'' used by asterisk.
+
+        Please consult the asterisk documentation for further details on available parameters.'
       properties:
-        incalls:
+        options:
+          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
+    ConferenceRelationExtensions:
+      properties:
+        extensions:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/ConferenceRelationIncall'
-    IncallRelationBase:
-      title: IncallRelation
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the incoming call
-    ConferenceRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          description: name to identify the conference
+            $ref: '#/components/schemas/ExtensionRelationBase'
     Conference:
       title: Conference
       allOf:
@@ -618,15 +565,45 @@ components:
             readOnly: true
       - $ref: '#/components/schemas/ConferenceRelationExtensions'
       - $ref: '#/components/schemas/ConferenceRelationIncalls'
-    ConfBridgeConfiguration:
-      title: ConfBridgeConfiguration
-      description: 'This configuration will be in the file ''confbridge.conf'' used by asterisk.
-
-        Please consult the asterisk documentation for further details on available parameters.'
+    ExtensionRelationBase:
       properties:
-        options:
-          description: "These options must be unique and unordered. Otherwise, use `ordered_options`. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
-          type: object
+        id:
+          type: integer
+          description: Extension ID
+          readOnly: true
+        context:
+          type: string
+        exten:
+          type: string
+    ConferenceRelationIncall:
+      allOf:
+      - $ref: '#/components/schemas/IncallRelationBase'
+      - $ref: '#/components/schemas/IncallRelationExtensions'
+    IncallRelationBase:
+      title: IncallRelation
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the incoming call
+    Error_2:
+      type: array
+      items:
+        type: string
+    IncallRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    ConferenceRelationIncalls:
+      properties:
+        incalls:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ConferenceRelationIncall'
     ConferenceItems:
       title: ConferenceItems
       properties:
@@ -638,46 +615,15 @@ components:
           type: integer
       required:
       - total
-    Error_2:
-      type: array
-      items:
-        type: string
-    ConferenceRelationIncall:
-      allOf:
-      - $ref: '#/components/schemas/IncallRelationBase'
-      - $ref: '#/components/schemas/IncallRelationExtensions'
-    ExtensionRelationBase:
+    ConferenceRelationBase:
       properties:
         id:
           type: integer
-          description: Extension ID
           readOnly: true
-        context:
+        name:
           type: string
-        exten:
-          type: string
-    IncallRelationExtensions:
-      properties:
-        extensions:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
-    ConferenceRelationExtensions:
-      properties:
-        extensions:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
+          description: name to identify the conference
   parameters:
-    ConferenceID:
-      name: conference_id
-      in: path
-      description: Unique identifier of the conference
-      required: true
-      schema:
-        type: string
     ParticipantID:
       name: participant_id
       in: path
@@ -685,18 +631,31 @@ components:
       required: true
       schema:
         type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
+    ConferenceID:
+      name: conference_id
+      in: path
+      description: Unique identifier of the conference
+      required: true
       schema:
-        type: integer
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
     conferenceid:
       required: true
       name: conference_id
       in: path
       description: Conference's ID
+      schema:
+        type: integer
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
       schema:
         type: integer
     direction:
@@ -709,19 +668,6 @@ components:
         enum:
         - asc
         - desc
-    extensionid:
-      required: true
-      name: extension_id
-      in: path
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
     limit:
       required: false
       name: limit
@@ -736,6 +682,20 @@ components:
       description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
     recurse:
       name: recurse
       in: query
@@ -744,13 +704,53 @@ components:
       schema:
         type: boolean
         default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
+  responses:
+    NoSuchConference:
+      description: The specified conference does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

@@ -63,6 +63,9 @@ components:
       required: false
       schema:
         type: string
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
   schemas:
     RecordingsAnnouncements:
       title: Recordings announcements
@@ -74,9 +77,6 @@ components:
         recording_stop:
           type: string
           description: The filename for the recording stop announcement
-  responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
   securitySchemes:
     wazo_auth_token:
       type: apiKey

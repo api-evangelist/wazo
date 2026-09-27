@@ -71,14 +71,16 @@ paths:
       - $ref: '#/components/parameters/AcceptLanguage'
 components:
   schemas:
-    SnomSoftKeyItem:
+    SnomIPPhoneMenu:
       properties:
-        Label:
-          type: string
-        URL:
-          type: string
-        Name:
-          type: integer
+        MenuItem:
+          type: array
+          items:
+            $ref: '#/components/schemas/SnomMenuItem'
+        SoftKeyItem:
+          type: array
+          items:
+            $ref: '#/components/schemas/SnomSoftKeyItem'
     Error:
       type: object
       title: Error
@@ -97,6 +99,14 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
+    SnomSoftKeyItem:
+      properties:
+        Label:
+          type: string
+        URL:
+          type: string
+        Name:
+          type: integer
     SnomIPPhoneInput:
       properties:
         Title:
@@ -107,24 +117,6 @@ components:
           type: string
         InputItem:
           $ref: '#/components/schemas/SnomInputItem'
-    SnomIPPhoneMenu:
-      properties:
-        MenuItem:
-          type: array
-          items:
-            $ref: '#/components/schemas/SnomMenuItem'
-        SoftKeyItem:
-          type: array
-          items:
-            $ref: '#/components/schemas/SnomSoftKeyItem'
-    SnomMenuItem:
-      properties:
-        name:
-          type: string
-          xml:
-            attribute: true
-        Url:
-          type: string
     SnomInputItem:
       properties:
         DisplayName:
@@ -135,13 +127,60 @@ components:
           type: string
         InputFlags:
           type: string
+    SnomMenuItem:
+      properties:
+        name:
+          type: string
+          xml:
+            attribute: true
+        Url:
+          type: string
+  parameters:
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
+      required: true
+      schema:
+        type: string
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
+    Limit16:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+        default: 16
+    XivoUserUUID:
+      name: xivo_user_uuid
+      in: query
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
   responses:
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     LimitOffsetInvalid:
       description: The limit or offset should be positive
       content:
@@ -154,51 +193,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  parameters:
-    AcceptLanguage:
-      name: Accept-Language
-      in: header
-      required: false
-      description: The language to translate the query results in
-      schema:
-        type: string
-    Limit16:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-        default: 16
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
-      required: true
-      schema:
-        type: string
-    Term:
-      name: term
-      in: query
-      description: A search term to look for
-      required: true
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    XivoUserUUID:
-      name: xivo_user_uuid
-      in: query
-      description: The user UUID of the user doing that query
-      required: true
-      schema:
-        type: string
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

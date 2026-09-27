@@ -249,20 +249,23 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    Relation:
+    ContactList:
       properties:
-        xivo_id:
-          type: string
-        user_id:
-          type: string
-        user_uuid:
-          type: string
-        endpoint_id:
-          type: string
-        agent_id:
-          type: string
-        source_entry_id:
-          type: string
+        column_headers:
+          type: array
+          description: Labels for the headers
+          items:
+            type: string
+        column_types:
+          type: array
+          description: Data types for the headers
+          items:
+            type: string
+        results:
+          items:
+            $ref: '#/components/schemas/Contact'
+          type: array
+          description: List of results
     Header:
       properties:
         column_headers:
@@ -275,6 +278,43 @@ components:
           description: Data types for the headers
           items:
             type: string
+    ProfileSource:
+      properties:
+        uuid:
+          type: string
+          description: The source's UUID
+          readOnly: true
+        backend:
+          type: string
+          description: The name of the source's backend
+        name:
+          type: string
+          description: The source's name
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant of this source
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
+    PhonebookContact:
+      properties:
+        id:
+          type: string
+          readOnly: true
+        firstname:
+          type: string
+        lastname:
+          type: string
+      additionalProperties:
+        type: string
     Lookup:
       allOf:
       - $ref: '#/components/schemas/ContactList'
@@ -282,23 +322,7 @@ components:
           term:
             type: string
             description: Search term used for these results
-    Reverse:
-      properties:
-        display:
-          type: string
-        exten:
-          type: string
-          description: A search exten to look for
-        source:
-          type: string
-        fields:
-          description: Fields defined for each source
-          $ref: '#/components/schemas/ResultFields'
-      required:
-      - display
-      - exten
-      - fields
-      - source
+    ResultFields: {}
     LegacyError:
       title: LegacyError
       description: Error message for the client
@@ -317,6 +341,37 @@ components:
         status_code:
           description: HTTP status code
           type: integer
+    Contact:
+      properties:
+        column_values:
+          items:
+            type: string
+          type: array
+        relations:
+          $ref: '#/components/schemas/Relation'
+        source:
+          type: string
+        backend:
+          type: string
+          description: Backend type
+    PhonebookContactList:
+      type: array
+      items:
+        $ref: '#/components/schemas/PhonebookContact'
+    Relation:
+      properties:
+        xivo_id:
+          type: string
+        user_id:
+          type: string
+        user_uuid:
+          type: string
+        endpoint_id:
+          type: string
+        agent_id:
+          type: string
+        source_entry_id:
+          type: string
     ProfileSourceItems:
       properties:
         items:
@@ -331,188 +386,44 @@ components:
           type: integer
           description: The number of configured sources matching the searched terms for this backend
           readOnly: true
-    PhonebookContact:
+    Reverse:
       properties:
-        id:
+        display:
           type: string
-          readOnly: true
-        firstname:
+        exten:
           type: string
-        lastname:
-          type: string
-      additionalProperties:
-        type: string
-    ContactList:
-      properties:
-        column_headers:
-          type: array
-          description: Labels for the headers
-          items:
-            type: string
-        column_types:
-          type: array
-          description: Data types for the headers
-          items:
-            type: string
-        results:
-          items:
-            $ref: '#/components/schemas/Contact'
-          type: array
-          description: List of results
-    APIError:
-      type: object
-      properties:
-        timestamp:
-          type: number
-        message:
-          type: string
-        resource:
-          type: string
-        details:
-          type: object
-    PhonebookContactList:
-      type: array
-      items:
-        $ref: '#/components/schemas/PhonebookContact'
-    Contact:
-      properties:
-        column_values:
-          items:
-            type: string
-          type: array
-        relations:
-          $ref: '#/components/schemas/Relation'
+          description: A search exten to look for
         source:
           type: string
-        backend:
-          type: string
-          description: Backend type
-    ProfileSource:
-      properties:
-        uuid:
-          type: string
-          description: The source's UUID
-          readOnly: true
-        backend:
-          type: string
-          description: The name of the source's backend
-        name:
-          type: string
-          description: The source's name
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant of this source
-    ResultFields: {}
-  parameters:
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    UserUUID:
-      name: user_uuid
-      in: path
-      description: The user UUID of the user doing that query
-      required: true
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    FavoriteID:
-      name: contact
-      in: path
-      description: The ID of the contact. This ID is unique within the {directory}.
-      required: true
-      schema:
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`. More precisely, it is the name of the "Direct directory" defined in the web interface.
-      required: true
-      schema:
-        type: string
-    Directory:
-      name: directory
-      in: path
-      description: The directory where the contact is stored.
-      required: true
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    Exten:
-      name: exten
-      in: query
-      description: A search exten to look for
-      required: true
-      schema:
-        type: string
-    Term:
-      name: term
-      in: query
-      description: A search term to look for
-      required: true
-      schema:
-        type: string
+        fields:
+          description: Fields defined for each source
+          $ref: '#/components/schemas/ResultFields'
+      required:
+      - display
+      - exten
+      - fields
+      - source
   responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
     NotFoundError:
       description: The resource requested was not found on the server
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/APIError'
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
     InvalidParameters:
       description: Invalid parameters
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyError'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
+    ProfileInvalid:
+      description: The profile does not exist
       content:
         application/json:
           schema:
@@ -523,6 +434,95 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyError'
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    Exten:
+      name: exten
+      in: query
+      description: A search exten to look for
+      required: true
+      schema:
+        type: string
+    UserUUID:
+      name: user_uuid
+      in: path
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
+      required: true
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    FavoriteID:
+      name: contact
+      in: path
+      description: The ID of the contact. This ID is unique within the {directory}.
+      required: true
+      schema:
+        type: string
+    Directory:
+      name: directory
+      in: path
+      description: The directory where the contact is stored.
+      required: true
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`. More precisely, it is the name of the "Direct directory" defined in the web interface.
+      required: true
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

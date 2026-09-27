@@ -174,14 +174,14 @@ components:
           type: number
           format: timestamp
   responses:
-    InvalidRequest:
-      description: Invalid request
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+    InvalidRequest:
+      description: Invalid request
       content:
         application/json:
           schema:

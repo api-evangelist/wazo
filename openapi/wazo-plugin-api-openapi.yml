@@ -176,81 +176,39 @@ paths:
       operationId: deletePluginsByNamespaceByName
       x-operation-id-source: derived
 components:
-  parameters:
-    name_filter:
-      required: false
-      name: name
-      in: query
-      description: Search by name
-      schema:
-        type: string
-    namespace_filter:
-      required: false
-      name: namespace
-      in: query
-      description: Search by namespace
-      schema:
-        type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    namespace:
-      required: true
-      name: namespace
-      in: path
-      description: The plugin's namespace
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    name:
-      required: true
-      name: name
-      in: path
-      description: The plugin's name
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Filter list of items, this search is applied to all fields and is not strict (eba matches Sébastien)
-      schema:
-        type: string
-    installed_filter:
-      required: false
-      name: installed
-      in: query
-      description: Filter installed plugins
-      schema:
-        type: boolean
   schemas:
+    GetMarketResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of plugins available on the market
+        filtered:
+          type: integer
+          description: The number of plugins matching the given search
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarketPluginList'
+          description: A list of plugins
+    PluginMetadata:
+      type: object
+      properties:
+        namespace:
+          type: string
+          description: The namespace of the plugin
+        name:
+          type: string
+          description: The name of the plugin
+        version:
+          type: string
+          description: The version of the installed version
+    InstallResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: A UUID associated to this plugin installation
     PluginInstallParameters:
       type: object
       properties:
@@ -264,18 +222,6 @@ components:
           description: Method dependant installation options
       required:
       - method
-    PluginMetadata:
-      type: object
-      properties:
-        namespace:
-          type: string
-          description: The namespace of the plugin
-        name:
-          type: string
-          description: The name of the plugin
-        version:
-          type: string
-          description: The version of the installed version
     MarketPluginList:
       type: object
       properties:
@@ -301,12 +247,6 @@ components:
           items:
             $ref: '#/components/schemas/PluginMetadata'
           description: A list of plugins
-    InstallResponse:
-      type: object
-      properties:
-        uuid:
-          type: string
-          description: A UUID associated to this plugin installation
     Error:
       title: Error
       description: Error message for the client
@@ -342,20 +282,80 @@ components:
         upgradable:
           type: boolean
           description: An indication wether installing this version would be an upgrade on not. Unstalled plugins are marked as upgradable.
-    GetMarketResult:
-      type: object
-      properties:
-        total:
-          type: integer
-          description: The number of plugins available on the market
-        filtered:
-          type: integer
-          description: The number of plugins matching the given search
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/MarketPluginList'
-          description: A list of plugins
+  parameters:
+    namespace_filter:
+      required: false
+      name: namespace
+      in: query
+      description: Search by namespace
+      schema:
+        type: string
+    name:
+      required: true
+      name: name
+      in: path
+      description: The plugin's name
+      schema:
+        type: string
+    name_filter:
+      required: false
+      name: name
+      in: query
+      description: Search by name
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    installed_filter:
+      required: false
+      name: installed
+      in: query
+      description: Filter installed plugins
+      schema:
+        type: boolean
+    namespace:
+      required: true
+      name: namespace
+      in: path
+      description: The plugin's namespace
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Filter list of items, this search is applied to all fields and is not strict (eba matches Sébastien)
+      schema:
+        type: string
   responses:
     NotFoundError:
       description: Plugin not found
