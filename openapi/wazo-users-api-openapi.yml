@@ -4253,13 +4253,662 @@ paths:
     servers:
     - url: /1.0
 components:
-  schemas:
-    Error:
-      title: Error
-      properties:
-        error:
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    QueueID:
+      name: queue_id
+      in: path
+      required: true
+      description: Queue's ID
+      schema:
+        type: integer
+    policy_uuid:
+      name: policy_uuid
+      in: path
+      description: The UUID or slug of the policy. The slug is unique within a tenant, hence the tenant must be specified.
+      required: true
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    session_uuid:
+      name: session_uuid
+      in: path
+      description: The UUID of the session
+      required: true
+      schema:
+        type: string
+    search_policy_slug:
+      name: policy_slug
+      in: query
+      description: The slug of the policy that the group must have.
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    idp_type:
+      name: idp_type
+      in: path
+      description: The type of IDP
+      required: true
+      schema:
+        type: string
+    group_uuid:
+      name: group_uuid
+      in: path
+      description: The UUID of the group
+      required: true
+      schema:
+        type: string
+    email_uuid:
+      name: email_uuid
+      in: path
+      description: The UUID of the email
+      required: true
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    has_policy_slug:
+      name: has_policy_slug
+      in: query
+      description: The slug of the policy that the user must have. This includes indirect associations (user in group has policy).
+      schema:
+        type: string
+    search_policy_uuid:
+      name: policy_uuid
+      in: query
+      description: The UUID of the policy that the group must have.
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    has_policy_uuid:
+      name: has_policy_uuid
+      in: query
+      description: The UUID of the policy that the user must have. This includes indirect associations (user in group has policy).
+      schema:
+        type: string
+    user_uuid_or_me:
+      name: user_uuid_or_me
+      in: path
+      description: The UUID of the user or `me` to refer to the user doing the query
+      required: true
+      schema:
+        type: string
+    client_id:
+      name: client_id
+      in: path
+      description: The client_id of the refresh token to revoke
+      required: true
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    from:
+      name: from
+      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    search_2:
+      required: false
+      name: search
+      in: query
+      description: Filter list of items
+      schema:
+        type: string
+    format:
+      name: format
+      description: Overrides the Content-Type header. This is used to be able to have a downloadable link. Allowed values are "csv" and "json"
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+        - csv
+        - json
+    order_2:
+      required: false
+      name: order
+      in: query
+      description: 'Name of the field to use for sorting the list of items returned. Unsupported values: ``end``.'
+      schema:
+        type: string
+        enum:
+        - created_at
+        - message_id
+    conversation_id:
+      name: conversation_id
+      description: Filter by conversation identifier
+      required: false
+      in: query
+      schema:
+        type: string
+    requested_internal_context:
+      name: requested_internal_context
+      description: Filter by requested_internal_context
+      required: false
+      in: query
+      schema:
+        type: string
+    from_id:
+      name: from_id
+      description: Ignore CDR created before the given CDR ID.
+      in: query
+      required: false
+      schema:
+        type: integer
+    limit_2:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list. Default to 1000 if not specified.
+      schema:
+        type: integer
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    recorded:
+      name: recorded
+      description: Filter by recorded status.
+      required: false
+      in: query
+      schema:
+        type: boolean
+    distinct:
+      required: false
+      name: distinct
+      in: query
+      description: Will only return one result for the selected field
+      schema:
+        type: string
+        enum:
+        - peer_exten
+    offset_2:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    number:
+      required: false
+      name: number
+      in: query
+      description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
+      schema:
+        type: string
+    call_direction:
+      required: false
+      name: call_direction
+      in: query
+      description: Filter list of items
+      schema:
+        type: string
+        enum:
+        - internal
+        - inbound
+        - outbound
+    user_uuid_2:
+      required: false
+      name: user_uuid
+      in: query
+      description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will perform a logical OR.
+      schema:
+        type: array
+        items:
           type: string
-          description: Error identifier
+    requested_internal_extension:
+      name: requested_internal_extension
+      description: Filter by requested_internal_extension
+      required: false
+      in: query
+      schema:
+        type: string
+    call_status:
+      name: call_status
+      description: Filter by call statuses (comma-separated status strings). Defaults to non-blocked calls.
+      required: false
+      in: query
+      schema:
+        type: string
+        enum:
+        - answered
+        - blocked
+        - voicemail
+        - unknown
+    RelocateUUID:
+      name: relocate_uuid
+      in: path
+      description: Unique identifier of the relocate
+      required: true
+      schema:
+        type: string
+    ForceDownload:
+      name: download
+      in: query
+      description: Set to 1 to force download by browser
+      schema:
+        type: string
+    ParkCall:
+      name: park_call
+      in: body
+      description: Payload required to park a call
+      required: true
+      schema:
+        $ref: '#/components/schemas/ParkCallBody'
+    VoicemailGreeting:
+      name: greeting
+      in: path
+      description: The greeting
+      required: true
+      schema:
+        type: string
+        enum:
+        - unavailable
+        - busy
+        - name
+    CallID:
+      name: call_id
+      in: path
+      description: ID of the call
+      required: true
+      schema:
+        type: string
+    TransferID:
+      name: transfer_id
+      in: path
+      description: Unique identifier of the transfer
+      required: true
+      schema:
+        type: string
+    limit_3:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    VoicemailMessageID:
+      name: message_id
+      in: path
+      description: The message's ID
+      required: true
+      schema:
+        type: string
+    TokenID:
+      name: token
+      in: query
+      description: The token's ID
+      schema:
+        type: string
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset_3:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    ConferenceID:
+      name: conference_id
+      in: path
+      description: Unique identifier of the conference
+      required: true
+      schema:
+        type: string
+    ParticipantID:
+      name: participant_id
+      in: path
+      description: Unique identifier of the participant
+      required: true
+      schema:
+        type: string
+    VoicemailFolderID:
+      name: folder_id
+      in: path
+      description: The folder's ID
+      required: true
+      schema:
+        type: integer
+    DTMFDigits:
+      name: digits
+      in: query
+      description: Digits to send via DTMF. Must contain only `0-9*#ABCD` (letters are case insensitive).
+      required: true
+      schema:
+        type: string
+    MeetingUUID:
+      name: meeting_uuid
+      in: path
+      description: Unique identifier of the meeting
+      required: true
+      schema:
+        type: string
+    pagingid:
+      required: true
+      name: paging_id
+      in: path
+      description: Paging's ID
+      schema:
+        type: integer
+    csvbody:
+      name: body
+      in: body
+      required: true
+      description: CSV field list available at https://wazo-platform.org/uc-doc/administration/users/csv_import
+      schema:
+        type: string
+    query_string_uuid_filter:
+      in: query
+      name: uuid
+      required: false
+      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          format: uuid
+        maxItems: 20
+        minItems: 1
+        uniqueItems: true
+    agentid:
+      required: true
+      name: agent_id
+      in: path
+      description: Agent’s ID
+      schema:
+        type: integer
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    offset_4:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    service:
+      required: true
+      name: service_name
+      in: path
+      description: the service name
+      schema:
+        type: string
+        enum:
+        - dnd
+        - incallfilter
+    queueid:
+      required: true
+      name: queue_id
+      in: path
+      description: Queue’s ID
+      schema:
+        type: integer
+    callpermissionid:
+      required: true
+      name: callpermission_id
+      in: path
+      description: Call Permission's ID
+      schema:
+        type: integer
+    funckeyposition:
+      required: true
+      name: position
+      in: path
+      description: position of the funckey
+      schema:
+        type: integer
+    authorization_uuid:
+      required: true
+      name: authorization_uuid
+      in: path
+      description: Authorization UUID
+      schema:
+        type: string
+    meeting_uuid:
+      required: true
+      name: meeting_uuid
+      in: path
+      description: Meeting UUID
+      schema:
+        type: string
+    callfilterid:
+      required: true
+      name: callfilter_id
+      in: path
+      description: Call Filter's ID
+      schema:
+        type: integer
+    forward:
+      required: true
+      name: forward_name
+      in: path
+      description: the forward name
+      schema:
+        type: string
+        enum:
+        - busy
+        - noanswer
+        - unconditional
+    endpoint_sip_view:
+      required: false
+      name: view
+      in: query
+      description: 'Different view of the SIP endpoint
+
+
+        The `default` view, when the argument is omitted, is to include only options that
+
+        are defined on the specified endpoint.
+
+
+        The `merged` view includes all options from included templates.
+
+        '
+      schema:
+        type: string
+        enum:
+        - merged
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    groupuuid:
+      required: true
+      name: group_uuid
+      in: path
+      description: the group's UUID
+      schema:
+        type: string
+    switchboard_uuid:
+      name: switchboard_uuid
+      in: path
+      required: true
+      schema:
+        type: string
+    view:
+      required: false
+      name: view
+      in: query
+      description: Different view of the list of users.
+      schema:
+        type: string
+        enum:
+        - directory
+        - summary
+        - line_presence
+    callpickupid:
+      required: true
+      name: callpickup_id
+      in: path
+      description: Call Pickup's ID
+      schema:
+        type: integer
+    scheduleid:
+      required: true
+      name: schedule_id
+      in: path
+      description: Schedule's ID
+      schema:
+        type: integer
+    templateid:
+      required: true
+      name: template_id
+      in: path
+      schema:
+        type: integer
+    voicemailid:
+      required: true
+      name: voicemail_id
+      in: path
+      schema:
+        type: integer
+    useruuid:
+      required: true
+      name: user_uuid
+      in: path
+      description: the user's UUID
+      schema:
+        type: string
+        format: uuid
+    user_external_app_view:
+      required: false
+      name: view
+      in: query
+      description: 'Different view of the external app endpoint
+
+
+        The `default` view, when the argument is omitted, is to return the user value for this
+
+        external app
+
+
+        The `fallback` view return the user value for this external app, but if not found, will
+
+        fallback to the tenant configured value
+
+
+        **WARNING**: Using fallback view on list will disabled all pagination and search features
+
+        '
+      schema:
+        type: string
+        enum:
+        - fallback
+    limit_4:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    externalappname:
+      required: true
+      name: app_name
+      in: path
+      description: External App's name
+      schema:
+        type: string
+    SubscriptionBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/SubscriptionRequest'
+    UserSubscriptionBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/UserSubscriptionRequest'
+    SearchMetadata:
+      name: search_metadata
+      in: query
+      description: A search term formatted like "key:value" that will only match subscriptions having a metadata entry "key=value". May be given multiple times to filter more precisely on different metadata keys.
+      schema:
+        type: string
+    SubscriptionUUID:
+      name: subscription_uuid
+      description: The UUID of the subscription
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
     AgentStatus:
       title: Agent status
       properties:
@@ -4321,58 +4970,68 @@ components:
         paused_reason:
           type: string
           description: The reason of the agent pause
-    UserAgentLoginInfo:
-      title: Login information
-      properties:
-        line_id:
-          type: integer
-          description: ID of the line where the agent should be logged
     AgentPauseReason:
       title: Pause reason information
       properties:
         reason:
           type: string
           description: Pause Reason
-    UserList:
+    UserAgentLoginInfo:
+      title: Login information
+      properties:
+        line_id:
+          type: integer
+          description: ID of the line where the agent should be logged
+    Error:
+      title: Error
+      properties:
+        error:
+          type: string
+          description: Error identifier
+    GetPoliciesResult:
       type: object
       properties:
         total:
           type: integer
-          description: The number of users
-        filtered:
-          type: integer
-          description: The number of users matching the searched term
+          description: The number of policies matching the searched term
         items:
           type: array
           items:
-            $ref: '#/components/schemas/UserResult'
-          description: A paginated list of users
-    UserEmailList:
+            $ref: '#/components/schemas/PolicyResult'
+          description: A paginated list of policies
+      required:
+      - total
+      - items
+    UserBase:
       type: object
       properties:
-        emails:
-          type: array
-          items:
-            type: object
-            properties:
-              address:
-                type: string
-              main:
-                type: boolean
-            required:
-            - addresses
-            - main
-    APIError:
-      type: object
-      properties:
-        timestamp:
-          type: number
-        message:
+        username:
           type: string
-        resource:
+          description: The username that will identify that new username
+        firstname:
           type: string
-        details:
-          type: object
+          description: The user's firstname
+        lastname:
+          type: string
+          description: The user's lastname
+        enabled:
+          type: boolean
+        purpose:
+          type: string
+          default: user
+          enum:
+          - user
+          - internal
+          - external_api
+        authentication_method:
+          type: string
+          default: default
+          description: The authentication method allowed for this user. Using "default" will use the tenant's default_authentication_method value for this user.
+          enum:
+          - default
+          - native
+          - ldap
+          - saml
     GetSessionsResult:
       type: object
       properties:
@@ -4391,6 +5050,130 @@ components:
       - filtered
       - total
       - items
+    GetGroupsResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of groups.
+        filtered:
+          type: integer
+          description: The number of groups matching the searched term.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupResult'
+          description: A paginated list of groups
+      required:
+      - filtered
+      - total
+      - items
+    UserCreate:
+      allOf:
+      - $ref: '#/components/schemas/UserBase'
+      - type: object
+        properties:
+          uuid:
+            type: string
+            description: The user's UUID
+          password:
+            type: string
+            description: The password of the newly created username
+          email_address:
+            type: string
+            description: The main email address of the new username
+    PostPasswordReset:
+      type: object
+      properties:
+        password:
+          type: string
+          description: The desired password
+      required:
+      - password
+    RefreshToken:
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: The `client_id` that was used to create this refresh token
+        created_at:
+          type: string
+          description: The time at which this token was created
+        mobile:
+          type: boolean
+          description: Indicate if that refresh token was created with a mobile session type
+        user_uuid:
+          type: string
+          description: The UUID of the user which created this refresh token
+        tenant_uuid:
+          type: string
+          description: The tenant UUID of the user which created this refresh token
+        metadata:
+          type: object
+          description: the persistent metadata tied to this refresh token
+    UserRegister:
+      type: object
+      properties:
+        username:
+          type: string
+          description: The username that will identify that new username
+        password:
+          type: string
+          description: The password of the newly created username
+        firstname:
+          type: string
+          description: The user's firstname
+        lastname:
+          type: string
+          description: The user's lastname
+        email_address:
+          type: string
+          description: The main email address of the new username
+      required:
+      - username
+      - password
+      - email_address
+    UserResult:
+      type: object
+      properties:
+        uuid:
+          type: string
+        username:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        purpose:
+          type: string
+          enum:
+          - user
+          - internal
+          - external_api
+        tenant_uuid:
+          type: string
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserEmail'
+        enabled:
+          type: boolean
+    GoogleGetResult:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: Google token
+        scope:
+          type: string
+          description: Scope permissions given to the `access token`
+        token_expiration:
+          type: integer
+          description: Token expiration
+      required:
+      - access_token
+      - scope
+      - token_expiration
     UserPostResponse:
       type: object
       properties:
@@ -4417,202 +5200,35 @@ components:
           - native
           - ldap
           - saml
-    MicrosoftPostResult:
-      type: object
-      required:
-      - verification_url
-      properties:
-        verification_url:
-          type: string
-          description: The URL to confirm the authorization
-    RefreshToken:
+    APIError:
       type: object
       properties:
-        client_id:
+        timestamp:
+          type: number
+        message:
           type: string
-          description: The `client_id` that was used to create this refresh token
-        created_at:
+        resource:
           type: string
-          description: The time at which this token was created
-        mobile:
-          type: boolean
-          description: Indicate if that refresh token was created with a mobile session type
-        user_uuid:
-          type: string
-          description: The UUID of the user which created this refresh token
-        tenant_uuid:
-          type: string
-          description: The tenant UUID of the user which created this refresh token
-        metadata:
+        details:
           type: object
-          description: the persistent metadata tied to this refresh token
-    AdminUserEmailList:
-      type: object
-      properties:
-        emails:
-          type: array
-          items:
-            type: object
-            properties:
-              address:
-                type: string
-              main:
-                type: boolean
-              confirmed:
-                type: boolean
-            required:
-            - addresses
-            - main
-    GooglePostResult:
-      type: object
-      required:
-      - verification_url
-      properties:
-        verification_url:
-          type: string
-          description: The URL to confirm the authorization
-    GetGroupsResult:
+    ExternalAuthList:
       type: object
       properties:
         total:
           type: integer
-          description: The number of groups.
+          description: The number of external auth.
         filtered:
           type: integer
-          description: The number of groups matching the searched term.
+          description: The number of external auth matching the searched term.
         items:
           type: array
           items:
-            $ref: '#/components/schemas/GroupResult'
-          description: A paginated list of groups
+            $ref: '#/components/schemas/ExternalAuth'
+          description: A paginated list of external auth
       required:
       - filtered
       - total
       - items
-    PasswordChange:
-      type: object
-      properties:
-        old_password:
-          type: string
-          description: The old password
-        new_password:
-          type: string
-          description: The desired password
-      required:
-      - old_password
-      - new_password
-    GroupResult:
-      type: object
-      properties:
-        uuid:
-          type: string
-        name:
-          type: string
-        slug:
-          type: string
-        tenant_uuid:
-          type: string
-        system_managed:
-          type: boolean
-          description: '*Deprecated* Please use `read_only`'
-        read_only:
-          type: boolean
-    UserEmail:
-      type: object
-      properties:
-        address:
-          type: string
-        main:
-          type: boolean
-        confirmed:
-          type: boolean
-    UserResult:
-      type: object
-      properties:
-        uuid:
-          type: string
-        username:
-          type: string
-        firstname:
-          type: string
-        lastname:
-          type: string
-        purpose:
-          type: string
-          enum:
-          - user
-          - internal
-          - external_api
-        tenant_uuid:
-          type: string
-        emails:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserEmail'
-        enabled:
-          type: boolean
-    UserRegister:
-      type: object
-      properties:
-        username:
-          type: string
-          description: The username that will identify that new username
-        password:
-          type: string
-          description: The password of the newly created username
-        firstname:
-          type: string
-          description: The user's firstname
-        lastname:
-          type: string
-          description: The user's lastname
-        email_address:
-          type: string
-          description: The main email address of the new username
-      required:
-      - username
-      - password
-      - email_address
-    MobileData:
-      type: object
-      properties:
-        token:
-          type: string
-          description: FCM token
-        apns_token:
-          type: string
-          description: APNs VoIP device token. This field is deprecated and will be removed in a later version.
-        apns_notification_token:
-          type: string
-          description: APNs text alert notification device token.
-        apns_voip_token:
-          type: string
-          description: APNs VoIP device token.
-        apns_call_topic:
-          type: string
-          description: APNs topic for VoIP call notifications (e.g. com.example.app.voip). When set, overrides the server-wide mobile_apns_call_topic configuration.
-        apns_default_topic:
-          type: string
-          description: APNs topic for non-call notifications such as messages, voicemails, and missed calls (e.g. com.example.app). When set, overrides the server-wide mobile_apns_default_topic configuration.
-    PostPasswordReset:
-      type: object
-      properties:
-        password:
-          type: string
-          description: The desired password
-      required:
-      - password
-    MicrosoftPost:
-      type: object
-      properties:
-        scope:
-          description: Scope permissions requested
-          type: array
-          items:
-            type: string
-          default:
-          - offline_access
-          - Contacts.Read
     Policy:
       type: object
       properties:
@@ -4644,22 +5260,64 @@ components:
             '
       required:
       - name
-    GoogleGetResult:
+    PolicyResult:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+      - properties:
+          uuid:
+            type: string
+          read_only:
+            type: boolean
+    MicrosoftPost:
       type: object
       properties:
-        access_token:
-          type: string
-          description: Google token
         scope:
+          description: Scope permissions requested
+          type: array
+          items:
+            type: string
+          default:
+          - offline_access
+          - Contacts.Read
+    UserEmail:
+      type: object
+      properties:
+        address:
           type: string
-          description: Scope permissions given to the `access token`
-        token_expiration:
-          type: integer
-          description: Token expiration
-      required:
-      - access_token
-      - scope
-      - token_expiration
+        main:
+          type: boolean
+        confirmed:
+          type: boolean
+    ExternalAuth:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The external auth type name
+        enabled:
+          type: boolean
+        data:
+          type: object
+        plugin_info:
+          type: object
+    AdminUserEmailList:
+      type: object
+      properties:
+        emails:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              main:
+                type: boolean
+              confirmed:
+                type: boolean
+            required:
+            - addresses
+            - main
     MicrosoftGetResult:
       type: object
       properties:
@@ -4676,100 +5334,41 @@ components:
       - access_token
       - scope
       - token_expiration
-    GooglePost:
-      type: object
-      properties:
-        scope:
-          description: Scope permissions requested
-          type: array
-          items:
-            type: string
-          default:
-          - https://www.googleapis.com/auth/userinfo.profile
-          - https://www.googleapis.com/auth/contacts
-    UserBase:
-      type: object
-      properties:
-        username:
-          type: string
-          description: The username that will identify that new username
-        firstname:
-          type: string
-          description: The user's firstname
-        lastname:
-          type: string
-          description: The user's lastname
-        enabled:
-          type: boolean
-        purpose:
-          type: string
-          default: user
-          enum:
-          - user
-          - internal
-          - external_api
-        authentication_method:
-          type: string
-          default: default
-          description: The authentication method allowed for this user. Using "default" will use the tenant's default_authentication_method value for this user.
-          enum:
-          - default
-          - native
-          - ldap
-          - saml
-    ExternalAuth:
-      type: object
-      properties:
-        type:
-          type: string
-          description: The external auth type name
-        enabled:
-          type: boolean
-        data:
-          type: object
-        plugin_info:
-          type: object
-    UserEdit:
-      allOf:
-      - $ref: '#/components/schemas/UserBase'
-    Error_2:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
-    SessionResult:
-      type: object
-      properties:
-        uuid:
-          type: string
-        user_uuid:
-          type: string
-        tenant_uuid:
-          type: string
-        mobile:
-          type: boolean
-    GetPoliciesResult:
+    UserList:
       type: object
       properties:
         total:
           type: integer
-          description: The number of policies matching the searched term
+          description: The number of users
+        filtered:
+          type: integer
+          description: The number of users matching the searched term
         items:
           type: array
           items:
-            $ref: '#/components/schemas/PolicyResult'
-          description: A paginated list of policies
-      required:
-      - total
-      - items
+            $ref: '#/components/schemas/UserResult'
+          description: A paginated list of users
+    MobileData:
+      type: object
+      properties:
+        token:
+          type: string
+          description: FCM token
+        apns_token:
+          type: string
+          description: APNs VoIP device token. This field is deprecated and will be removed in a later version.
+        apns_notification_token:
+          type: string
+          description: APNs text alert notification device token.
+        apns_voip_token:
+          type: string
+          description: APNs VoIP device token.
+        apns_call_topic:
+          type: string
+          description: APNs topic for VoIP call notifications (e.g. com.example.app.voip). When set, overrides the server-wide mobile_apns_call_topic configuration.
+        apns_default_topic:
+          type: string
+          description: APNs topic for non-call notifications such as messages, voicemails, and missed calls (e.g. com.example.app). When set, overrides the server-wide mobile_apns_default_topic configuration.
     RefreshTokenList:
       type: object
       properties:
@@ -4784,65 +5383,103 @@ components:
           items:
             $ref: '#/components/schemas/RefreshToken'
           description: A paginated list of refresh tokens
-    ExternalAuthList:
+    PasswordChange:
       type: object
       properties:
-        total:
-          type: integer
-          description: The number of external auth.
-        filtered:
-          type: integer
-          description: The number of external auth matching the searched term.
-        items:
+        old_password:
+          type: string
+          description: The old password
+        new_password:
+          type: string
+          description: The desired password
+      required:
+      - old_password
+      - new_password
+    SessionResult:
+      type: object
+      properties:
+        uuid:
+          type: string
+        user_uuid:
+          type: string
+        tenant_uuid:
+          type: string
+        mobile:
+          type: boolean
+    UserEmailList:
+      type: object
+      properties:
+        emails:
           type: array
           items:
-            $ref: '#/components/schemas/ExternalAuth'
-          description: A paginated list of external auth
-      required:
-      - filtered
-      - total
-      - items
-    PolicyResult:
+            type: object
+            properties:
+              address:
+                type: string
+              main:
+                type: boolean
+            required:
+            - addresses
+            - main
+    GroupResult:
       type: object
-      allOf:
-      - $ref: '#/components/schemas/Policy'
-      - properties:
-          uuid:
-            type: string
-          read_only:
-            type: boolean
-    UserCreate:
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        tenant_uuid:
+          type: string
+        system_managed:
+          type: boolean
+          description: '*Deprecated* Please use `read_only`'
+        read_only:
+          type: boolean
+    UserEdit:
       allOf:
       - $ref: '#/components/schemas/UserBase'
-      - type: object
-        properties:
-          uuid:
-            type: string
-            description: The user's UUID
-          password:
-            type: string
-            description: The password of the newly created username
-          email_address:
-            type: string
-            description: The main email address of the new username
-    call_status:
-      type: string
-      enum:
-      - answered
-      - blocked
-      - voicemail
-      - unknown
-    CDRList:
+    GooglePost:
       type: object
       properties:
-        items:
+        scope:
+          description: Scope permissions requested
           type: array
           items:
-            $ref: '#/components/schemas/CDR'
-        total:
+            type: string
+          default:
+          - https://www.googleapis.com/auth/userinfo.profile
+          - https://www.googleapis.com/auth/contacts
+    Error_2:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
           type: integer
-        filtered:
-          type: integer
+    GooglePostResult:
+      type: object
+      required:
+      - verification_url
+      properties:
+        verification_url:
+          type: string
+          description: The URL to confirm the authorization
+    MicrosoftPostResult:
+      type: object
+      required:
+      - verification_url
+      properties:
+        verification_url:
+          type: string
+          description: The URL to confirm the authorization
     Error_3:
       title: Error
       description: Error message for the client
@@ -4860,21 +5497,24 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    Recording:
+    CDRList:
       type: object
       properties:
-        uuid:
-          type: string
-        start_time:
-          type: string
-          format: date-time
-        end_time:
-          type: string
-          format: date-time
-        deleted:
-          type: boolean
-        filename:
-          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CDR'
+        total:
+          type: integer
+        filtered:
+          type: integer
+    call_status:
+      type: string
+      enum:
+      - answered
+      - blocked
+      - voicemail
+      - unknown
     CDR:
       type: object
       properties:
@@ -4975,6 +5615,102 @@ components:
             $ref: '#/components/schemas/Recording'
         call_status:
           $ref: '#/components/schemas/call_status'
+    Recording:
+      type: object
+      properties:
+        uuid:
+          type: string
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        deleted:
+          type: boolean
+        filename:
+          type: string
+    Transfer:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the transfer
+          type: string
+        initiator_uuid:
+          description: UUID of the user who initiated the transfer
+          type: string
+        initiator_tenant_uuid:
+          description: Tenant UUID of the user who initiated the transfer
+          type: string
+        transferred_call:
+          description: Call ID of the call being transferred to someone else
+          type: string
+        initiator_call:
+          description: Call ID of the transfer initiator
+          type: string
+        recipient_call:
+          description: Call ID of the recipient of the transfer. May be null when the transfer is 'starting'.
+          type: string
+        status:
+          description: The current step of the transfer
+          type: string
+          enum:
+          - abandoned
+          - answered
+          - blind_transferred
+          - ready
+          - ringback
+          - starting
+        flow:
+          description: The behavior of the transfer
+          type: string
+          default: attended
+          enum:
+          - attended
+          - blind
+    UserCallRequest:
+      type: object
+      properties:
+        extension:
+          description: Extension to call
+          type: string
+        variables:
+          description: Channel variables to set
+          type: object
+        line_id:
+          type: integer
+          description: ID of the line of the user used to make the call. Default is the main line of the user.
+        from_mobile:
+          type: boolean
+          description: 'Start the call from the user''s mobile phone. Default is False. Limitation: this feature may return a wrong call_id if the outgoing call used to dial the mobile number has more than one associated trunk.'
+        all_lines:
+          type: boolean
+          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
+        auto_answer_caller:
+          type: boolean
+          description: 'Inform the caller phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
+      required:
+      - extension
+    VoicemailFolderBase:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The folder's ID
+        name:
+          type: string
+          description: The folder's name
+        type:
+          type: string
+          enum:
+          - new
+          - old
+          - urgent
+          - other
+          description: The folder's type. When a message if left on a voicemail, it is stored in the folder of type "new", unless if it is an urgent message, in which case it is left in the folder of type "urgent". When that messages is read, it is moved into the folder of type "old". All other folders used the type "other".
+    Timeout:
+      description: Number of seconds to wait for the recipient to answer
+      type: integer
     Relocate:
       type: object
       properties:
@@ -4996,6 +5732,131 @@ components:
         initiator:
           description: The user UUID of the relocate initiator
           type: string
+    UserRelocateRequest:
+      type: object
+      properties:
+        initiator_call:
+          description: Call ID of the relocate initiator. This call must be owned by the authenticated user.
+          type: string
+        destination:
+          type: string
+          description: What kind of destination the relocated call should be connected
+          enum:
+          - line
+          - mobile
+        location:
+          description: "Describes where exactly the relocated call should be connected. Attributes depend on the `destination` value. Example\n```\n{\n  ...\n  destination: line\n  location: {line_id: 14}\n}\n```\n"
+          type: object
+          $ref: '#/components/schemas/UserRelocateLocation'
+        completions:
+          $ref: '#/components/schemas/RelocateCompletions'
+        timeout:
+          $ref: '#/components/schemas/Timeout'
+        auto_answer:
+          type: boolean
+          description: 'Inform the destination phone that it should answer automatically. Limitation: this does not work on SCCP phones.'
+      example:
+        initiator_call: '123456.789'
+        destination: line
+        location:
+          line_id: 14
+          contact: 5f3ff5ga
+        completions:
+        - answer
+        auto_answer: false
+      required:
+      - initiator_call
+      - destination
+    TransferFlow:
+      description: Behavior of the transfer. `attended` allows the initiator to talk to the recipient. `blind` does not.
+      type: string
+      default: attended
+      enum:
+      - attended
+      - blind
+    GreetingCopy:
+      type: object
+      properties:
+        dest_greeting:
+          type: string
+          description: The destination name of the greeting
+      required:
+      - dest_greeting
+    VoicemailMessageVoicemail:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The containing voicemail's ID
+          readOnly: true
+        name:
+          type: string
+          description: The containing voicemail's name
+          readOnly: true
+        accesstype:
+          type: string
+          description: The containing voicemail's type (either global or personal)
+          enum:
+          - global
+          - personal
+          readOnly: true
+    Participant:
+      type: object
+      properties:
+        id:
+          description: The participant's ID
+          type: string
+        caller_id_name:
+          description: The participant's name
+          type: string
+        caller_id_num:
+          description: The participant's number
+          type: string
+        muted:
+          description: Is the participant muted?
+          type: boolean
+        join_time:
+          description: Elapsed seconds since the participant joined the conference
+          type: integer
+        admin:
+          description: Is the participant an admin of the conference?
+          type: boolean
+        language:
+          description: The participant's language
+          type: string
+        call_id:
+          description: The ID of the participant's call
+          type: string
+        user_uuid:
+          description: The UUID of the participant's user. `null` when there is no user.
+          type: string
+    UserTransferRequest:
+      type: object
+      properties:
+        initiator_call:
+          description: Call ID of the transfer initiator. This call must be owned by the authenticated user.
+          type: string
+        exten:
+          description: Extension of the recipient of the transfer
+          type: string
+        flow:
+          $ref: '#/components/schemas/TransferFlow'
+        timeout:
+          $ref: '#/components/schemas/TransferTimeout'
+      required:
+      - initiator_call
+      - exten
+    LocationLine:
+      type: object
+      properties:
+        line_id:
+          type: integer
+          description: the ID of the line where the relocated call should be connected
+        contact:
+          type: string
+          description: the SIP contact to use when multiple registers are used
+      required:
+      - line_id
     Call:
       type: object
       properties:
@@ -5065,104 +5926,57 @@ components:
           enum:
           - active
           - inactive
-    VoicemailFolderBase:
+    VoicemailMessageBase:
       type: object
       properties:
         id:
+          type: string
+          description: The message's ID
+          readOnly: true
+        caller_id_name:
+          type: string
+          description: The caller's name (or null if no caller ID name)
+          readOnly: true
+        caller_id_num:
+          type: string
+          description: The caller's number (or null if no caller ID number)
+          readOnly: true
+        duration:
           type: integer
-          description: The folder's ID
-        name:
-          type: string
-          description: The folder's name
-        type:
-          type: string
-          enum:
-          - new
-          - old
-          - urgent
-          - other
-          description: The folder's type. When a message if left on a voicemail, it is stored in the folder of type "new", unless if it is an urgent message, in which case it is left in the folder of type "urgent". When that messages is read, it is moved into the folder of type "old". All other folders used the type "other".
-    UserRelocateRequest:
-      type: object
-      properties:
-        initiator_call:
-          description: Call ID of the relocate initiator. This call must be owned by the authenticated user.
-          type: string
-        destination:
-          type: string
-          description: What kind of destination the relocated call should be connected
-          enum:
-          - line
-          - mobile
-        location:
-          description: "Describes where exactly the relocated call should be connected. Attributes depend on the `destination` value. Example\n```\n{\n  ...\n  destination: line\n  location: {line_id: 14}\n}\n```\n"
-          type: object
-          $ref: '#/components/schemas/UserRelocateLocation'
-        completions:
-          $ref: '#/components/schemas/RelocateCompletions'
-        timeout:
-          $ref: '#/components/schemas/Timeout'
-        auto_answer:
+          description: The message's duration in seconds
+          readOnly: true
+        empty:
           type: boolean
-          description: 'Inform the destination phone that it should answer automatically. Limitation: this does not work on SCCP phones.'
-      example:
-        initiator_call: '123456.789'
-        destination: line
-        location:
-          line_id: 14
-          contact: 5f3ff5ga
-        completions:
-        - answer
-        auto_answer: false
-      required:
-      - initiator_call
-      - destination
-    Transfer:
+          description: True if the message is empty (duration is 0)
+          readOnly: true
+        timestamp:
+          type: integer
+          description: The time the message was left as a Unix time value
+          readOnly: true
+    ParticipantList:
       type: object
       properties:
-        id:
-          description: Unique identifier of the transfer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Participant'
+    Error_4:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
           type: string
-        initiator_uuid:
-          description: UUID of the user who initiated the transfer
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
           type: string
-        initiator_tenant_uuid:
-          description: Tenant UUID of the user who initiated the transfer
-          type: string
-        transferred_call:
-          description: Call ID of the call being transferred to someone else
-          type: string
-        initiator_call:
-          description: Call ID of the transfer initiator
-          type: string
-        recipient_call:
-          description: Call ID of the recipient of the transfer. May be null when the transfer is 'starting'.
-          type: string
-        status:
-          description: The current step of the transfer
-          type: string
-          enum:
-          - abandoned
-          - answered
-          - blind_transferred
-          - ready
-          - ringback
-          - starting
-        flow:
-          description: The behavior of the transfer
-          type: string
-          default: attended
-          enum:
-          - attended
-          - blind
-    VoicemailTranscriptedMessageBase:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/VoicemailMessageBase'
-      - properties:
-          transcription:
-            $ref: '#/components/schemas/VoicemailTranscription'
-            readOnly: true
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     VoicemailTranscription:
       type: object
       properties:
@@ -5170,40 +5984,42 @@ components:
           type: string
           description: The transcription text
           readOnly: true
-    RelocateCompletion:
-      type: string
-      default: answer
-      enum:
-      - answer
-      - api
-    VoicemailFolder:
+    VoicemailMessageUpdate:
       type: object
-      allOf:
-      - $ref: '#/components/schemas/VoicemailFolderBase'
-      - properties:
-          messages:
-            type: array
-            description: The folder's messages
-            items:
-              $ref: '#/components/schemas/VoicemailMessageBase'
-    TransferFlow:
-      description: Behavior of the transfer. `attended` allows the initiator to talk to the recipient. `blind` does not.
-      type: string
-      default: attended
-      enum:
-      - attended
-      - blind
-    TransferList:
+      properties:
+        folder_id:
+          type: integer
+          description: The folder's ID
+      required:
+      - folder_id
+    RelocateList:
       type: object
       properties:
         items:
+          $ref: '#/components/schemas/Relocate'
+    Voicemail:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The voicemail's ID
+        number:
+          type: string
+          description: The voicemail's number
+        name:
+          type: string
+          description: The voicemail's name
+        accesstype:
+          type: string
+          description: The voicemail's access type (either personal or global)
+          enum:
+          - personal
+          - global
+        folders:
           type: array
+          description: The voicemail's folders
           items:
-            $ref: '#/components/schemas/Transfer'
-    RelocateCompletions:
-      type: array
-      items:
-        $ref: '#/components/schemas/RelocateCompletion'
+            $ref: '#/components/schemas/VoicemailFolder'
     ParkCallBody:
       title: Information needed to park the call
       required:
@@ -5234,107 +6050,28 @@ components:
           type: integer
           minimum: 0
           example: 30
-    VoicemailMessageVoicemail:
+    RelocateCompletions:
+      type: array
+      items:
+        $ref: '#/components/schemas/RelocateCompletion'
+    VoicemailFolder:
       type: object
-      properties:
-        id:
-          type: integer
-          description: The containing voicemail's ID
-          readOnly: true
-        name:
-          type: string
-          description: The containing voicemail's name
-          readOnly: true
-        accesstype:
-          type: string
-          description: The containing voicemail's type (either global or personal)
-          enum:
-          - global
-          - personal
-          readOnly: true
-    VoicemailMessageBase:
+      allOf:
+      - $ref: '#/components/schemas/VoicemailFolderBase'
+      - properties:
+          messages:
+            type: array
+            description: The folder's messages
+            items:
+              $ref: '#/components/schemas/VoicemailMessageBase'
+    VoicemailMessage:
       type: object
-      properties:
-        id:
-          type: string
-          description: The message's ID
-          readOnly: true
-        caller_id_name:
-          type: string
-          description: The caller's name (or null if no caller ID name)
-          readOnly: true
-        caller_id_num:
-          type: string
-          description: The caller's number (or null if no caller ID number)
-          readOnly: true
-        duration:
-          type: integer
-          description: The message's duration in seconds
-          readOnly: true
-        empty:
-          type: boolean
-          description: True if the message is empty (duration is 0)
-          readOnly: true
-        timestamp:
-          type: integer
-          description: The time the message was left as a Unix time value
-          readOnly: true
-    UserCallRequest:
-      type: object
-      properties:
-        extension:
-          description: Extension to call
-          type: string
-        variables:
-          description: Channel variables to set
-          type: object
-        line_id:
-          type: integer
-          description: ID of the line of the user used to make the call. Default is the main line of the user.
-        from_mobile:
-          type: boolean
-          description: 'Start the call from the user''s mobile phone. Default is False. Limitation: this feature may return a wrong call_id if the outgoing call used to dial the mobile number has more than one associated trunk.'
-        all_lines:
-          type: boolean
-          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
-        auto_answer_caller:
-          type: boolean
-          description: 'Inform the caller phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
-      required:
-      - extension
-    Timeout:
-      description: Number of seconds to wait for the recipient to answer
-      type: integer
-    TransferTimeout:
-      description: Maximum ringing time before cancelling the transfer (in seconds). Default (or null) is an unlimited ring time.
-      type: integer
-    TalkingTo:
-      type: object
-      properties:
-        '{channel_id}':
-          type: string
-    UserRelocateLocation:
-      properties:
-        line:
-          $ref: '#/components/schemas/LocationLine'
-    LocationLine:
-      type: object
-      properties:
-        line_id:
-          type: integer
-          description: the ID of the line where the relocated call should be connected
-        contact:
-          type: string
-          description: the SIP contact to use when multiple registers are used
-      required:
-      - line_id
-    ParticipantList:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Participant'
+      allOf:
+      - $ref: '#/components/schemas/VoicemailTranscriptedMessageBase'
+      - properties:
+          folder:
+            $ref: '#/components/schemas/VoicemailFolderBase'
+            readOnly: true
     VoicemailMessages:
       type: object
       properties:
@@ -5352,29 +6089,28 @@ components:
         total:
           type: integer
           readOnly: true
-    Voicemail:
+    TalkingTo:
       type: object
       properties:
-        id:
-          type: integer
-          description: The voicemail's ID
-        number:
+        '{channel_id}':
           type: string
-          description: The voicemail's number
-        name:
-          type: string
-          description: The voicemail's name
-        accesstype:
-          type: string
-          description: The voicemail's access type (either personal or global)
-          enum:
-          - personal
-          - global
-        folders:
+    UserRelocateLocation:
+      properties:
+        line:
+          $ref: '#/components/schemas/LocationLine'
+    TransferList:
+      type: object
+      properties:
+        items:
           type: array
-          description: The voicemail's folders
           items:
-            $ref: '#/components/schemas/VoicemailFolder'
+            $ref: '#/components/schemas/Transfer'
+    RelocateCompletion:
+      type: string
+      default: answer
+      enum:
+      - answer
+      - api
     ParkedCallInfo:
       description: Information returned when a call has been parked
       properties:
@@ -5386,420 +6122,191 @@ components:
           description: Timestamp when the call will timeout
           type: string
           format: date-time
-    Error_4:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    Participant:
-      type: object
-      properties:
-        id:
-          description: The participant's ID
-          type: string
-        caller_id_name:
-          description: The participant's name
-          type: string
-        caller_id_num:
-          description: The participant's number
-          type: string
-        muted:
-          description: Is the participant muted?
-          type: boolean
-        join_time:
-          description: Elapsed seconds since the participant joined the conference
-          type: integer
-        admin:
-          description: Is the participant an admin of the conference?
-          type: boolean
-        language:
-          description: The participant's language
-          type: string
-        call_id:
-          description: The ID of the participant's call
-          type: string
-        user_uuid:
-          description: The UUID of the participant's user. `null` when there is no user.
-          type: string
-    VoicemailMessage:
+    VoicemailTranscriptedMessageBase:
       type: object
       allOf:
-      - $ref: '#/components/schemas/VoicemailTranscriptedMessageBase'
+      - $ref: '#/components/schemas/VoicemailMessageBase'
       - properties:
-          folder:
-            $ref: '#/components/schemas/VoicemailFolderBase'
+          transcription:
+            $ref: '#/components/schemas/VoicemailTranscription'
             readOnly: true
-    RelocateList:
+    TransferTimeout:
+      description: Maximum ringing time before cancelling the transfer (in seconds). Default (or null) is an unlimited ring time.
+      type: integer
+    UserServices:
+      title: UserServices
+      properties:
+        dnd:
+          $ref: '#/components/schemas/UserService'
+        incallfilter:
+          $ref: '#/components/schemas/UserService'
+    MeetingItems:
       type: object
       properties:
         items:
-          $ref: '#/components/schemas/Relocate'
-    GreetingCopy:
-      type: object
+          type: array
+          items:
+            $ref: '#/components/schemas/Meeting'
+    UserSubscription:
+      title: UserSubscription
       properties:
-        dest_greeting:
-          type: string
-          description: The destination name of the greeting
-      required:
-      - dest_greeting
-    VoicemailMessageUpdate:
-      type: object
-      properties:
-        folder_id:
+        id:
           type: integer
-          description: The folder's ID
-      required:
-      - folder_id
-    UserTransferRequest:
-      type: object
+        count:
+          type: integer
+          description: Total of assigned subscription
+    LineEndpointSCCP:
+      title: LineEndpointSCCP
       properties:
-        initiator_call:
-          description: Call ID of the transfer initiator. This call must be owned by the authenticated user.
-          type: string
-        exten:
-          description: Extension of the recipient of the transfer
-          type: string
-        flow:
-          $ref: '#/components/schemas/TransferFlow'
-        timeout:
-          $ref: '#/components/schemas/TransferTimeout'
-      required:
-      - initiator_call
-      - exten
-    UserExternalApp:
-      title: UserExternalApp
+        endpoint_sccp:
+          $ref: '#/components/schemas/EndpointSccp'
+    UserFuncKeyTemplate:
+      title: UserFuncKeyTemplate
+      description: Association between a User and a FuncKey Template
       properties:
-        name:
-          type: string
-          description: The name to identify the external app
-          readOnly: true
-        label:
-          type: string
-          description: The label of the external app
-        configuration:
-          type: object
-          description: Arbitrary settings needed by an external app
-    MeetingAuthorization:
-      type: object
+        user_id:
+          type: integer
+          format: int32
+          description: User's ID
+        template_id:
+          type: integer
+          format: int32
+          description: FuncKey Template's ID
+    SwitchboardRelationBase:
       properties:
         uuid:
           type: string
-          format: uuid
-        guest_name:
+          description: Switchboard UUID
+          readOnly: true
+        name:
           type: string
-        creation_time:
-          type: string
-          format: date-time
-        status:
-          type: string
-          description: The status of the authorization. If the meeting does not require an authorization, the authorization will always be `accepted`.
-          enum:
-          - pending
-          - accepted
-          - rejected
-        sip_authorization:
-          type: string
-    DestinationHangupCongestion:
-      title: DestinationHangupCongestion
-      allOf:
-      - $ref: '#/components/schemas/DestinationHangup'
-      - properties:
-          cause:
-            type: string
-            description: MUST be 'congestion'
-          timeout:
-            type: integer
-            description: The timeout of the hangup
-      required:
-      - cause
-    DestinationApplicationVoicemail:
-      title: DestinationApplicationVoicemail
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'voicemail'
-          context:
-            type: integer
-            description: The context of the application
-        required:
-        - application
-        - context
-    UserForward:
-      title: UserForward
+          description: Switchboard name
+    UserRelationVoicemail:
       properties:
-        enabled:
-          type: boolean
-        destination:
-          type: string
-    DestinationHangupBusy:
-      title: DestinationHangupBusy
-      allOf:
-      - $ref: '#/components/schemas/DestinationHangup'
-      - properties:
-          cause:
-            type: string
-            description: MUST be 'busy'
-          timeout:
-            type: integer
-            description: The timeout of the hangup
-      required:
-      - cause
-    DestinationUser:
-      title: DestinationUser
+        voicemail:
+          readOnly: true
+          $ref: '#/components/schemas/VoicemailRelationBase'
+    DestinationExtension:
+      title: DestinationExtension
       properties:
         type:
           type: string
-          description: MUST be 'user'
-        user_id:
-          type: integer
-          description: The id of the user
-        ring_time:
-          type: number
-          format: float
-        moh_uuid:
+          description: MUST be 'extension'
+        exten:
           type: string
-          description: The UUID of the music on hold to use instead of a ringback tone.
+        context:
+          type: string
+          description: Context of the extension
       required:
       - type
-      - user_id
-    EndpointRelationTrunk:
-      properties:
-        trunk:
-          $ref: '#/components/schemas/TrunkRelationBase'
-          readOnly: true
-    ExtensionRelationBase:
+      - exten
+      - context
+    IncallRelationBase:
+      title: IncallRelation
       properties:
         id:
           type: integer
-          description: Extension ID
           readOnly: true
-        context:
+          description: The id of the incoming call
+    LineID:
+      properties:
+        id:
+          type: integer
+    GroupRelationBase:
+      properties:
+        name:
           type: string
-        exten:
+          description: The name of the group
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the group
+        uuid:
           type: string
-    EndpointSipRelationBase:
+          description: Group UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+    SIPEndpointSectionOptions:
+      title: SIP Endpoint Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    CallFilterRecipientUserUuid:
+      allOf:
+      - properties:
+          timeout:
+            type: integer
+      - $ref: '#/components/schemas/UserUuid'
+    VoicemailRelationUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/UserRelationBase'
+    GroupMemberUsers:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/GroupMemberUser'
+          type: array
+      required:
+      - users
+    UserRelationQueues:
+      properties:
+        queues:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/QueueRelationBase'
+    LineEndpointCustom:
+      title: LineEndpointCustom
+      properties:
+        endpoint_custom:
+          $ref: '#/components/schemas/EndpointCustom'
+    SIPAuthSectionOptions:
+      title: PJSIP Auth Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    GroupMemberUser:
       properties:
         uuid:
           type: string
-          description: The UUID of this resource
-          readOnly: true
-        name:
-          type: string
-          description: The name of the PJSIP entity, auto-generated if missing
-        label:
-          type: string
-          description: The human readable name for this configuration
-        auth_section_options:
-          type: array
-          items:
-            $ref: '#/components/schemas/SIPAuthSectionOptions'
-          description: A list of PJSIP auth section options for this endpoint. Only `username` is supported
-    Line:
-      title: Line
-      properties:
-        id:
-          type: integer
-          description: Line ID
-          readOnly: true
-        context:
-          type: string
-          description: The name of an internal context
-        position:
-          type: integer
-          description: Line's position on the device
-        caller_id_name:
-          type: string
-          description: Name to display when calling
-        caller_id_num:
-          type: string
-          description: Number to display when calling
-        provisioning_code:
-          type: string
-          description: Code used to provision a device
-        registrar:
-          type: string
-          description: Name of the template line used by the device
-      required:
-      - context
-    QueueRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the queue
-        name:
-          type: string
-          description: The name of the queue. Cannot be modified
-        label:
-          type: string
-          description: The label of the queue
-    QueueMemberUserRelationBase:
-      properties:
         priority:
           type: integer
-          minimum: 0
-          description: Priority of user in the queue. Only used for linear ring strategy
-    DestinationType:
-      title: DestinationType
-      properties:
-        application:
-          $ref: '#/components/schemas/DestinationApplicationApplication'
-        conference:
-          $ref: '#/components/schemas/DestinationConference'
-        custom:
-          $ref: '#/components/schemas/DestinationCustom'
-        extension:
-          $ref: '#/components/schemas/DestinationExtension'
-        group:
-          $ref: '#/components/schemas/DestinationGroup'
-        hangup:
-          $ref: '#/components/schemas/DestinationHangupCause'
-        ivr:
-          $ref: '#/components/schemas/DestinationIVR'
-        none:
-          $ref: '#/components/schemas/DestinationNone'
-        outcall:
-          $ref: '#/components/schemas/DestinationOutcall'
-        queue:
-          $ref: '#/components/schemas/DestinationQueue'
-        sound:
-          $ref: '#/components/schemas/DestinationSound'
-        switchboard:
-          $ref: '#/components/schemas/DestinationSwitchboard'
-        user:
-          $ref: '#/components/schemas/DestinationUser'
-        voicemail:
-          $ref: '#/components/schemas/DestinationVoicemail'
-    VoicemailRelationBase:
+          description: priority of user in the group. Only used for linear ring strategy
+      required:
+      - uuid
+    EndpointCustomRelationBase:
       properties:
         id:
           type: integer
-          description: Voicemail ID
+          description: Custom Endpoint ID
           readOnly: true
-        name:
+        interface:
           type: string
-          description: Voicemail name
-    BaseVoicemail:
-      title: Voicemail
+          description: Asterisk interface to use. (e.g. 'dahdi/i1')
+    UserImportError:
+      title: UserImportError
+      description: List of errors that occurred during import
       properties:
-        number:
-          type: string
-          description: Mailbox number, for example `0001`
-        context:
-          type: string
-          description: Voicemail context
-        password:
-          type: string
-          description: Numeric password used to access the voicemail
-        email:
-          type: string
-          description: Email address. Notifications and audio attachments will be sent to this address
-        pager:
-          type: string
-          description: Email address. Summarized notifications will be sent to this address
-        language:
-          type: string
-          enum:
-          - de_DE
-          - en_US
-          - es_ES
-          - fr_FR
-          - fr_CA
-          - it_IT
-          - nl_NL
-          description: Language used for the voicemail menu prompt
-        timezone:
-          type: string
-          default: The system default timezone
-          description: Timezone used for announcing at what time a message was recorded
-        max_messages:
-          type: integer
-          description: Maximum number of messages to store
-        attach_audio:
-          type: boolean
-          description: Attach an audio file of the recorded message when sending an email
-        delete_messages:
-          type: boolean
-          description: "Delete messages after reception. \nThis can only be set along with 'email' and 'attach_audio' configured.\n"
-          default: false
-        ask_password:
-          type: boolean
-          description: Ask for password when accessing the voicemail menu
-          default: true
-        enabled:
-          type: boolean
-          description: Voicemail can be used when it is enabled
-          default: true
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
-        accesstype:
-          type: string
-          enum:
-          - personal
-          - global
-          description: Access type of the voicemail. 'personal' means the voicemail is associated with specific users, 'global' means it is shared across the context. Only one global voicemail can exist per context.
-          default: personal
-        options:
-          description: "Advanced configuration options. Options are appended at the end of a \nvoicemail line in the file 'voicemail.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Options must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in voicemail.conf will have the following form:\n\n```\n1000 => ,Firstname Lastname,,,name1=value1|name2=value2\n```\n"
+        errors:
           type: array
           items:
-            $ref: '#/components/schemas/KeyValueOption'
-      required:
-      - name
-      - number
-      - context
-    AgentRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the agent
-        firstname:
-          type: string
-        lastname:
-          type: string
-        number:
-          type: string
-          description: Agent number. Cannot be modified after creation
-    MeetingUserRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        persistent:
-          type: boolean
-          description: Persistent meetings will not get deleted automatically
-    DestinationApplicationApplication:
-      title: DestinationApplicationApplication
-      properties:
-        callback_disa:
-          $ref: '#/components/schemas/DestinationApplicationCallbackDISA'
-        custom:
-          $ref: '#/components/schemas/DestinationApplicationCustom'
-        directory:
-          $ref: '#/components/schemas/DestinationApplicationDirectory'
-        disa:
-          $ref: '#/components/schemas/DestinationApplicationDISA'
-        fax_to_mail:
-          $ref: '#/components/schemas/DestinationApplicationFaxToMail'
-        voicemail:
-          $ref: '#/components/schemas/DestinationApplicationVoicemail'
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message
+              timestamp:
+                type: integer
+                description: Time at which the error occurred
+              details:
+                type: object
+                properties:
+                  row_number:
+                    type: integer
+                    description: Line number corresponding to the CSV data
+                  row:
+                    type: object
+                    description: Original data that caused the error
     AuthUserPost:
       properties:
         auth:
@@ -5826,51 +6333,118 @@ components:
               - user
               - internal
               - external_api
-    EndpointSccp:
-      title: SCCP Endpoint
+    DestinationApplicationVoicemail:
+      title: DestinationApplicationVoicemail
       allOf:
-      - $ref: '#/components/schemas/EndpointSccpRelationBase'
+      - $ref: '#/components/schemas/DestinationApplication'
       - properties:
-          tenant_uuid:
+          application:
             type: string
-            description: The UUID of the tenant
-            readOnly: true
-          options:
-            description: "Advanced configuration options. Options are appended at the end of a \nSCCP account in the file 'sccp.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Because of database limitations, only the following options are allowed:\n\n * cid_name\n * cid_num\n * allow\n * disallow\n \nOptions must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in sip.conf will have the following form:\n\n```\n[1000]\nname1=value1\nname2=value2\n```\n"
-            type: array
-            items:
-              $ref: '#/components/schemas/KeyValueOption'
-      - $ref: '#/components/schemas/EndpointRelationTrunk'
-      - $ref: '#/components/schemas/EndpointRelationLine'
-    Error_5:
-      type: array
-      items:
-        type: string
-    DestinationOutcall:
-      title: DestinationOutcall
+            description: MUST be 'voicemail'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    UserRelationIncalls:
       properties:
-        type:
-          type: string
-          description: MUST be 'outcall'
-        exten:
-          type: string
-        outcall_id:
-          type: integer
-          description: The id of the outcall
-      required:
-      - type
-      - exten
-      - outcall_id
-    SIPEndpointSectionOptions:
-      title: SIP Endpoint Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    IncallRelationExtensions:
-      properties:
-        extensions:
+        incalls:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
+            $ref: '#/components/schemas/UserRelationIncall'
+    UserRelationSwitchboards:
+      properties:
+        switchboards:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/SwitchboardRelationBase'
+    UserImport:
+      title: UserImport
+      description: List of users successfully imported
+      properties:
+        created:
+          type: array
+          items:
+            title: UserImportIDs
+            type: object
+            properties:
+              extension_id:
+                type: integer
+                description: Extension ID
+              user_id:
+                type: integer
+                description: User ID
+              line_id:
+                type: integer
+                description: Line ID
+              sip_uuid:
+                type: string
+                description: SIP UUID
+              voicemail_id:
+                type: integer
+                description: Voicemail ID
+              incall_extension_id:
+                type: integer
+                description: ID of the Extension used for incoming calls
+              row_number:
+                type: integer
+                description: Line number corresponding to the CSV data
+    MeetingAuthorization:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        guest_name:
+          type: string
+        creation_time:
+          type: string
+          format: date-time
+        status:
+          type: string
+          description: The status of the authorization. If the meeting does not require an authorization, the authorization will always be `accepted`.
+          enum:
+          - pending
+          - accepted
+          - rejected
+        sip_authorization:
+          type: string
+    User:
+      title: User
+      allOf:
+      - $ref: '#/components/schemas/BaseUser'
+      - $ref: '#/components/schemas/UserRelationAgent'
+      - $ref: '#/components/schemas/UserRelationFallbacks'
+      - $ref: '#/components/schemas/UserRelationForwards'
+      - $ref: '#/components/schemas/UserRelationGroups'
+      - $ref: '#/components/schemas/UserRelationIncalls'
+      - $ref: '#/components/schemas/UserRelationLines'
+      - $ref: '#/components/schemas/UserRelationServices'
+      - $ref: '#/components/schemas/UserRelationSwitchboards'
+      - $ref: '#/components/schemas/UserRelationVoicemail'
+      - $ref: '#/components/schemas/UserRelationQueues'
+      - $ref: '#/components/schemas/UserRelationCallPickupTargets'
+      - required:
+        - firstname
+    FuncKeyTemplate:
+      title: FuncKeyTemplate
+      description: Further documentation at https://wazo-platform.org/uc-doc/administration/users/csv_import
+      properties:
+        id:
+          type: integer
+          description: The ID of the funckey template
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+        keys:
+          type: object
     UserUpdate:
       title: UserUpdate
       description: List of users successfully updated
@@ -5902,265 +6476,6 @@ components:
               row_number:
                 type: integer
                 description: Line number corresponding to the CSV data
-    DestinationSound:
-      title: DestinationSound
-      properties:
-        type:
-          type: string
-          description: MUST be 'sound'
-        filename:
-          type: string
-          description: The filename of the sound. The file MUST be imported by to webi in the playback directory. The extension of file SHOULD be not present.
-        skip:
-          type: boolean
-          description: Do not play this sound if the call is not answered
-        no_answer:
-          type: boolean
-          description: Play this sound without answering the call
-      required:
-      - type
-      - filename
-    LineEndpointSCCP:
-      title: LineEndpointSCCP
-      properties:
-        endpoint_sccp:
-          $ref: '#/components/schemas/EndpointSccp'
-    CallFilterRecipientUsersUuid:
-      properties:
-        users:
-          items:
-            $ref: '#/components/schemas/CallFilterRecipientUserUuid'
-          type: array
-    UserRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: User UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-        firstname:
-          type: string
-          description: User firstname
-        lastname:
-          type: string
-          description: User lastname
-    EndpointRelationLine:
-      properties:
-        line:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LineRelationBase'
-    KeyValueOption:
-      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
-      title: Key Value
-      type: array
-      items:
-        type: string
-      maxItems: 2
-      minItems: 2
-      example:
-      - option
-      - value
-    DestinationIVR:
-      title: DestinationIVR
-      properties:
-        type:
-          type: string
-          description: MUST be 'ivr'
-        ivr_id:
-          type: integer
-          description: The id of the IVR
-      required:
-      - type
-      - ivr_id
-    DestinationSwitchboard:
-      title: DestinationSwitchboard
-      properties:
-        type:
-          type: string
-          description: MUST be 'switchboard'
-        switchboard_uuid:
-          type: string
-          description: The UUID of the switchboard.
-      required:
-      - type
-      - switchboard_uuid
-    UserService:
-      title: UserService
-      properties:
-        enabled:
-          type: boolean
-      required:
-      - enabled
-    UserForwards:
-      title: UserForwards
-      properties:
-        busy:
-          $ref: '#/components/schemas/UserForward'
-        noanswer:
-          $ref: '#/components/schemas/UserForward'
-        unconditional:
-          $ref: '#/components/schemas/UserForward'
-    DestinationVoicemail:
-      title: DestinationVoicemail
-      properties:
-        type:
-          type: string
-          description: MUST be 'voicemail'
-        voicemail_id:
-          type: integer
-          description: The id of the voicemail
-        skip_instructions:
-          type: boolean
-          description: Skip the playback of instructions for leaving a message
-        greeting:
-          type: string
-          enum:
-          - busy
-          - unavailable
-          description: Play the specified greeting
-      required:
-      - type
-      - voicemail_id
-    TrunkRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the trunk
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
-    EndpointCustomRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Custom Endpoint ID
-          readOnly: true
-        interface:
-          type: string
-          description: Asterisk interface to use. (e.g. 'dahdi/i1')
-    SIPAORSectionOptions:
-      title: PJSIP AOR Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    UserSubscriptionItems:
-      title: UserSubscriptionItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserSubscription'
-        total:
-          type: integer
-      required:
-      - total
-    SIPAuthSectionOptions:
-      title: PJSIP Auth Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    UserPostRelationLine:
-      properties:
-        device_id:
-          type: string
-          description: ID of the device associated to the line
-      allOf:
-      - $ref: '#/components/schemas/Line'
-      - $ref: '#/components/schemas/LineExtensions'
-      - $ref: '#/components/schemas/LineEndpointSIP'
-      - $ref: '#/components/schemas/LineEndpointSCCP'
-      - $ref: '#/components/schemas/LineEndpointCustom'
-    LineRelationEndpoints:
-      properties:
-        endpoint_sip:
-          readOnly: true
-          $ref: '#/components/schemas/EndpointSipRelationBase'
-        endpoint_sccp:
-          readOnly: true
-          $ref: '#/components/schemas/EndpointSccpRelationBase'
-        endpoint_custom:
-          readOnly: true
-          $ref: '#/components/schemas/EndpointCustomRelationBase'
-    LineExtensions:
-      title: LineExtensions
-      properties:
-        extensions:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
-    DestinationExtension:
-      title: DestinationExtension
-      properties:
-        type:
-          type: string
-          description: MUST be 'extension'
-        exten:
-          type: string
-        context:
-          type: string
-          description: Context of the extension
-      required:
-      - type
-      - exten
-      - context
-    LineEndpointSIP:
-      title: LineEndpointSIP
-      properties:
-        endpoint_sip:
-          $ref: '#/components/schemas/EndpointSIP'
-    UserUuid:
-      properties:
-        uuid:
-          type: string
-    QueueMemberUser:
-      title: QueueMemberUser
-      description: An association between a user and a queue.
-      allOf:
-      - $ref: '#/components/schemas/QueueMemberUserRelationBase'
-    EndpointSccpRelationBase:
-      properties:
-        id:
-          type: integer
-          description: SCCP Endpoint ID
-          readOnly: true
-    SIPTransportRelation:
-      properties:
-        uuid:
-          type: string
-      required:
-      - uuid
-    IncallRelationBase:
-      title: IncallRelation
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the incoming call
-    VoicemailItems:
-      title: VoicemailItems
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/Voicemail_2'
-          type: array
-        total:
-          type: integer
-    User:
-      title: User
-      allOf:
-      - $ref: '#/components/schemas/BaseUser'
-      - $ref: '#/components/schemas/UserRelationAgent'
-      - $ref: '#/components/schemas/UserRelationFallbacks'
-      - $ref: '#/components/schemas/UserRelationForwards'
-      - $ref: '#/components/schemas/UserRelationGroups'
-      - $ref: '#/components/schemas/UserRelationIncalls'
-      - $ref: '#/components/schemas/UserRelationLines'
-      - $ref: '#/components/schemas/UserRelationServices'
-      - $ref: '#/components/schemas/UserRelationSwitchboards'
-      - $ref: '#/components/schemas/UserRelationVoicemail'
-      - $ref: '#/components/schemas/UserRelationQueues'
-      - $ref: '#/components/schemas/UserRelationCallPickupTargets'
-      - required:
-        - firstname
     DestinationConference:
       title: DestinationConference
       properties:
@@ -6183,13 +6498,90 @@ components:
             description: MUST be 'normal'
       required:
       - cause
-    Voicemail_2:
+    DestinationSwitchboard:
+      title: DestinationSwitchboard
+      properties:
+        type:
+          type: string
+          description: MUST be 'switchboard'
+        switchboard_uuid:
+          type: string
+          description: The UUID of the switchboard.
+      required:
+      - type
+      - switchboard_uuid
+    DestinationApplicationDirectory:
+      title: DestinationApplicationDirectory
       allOf:
-      - $ref: '#/components/schemas/BaseVoicemail'
-      - $ref: '#/components/schemas/VoicemailRelationBase'
-      - $ref: '#/components/schemas/VoicemailRelationUsers'
-    EndpointSIP:
-      title: SIP Endpoint
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'directory'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    TrunkRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the trunk
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+    UserGroupsID:
+      properties:
+        groups:
+          items:
+            $ref: '#/components/schemas/UserGroupID'
+          type: array
+    AgentRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the agent
+        firstname:
+          type: string
+        lastname:
+          type: string
+        number:
+          type: string
+          description: Agent number. Cannot be modified after creation
+    DestinationHangup:
+      title: DestinationHangup
+      properties:
+        type:
+          type: string
+          description: MUST be 'hangup'
+      required:
+      - type
+    DestinationApplicationCustom:
+      title: DestinationApplicationCustom
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'custom'
+          application_uuid:
+            type: string
+            description: The UUID of the application.
+      required:
+      - application
+      - application_uuid
+    UsersUuid:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/UserUuid'
+          type: array
+    EndpointSipRelationBase:
       properties:
         uuid:
           type: string
@@ -6201,192 +6593,44 @@ components:
         label:
           type: string
           description: The human readable name for this configuration
-        aor_section_options:
-          type: array
-          items:
-            $ref: '#/components/schemas/SIPAORSectionOptions'
-          description: A list of PJSIP AOR section options for this endpoint
         auth_section_options:
           type: array
           items:
             $ref: '#/components/schemas/SIPAuthSectionOptions'
-          description: A list of PJSIP auth section options for this endpoint
-        endpoint_section_options:
-          type: array
-          items:
-            $ref: '#/components/schemas/SIPEndpointSectionOptions'
-          description: A list of PJSIP endpoint section options for this endpoint
-        identify_section_options:
-          type: array
-          items:
-            $ref: '#/components/schemas/SIPIdentifySectionOptions'
-          description: A list of PJSIP identify section options for this endpoint
-        registration_section_options:
-          type: array
-          items:
-            $ref: '#/components/schemas/SIPRegistrationSectionOptions'
-          description: A list of PJSIP registration section options for this endpoint
-        registration_outbound_auth_section_options:
-          type: array
-          items:
-            $ref: '#/components/schemas/SIPAuthSectionOptions'
-          description: A list of PJSIP auth section options for this endpoint
-        outbound_auth_section_options:
-          type: array
-          items:
-            $ref: '#/components/schemas/SIPAuthSectionOptions'
-          description: A list of PJSIP auth section options for this endpoint
-        transport:
-          description: The transport used by this endpoint
-          $ref: '#/components/schemas/SIPTransportRelation'
-        templates:
-          type: array
-          items:
-            $ref: '#/components/schemas/EndpointSIPTemplatesRelation'
-          description: 'A list of templates this configuration will inherit from.
-
-
-            The inheritance only applies to option sections. Not to the name, label and other fields.
-
-            For a given list of templates [A, B, C] A will be applied over B. C will be applied over (A,B) etc.
-
-            '
-        tenant_uuid:
+          description: A list of PJSIP auth section options for this endpoint. Only `username` is supported
+    DestinationUser:
+      title: DestinationUser
+      properties:
+        type:
           type: string
-          description: The UUID of the tenant
-          readOnly: true
-        asterisk_id:
-          type: string
-          description: The ID of the Asterisk onto which this configuration applies.
-    UserRelationForwards:
-      properties:
-        forwards:
-          readOnly: true
-          $ref: '#/components/schemas/UserForwards'
-    UserFallbacks:
-      properties:
-        noanswer_destination:
-          description: The destination to redirect the caller to when there are no answer
-          $ref: '#/components/schemas/DestinationType'
-        busy_destination:
-          description: The destination to redirect the caller to when there are busy
-          $ref: '#/components/schemas/DestinationType'
-        congestion_destination:
-          description: The destination to redirect the caller to when there are congestion
-          $ref: '#/components/schemas/DestinationType'
-        fail_destination:
-          description: The destination to redirect the caller to when the call fail
-          $ref: '#/components/schemas/DestinationType'
-      example:
-        noanswer_destination:
-          type: user
-          user_id: 1
-        busy_destination:
-          type: group
-          group_id: 2
-        congestion_destination:
-          type: ivr
-          ivr_id: 3
-        fail_destination:
-          type: voicemail
-          voicemail_id: 4
-    UserItems:
-      title: UserItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
-        total:
+          description: MUST be 'user'
+        user_id:
           type: integer
+          description: The id of the user
+        ring_time:
+          type: number
+          format: float
+        moh_uuid:
+          type: string
+          description: The UUID of the music on hold to use instead of a ringback tone.
       required:
-      - total
-    DestinationHangupCause:
-      title: DestinationHangupCause
+      - type
+      - user_id
+    DestinationApplicationApplication:
+      title: DestinationApplicationApplication
       properties:
-        busy:
-          $ref: '#/components/schemas/DestinationHangupBusy'
-        congestion:
-          $ref: '#/components/schemas/DestinationHangupCongestion'
-        normal:
-          $ref: '#/components/schemas/DestinationHangupNormal'
-    MeetingAuthorizationItems:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/MeetingAuthorization'
-        total:
-          type: integer
-    UserRelationServices:
-      properties:
-        services:
-          readOnly: true
-          $ref: '#/components/schemas/UserServices'
-    UserGroupsID:
-      properties:
-        groups:
-          items:
-            $ref: '#/components/schemas/UserGroupID'
-          type: array
-    UserPostRelationIncalls:
-      properties:
-        incalls:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: integer
-                readOnly: true
-                description: The id of the incoming call
-              preprocess_subroutine:
-                type: string
-                description: Name of the subroutine to execute in asterisk before receiving a call
-              caller_id_mode:
-                type: string
-                enum:
-                - prepend
-                - overwrite
-                - append
-                description: How the caller_id_name will be treated
-              caller_id_name:
-                type: string
-                description: Name to display when calling
-              greeting_sound:
-                type: string
-                description: The name of the sound file to be played before redirecting the caller to the destination
-              extensions:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      description: Extension ID
-                      readOnly: true
-                    context:
-                      type: string
-                    exten:
-                      type: string
-    DestinationApplicationDISA:
-      title: DestinationApplicationDISA
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'disa'
-          context:
-            type: integer
-            description: The context of the application
-          pin:
-            type: string
-            description: the pin of the application
-        required:
-        - application
-        - context
+        callback_disa:
+          $ref: '#/components/schemas/DestinationApplicationCallbackDISA'
+        custom:
+          $ref: '#/components/schemas/DestinationApplicationCustom'
+        directory:
+          $ref: '#/components/schemas/DestinationApplicationDirectory'
+        disa:
+          $ref: '#/components/schemas/DestinationApplicationDISA'
+        fax_to_mail:
+          $ref: '#/components/schemas/DestinationApplicationFaxToMail'
+        voicemail:
+          $ref: '#/components/schemas/DestinationApplicationVoicemail'
     BaseUser:
       title: User
       allOf:
@@ -6517,14 +6761,396 @@ components:
             type: boolean
             description: (Summary view only) Whether the user's main line is a WebRTC line
             readOnly: true
+    DestinationIVR:
+      title: DestinationIVR
+      properties:
+        type:
+          type: string
+          description: MUST be 'ivr'
+        ivr_id:
+          type: integer
+          description: The id of the IVR
+      required:
+      - type
+      - ivr_id
+    DestinationQueue:
+      title: DestinationQueue
+      properties:
+        type:
+          type: string
+          description: MUST be 'queue'
+        queue_id:
+          type: integer
+          description: The id of the queue
+        ring_time:
+          type: number
+          format: float
+        skill_rule_id:
+          type: integer
+          description: The id of the skill rule
+        skill_rule_variables:
+          type: object
+          description: key-value where key represents the variable of the skill rule and value represents a value
+      required:
+      - type
+      - queue_id
+    Line:
+      title: Line
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        context:
+          type: string
+          description: The name of an internal context
+        position:
+          type: integer
+          description: Line's position on the device
+        caller_id_name:
+          type: string
+          description: Name to display when calling
+        caller_id_num:
+          type: string
+          description: Number to display when calling
+        provisioning_code:
+          type: string
+          description: Code used to provision a device
+        registrar:
+          type: string
+          description: Name of the template line used by the device
+      required:
+      - context
+    DestinationHangupCongestion:
+      title: DestinationHangupCongestion
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'congestion'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
+      required:
+      - cause
+    EndpointCustom:
+      title: Custom Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointCustomRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          enabled:
+            type: boolean
+            description: Endpoint can be used when it is enabled
+            default: true
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+      - required:
+        - interface
+    EndpointSIP:
+      title: SIP Endpoint
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+          readOnly: true
+        name:
+          type: string
+          description: The name of the PJSIP entity, auto-generated if missing
+        label:
+          type: string
+          description: The human readable name for this configuration
+        aor_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAORSectionOptions'
+          description: A list of PJSIP AOR section options for this endpoint
+        auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint
+        endpoint_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPEndpointSectionOptions'
+          description: A list of PJSIP endpoint section options for this endpoint
+        identify_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPIdentifySectionOptions'
+          description: A list of PJSIP identify section options for this endpoint
+        registration_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPRegistrationSectionOptions'
+          description: A list of PJSIP registration section options for this endpoint
+        registration_outbound_auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint
+        outbound_auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint
+        transport:
+          description: The transport used by this endpoint
+          $ref: '#/components/schemas/SIPTransportRelation'
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointSIPTemplatesRelation'
+          description: 'A list of templates this configuration will inherit from.
+
+
+            The inheritance only applies to option sections. Not to the name, label and other fields.
+
+            For a given list of templates [A, B, C] A will be applied over B. C will be applied over (A,B) etc.
+
+            '
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        asterisk_id:
+          type: string
+          description: The ID of the Asterisk onto which this configuration applies.
+    DestinationCustom:
+      title: DestinationCustom
+      properties:
+        type:
+          type: string
+          description: MUST be 'custom'
+        command:
+          type: string
+          description: The command to execute
+      required:
+      - type
+      - command
+    ExtensionRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Extension ID
+          readOnly: true
+        context:
+          type: string
+        exten:
+          type: string
+    LineRelationEndpoints:
+      properties:
+        endpoint_sip:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointSipRelationBase'
+        endpoint_sccp:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointSccpRelationBase'
+        endpoint_custom:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointCustomRelationBase'
+    UserPostRelationLine:
+      properties:
+        device_id:
+          type: string
+          description: ID of the device associated to the line
+      allOf:
+      - $ref: '#/components/schemas/Line'
+      - $ref: '#/components/schemas/LineExtensions'
+      - $ref: '#/components/schemas/LineEndpointSIP'
+      - $ref: '#/components/schemas/LineEndpointSCCP'
+      - $ref: '#/components/schemas/LineEndpointCustom'
+    MeetingRequest:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/MeetingUserRequest'
+      - properties:
+          owner_uuids:
+            type: array
+            items:
+              type: string
+    LineExtensions:
+      title: LineExtensions
+      properties:
+        extensions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    CallFilterRecipientUsersUuid:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/CallFilterRecipientUserUuid'
+          type: array
+    DestinationVoicemail:
+      title: DestinationVoicemail
+      properties:
+        type:
+          type: string
+          description: MUST be 'voicemail'
+        voicemail_id:
+          type: integer
+          description: The id of the voicemail
+        skip_instructions:
+          type: boolean
+          description: Skip the playback of instructions for leaving a message
+        greeting:
+          type: string
+          enum:
+          - busy
+          - unavailable
+          description: Play the specified greeting
+      required:
+      - type
+      - voicemail_id
+    QueueMemberUserRelationBase:
+      properties:
+        priority:
+          type: integer
+          minimum: 0
+          description: Priority of user in the queue. Only used for linear ring strategy
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    DestinationApplicationDISA:
+      title: DestinationApplicationDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    EndpointSccp:
+      title: SCCP Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointSccpRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          options:
+            description: "Advanced configuration options. Options are appended at the end of a \nSCCP account in the file 'sccp.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Because of database limitations, only the following options are allowed:\n\n * cid_name\n * cid_num\n * allow\n * disallow\n \nOptions must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in sip.conf will have the following form:\n\n```\n[1000]\nname1=value1\nname2=value2\n```\n"
+            type: array
+            items:
+              $ref: '#/components/schemas/KeyValueOption'
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+    MeetingUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        persistent:
+          type: boolean
+          description: Persistent meetings will not get deleted automatically
     UserRelationFallbacks:
       properties:
         fallbacks:
           readOnly: true
           $ref: '#/components/schemas/UserFallbacks'
-    UserExport:
-      title: UserExport
-      type: string
+    UserForward:
+      title: UserForward
+      properties:
+        enabled:
+          type: boolean
+        destination:
+          type: string
+    LinesID:
+      properties:
+        lines:
+          items:
+            $ref: '#/components/schemas/LineID'
+          type: array
+    UserService:
+      title: UserService
+      properties:
+        enabled:
+          type: boolean
+      required:
+      - enabled
+    UserRelationForwards:
+      properties:
+        forwards:
+          readOnly: true
+          $ref: '#/components/schemas/UserForwards'
+    UserFallbacks:
+      properties:
+        noanswer_destination:
+          description: The destination to redirect the caller to when there are no answer
+          $ref: '#/components/schemas/DestinationType'
+        busy_destination:
+          description: The destination to redirect the caller to when there are busy
+          $ref: '#/components/schemas/DestinationType'
+        congestion_destination:
+          description: The destination to redirect the caller to when there are congestion
+          $ref: '#/components/schemas/DestinationType'
+        fail_destination:
+          description: The destination to redirect the caller to when the call fail
+          $ref: '#/components/schemas/DestinationType'
+      example:
+        noanswer_destination:
+          type: user
+          user_id: 1
+        busy_destination:
+          type: group
+          group_id: 2
+        congestion_destination:
+          type: ivr
+          ivr_id: 3
+        fail_destination:
+          type: voicemail
+          voicemail_id: 4
+    DestinationOutcall:
+      title: DestinationOutcall
+      properties:
+        type:
+          type: string
+          description: MUST be 'outcall'
+        exten:
+          type: string
+        outcall_id:
+          type: integer
+          description: The id of the outcall
+      required:
+      - type
+      - exten
+      - outcall_id
+    UserRelationCallPickupTargets:
+      title: UserRelationCallPickupTargets
+      properties:
+        call_pickup_target_users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserRelationBase'
+    EndpointSccpRelationBase:
+      properties:
+        id:
+          type: integer
+          description: SCCP Endpoint ID
+          readOnly: true
     DestinationGroup:
       title: DestinationGroup
       properties:
@@ -6540,6 +7166,40 @@ components:
       required:
       - type
       - group_id
+    UserGroupID:
+      properties:
+        id:
+          type: integer
+        uuid:
+          type: string
+    IncallRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    UserRelationLine:
+      allOf:
+      - $ref: '#/components/schemas/LineRelationBase'
+      - $ref: '#/components/schemas/LineRelationEndpoints'
+      - $ref: '#/components/schemas/LineRelationExtensions'
+    DestinationHangupBusy:
+      title: DestinationHangupBusy
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'busy'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
+      required:
+      - cause
+    SIPAORSectionOptions:
+      title: PJSIP AOR Section Options
+      $ref: '#/components/schemas/KeyValueOption'
     DestinationApplicationFaxToMail:
       title: DestinationApplicationFaxToMail
       allOf:
@@ -6554,6 +7214,369 @@ components:
       required:
       - application
       - email
+    SIPTransportRelation:
+      properties:
+        uuid:
+          type: string
+      required:
+      - uuid
+    UserRelationGroups:
+      properties:
+        groups:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/GroupRelationBase'
+    LineRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    UserPostRelationIncalls:
+      properties:
+        incalls:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                readOnly: true
+                description: The id of the incoming call
+              preprocess_subroutine:
+                type: string
+                description: Name of the subroutine to execute in asterisk before receiving a call
+              caller_id_mode:
+                type: string
+                enum:
+                - prepend
+                - overwrite
+                - append
+                description: How the caller_id_name will be treated
+              caller_id_name:
+                type: string
+                description: Name to display when calling
+              greeting_sound:
+                type: string
+                description: The name of the sound file to be played before redirecting the caller to the destination
+              extensions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: Extension ID
+                      readOnly: true
+                    context:
+                      type: string
+                    exten:
+                      type: string
+    UserRelationAgent:
+      properties:
+        agent:
+          readOnly: true
+          $ref: '#/components/schemas/AgentRelationBase'
+    UserRelationIncall:
+      allOf:
+      - $ref: '#/components/schemas/IncallRelationBase'
+      - $ref: '#/components/schemas/IncallRelationExtensions'
+    Meeting:
+      type: object
+      properties:
+        uuid:
+          type: string
+        owner_uuids:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        ingress_http_uri:
+          type: string
+          description: URI to reach this stack (configured by the Ingress HTTP resource)
+        guest_sip_authorization:
+          type: string
+          readOnly: true
+          description: 'Format: base64(username:password), same as HTTP Basic Auth.'
+        persistent:
+          type: boolean
+          description: Persistent meetings will not get deleted automatically
+        creation_time:
+          type: string
+          format: date-time
+          readOnly: true
+        exten:
+          type: string
+          description: the external extension to dial to reach this meeting
+          readOnly: true
+        require_authorization:
+          type: boolean
+          description: when `true`, the `guest_sip_authorization` is always `null`. Instead, clients must request an authorization to access the meeting.
+    EndpointRelationLine:
+      properties:
+        line:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    UserCallerID:
+      title: UserCallerID
+      properties:
+        number:
+          type: string
+          description: Caller ID number. Only valid for `main` `associated` and `shared` types
+        caller_id_name:
+          type: string
+          description: Caller ID name. Only valid for `main` and `shared` types
+        type:
+          type: string
+          description: 'Caller ID type.
+
+
+            - `main`: The phone number(`/1.1/phone-numbers`) currently flagged as `main`, which should correspond to the organisation number.
+
+            - `associated`: An incall associated to the user
+
+            - `anonymous`: Anonymous caller ID
+
+            - `shared`: A phone number(`/1.1/phone-numbers`) flagged as `shared`
+
+            '
+          enum:
+          - main
+          - associated
+          - anonymous
+          - shared
+    DestinationSound:
+      title: DestinationSound
+      properties:
+        type:
+          type: string
+          description: MUST be 'sound'
+        filename:
+          type: string
+          description: The filename of the sound. The file MUST be imported by to webi in the playback directory. The extension of file SHOULD be not present.
+        skip:
+          type: boolean
+          description: Do not play this sound if the call is not answered
+        no_answer:
+          type: boolean
+          description: Play this sound without answering the call
+      required:
+      - type
+      - filename
+    QueueMemberUser:
+      title: QueueMemberUser
+      description: An association between a user and a queue.
+      allOf:
+      - $ref: '#/components/schemas/QueueMemberUserRelationBase'
+    FuncKey:
+      title: FuncKey
+      description: Further documentation at https://wazo-platform.org/uc-doc/api_sdk/rest_api/confd/func_keys
+      properties:
+        blf:
+          type: boolean
+        label:
+          type: string
+        destination:
+          type: object
+    Error_5:
+      type: array
+      items:
+        type: string
+    UserRelationLines:
+      properties:
+        lines:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/UserRelationLine'
+    BaseVoicemail:
+      title: Voicemail
+      properties:
+        number:
+          type: string
+          description: Mailbox number, for example `0001`
+        context:
+          type: string
+          description: Voicemail context
+        password:
+          type: string
+          description: Numeric password used to access the voicemail
+        email:
+          type: string
+          description: Email address. Notifications and audio attachments will be sent to this address
+        pager:
+          type: string
+          description: Email address. Summarized notifications will be sent to this address
+        language:
+          type: string
+          enum:
+          - de_DE
+          - en_US
+          - es_ES
+          - fr_FR
+          - fr_CA
+          - it_IT
+          - nl_NL
+          description: Language used for the voicemail menu prompt
+        timezone:
+          type: string
+          default: The system default timezone
+          description: Timezone used for announcing at what time a message was recorded
+        max_messages:
+          type: integer
+          description: Maximum number of messages to store
+        attach_audio:
+          type: boolean
+          description: Attach an audio file of the recorded message when sending an email
+        delete_messages:
+          type: boolean
+          description: "Delete messages after reception. \nThis can only be set along with 'email' and 'attach_audio' configured.\n"
+          default: false
+        ask_password:
+          type: boolean
+          description: Ask for password when accessing the voicemail menu
+          default: true
+        enabled:
+          type: boolean
+          description: Voicemail can be used when it is enabled
+          default: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        accesstype:
+          type: string
+          enum:
+          - personal
+          - global
+          description: Access type of the voicemail. 'personal' means the voicemail is associated with specific users, 'global' means it is shared across the context. Only one global voicemail can exist per context.
+          default: personal
+        options:
+          description: "Advanced configuration options. Options are appended at the end of a \nvoicemail line in the file 'voicemail.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Options must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in voicemail.conf will have the following form:\n\n```\n1000 => ,Firstname Lastname,,,name1=value1|name2=value2\n```\n"
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValueOption'
+      required:
+      - name
+      - number
+      - context
+    DestinationNone:
+      title: DestinationNone
+      properties:
+        type:
+          type: string
+          description: MUST be 'none'
+      required:
+      - type
+    UserCallerIDItems:
+      title: UserCallerIDItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserCallerID'
+        total:
+          type: integer
+      required:
+      - total
+    EndpointSIPTemplatesRelation:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+        label:
+          type: string
+          description: The label of this resource
+          readOnly: true
+      required:
+      - uuid
+    MeetingAuthorizationItems:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeetingAuthorization'
+        total:
+          type: integer
+    UserRelationServices:
+      properties:
+        services:
+          readOnly: true
+          $ref: '#/components/schemas/UserServices'
+    VoicemailRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Voicemail ID
+          readOnly: true
+        name:
+          type: string
+          description: Voicemail name
+    VoicemailItems:
+      title: VoicemailItems
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Voicemail_2'
+          type: array
+        total:
+          type: integer
+    UserPostResponse_2:
+      title: UserCreateResponse
+      allOf:
+      - $ref: '#/components/schemas/UserPost'
+      - $ref: '#/components/schemas/AuthUserPost'
+      - $ref: '#/components/schemas/UserPostRelationIncalls'
+    UserSubscriptionItems:
+      title: UserSubscriptionItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSubscription'
+        total:
+          type: integer
+      required:
+      - total
+    SIPRegistrationSectionOptions:
+      title: PJSIP Registration Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    DestinationApplicationCallbackDISA:
+      title: DestinationApplicationCallbackDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'callback_disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    UserUuid:
+      properties:
+        uuid:
+          type: string
+    UserForwards:
+      title: UserForwards
+      properties:
+        busy:
+          $ref: '#/components/schemas/UserForward'
+        noanswer:
+          $ref: '#/components/schemas/UserForward'
+        unconditional:
+          $ref: '#/components/schemas/UserForward'
     UserPost:
       title: User
       properties:
@@ -6750,93 +7773,45 @@ components:
           $ref: '#/components/schemas/UserRelationAgent'
       allOf:
       - $ref: '#/components/schemas/UserPostRelationIncalls'
-    UserRelationGroups:
+    EndpointRelationTrunk:
       properties:
-        groups:
-          type: array
+        trunk:
+          $ref: '#/components/schemas/TrunkRelationBase'
           readOnly: true
-          items:
-            $ref: '#/components/schemas/GroupRelationBase'
-    LineEndpointCustom:
-      title: LineEndpointCustom
+    DestinationHangupCause:
+      title: DestinationHangupCause
       properties:
-        endpoint_custom:
-          $ref: '#/components/schemas/EndpointCustom'
-    SwitchboardRelationBase:
+        busy:
+          $ref: '#/components/schemas/DestinationHangupBusy'
+        congestion:
+          $ref: '#/components/schemas/DestinationHangupCongestion'
+        normal:
+          $ref: '#/components/schemas/DestinationHangupNormal'
+    SIPIdentifySectionOptions:
+      title: PJSIP Identify Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    UserRelationBase:
       properties:
         uuid:
           type: string
-          description: Switchboard UUID
+          description: User UUID. This ID is globally unique across multiple Wazo instances
           readOnly: true
-        name:
+        firstname:
           type: string
-          description: Switchboard name
-    DestinationQueue:
-      title: DestinationQueue
-      properties:
-        type:
+          description: User firstname
+        lastname:
           type: string
-          description: MUST be 'queue'
-        queue_id:
-          type: integer
-          description: The id of the queue
-        ring_time:
-          type: number
-          format: float
-        skill_rule_id:
-          type: integer
-          description: The id of the skill rule
-        skill_rule_variables:
-          type: object
-          description: key-value where key represents the variable of the skill rule and value represents a value
-      required:
-      - type
-      - queue_id
-    UserRelationIncall:
+          description: User lastname
+    Voicemail_2:
       allOf:
-      - $ref: '#/components/schemas/IncallRelationBase'
-      - $ref: '#/components/schemas/IncallRelationExtensions'
-    UserGroupID:
+      - $ref: '#/components/schemas/BaseVoicemail'
+      - $ref: '#/components/schemas/VoicemailRelationBase'
+      - $ref: '#/components/schemas/VoicemailRelationUsers'
+    LineEndpointSIP:
+      title: LineEndpointSIP
       properties:
-        id:
-          type: integer
-        uuid:
-          type: string
-    UserCallerID:
-      title: UserCallerID
-      properties:
-        number:
-          type: string
-          description: Caller ID number. Only valid for `main` `associated` and `shared` types
-        caller_id_name:
-          type: string
-          description: Caller ID name. Only valid for `main` and `shared` types
-        type:
-          type: string
-          description: 'Caller ID type.
-
-
-            - `main`: The phone number(`/1.1/phone-numbers`) currently flagged as `main`, which should correspond to the organisation number.
-
-            - `associated`: An incall associated to the user
-
-            - `anonymous`: Anonymous caller ID
-
-            - `shared`: A phone number(`/1.1/phone-numbers`) flagged as `shared`
-
-            '
-          enum:
-          - main
-          - associated
-          - anonymous
-          - shared
-    UserRelationQueues:
-      properties:
-        queues:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/QueueRelationBase'
+        endpoint_sip:
+          $ref: '#/components/schemas/EndpointSIP'
     LineRelationBase:
       properties:
         id:
@@ -6847,228 +7822,21 @@ components:
           type: string
           description: The name of the line
           readOnly: true
-    UserRelationLines:
-      properties:
-        lines:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/UserRelationLine'
-    UserRelationCallPickupTargets:
-      title: UserRelationCallPickupTargets
-      properties:
-        call_pickup_target_users:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserRelationBase'
-    Meeting:
-      type: object
-      properties:
-        uuid:
-          type: string
-        owner_uuids:
-          type: array
-          items:
-            type: string
-        name:
-          type: string
-        ingress_http_uri:
-          type: string
-          description: URI to reach this stack (configured by the Ingress HTTP resource)
-        guest_sip_authorization:
-          type: string
-          readOnly: true
-          description: 'Format: base64(username:password), same as HTTP Basic Auth.'
-        persistent:
-          type: boolean
-          description: Persistent meetings will not get deleted automatically
-        creation_time:
-          type: string
-          format: date-time
-          readOnly: true
-        exten:
-          type: string
-          description: the external extension to dial to reach this meeting
-          readOnly: true
-        require_authorization:
-          type: boolean
-          description: when `true`, the `guest_sip_authorization` is always `null`. Instead, clients must request an authorization to access the meeting.
-    DestinationApplicationCustom:
-      title: DestinationApplicationCustom
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'custom'
-          application_uuid:
-            type: string
-            description: The UUID of the application.
-      required:
-      - application
-      - application_uuid
-    LinesID:
-      properties:
-        lines:
-          items:
-            $ref: '#/components/schemas/LineID'
-          type: array
-    FuncKeyTemplate:
-      title: FuncKeyTemplate
-      description: Further documentation at https://wazo-platform.org/uc-doc/administration/users/csv_import
+    QueueRelationBase:
       properties:
         id:
           type: integer
-          description: The ID of the funckey template
           readOnly: true
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
+          description: The id of the queue
         name:
           type: string
-        keys:
-          type: object
-    GroupMemberUsers:
-      properties:
-        users:
-          items:
-            $ref: '#/components/schemas/GroupMemberUser'
-          type: array
-      required:
-      - users
-    MeetingRequest:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/MeetingUserRequest'
-      - properties:
-          owner_uuids:
-            type: array
-            items:
-              type: string
-    DestinationCustom:
-      title: DestinationCustom
-      properties:
-        type:
-          type: string
-          description: MUST be 'custom'
-        command:
-          type: string
-          description: The command to execute
-      required:
-      - type
-      - command
-    UserPostResponse_2:
-      title: UserCreateResponse
-      allOf:
-      - $ref: '#/components/schemas/UserPost'
-      - $ref: '#/components/schemas/AuthUserPost'
-      - $ref: '#/components/schemas/UserPostRelationIncalls'
-    EndpointSIPTemplatesRelation:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of this resource
+          description: The name of the queue. Cannot be modified
         label:
           type: string
-          description: The label of this resource
-          readOnly: true
-      required:
-      - uuid
-    UserRelationSwitchboards:
-      properties:
-        switchboards:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/SwitchboardRelationBase'
-    DestinationApplication:
-      title: DestinationApplication
-      properties:
-        type:
-          type: string
-          description: MUST be 'application'
-      required:
-      - type
-    UserImportError:
-      title: UserImportError
-      description: List of errors that occurred during import
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              message:
-                type: string
-                description: Error message
-              timestamp:
-                type: integer
-                description: Time at which the error occurred
-              details:
-                type: object
-                properties:
-                  row_number:
-                    type: integer
-                    description: Line number corresponding to the CSV data
-                  row:
-                    type: object
-                    description: Original data that caused the error
-    DestinationApplicationDirectory:
-      title: DestinationApplicationDirectory
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'directory'
-          context:
-            type: integer
-            description: The context of the application
-        required:
-        - application
-        - context
-    UserCallerIDItems:
-      title: UserCallerIDItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserCallerID'
-        total:
-          type: integer
-      required:
-      - total
-    UserRelationAgent:
-      properties:
-        agent:
-          readOnly: true
-          $ref: '#/components/schemas/AgentRelationBase'
-    DestinationHangup:
-      title: DestinationHangup
-      properties:
-        type:
-          type: string
-          description: MUST be 'hangup'
-      required:
-      - type
-    DestinationApplicationCallbackDISA:
-      title: DestinationApplicationCallbackDISA
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'callback_disa'
-          context:
-            type: integer
-            description: The context of the application
-          pin:
-            type: string
-            description: the pin of the application
-        required:
-        - application
-        - context
+          description: The label of the queue
+    UserExport:
+      title: UserExport
+      type: string
     UserExternalAppItems:
       title: UserExternalAppItems
       properties:
@@ -7080,240 +7848,69 @@ components:
           type: integer
       required:
       - total
-    UserImport:
-      title: UserImport
-      description: List of users successfully imported
-      properties:
-        created:
-          type: array
-          items:
-            title: UserImportIDs
-            type: object
-            properties:
-              extension_id:
-                type: integer
-                description: Extension ID
-              user_id:
-                type: integer
-                description: User ID
-              line_id:
-                type: integer
-                description: Line ID
-              sip_uuid:
-                type: string
-                description: SIP UUID
-              voicemail_id:
-                type: integer
-                description: Voicemail ID
-              incall_extension_id:
-                type: integer
-                description: ID of the Extension used for incoming calls
-              row_number:
-                type: integer
-                description: Line number corresponding to the CSV data
-    MeetingItems:
-      type: object
+    UserItems:
+      title: UserItems
       properties:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/Meeting'
-    UserRelationVoicemail:
-      properties:
-        voicemail:
-          readOnly: true
-          $ref: '#/components/schemas/VoicemailRelationBase'
-    VoicemailRelationUsers:
-      properties:
-        users:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/UserRelationBase'
-    LineRelationExtensions:
-      properties:
-        extensions:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
-    GroupRelationBase:
-      properties:
-        name:
-          type: string
-          description: The name of the group
-          readOnly: true
-        id:
+            $ref: '#/components/schemas/User'
+        total:
           type: integer
-          readOnly: true
-          description: The id of the group
-        uuid:
-          type: string
-          description: Group UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-    LineID:
-      properties:
-        id:
-          type: integer
-    UserSubscription:
-      title: UserSubscription
-      properties:
-        id:
-          type: integer
-        count:
-          type: integer
-          description: Total of assigned subscription
-    UserFuncKeyTemplate:
-      title: UserFuncKeyTemplate
-      description: Association between a User and a FuncKey Template
-      properties:
-        user_id:
-          type: integer
-          format: int32
-          description: User's ID
-        template_id:
-          type: integer
-          format: int32
-          description: FuncKey Template's ID
-    UsersUuid:
-      properties:
-        users:
-          items:
-            $ref: '#/components/schemas/UserUuid'
-          type: array
-    UserServices:
-      title: UserServices
-      properties:
-        dnd:
-          $ref: '#/components/schemas/UserService'
-        incallfilter:
-          $ref: '#/components/schemas/UserService'
-    CallFilterRecipientUserUuid:
-      allOf:
-      - properties:
-          timeout:
-            type: integer
-      - $ref: '#/components/schemas/UserUuid'
-    FuncKey:
-      title: FuncKey
-      description: Further documentation at https://wazo-platform.org/uc-doc/api_sdk/rest_api/confd/func_keys
-      properties:
-        blf:
-          type: boolean
-        label:
-          type: string
-        destination:
-          type: object
-    SIPIdentifySectionOptions:
-      title: PJSIP Identify Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    DestinationNone:
-      title: DestinationNone
+      required:
+      - total
+    DestinationApplication:
+      title: DestinationApplication
       properties:
         type:
           type: string
-          description: MUST be 'none'
+          description: MUST be 'application'
       required:
       - type
-    UserRelationLine:
-      allOf:
-      - $ref: '#/components/schemas/LineRelationBase'
-      - $ref: '#/components/schemas/LineRelationEndpoints'
-      - $ref: '#/components/schemas/LineRelationExtensions'
-    GroupMemberUser:
+    DestinationType:
+      title: DestinationType
       properties:
-        uuid:
-          type: string
-        priority:
-          type: integer
-          description: priority of user in the group. Only used for linear ring strategy
-      required:
-      - uuid
-    UserRelationIncalls:
-      properties:
-        incalls:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/UserRelationIncall'
-    SIPRegistrationSectionOptions:
-      title: PJSIP Registration Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    EndpointCustom:
-      title: Custom Endpoint
-      allOf:
-      - $ref: '#/components/schemas/EndpointCustomRelationBase'
-      - properties:
-          tenant_uuid:
-            type: string
-            description: The UUID of the tenant
-            readOnly: true
-          enabled:
-            type: boolean
-            description: Endpoint can be used when it is enabled
-            default: true
-      - $ref: '#/components/schemas/EndpointRelationTrunk'
-      - $ref: '#/components/schemas/EndpointRelationLine'
-      - required:
-        - interface
-    Error_6:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    SubscriptionList:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Subscription'
-          readOnly: true
-        total:
-          type: integer
-          readOnly: true
-    SubscriptionMetadata:
-      type: object
-      description: Arbitrary key-value storage for this subscription. May be used to tag subscriptions. PUT replaces all metadata.
-    UserSubscriptionRequest:
-      type: object
+        application:
+          $ref: '#/components/schemas/DestinationApplicationApplication'
+        conference:
+          $ref: '#/components/schemas/DestinationConference'
+        custom:
+          $ref: '#/components/schemas/DestinationCustom'
+        extension:
+          $ref: '#/components/schemas/DestinationExtension'
+        group:
+          $ref: '#/components/schemas/DestinationGroup'
+        hangup:
+          $ref: '#/components/schemas/DestinationHangupCause'
+        ivr:
+          $ref: '#/components/schemas/DestinationIVR'
+        none:
+          $ref: '#/components/schemas/DestinationNone'
+        outcall:
+          $ref: '#/components/schemas/DestinationOutcall'
+        queue:
+          $ref: '#/components/schemas/DestinationQueue'
+        sound:
+          $ref: '#/components/schemas/DestinationSound'
+        switchboard:
+          $ref: '#/components/schemas/DestinationSwitchboard'
+        user:
+          $ref: '#/components/schemas/DestinationUser'
+        voicemail:
+          $ref: '#/components/schemas/DestinationVoicemail'
+    UserExternalApp:
+      title: UserExternalApp
       properties:
         name:
           type: string
-        service:
+          description: The name to identify the external app
+          readOnly: true
+        label:
           type: string
-          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
-
-            '
-        config:
-          $ref: '#/components/schemas/HTTPServiceConfig'
-        events:
-          type: array
-          items:
-            type: string
-        tags:
-          $ref: '#/components/schemas/SubscriptionMetadata'
-      required:
-      - name
-      - service
-      - config
-      - events
-    ServiceConfig:
-      type: object
-      additionalProperties:
-        type: string
+          description: The label of the external app
+        configuration:
+          type: object
+          description: Arbitrary settings needed by an external app
     Subscription:
       type: object
       properties:
@@ -7371,6 +7968,17 @@ components:
       - service
       - config
       - events
+    SubscriptionList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+          readOnly: true
+        total:
+          type: integer
+          readOnly: true
     HTTPServiceConfig:
       type: object
       properties:
@@ -7398,661 +8006,53 @@ components:
       required:
       - url
       - method
-  parameters:
-    QueueID:
-      name: queue_id
-      in: path
-      required: true
-      description: Queue's ID
-      schema:
-        type: integer
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    user_uuid_or_me:
-      name: user_uuid_or_me
-      in: path
-      description: The UUID of the user or `me` to refer to the user doing the query
-      required: true
-      schema:
-        type: string
-    group_uuid:
-      name: group_uuid
-      in: path
-      description: The UUID of the group
-      required: true
-      schema:
-        type: string
-    client_id:
-      name: client_id
-      in: path
-      description: The client_id of the refresh token to revoke
-      required: true
-      schema:
-        type: string
-    search_policy_slug:
-      name: policy_slug
-      in: query
-      description: The slug of the policy that the group must have.
-      schema:
-        type: string
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    idp_type:
-      name: idp_type
-      in: path
-      description: The type of IDP
-      required: true
-      schema:
-        type: string
-    email_uuid:
-      name: email_uuid
-      in: path
-      description: The UUID of the email
-      required: true
-      schema:
-        type: string
-    session_uuid:
-      name: session_uuid
-      in: path
-      description: The UUID of the session
-      required: true
-      schema:
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    has_policy_uuid:
-      name: has_policy_uuid
-      in: query
-      description: The UUID of the policy that the user must have. This includes indirect associations (user in group has policy).
-      schema:
-        type: string
-    has_policy_slug:
-      name: has_policy_slug
-      in: query
-      description: The slug of the policy that the user must have. This includes indirect associations (user in group has policy).
-      schema:
-        type: string
-    search_policy_uuid:
-      name: policy_uuid
-      in: query
-      description: The UUID of the policy that the group must have.
-      schema:
-        type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    policy_uuid:
-      name: policy_uuid
-      in: path
-      description: The UUID or slug of the policy. The slug is unique within a tenant, hence the tenant must be specified.
-      required: true
-      schema:
-        type: string
-    requested_internal_context:
-      name: requested_internal_context
-      description: Filter by requested_internal_context
-      required: false
-      in: query
-      schema:
-        type: string
-    from:
-      name: from
-      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
-    until:
-      name: until
-      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
-    recorded:
-      name: recorded
-      description: Filter by recorded status.
-      required: false
-      in: query
-      schema:
-        type: boolean
-    user_uuid_2:
-      required: false
-      name: user_uuid
-      in: query
-      description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will perform a logical OR.
-      schema:
-        type: array
-        items:
+    UserSubscriptionRequest:
+      type: object
+      properties:
+        name:
           type: string
-    requested_internal_extension:
-      name: requested_internal_extension
-      description: Filter by requested_internal_extension
-      required: false
-      in: query
-      schema:
-        type: string
-    distinct:
-      required: false
-      name: distinct
-      in: query
-      description: Will only return one result for the selected field
-      schema:
-        type: string
-        enum:
-        - peer_exten
-    conversation_id:
-      name: conversation_id
-      description: Filter by conversation identifier
-      required: false
-      in: query
-      schema:
-        type: string
-    format:
-      name: format
-      description: Overrides the Content-Type header. This is used to be able to have a downloadable link. Allowed values are "csv" and "json"
-      in: query
-      required: false
-      schema:
-        type: string
-        enum:
-        - csv
-        - json
-    call_direction:
-      required: false
-      name: call_direction
-      in: query
-      description: Filter list of items
-      schema:
-        type: string
-        enum:
-        - internal
-        - inbound
-        - outbound
-    limit_2:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list. Default to 1000 if not specified.
-      schema:
-        type: integer
-    from_id:
-      name: from_id
-      description: Ignore CDR created before the given CDR ID.
-      in: query
-      required: false
-      schema:
-        type: integer
-    call_status:
-      name: call_status
-      description: Filter by call statuses (comma-separated status strings). Defaults to non-blocked calls.
-      required: false
-      in: query
-      schema:
-        type: string
-        enum:
-        - answered
-        - blocked
-        - voicemail
-        - unknown
-    number:
-      required: false
-      name: number
-      in: query
-      description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
-      schema:
-        type: string
-    order_2:
-      required: false
-      name: order
-      in: query
-      description: 'Name of the field to use for sorting the list of items returned. Unsupported values: ``end``.'
-      schema:
-        type: string
-        enum:
-        - created_at
-        - message_id
-    offset_2:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    search_2:
-      required: false
-      name: search
-      in: query
-      description: Filter list of items
-      schema:
-        type: string
-    TenantUUID:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    ParticipantID:
-      name: participant_id
-      in: path
-      description: Unique identifier of the participant
-      required: true
-      schema:
-        type: string
-    ForceDownload:
-      name: download
-      in: query
-      description: Set to 1 to force download by browser
-      schema:
-        type: string
-    ConferenceID:
-      name: conference_id
-      in: path
-      description: Unique identifier of the conference
-      required: true
-      schema:
-        type: string
-    TransferID:
-      name: transfer_id
-      in: path
-      description: Unique identifier of the transfer
-      required: true
-      schema:
-        type: string
-    CallID:
-      name: call_id
-      in: path
-      description: ID of the call
-      required: true
-      schema:
-        type: string
-    DTMFDigits:
-      name: digits
-      in: query
-      description: Digits to send via DTMF. Must contain only `0-9*#ABCD` (letters are case insensitive).
-      required: true
-      schema:
-        type: string
-    TokenID:
-      name: token
-      in: query
-      description: The token's ID
-      schema:
-        type: string
-    RelocateUUID:
-      name: relocate_uuid
-      in: path
-      description: Unique identifier of the relocate
-      required: true
-      schema:
-        type: string
-    MeetingUUID:
-      name: meeting_uuid
-      in: path
-      description: Unique identifier of the meeting
-      required: true
-      schema:
-        type: string
-    VoicemailFolderID:
-      name: folder_id
-      in: path
-      description: The folder's ID
-      required: true
-      schema:
-        type: integer
-    VoicemailMessageID:
-      name: message_id
-      in: path
-      description: The message's ID
-      required: true
-      schema:
-        type: string
-    ParkCall:
-      name: park_call
-      in: body
-      description: Payload required to park a call
-      required: true
-      schema:
-        $ref: '#/components/schemas/ParkCallBody'
-    limit_3:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    VoicemailGreeting:
-      name: greeting
-      in: path
-      description: The greeting
-      required: true
-      schema:
-        type: string
-        enum:
-        - unavailable
-        - busy
-        - name
-    offset_3:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    callpermissionid:
-      required: true
-      name: callpermission_id
-      in: path
-      description: Call Permission's ID
-      schema:
-        type: integer
-    meeting_uuid:
-      required: true
-      name: meeting_uuid
-      in: path
-      description: Meeting UUID
-      schema:
-        type: string
-    service:
-      required: true
-      name: service_name
-      in: path
-      description: the service name
-      schema:
-        type: string
-        enum:
-        - dnd
-        - incallfilter
-    useruuid:
-      required: true
-      name: user_uuid
-      in: path
-      description: the user's UUID
-      schema:
-        type: string
-        format: uuid
-    authorization_uuid:
-      required: true
-      name: authorization_uuid
-      in: path
-      description: Authorization UUID
-      schema:
-        type: string
-    offset_4:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    funckeyposition:
-      required: true
-      name: position
-      in: path
-      description: position of the funckey
-      schema:
-        type: integer
-    view:
-      required: false
-      name: view
-      in: query
-      description: Different view of the list of users.
-      schema:
-        type: string
-        enum:
-        - directory
-        - summary
-        - line_presence
-    pagingid:
-      required: true
-      name: paging_id
-      in: path
-      description: Paging's ID
-      schema:
-        type: integer
-    callpickupid:
-      required: true
-      name: callpickup_id
-      in: path
-      description: Call Pickup's ID
-      schema:
-        type: integer
-    callfilterid:
-      required: true
-      name: callfilter_id
-      in: path
-      description: Call Filter's ID
-      schema:
-        type: integer
-    csvbody:
-      name: body
-      in: body
-      required: true
-      description: CSV field list available at https://wazo-platform.org/uc-doc/administration/users/csv_import
-      schema:
-        type: string
-    lineid:
-      required: true
-      name: line_id
-      in: path
-      schema:
-        type: integer
-    scheduleid:
-      required: true
-      name: schedule_id
-      in: path
-      description: Schedule's ID
-      schema:
-        type: integer
-    forward:
-      required: true
-      name: forward_name
-      in: path
-      description: the forward name
-      schema:
-        type: string
-        enum:
-        - busy
-        - noanswer
-        - unconditional
-    switchboard_uuid:
-      name: switchboard_uuid
-      in: path
-      required: true
-      schema:
-        type: string
-    templateid:
-      required: true
-      name: template_id
-      in: path
-      schema:
-        type: integer
-    externalappname:
-      required: true
-      name: app_name
-      in: path
-      description: External App's name
-      schema:
-        type: string
-    query_string_uuid_filter:
-      in: query
-      name: uuid
-      required: false
-      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
+        service:
           type: string
-          format: uuid
-        maxItems: 20
-        minItems: 1
-        uniqueItems: true
-    user_external_app_view:
-      required: false
-      name: view
-      in: query
-      description: 'Different view of the external app endpoint
+          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
 
-
-        The `default` view, when the argument is omitted, is to return the user value for this
-
-        external app
-
-
-        The `fallback` view return the user value for this external app, but if not found, will
-
-        fallback to the tenant configured value
-
-
-        **WARNING**: Using fallback view on list will disabled all pagination and search features
-
-        '
-      schema:
+            '
+        config:
+          $ref: '#/components/schemas/HTTPServiceConfig'
+        events:
+          type: array
+          items:
+            type: string
+        tags:
+          $ref: '#/components/schemas/SubscriptionMetadata'
+      required:
+      - name
+      - service
+      - config
+      - events
+    ServiceConfig:
+      type: object
+      additionalProperties:
         type: string
-        enum:
-        - fallback
-    agentid:
-      required: true
-      name: agent_id
-      in: path
-      description: Agent’s ID
-      schema:
-        type: integer
-    endpoint_sip_view:
-      required: false
-      name: view
-      in: query
-      description: 'Different view of the SIP endpoint
-
-
-        The `default` view, when the argument is omitted, is to include only options that
-
-        are defined on the specified endpoint.
-
-
-        The `merged` view includes all options from included templates.
-
-        '
-      schema:
-        type: string
-        enum:
-        - merged
-    queueid:
-      required: true
-      name: queue_id
-      in: path
-      description: Queue’s ID
-      schema:
-        type: integer
-    useriduuid:
-      required: true
-      name: user_id
-      in: path
-      description: the user's ID or UUID
-      schema:
-        type: string
-    groupuuid:
-      required: true
-      name: group_uuid
-      in: path
-      description: the group's UUID
-      schema:
-        type: string
-    limit_4:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    voicemailid:
-      required: true
-      name: voicemail_id
-      in: path
-      schema:
-        type: integer
-    UserSubscriptionBody:
-      name: body
-      in: body
-      required: true
-      schema:
-        $ref: '#/components/schemas/UserSubscriptionRequest'
-    SubscriptionBody:
-      name: body
-      in: body
-      required: true
-      schema:
-        $ref: '#/components/schemas/SubscriptionRequest'
-    SearchMetadata:
-      name: search_metadata
-      in: query
-      description: A search term formatted like "key:value" that will only match subscriptions having a metadata entry "key=value". May be given multiple times to filter more precisely on different metadata keys.
-      schema:
-        type: string
-    SubscriptionUUID:
-      name: subscription_uuid
-      description: The UUID of the subscription
-      in: path
-      required: true
-      schema:
-        type: string
+    SubscriptionMetadata:
+      type: object
+      description: Arbitrary key-value storage for this subscription. May be used to tag subscriptions. PUT replaces all metadata.
+    Error_6:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
   responses:
     InvalidRequest:
       description: Invalid request
@@ -8060,42 +8060,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_3'
-    FullOrServiceUnavailable:
-      description: Parking is full or another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_4'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_4'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_4'
-    NoSuchTransfer:
-      description: The specified transfer does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_4'
-    NoSuchMeetingOrParticipant:
-      description: The specified meeting or participant does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_4'
-    NoSuchMeeting:
-      description: The specified meeting does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_4'
     NoSuchConference:
       description: The specified conference does not exist
       content:
@@ -8114,10 +8078,46 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_4'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    DeleteError:
-      description: An error occurred when deleting the resource
+    NoSuchMeetingOrParticipant:
+      description: The specified meeting or participant does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_4'
+    FullOrServiceUnavailable:
+      description: Parking is full or another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_4'
+    NoSuchMeeting:
+      description: The specified meeting does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_4'
+    NoSuchTransfer:
+      description: The specified transfer does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_4'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_4'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_4'
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    NotFoundError_2:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
@@ -8134,14 +8134,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_5'
-    NotFoundError_2:
-      description: The resource requested was not found on the server
+    ResourceUpdated:
+      description: Resource was updated successfully
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_5'
-    ResourceDeleted:
-      description: Resource was deleted successfully
     CreateError:
       description: An error occurred when creating the resource
       content:
@@ -8154,14 +8154,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_6'
-    Unauthorized:
-      description: Unauthorized
+    InvalidRequest_3:
+      description: Invalid request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_6'
-    InvalidRequest_3:
-      description: Invalid request
+    Unauthorized:
+      description: Unauthorized
       content:
         application/json:
           schema:

@@ -234,55 +234,6 @@ paths:
         required: true
 components:
   schemas:
-    ConnectorIdentityItem:
-      title: ConnectorIdentityItem
-      properties:
-        identity:
-          type: string
-          description: The external identity value
-        capabilities:
-          type: array
-          items:
-            type: string
-          description: Messaging capabilities of this identity (e.g. ["sms"], ["sms", "mms"])
-        binding:
-          $ref: '#/components/schemas/ConnectorIdentityBinding'
-          description: Wazo binding for this identity, or null when unbound
-    ConnectorIdentityList:
-      title: ConnectorIdentityList
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ConnectorIdentityItem'
-        total:
-          type: integer
-          description: The number of results
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    ConnectorLocalizedLabel:
-      title: ConnectorLocalizedLabel
-      properties:
-        language:
-          type: string
-          description: Locale tag, e.g. `en_US`.
-        value:
-          type: string
     ConnectorIdentityBinding:
       title: ConnectorIdentityBinding
       properties:
@@ -320,14 +271,6 @@ components:
           items:
             type: string
           description: Allowed values; only emitted when `type` is `select`.
-    APIError:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - properties:
-          resource:
-            description: Resource name of the error
-            type: string
     Connector:
       title: Connector
       properties:
@@ -363,6 +306,38 @@ components:
             ``poll`` and ``listen`` need none.
 
             '
+    ConnectorIdentityItem:
+      title: ConnectorIdentityItem
+      properties:
+        identity:
+          type: string
+          description: The external identity value
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: Messaging capabilities of this identity (e.g. ["sms"], ["sms", "mms"])
+        binding:
+          $ref: '#/components/schemas/ConnectorIdentityBinding'
+          description: Wazo binding for this identity, or null when unbound
+    APIError:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
+    ConnectorList:
+      title: ConnectorList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Connector'
+        total:
+          type: integer
+          description: The number of results
     ConnectorAuthSchema:
       title: ConnectorAuthSchema
       properties:
@@ -383,16 +358,41 @@ components:
           description: Fields required to collect the credentials.
           items:
             $ref: '#/components/schemas/ConnectorAuthSchemaField'
-    ConnectorList:
-      title: ConnectorList
+    ConnectorLocalizedLabel:
+      title: ConnectorLocalizedLabel
+      properties:
+        language:
+          type: string
+          description: Locale tag, e.g. `en_US`.
+        value:
+          type: string
+    ConnectorIdentityList:
+      title: ConnectorIdentityList
       properties:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/Connector'
+            $ref: '#/components/schemas/ConnectorIdentityItem'
         total:
           type: integer
           description: The number of results
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
   parameters:
     tenant_uuid:
       name: Wazo-Tenant

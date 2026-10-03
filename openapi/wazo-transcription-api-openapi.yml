@@ -66,30 +66,15 @@ paths:
         description: Voicemail transcription configuration
         required: true
 components:
-  schemas:
-    Error:
-      type: array
-      items:
-        type: string
-    VoicemailTranscriptionConfig:
-      type: object
-      properties:
-        enabled:
-          type: boolean
-          description: Enable or disable automatic transcription of voicemails for this tenant.
-          default: false
-          example: true
-      required:
-      - enabled
   responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
@@ -101,6 +86,21 @@ components:
       description: The tenant's UUID, defining the ownership of a given resource.
       required: false
       schema:
+        type: string
+  schemas:
+    VoicemailTranscriptionConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Enable or disable automatic transcription of voicemails for this tenant.
+          default: false
+          example: true
+      required:
+      - enabled
+    Error:
+      type: array
+      items:
         type: string
   securitySchemes:
     wazo_auth_token:

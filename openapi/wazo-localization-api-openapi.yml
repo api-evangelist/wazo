@@ -66,6 +66,9 @@ components:
         tenant_uuid:
           type: string
           description: UUID of the tenant
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
   parameters:
     tenantuuid:
       name: Wazo-Tenant
@@ -74,9 +77,6 @@ components:
       required: false
       schema:
         type: string
-  responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
   securitySchemes:
     wazo_auth_token:
       type: apiKey

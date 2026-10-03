@@ -119,18 +119,18 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 components:
   responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    NotFoundError:
-      description: The resource requested was not found on the server
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
     ResourceUpdated:
       description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:
@@ -141,8 +141,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
@@ -167,10 +167,6 @@ components:
       required:
       - host
       - feature
-    Error:
-      type: array
-      items:
-        type: string
     AccessFeatureItems:
       title: AccessFeatureItems
       properties:
@@ -182,7 +178,25 @@ components:
           type: integer
       required:
       - total
+    Error:
+      type: array
+      items:
+        type: string
   parameters:
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
     access_featureid:
       required: true
       name: access_feature_id
@@ -200,20 +214,6 @@ components:
         enum:
         - asc
         - desc
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
     order:
       required: false
       name: order
@@ -221,13 +221,13 @@ components:
       description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
-    search:
+    offset:
       required: false
-      name: search
+      name: offset
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      description: Number of items to skip over in the list. Useful for pagination.
       schema:
-        type: string
+        type: integer
   securitySchemes:
     wazo_auth_token:
       type: apiKey

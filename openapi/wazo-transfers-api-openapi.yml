@@ -209,64 +209,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    TransferFlow:
-      description: Behavior of the transfer. `attended` allows the initiator to talk to the recipient. `blind` does not.
-      type: string
-      default: attended
-      enum:
-      - attended
-      - blind
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    TransferList:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Transfer'
-    TransferRequest:
-      type: object
-      properties:
-        transferred_call:
-          description: Call ID of the call being transferred to someone else
-          type: string
-        initiator_call:
-          description: Call ID of the transfer initiator
-          type: string
-        context:
-          description: Context of the recipient of the transfer
-          type: string
-        exten:
-          description: Extension of the recipient of the transfer
-          type: string
-        flow:
-          $ref: '#/components/schemas/TransferFlow'
-        variables:
-          description: Channel variables to set on the recipient call
-          type: object
-        timeout:
-          $ref: '#/components/schemas/TransferTimeout'
-      required:
-      - transferred_call
-      - initiator_call
-      - context
-      - exten
     Transfer:
       type: object
       properties:
@@ -305,6 +247,13 @@ components:
           enum:
           - attended
           - blind
+    TransferFlow:
+      description: Behavior of the transfer. `attended` allows the initiator to talk to the recipient. `blind` does not.
+      type: string
+      default: attended
+      enum:
+      - attended
+      - blind
     UserTransferRequest:
       type: object
       properties:
@@ -321,18 +270,77 @@ components:
       required:
       - initiator_call
       - exten
+    TransferList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transfer'
+    TransferRequest:
+      type: object
+      properties:
+        transferred_call:
+          description: Call ID of the call being transferred to someone else
+          type: string
+        initiator_call:
+          description: Call ID of the transfer initiator
+          type: string
+        context:
+          description: Context of the recipient of the transfer
+          type: string
+        exten:
+          description: Extension of the recipient of the transfer
+          type: string
+        flow:
+          $ref: '#/components/schemas/TransferFlow'
+        variables:
+          description: Channel variables to set on the recipient call
+          type: object
+        timeout:
+          $ref: '#/components/schemas/TransferTimeout'
+      required:
+      - transferred_call
+      - initiator_call
+      - context
+      - exten
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     TransferTimeout:
       description: Maximum ringing time before cancelling the transfer (in seconds). Default (or null) is an unlimited ring time.
       type: integer
+  parameters:
+    TransferID:
+      name: transfer_id
+      in: path
+      description: Unique identifier of the transfer
+      required: true
+      schema:
+        type: string
   responses:
-    NoSuchTransfer:
-      description: The specified transfer does not exist
+    InvalidRequest:
+      description: Invalid request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    InvalidRequest:
-      description: Invalid request
+    NoSuchTransfer:
+      description: The specified transfer does not exist
       content:
         application/json:
           schema:
@@ -343,14 +351,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  parameters:
-    TransferID:
-      name: transfer_id
-      in: path
-      description: Unique identifier of the transfer
-      required: true
-      schema:
-        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

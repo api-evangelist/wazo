@@ -77,17 +77,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ActionArguments:
-      properties: {}
-      example:
-        Channel: SIP/abcdef
-        Priority: '1'
-        Exten: '1234'
-        Context: default
-        Variable:
-        - Var1=one
-        - Var2=two
-        Async: 'True'
     Error:
       properties:
         timestamp:
@@ -99,6 +88,17 @@ components:
           type: string
         details:
           type: object
+    ActionArguments:
+      properties: {}
+      example:
+        Channel: SIP/abcdef
+        Priority: '1'
+        Exten: '1234'
+        Context: default
+        Variable:
+        - Var1=one
+        - Var2=two
+        Async: 'True'
     Response:
       properties:
         response:

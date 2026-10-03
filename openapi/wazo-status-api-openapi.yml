@@ -98,6 +98,13 @@ components:
       - properties:
           cache_items:
             type: integer
+    PluginsStatus:
+      type: object
+      properties:
+        endpoints:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        voicemails:
+          $ref: '#/components/schemas/VoicemailsStatus'
     StatusSummary_4:
       type: object
       properties:
@@ -109,13 +116,6 @@ components:
           $ref: '#/components/schemas/ComponentWithStatus'
         plugins:
           $ref: '#/components/schemas/PluginsStatus'
-    PluginsStatus:
-      type: object
-      properties:
-        endpoints:
-          $ref: '#/components/schemas/ComponentWithStatus'
-        voicemails:
-          $ref: '#/components/schemas/VoicemailsStatus'
     StatusSummary_5:
       type: object
       properties:

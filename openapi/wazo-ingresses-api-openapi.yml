@@ -126,35 +126,6 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
-  responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
   parameters:
     tenantuuid:
       name: Wazo-Tenant
@@ -163,44 +134,13 @@ components:
       required: false
       schema:
         type: string
-    ingress_fallback_view:
-      description: 'Allows to fallback on master tenant config if the current tenant has no ingress set.
-
-        When the `view` is omitted or the `default`value is passed, only the ingress of the current tenant is returned. This is useful for configuration API.
-
-        For `fallback` view the API fallbacks to the master tenant ingress value. '
-      in: query
-      name: view
+    search:
       required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
-        enum:
-        - default
-        - fallback
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
     order:
       required: false
       name: order
@@ -216,28 +156,87 @@ components:
       schema:
         type: boolean
         default: false
-    search:
+    limit:
       required: false
-      name: search
+      name: limit
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    ingress_fallback_view:
+      description: 'Allows to fallback on master tenant config if the current tenant has no ingress set.
+
+        When the `view` is omitted or the `default`value is passed, only the ingress of the current tenant is returned. This is useful for configuration API.
+
+        For `fallback` view the API fallbacks to the master tenant ingress value. '
+      in: query
+      name: view
+      required: false
       schema:
         type: string
+        enum:
+        - default
+        - fallback
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
     http_ingress_uuid:
       required: true
       name: http_ingress_uuid
       in: path
       schema:
         type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+  responses:
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    HTTPIngressRequest:
+    HTTPIngressItems:
       type: object
       properties:
-        uri:
-          type: string
-          description: The public URI to contact this stack HTTP API
-      required:
-      - uri
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/HTTPIngress'
     HTTPIngress:
       type: object
       allOf:
@@ -246,13 +245,14 @@ components:
           uuid:
             type: string
             readOnly: true
-    HTTPIngressItems:
+    HTTPIngressRequest:
       type: object
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/HTTPIngress'
+        uri:
+          type: string
+          description: The public URI to contact this stack HTTP API
+      required:
+      - uri
     Error:
       type: array
       items:

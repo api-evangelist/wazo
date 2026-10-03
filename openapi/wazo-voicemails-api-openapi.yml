@@ -987,124 +987,6 @@ paths:
     servers:
     - url: /1.1
 components:
-  parameters:
-    TenantUUID:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    ForceDownload:
-      name: download
-      in: query
-      description: Set to 1 to force download by browser
-      schema:
-        type: string
-    TokenID:
-      name: token
-      in: query
-      description: The token's ID
-      schema:
-        type: string
-    VoicemailFolderID:
-      name: folder_id
-      in: path
-      description: The folder's ID
-      required: true
-      schema:
-        type: integer
-    VoicemailMessageID:
-      name: message_id
-      in: path
-      description: The message's ID
-      required: true
-      schema:
-        type: string
-    VoicemailID:
-      name: voicemail_id
-      in: path
-      description: The voicemail's ID
-      required: true
-      schema:
-        type: integer
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    VoicemailGreeting:
-      name: greeting
-      in: path
-      description: The greeting
-      required: true
-      schema:
-        type: string
-        enum:
-        - unavailable
-        - busy
-        - name
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    voicemailid:
-      required: true
-      name: voicemail_id
-      in: path
-      schema:
-        type: integer
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    useriduuid:
-      required: true
-      name: user_id
-      in: path
-      description: the user's ID or UUID
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
   schemas:
     VoicemailFolderBase:
       type: object
@@ -1123,54 +1005,14 @@ components:
           - urgent
           - other
           description: The folder's type. When a message if left on a voicemail, it is stored in the folder of type "new", unless if it is an urgent message, in which case it is left in the folder of type "urgent". When that messages is read, it is moved into the folder of type "old". All other folders used the type "other".
-    VoicemailTranscriptedMessageBase:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/VoicemailMessageBase'
-      - properties:
-          transcription:
-            $ref: '#/components/schemas/VoicemailTranscription'
-            readOnly: true
-    VoicemailTranscription:
+    GreetingCopy:
       type: object
       properties:
-        text:
+        dest_greeting:
           type: string
-          description: The transcription text
-          readOnly: true
-    AdminVoicemailMessages:
-      type: object
-      properties:
-        items:
-          description: List of voicemail messages
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/AdminVoicemailMessage'
-            - type: object
-              properties:
-                folder:
-                  $ref: '#/components/schemas/VoicemailFolderBase'
-                  readOnly: true
-                voicemail:
-                  $ref: '#/components/schemas/VoicemailMessageVoicemail'
-          readOnly: true
-        total:
-          type: integer
-          readOnly: true
-        filtered:
-          type: integer
-          readOnly: true
-    VoicemailFolder:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/VoicemailFolderBase'
-      - properties:
-          messages:
-            type: array
-            description: The folder's messages
-            items:
-              $ref: '#/components/schemas/VoicemailMessageBase'
+          description: The destination name of the greeting
+      required:
+      - dest_greeting
     VoicemailMessageVoicemail:
       type: object
       properties:
@@ -1216,23 +1058,38 @@ components:
           type: integer
           description: The time the message was left as a Unix time value
           readOnly: true
-    VoicemailMessages:
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    VoicemailTranscription:
       type: object
       properties:
-        items:
-          description: List of voicemail messages
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/VoicemailMessage'
-            - type: object
-              properties:
-                voicemail:
-                  $ref: '#/components/schemas/VoicemailMessageVoicemail'
+        text:
+          type: string
+          description: The transcription text
           readOnly: true
-        total:
+    VoicemailMessageUpdate:
+      type: object
+      properties:
+        folder_id:
           type: integer
-          readOnly: true
+          description: The folder's ID
+      required:
+      - folder_id
     Voicemail:
       type: object
       properties:
@@ -1256,31 +1113,6 @@ components:
           description: The voicemail's folders
           items:
             $ref: '#/components/schemas/VoicemailFolder'
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    VoicemailMessage:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/VoicemailTranscriptedMessageBase'
-      - properties:
-          folder:
-            $ref: '#/components/schemas/VoicemailFolderBase'
-            readOnly: true
     AdminVoicemailMessage:
       type: object
       allOf:
@@ -1290,22 +1122,142 @@ components:
             type: boolean
             description: True if a transcription exists for this message
             readOnly: true
-    GreetingCopy:
+    AdminVoicemailMessages:
       type: object
       properties:
-        dest_greeting:
-          type: string
-          description: The destination name of the greeting
-      required:
-      - dest_greeting
-    VoicemailMessageUpdate:
-      type: object
-      properties:
-        folder_id:
+        items:
+          description: List of voicemail messages
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/AdminVoicemailMessage'
+            - type: object
+              properties:
+                folder:
+                  $ref: '#/components/schemas/VoicemailFolderBase'
+                  readOnly: true
+                voicemail:
+                  $ref: '#/components/schemas/VoicemailMessageVoicemail'
+          readOnly: true
+        total:
           type: integer
-          description: The folder's ID
+          readOnly: true
+        filtered:
+          type: integer
+          readOnly: true
+    VoicemailFolder:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/VoicemailFolderBase'
+      - properties:
+          messages:
+            type: array
+            description: The folder's messages
+            items:
+              $ref: '#/components/schemas/VoicemailMessageBase'
+    VoicemailMessage:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/VoicemailTranscriptedMessageBase'
+      - properties:
+          folder:
+            $ref: '#/components/schemas/VoicemailFolderBase'
+            readOnly: true
+    VoicemailMessages:
+      type: object
+      properties:
+        items:
+          description: List of voicemail messages
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/VoicemailMessage'
+            - type: object
+              properties:
+                voicemail:
+                  $ref: '#/components/schemas/VoicemailMessageVoicemail'
+          readOnly: true
+        total:
+          type: integer
+          readOnly: true
+    VoicemailTranscriptedMessageBase:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/VoicemailMessageBase'
+      - properties:
+          transcription:
+            $ref: '#/components/schemas/VoicemailTranscription'
+            readOnly: true
+    VoicemailZoneMessages:
+      title: VoicemailZoneMessages
+      properties:
+        items:
+          description: 'Voicemail zonemessages configuration. This configuration will be in the file ''voicemail.conf'' used by asterisk.
+
+            Please consult the asterisk documentation for further details on available parameters.'
+          type: array
+          items:
+            $ref: '#/components/schemas/VoicemailZoneMessage'
+    VoicemailTranscriptionConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Enable or disable automatic transcription of voicemails for this tenant.
+          default: false
+          example: true
       required:
-      - folder_id
+      - enabled
+    VoicemailRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Voicemail ID
+          readOnly: true
+        name:
+          type: string
+          description: Voicemail name
+    VoicemailItems:
+      title: VoicemailItems
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Voicemail_2'
+          type: array
+        total:
+          type: integer
+    UserRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
+    Voicemail_2:
+      allOf:
+      - $ref: '#/components/schemas/BaseVoicemail'
+      - $ref: '#/components/schemas/VoicemailRelationBase'
+      - $ref: '#/components/schemas/VoicemailRelationUsers'
+    VoicemailZoneMessage:
+      title: VoicemailZoneMessage
+      properties:
+        name:
+          type: string
+          description: label on which each voicemail is mapped
+        timezone:
+          type: string
+          description: Timezone as define in '/usr/share/zoneinfo/'
+        message:
+          type: string
+          description: Message that each user hears.
+      required:
+      - name
+      - timezone
     KeyValueOption:
       description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
       title: Key Value
@@ -1326,16 +1278,10 @@ components:
         options:
           description: "General Voicemail options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
           type: object
-    VoicemailZoneMessages:
-      title: VoicemailZoneMessages
-      properties:
-        items:
-          description: 'Voicemail zonemessages configuration. This configuration will be in the file ''voicemail.conf'' used by asterisk.
-
-            Please consult the asterisk documentation for further details on available parameters.'
-          type: array
-          items:
-            $ref: '#/components/schemas/VoicemailZoneMessage'
+    Error_2:
+      type: array
+      items:
+        type: string
     VoicemailRelationUsers:
       properties:
         users:
@@ -1343,24 +1289,6 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/UserRelationBase'
-    VoicemailItems:
-      title: VoicemailItems
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/Voicemail_2'
-          type: array
-        total:
-          type: integer
-    VoicemailRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Voicemail ID
-          readOnly: true
-        name:
-          type: string
-          description: Voicemail name
     BaseVoicemail:
       title: Voicemail
       properties:
@@ -1432,53 +1360,131 @@ components:
       - name
       - number
       - context
-    Voicemail_2:
-      allOf:
-      - $ref: '#/components/schemas/BaseVoicemail'
-      - $ref: '#/components/schemas/VoicemailRelationBase'
-      - $ref: '#/components/schemas/VoicemailRelationUsers'
-    Error_2:
-      type: array
-      items:
+  parameters:
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
         type: string
-    VoicemailZoneMessage:
-      title: VoicemailZoneMessage
-      properties:
-        name:
-          type: string
-          description: label on which each voicemail is mapped
-        timezone:
-          type: string
-          description: Timezone as define in '/usr/share/zoneinfo/'
-        message:
-          type: string
-          description: Message that each user hears.
-      required:
-      - name
-      - timezone
-    UserRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: User UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-        firstname:
-          type: string
-          description: User firstname
-        lastname:
-          type: string
-          description: User lastname
-    VoicemailTranscriptionConfig:
-      type: object
-      properties:
-        enabled:
-          type: boolean
-          description: Enable or disable automatic transcription of voicemails for this tenant.
-          default: false
-          example: true
-      required:
-      - enabled
+    ForceDownload:
+      name: download
+      in: query
+      description: Set to 1 to force download by browser
+      schema:
+        type: string
+    VoicemailGreeting:
+      name: greeting
+      in: path
+      description: The greeting
+      required: true
+      schema:
+        type: string
+        enum:
+        - unavailable
+        - busy
+        - name
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    VoicemailMessageID:
+      name: message_id
+      in: path
+      description: The message's ID
+      required: true
+      schema:
+        type: string
+    TokenID:
+      name: token
+      in: query
+      description: The token's ID
+      schema:
+        type: string
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    VoicemailID:
+      name: voicemail_id
+      in: path
+      description: The voicemail's ID
+      required: true
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    VoicemailFolderID:
+      name: folder_id
+      in: path
+      description: The folder's ID
+      required: true
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    voicemailid:
+      required: true
+      name: voicemail_id
+      in: path
+      schema:
+        type: integer
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
   responses:
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     AnotherServiceUnavailable:
       description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
       content:
@@ -1491,16 +1497,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    InvalidRequest:
-      description: Invalid request
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/Error_2'
     ResourceUpdated:
       description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:
@@ -1511,16 +1519,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:

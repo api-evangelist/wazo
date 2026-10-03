@@ -105,20 +105,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 components:
+  parameters:
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    idp_type:
+      name: idp_type
+      in: path
+      description: The type of IDP
+      required: true
+      schema:
+        type: string
   schemas:
-    Error:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
     IDPList:
       type: object
       properties:
@@ -139,12 +141,6 @@ components:
         type:
           type: string
           description: The type of identity provider
-    IDPUser:
-      properties:
-        uuid:
-          type: string
-      required:
-      - uuid
     IDPUsers:
       properties:
         users:
@@ -153,21 +149,25 @@ components:
           type: array
       required:
       - users
-  parameters:
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    idp_type:
-      name: idp_type
-      in: path
-      description: The type of IDP
-      required: true
-      schema:
-        type: string
+    IDPUser:
+      properties:
+        uuid:
+          type: string
+      required:
+      - uuid
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
   securitySchemes:
     wazo_auth_basic:
       type: http

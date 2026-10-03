@@ -936,25 +936,110 @@ paths:
     servers:
     - url: /1.1
 components:
+  parameters:
+    AgentID:
+      name: agent_id
+      in: path
+      required: true
+      description: Agent's ID
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    QueueID:
+      name: queue_id
+      in: path
+      required: true
+      description: Queue's ID
+      schema:
+        type: integer
+    AgentNumber:
+      name: agent_number
+      in: path
+      description: Agent's number
+      required: true
+      schema:
+        type: string
+    queueid:
+      required: true
+      name: queue_id
+      in: path
+      description: Queue’s ID
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    skillid:
+      required: true
+      name: skill_id
+      in: path
+      description: Skill's ID
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
+    agentid:
+      required: true
+      name: agent_id
+      in: path
+      description: Agent’s ID
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
   schemas:
-    Error:
-      title: Error
-      properties:
-        error:
-          type: string
-          description: Error identifier
-    LoginInfo:
-      title: Login information
-      properties:
-        extension:
-          type: string
-          description: Extension
-        context:
-          type: string
-          description: Context
-        endpoint:
-          type: string
-          description: Name of the endpoint, in the format `interface/name` e.g `PJSIP/alice`. Must be a valid endpoint for the extension and context.
     AgentStatus:
       title: Agent status
       properties:
@@ -996,12 +1081,24 @@ components:
           description: The agent status for each queue
           items:
             $ref: '#/components/schemas/AgentQueueStatus'
-    UserAgentLoginInfo:
+    LoginInfo:
       title: Login information
       properties:
-        line_id:
-          type: integer
-          description: ID of the line where the agent should be logged
+        extension:
+          type: string
+          description: Extension
+        context:
+          type: string
+          description: Context
+        endpoint:
+          type: string
+          description: Name of the endpoint, in the format `interface/name` e.g `PJSIP/alice`. Must be a valid endpoint for the extension and context.
+    AgentPauseReason:
+      title: Pause reason information
+      properties:
+        reason:
+          type: string
+          description: Pause Reason
     AgentQueueStatus:
       properties:
         id:
@@ -1022,41 +1119,35 @@ components:
         paused_reason:
           type: string
           description: The reason of the agent pause
-    AgentPauseReason:
-      title: Pause reason information
-      properties:
-        reason:
-          type: string
-          description: Pause Reason
     Queue:
       title: Queue
       properties:
         queue_id:
           type: integer
           description: Queue's ID
-    SkillRelationAgent:
-      allOf:
-      - $ref: '#/components/schemas/AgentRelationBase'
-      - $ref: '#/components/schemas/AgentSkillRelationBase'
-    AgentRelationSkills:
+    UserAgentLoginInfo:
+      title: Login information
       properties:
-        skills:
+        line_id:
+          type: integer
+          description: ID of the line where the agent should be logged
+    Error:
+      title: Error
+      properties:
+        error:
+          type: string
+          description: Error identifier
+    SkillItems:
+      title: SkillItems
+      properties:
+        items:
           type: array
-          readOnly: true
           items:
-            $ref: '#/components/schemas/AgentRelationSkill'
-    QueueMemberAgentRelationBase:
-      properties:
-        penalty:
+            $ref: '#/components/schemas/Skill'
+        total:
           type: integer
-          description: Agent's penalty. A priority used for distributing calls.
-        priority:
-          type: integer
-          description: Priority of agent in the queue. Only used for linear ring strategy
-    AgentRelationSkill:
-      allOf:
-      - $ref: '#/components/schemas/SkillRelationBase'
-      - $ref: '#/components/schemas/AgentSkillRelationBase'
+      required:
+      - total
     SkillRelationAgents:
       properties:
         agents:
@@ -1064,13 +1155,41 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/SkillRelationAgent'
-    AgentRelationUsers:
+    SkillRelationBase:
       properties:
-        users:
-          type: array
+        id:
+          type: integer
           readOnly: true
-          items:
-            $ref: '#/components/schemas/AgentRelationUser'
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the skill
+    AgentRelationUser:
+      allOf:
+      - $ref: '#/components/schemas/UserRelationBase'
+    AgentRelationQueue:
+      allOf:
+      - $ref: '#/components/schemas/QueueRelationBase'
+      - properties:
+          penalty:
+            type: integer
+            description: Agent's penalty. A priority used for distributing calls.
+    AgentRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the agent
+        firstname:
+          type: string
+        lastname:
+          type: string
+        number:
+          type: string
+          description: Agent number. Cannot be modified after creation
     Skill:
       title: Skill
       allOf:
@@ -1081,13 +1200,6 @@ components:
       - $ref: '#/components/schemas/SkillRelationAgents'
       - required:
         - name
-    AgentRelationQueues:
-      properties:
-        queues:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/AgentRelationQueue'
     Agent:
       title: Agent
       allOf:
@@ -1114,81 +1226,24 @@ components:
       - $ref: '#/components/schemas/AgentRelationSkills'
       - required:
         - number
-    AgentSkillRelationBase:
-      properties:
-        skill_weight:
-          type: integer
-          description: Skill's weight.
-    AgentItems:
-      title: AgentItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Agent'
-        total:
-          type: integer
-      required:
-      - total
-    QueueMemberAgent:
-      title: QueueMemberAgent
-      description: An association between an agent and a queue. Agents associated to a Queue will receive calls when they are logged in.
+    AgentRelationSkill:
       allOf:
-      - $ref: '#/components/schemas/QueueMemberAgentRelationBase'
-    AgentRelationUser:
-      allOf:
-      - $ref: '#/components/schemas/UserRelationBase'
-    QueueRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the queue
-        name:
-          type: string
-          description: The name of the queue. Cannot be modified
-        label:
-          type: string
-          description: The label of the queue
-    AgentSkill:
-      title: AgentSkill
-      allOf:
+      - $ref: '#/components/schemas/SkillRelationBase'
       - $ref: '#/components/schemas/AgentSkillRelationBase'
-    AgentRelationBase:
+    AgentRelationSkills:
       properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the agent
-        firstname:
-          type: string
-        lastname:
-          type: string
-        number:
-          type: string
-          description: Agent number. Cannot be modified after creation
-    Error_2:
-      type: array
-      items:
-        type: string
-    AgentRelationQueue:
-      allOf:
-      - $ref: '#/components/schemas/QueueRelationBase'
-      - properties:
-          penalty:
-            type: integer
-            description: Agent's penalty. A priority used for distributing calls.
-    SkillItems:
-      title: SkillItems
-      properties:
-        items:
+        skills:
           type: array
+          readOnly: true
           items:
-            $ref: '#/components/schemas/Skill'
-        total:
-          type: integer
-      required:
-      - total
+            $ref: '#/components/schemas/AgentRelationSkill'
+    AgentRelationUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/AgentRelationUser'
     UserRelationBase:
       properties:
         uuid:
@@ -1201,132 +1256,79 @@ components:
         lastname:
           type: string
           description: User lastname
-    SkillRelationBase:
+    QueueMemberAgent:
+      title: QueueMemberAgent
+      description: An association between an agent and a queue. Agents associated to a Queue will receive calls when they are logged in.
+      allOf:
+      - $ref: '#/components/schemas/QueueMemberAgentRelationBase'
+    AgentItems:
+      title: AgentItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+        total:
+          type: integer
+      required:
+      - total
+    QueueRelationBase:
       properties:
         id:
           type: integer
           readOnly: true
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
+          description: The id of the queue
         name:
           type: string
-          description: The name to identify the skill
-  parameters:
-    AgentNumber:
-      name: agent_number
-      in: path
-      description: Agent's number
-      required: true
-      schema:
-        type: string
-    AgentID:
-      name: agent_id
-      in: path
-      required: true
-      description: Agent's ID
-      schema:
-        type: integer
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    QueueID:
-      name: queue_id
-      in: path
-      required: true
-      description: Queue's ID
-      schema:
-        type: integer
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    agentid:
-      required: true
-      name: agent_id
-      in: path
-      description: Agent’s ID
-      schema:
-        type: integer
-    queueid:
-      required: true
-      name: queue_id
-      in: path
-      description: Queue’s ID
-      schema:
-        type: integer
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    skillid:
-      required: true
-      name: skill_id
-      in: path
-      description: Skill's ID
-      schema:
-        type: integer
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    useriduuid:
-      required: true
-      name: user_id
-      in: path
-      description: the user's ID or UUID
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
+          description: The name of the queue. Cannot be modified
+        label:
+          type: string
+          description: The label of the queue
+    QueueMemberAgentRelationBase:
+      properties:
+        penalty:
+          type: integer
+          description: Agent's penalty. A priority used for distributing calls.
+        priority:
+          type: integer
+          description: Priority of agent in the queue. Only used for linear ring strategy
+    AgentRelationQueues:
+      properties:
+        queues:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/AgentRelationQueue'
+    SkillRelationAgent:
+      allOf:
+      - $ref: '#/components/schemas/AgentRelationBase'
+      - $ref: '#/components/schemas/AgentSkillRelationBase'
+    AgentSkill:
+      title: AgentSkill
+      allOf:
+      - $ref: '#/components/schemas/AgentSkillRelationBase'
+    AgentSkillRelationBase:
+      properties:
+        skill_weight:
+          type: integer
+          description: Skill's weight.
+    Error_2:
+      type: array
+      items:
         type: string
   responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    NotFoundError:
-      description: The resource requested was not found on the server
+    ResourceUpdated:
+      description: Resource was updated successfully
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:
@@ -1337,16 +1339,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    DeleteError:
-      description: An error occurred when deleting the resource
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:

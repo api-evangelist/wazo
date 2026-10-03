@@ -91,44 +91,6 @@ paths:
       - $ref: '#/components/parameters/AcceptLanguage'
 components:
   schemas:
-    CiscoInputItem:
-      properties:
-        DisplayName:
-          type: string
-        QueryStringParam:
-          type: string
-        DefaultValue:
-          type: string
-        InputFlags:
-          type: string
-    Error:
-      type: object
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    CiscoIPPhoneInput:
-      properties:
-        Title:
-          type: string
-        Prompt:
-          type: string
-        URL:
-          type: string
-        InputItem:
-          $ref: '#/components/schemas/CiscoInputItem'
     CiscoIPPhoneDirectory:
       properties:
         DirectoryEntry:
@@ -139,12 +101,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CiscoSoftKeyItem'
+    CiscoInputItem:
+      properties:
+        DisplayName:
+          type: string
+        QueryStringParam:
+          type: string
+        DefaultValue:
+          type: string
+        InputFlags:
+          type: string
     CiscoDirectoryEntry:
       properties:
         Name:
           type: string
         Telephone:
           type: string
+    CiscoIPPhoneInput:
+      properties:
+        Title:
+          type: string
+        Prompt:
+          type: string
+        URL:
+          type: string
+        InputItem:
+          $ref: '#/components/schemas/CiscoInputItem'
     CiscoIPPhoneMenu:
       properties:
         MenuItem:
@@ -163,51 +145,24 @@ components:
           type: string
         position:
           type: integer
-  parameters:
-    Term:
-      name: term
-      in: query
-      description: A search term to look for
-      required: true
-      schema:
-        type: string
-    AcceptLanguage:
-      name: Accept-Language
-      in: header
-      required: false
-      description: The language to translate the query results in
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
-      required: true
-      schema:
-        type: string
-    Limit16:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-        default: 16
-    XivoUserUUID:
-      name: xivo_user_uuid
-      in: query
-      description: The user UUID of the user doing that query
-      required: true
-      schema:
-        type: string
+    Error:
+      type: object
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
   responses:
     LimitOffsetInvalid:
       description: The limit or offset should be positive
@@ -227,6 +182,51 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+  parameters:
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
+      required: true
+      schema:
+        type: string
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
+    Limit16:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+        default: 16
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    XivoUserUUID:
+      name: xivo_user_uuid
+      in: query
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

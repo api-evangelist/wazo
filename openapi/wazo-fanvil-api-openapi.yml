@@ -144,6 +144,89 @@ paths:
       parameters:
       - $ref: '#/components/parameters/UserUUID'
 components:
+  schemas:
+    FanvilDirectoryEntry:
+      properties:
+        Name:
+          type: string
+        Telephone:
+          type: string
+    PhoneBook:
+      properties:
+        DirectoryEntry:
+          type: array
+          items:
+            $ref: '#/components/schemas/FanvilDirectoryEntryV2'
+    FanvilInputItem:
+      properties:
+        DisplayName:
+          type: string
+        QueryStringParam:
+          type: string
+        DefaultValue:
+          type: string
+        InputFlags:
+          type: string
+    FanvilSoftKeyItem:
+      properties:
+        Name:
+          type: string
+        URL:
+          type: string
+        position:
+          type: integer
+    FanvilIPPhoneInput:
+      properties:
+        Title:
+          type: string
+        Prompt:
+          type: string
+        URL:
+          type: string
+        InputItem:
+          $ref: '#/components/schemas/FanvilInputItem'
+    FanvilIPPhoneDirectory:
+      properties:
+        DirectoryEntry:
+          type: array
+          items:
+            $ref: '#/components/schemas/FanvilDirectoryEntry'
+        SoftKeyItem:
+          type: array
+          items:
+            $ref: '#/components/schemas/FanvilSoftKeyItem'
+    FanvilDirectoryEntryV2:
+      properties:
+        Name:
+          type: string
+        Telephone:
+          type: string
+        Mobile:
+          type: string
+        Other:
+          type: string
+        Ring:
+          type: string
+        Group:
+          type: string
+    Error:
+      type: object
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
   parameters:
     AcceptLanguage:
       name: Accept-Language
@@ -152,14 +235,13 @@ components:
       description: The language to translate the query results in
       schema:
         type: string
-    Offset:
-      name: offset
+    Term:
+      name: term
       in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
+      description: A search term to look for
+      required: true
       schema:
-        type: integer
-        default: 0
+        type: string
     Limit16:
       name: limit
       in: query
@@ -182,13 +264,14 @@ components:
       required: true
       schema:
         type: string
-    Term:
-      name: term
+    Offset:
+      name: offset
       in: query
-      description: A search term to look for
-      required: true
+      description: The offset defines the offsets the start by the number specified
+      required: false
       schema:
-        type: string
+        type: integer
+        default: 0
     Profile:
       name: profile
       in: path
@@ -197,14 +280,14 @@ components:
       schema:
         type: string
   responses:
-    InvalidDataError:
-      description: Data provided is invalid or a field is missing
+    ProfileInvalid:
+      description: The profile does not exist
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+    InvalidDataError:
+      description: Data provided is invalid or a field is missing
       content:
         application/json:
           schema:
@@ -215,101 +298,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     NoSuchUser:
       description: The user does not exist
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  schemas:
-    FanvilIPPhoneInput:
-      properties:
-        Title:
-          type: string
-        Prompt:
-          type: string
-        URL:
-          type: string
-        InputItem:
-          $ref: '#/components/schemas/FanvilInputItem'
-    FanvilDirectoryEntryV2:
-      properties:
-        Name:
-          type: string
-        Telephone:
-          type: string
-        Mobile:
-          type: string
-        Other:
-          type: string
-        Ring:
-          type: string
-        Group:
-          type: string
-    FanvilInputItem:
-      properties:
-        DisplayName:
-          type: string
-        QueryStringParam:
-          type: string
-        DefaultValue:
-          type: string
-        InputFlags:
-          type: string
-    PhoneBook:
-      properties:
-        DirectoryEntry:
-          type: array
-          items:
-            $ref: '#/components/schemas/FanvilDirectoryEntryV2'
-    FanvilSoftKeyItem:
-      properties:
-        Name:
-          type: string
-        URL:
-          type: string
-        position:
-          type: integer
-    Error:
-      type: object
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    FanvilIPPhoneDirectory:
-      properties:
-        DirectoryEntry:
-          type: array
-          items:
-            $ref: '#/components/schemas/FanvilDirectoryEntry'
-        SoftKeyItem:
-          type: array
-          items:
-            $ref: '#/components/schemas/FanvilSoftKeyItem'
-    FanvilDirectoryEntry:
-      properties:
-        Name:
-          type: string
-        Telephone:
-          type: string
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

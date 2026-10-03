@@ -514,34 +514,11 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ErrorMessage:
-      description: Error message response
-      type: string
-    Package:
+    PackageList:
       type: object
       properties:
-        capabilities:
-          $ref: '#/components/schemas/CapabilitiesObject'
-        description:
-          type: string
-        dsize:
-          type: integer
-        sha1sum:
-          type: string
-        version:
-          type: string
-    EmptyObject:
-      description: Empty body
-      properties: {}
-    LinksObject:
-      description: Links object
-      type: object
-      properties:
-        links:
-          type: array
-          description: Links to different resources
-          items:
-            $ref: '#/components/schemas/LinkObject'
+        pkgs:
+          $ref: '#/components/schemas/PackageObject'
     OperationInProgressObject:
       properties:
         status:
@@ -569,29 +546,22 @@ components:
             The state of an operation is either ``waiting``, ``progress``, ``success`` or ``fail``.
 
             '
-    PackageObject:
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/Package'
-    PluginInfo:
-      properties:
-        plugin_info:
-          $ref: '#/components/schemas/PluginInfoObject'
-    PackageList:
+    Package:
       type: object
       properties:
-        pkgs:
-          $ref: '#/components/schemas/PackageObject'
-    LinkObject:
-      description: Link Object
-      type: object
-      properties:
-        href:
+        capabilities:
+          $ref: '#/components/schemas/CapabilitiesObject'
+        description:
           type: string
-          description: Location of the resource
-        rel:
+        dsize:
+          type: integer
+        sha1sum:
           type: string
-          description: Relation to the resource
+        version:
+          type: string
+    ErrorMessage:
+      description: Error message response
+      type: string
     IdObject:
       properties:
         id:
@@ -606,28 +576,80 @@ components:
           type: string
         version:
           type: string
+    PackageObject:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Package'
+    PluginsObject:
+      type: object
+      properties:
+        plugins:
+          $ref: '#/components/schemas/Plugins'
+    LinkObject:
+      description: Link Object
+      type: object
+      properties:
+        href:
+          type: string
+          description: Location of the resource
+        rel:
+          type: string
+          description: Relation to the resource
+    EmptyObject:
+      description: Empty body
+      properties: {}
+    LinksObject:
+      description: Links object
+      type: object
+      properties:
+        links:
+          type: array
+          description: Links to different resources
+          items:
+            $ref: '#/components/schemas/LinkObject'
+    Plugins:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LinksObject'
+    PluginInfo:
+      properties:
+        plugin_info:
+          $ref: '#/components/schemas/PluginInfoObject'
     CapabilitiesObject:
       type: object
       additionalProperties:
         type: object
         additionalProperties:
           type: string
-    PluginsObject:
-      type: object
-      properties:
-        plugins:
-          $ref: '#/components/schemas/Plugins'
-    Plugins:
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/LinksObject'
+  responses:
+    InvalidJSONError:
+      description: Invalid JSON document
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    NoContentResponse:
+      description: No content
+    OperationInProgressResponse:
+      description: Operation in progress
+      headers:
+        Location:
+          description: Location of the OperationInProgress resource
+          schema:
+            type: string
+    UnsupportedMediaError:
+      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    NoSuchResourceError:
+      description: No such resource. The provided id does not exist
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
   parameters:
-    EmptyBody:
-      description: Empty object body
-      name: body
-      in: body
-      schema:
-        $ref: '#/components/schemas/EmptyObject'
     OperationId:
       required: true
       name: operation_id
@@ -641,6 +663,12 @@ components:
       in: body
       schema:
         $ref: '#/components/schemas/IdObject'
+    EmptyBody:
+      description: Empty object body
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/EmptyObject'
     PluginId:
       required: true
       name: plugin_id
@@ -654,34 +682,6 @@ components:
       in: body
       schema:
         $ref: '#/components/schemas/IdObject'
-  responses:
-    NoContentResponse:
-      description: No content
-    NoSuchResourceError:
-      description: No such resource. The provided id does not exist
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    UnsupportedMediaError:
-      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    InvalidJSONError:
-      description: Invalid JSON document
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    OperationInProgressResponse:
-      description: Operation in progress
-      headers:
-        Location:
-          description: Location of the OperationInProgress resource
-          schema:
-            type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

@@ -80,26 +80,18 @@ paths:
       - $ref: '#/components/parameters/EndpointName'
 components:
   responses:
-    NowhereToRouteEndpoint:
-      description: Nowhere to route the requested endpoint
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     NoSuchEndpoint:
       description: The endpoint does not exist
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  parameters:
-    EndpointName:
-      name: endpoint_name
-      in: path
-      description: The endpoint name
-      required: true
-      schema:
-        type: string
+    NowhereToRouteEndpoint:
+      description: Nowhere to route the requested endpoint
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
     Error:
       type: object
@@ -119,6 +111,14 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
+  parameters:
+    EndpointName:
+      name: endpoint_name
+      in: path
+      description: The endpoint name
+      required: true
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

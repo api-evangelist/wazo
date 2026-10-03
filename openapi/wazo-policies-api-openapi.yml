@@ -363,19 +363,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    Error:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
     GetPoliciesResult:
       type: object
       properties:
@@ -430,7 +417,35 @@ components:
             type: string
           read_only:
             type: boolean
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
   parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
     user_uuid:
       name: user_uuid
       in: path
@@ -445,6 +460,34 @@ components:
       required: false
       schema:
         type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    policy_uuid:
+      name: policy_uuid
+      in: path
+      description: The UUID or slug of the policy. The slug is unique within a tenant, hence the tenant must be specified.
+      required: true
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    group_uuid:
+      name: group_uuid
+      in: path
+      description: The UUID of the group
+      required: true
+      schema:
+        type: string
     direction:
       required: false
       name: direction
@@ -455,14 +498,13 @@ components:
         enum:
         - asc
         - desc
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
+    access:
+      name: access
+      in: path
+      description: The access to add
+      required: true
       schema:
-        type: boolean
-        default: false
+        type: string
     offset:
       name: offset
       in: query
@@ -471,48 +513,6 @@ components:
       schema:
         type: integer
         default: 0
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    access:
-      name: access
-      in: path
-      description: The access to add
-      required: true
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    policy_uuid:
-      name: policy_uuid
-      in: path
-      description: The UUID or slug of the policy. The slug is unique within a tenant, hence the tenant must be specified.
-      required: true
-      schema:
-        type: string
-    group_uuid:
-      name: group_uuid
-      in: path
-      description: The UUID of the group
-      required: true
-      schema:
-        type: string
   securitySchemes:
     wazo_auth_basic:
       type: http

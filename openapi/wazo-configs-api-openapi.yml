@@ -150,12 +150,20 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    ConfigObject:
+      description: A configuration object
+      properties:
+        config:
+          $ref: '#/components/schemas/Config'
     ErrorMessage:
       description: Error message response
       type: string
-    EmptyObject:
-      description: Empty body
-      properties: {}
+    IdObject:
+      properties:
+        id:
+          type: string
+      example:
+        id: abcdef1234567890
     Config:
       description: A complete configuration
       properties:
@@ -183,6 +191,19 @@ components:
               display_name: Foo
               password: '100'
               username: '100'
+    LinkObject:
+      description: Link Object
+      type: object
+      properties:
+        href:
+          type: string
+          description: Location of the resource
+        rel:
+          type: string
+          description: Relation to the resource
+    EmptyObject:
+      description: Empty body
+      properties: {}
     LinksObject:
       description: Links object
       type: object
@@ -198,27 +219,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Config'
-    LinkObject:
-      description: Link Object
-      type: object
-      properties:
-        href:
-          type: string
-          description: Location of the resource
-        rel:
-          type: string
-          description: Relation to the resource
-    ConfigObject:
-      description: A configuration object
-      properties:
-        config:
-          $ref: '#/components/schemas/Config'
-    IdObject:
-      properties:
-        id:
-          type: string
-      example:
-        id: abcdef1234567890
     RawConfigurationObject:
       properties:
         raw_config:
@@ -232,6 +232,53 @@ components:
               password: '100'
               username: '100'
   parameters:
+    ConfigId:
+      required: true
+      name: config_id
+      in: path
+      description: Configuration ID
+      schema:
+        type: string
+    SearchQuery:
+      name: q
+      in: query
+      description: 'A selector, encoded in JSON, describing which entries should be returned. All entries are returned if not specified.
+
+
+        Example: `{"ip":"10.34.1.110"}`
+
+        '
+      required: false
+      schema:
+        type: string
+    SortOrder:
+      name: sort_ord
+      in: query
+      description: The order of sort
+      required: false
+      schema:
+        type: string
+        enum:
+        - ASC
+        - DESC
+    ConfigParam:
+      description: Body of a configuration parameter
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/ConfigObject'
+    SortEntries:
+      name: sort
+      in: query
+      description: 'The key on which to sort the results.
+
+
+        Example: `id`
+
+        '
+      required: false
+      schema:
+        type: string
     EmptyBody:
       description: Empty object body
       name: body
@@ -250,35 +297,6 @@ components:
       required: false
       schema:
         type: string
-    ConfigId:
-      required: true
-      name: config_id
-      in: path
-      description: Configuration ID
-      schema:
-        type: string
-    SortOrder:
-      name: sort_ord
-      in: query
-      description: The order of sort
-      required: false
-      schema:
-        type: string
-        enum:
-        - ASC
-        - DESC
-    SearchQuery:
-      name: q
-      in: query
-      description: 'A selector, encoded in JSON, describing which entries should be returned. All entries are returned if not specified.
-
-
-        Example: `{"ip":"10.34.1.110"}`
-
-        '
-      required: false
-      schema:
-        type: string
     Skip:
       name: skip
       in: query
@@ -291,47 +309,29 @@ components:
       required: false
       schema:
         type: integer
-    SortEntries:
-      name: sort
-      in: query
-      description: 'The key on which to sort the results.
-
-
-        Example: `id`
-
-        '
-      required: false
-      schema:
-        type: string
-    ConfigParam:
-      description: Body of a configuration parameter
-      name: body
-      in: body
-      schema:
-        $ref: '#/components/schemas/ConfigObject'
   responses:
-    NoContentResponse:
-      description: No content
-    NoSuchResourceError:
-      description: No such resource. The provided id does not exist
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
     ConfigUniqueResponse:
       description: A complete configuration response
       content:
         application/vnd.proformatique.provd+json:
           schema:
             $ref: '#/components/schemas/ConfigObject'
+    ForbiddenResponse:
+      description: The operation is not permitted for this resource.
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    NoContentResponse:
+      description: No content
     ConfigsResponse:
       description: List of configurations
       content:
         application/vnd.proformatique.provd+json:
           schema:
             $ref: '#/components/schemas/ConfigsObject'
-    InternalServerError:
-      description: Internal Server Error. The IP or MAC address may be malformed
+    NoSuchResourceError:
+      description: No such resource. The provided id does not exist
       content:
         application/vnd.proformatique.provd+json:
           schema:
@@ -347,8 +347,8 @@ components:
         application/vnd.proformatique.provd+json:
           schema:
             $ref: '#/components/schemas/IdObject'
-    ForbiddenResponse:
-      description: The operation is not permitted for this resource.
+    InternalServerError:
+      description: Internal Server Error. The IP or MAC address may be malformed
       content:
         application/vnd.proformatique.provd+json:
           schema:

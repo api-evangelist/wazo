@@ -50,6 +50,25 @@ paths:
       - $ref: '#/components/parameters/Offset'
       - $ref: '#/components/parameters/AcceptLanguage'
 components:
+  responses:
+    LimitOffsetInvalid:
+      description: The limit or offset should be positive
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
     Limit8:
       name: limit
@@ -73,6 +92,13 @@ components:
       description: The language to translate the query results in
       schema:
         type: string
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
     Offset:
       name: offset
       in: query
@@ -81,13 +107,6 @@ components:
       schema:
         type: integer
         default: 0
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
-      required: true
-      schema:
-        type: string
     XivoUserUUID:
       name: xivo_user_uuid
       in: query
@@ -96,12 +115,12 @@ components:
       schema:
         type: string
   schemas:
-    ThomsonDirectoryEntry:
+    ThomsonPhoneBook:
       properties:
-        Name:
-          type: string
-        Telephone:
-          type: string
+        DirectoryEntry:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThomsonDirectoryEntry'
     Error:
       type: object
       title: Error
@@ -120,31 +139,12 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    ThomsonPhoneBook:
+    ThomsonDirectoryEntry:
       properties:
-        DirectoryEntry:
-          type: array
-          items:
-            $ref: '#/components/schemas/ThomsonDirectoryEntry'
-  responses:
-    LimitOffsetInvalid:
-      description: The limit or offset should be positive
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+        Name:
+          type: string
+        Telephone:
+          type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

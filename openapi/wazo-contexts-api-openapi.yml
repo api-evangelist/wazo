@@ -185,41 +185,6 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
-  responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
     ContextId:
       title: ContextId
@@ -240,6 +205,30 @@ components:
           type: string
           description: The name used by Asterisk
           readOnly: true
+    ContextsId:
+      title: ContextsId
+      properties:
+        contexts:
+          items:
+            $ref: '#/components/schemas/ContextId'
+          type: array
+    ContextRelationContext:
+      $ref: '#/components/schemas/ContextRelationBase'
+    Error:
+      type: array
+      items:
+        type: string
+    ContextItems:
+      title: ContextItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Context'
+        total:
+          type: integer
+      required:
+      - total
     ContextRelationContexts:
       properties:
         contexts:
@@ -247,17 +236,6 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/ContextRelationContext'
-    ContextRange:
-      title: ContextRange
-      properties:
-        start:
-          type: string
-          default: <start>
-        end:
-          type: string
-          default: <end>
-      required:
-      - start
     ContextRangeItems:
       title: ContextRangeItems
       properties:
@@ -278,39 +256,17 @@ components:
           end: 1014
         - start: 1025
           end: 1999
-    ContextIncallRange:
-      title: ContextIncallRange
-      allOf:
-      - $ref: '#/components/schemas/ContextRange'
-      - properties:
-          did_length:
-            type: integer
-            default: 0
-            description: The length of the did
-    ContextsId:
-      title: ContextsId
+    ContextRange:
+      title: ContextRange
       properties:
-        contexts:
-          items:
-            $ref: '#/components/schemas/ContextId'
-          type: array
-    Error:
-      type: array
-      items:
-        type: string
-    ContextItems:
-      title: ContextItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Context'
-        total:
-          type: integer
+        start:
+          type: string
+          default: <start>
+        end:
+          type: string
+          default: <end>
       required:
-      - total
-    ContextRelationContext:
-      $ref: '#/components/schemas/ContextRelationBase'
+      - start
     Context:
       title: Context
       allOf:
@@ -361,21 +317,16 @@ components:
       - $ref: '#/components/schemas/ContextRelationContexts'
       - required:
         - label
+    ContextIncallRange:
+      title: ContextIncallRange
+      allOf:
+      - $ref: '#/components/schemas/ContextRange'
+      - properties:
+          did_length:
+            type: integer
+            default: 0
+            description: The length of the did
   parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    contextid:
-      required: true
-      name: context_id
-      in: path
-      description: context's ID
-      schema:
-        type: integer
     rangetype:
       required: true
       name: range_type
@@ -389,41 +340,20 @@ components:
         - queue
         - conference
         - incall
-    direction:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
       schema:
         type: string
-        enum:
-        - asc
-        - desc
-    limit:
+    search:
       required: false
-      name: limit
+      name: search
       in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    availability:
-      required: false
-      name: availability
-      in: query
-      description: Determines if the ranges are going to be split to display only ranges with available extensions.
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
-        enum:
-        - available
-        - all
-        default: available
     order:
       required: false
       name: order
@@ -439,13 +369,83 @@ components:
       schema:
         type: boolean
         default: false
-    search:
+    contextid:
+      required: true
+      name: context_id
+      in: path
+      description: context's ID
+      schema:
+        type: integer
+    limit:
       required: false
-      name: search
+      name: limit
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
       schema:
         type: string
+        enum:
+        - asc
+        - desc
+    availability:
+      required: false
+      name: availability
+      in: query
+      description: Determines if the ranges are going to be split to display only ranges with available extensions.
+      schema:
+        type: string
+        enum:
+        - available
+        - all
+        default: available
+  responses:
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

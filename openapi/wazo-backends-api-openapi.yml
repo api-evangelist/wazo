@@ -347,34 +347,13 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    Error:
-      type: object
+    SAMLAcsUrlTemplate:
       properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
-    SAMLBackendConfig:
-      properties:
-        domain_uuid:
-          type: string
-          description: The UUID of the domain to use for the SAML backend.
-        entity_id:
-          type: string
-          description: The name of the SAML Entity Id
         acs_url:
           type: string
           description: The SAML ACS URL
           format: uri
       required:
-      - domain_uuid
-      - entity_id
       - acs_url
       type: object
     LDAPBackendConfig:
@@ -452,13 +431,6 @@ components:
 
             '
           example: '{user_login_attribute}={username}'
-    BackendList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: string
     LDAPBackendConfigEdit:
       allOf:
       - $ref: '#/components/schemas/LDAPBackendConfig'
@@ -469,13 +441,41 @@ components:
             description: 'The password to use to bind the `wazo-auth` service to the LDAP server.
 
               '
-    SAMLAcsUrlTemplate:
+    Error:
+      type: object
       properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    BackendList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: string
+    SAMLBackendConfig:
+      properties:
+        domain_uuid:
+          type: string
+          description: The UUID of the domain to use for the SAML backend.
+        entity_id:
+          type: string
+          description: The name of the SAML Entity Id
         acs_url:
           type: string
           description: The SAML ACS URL
           format: uri
       required:
+      - domain_uuid
+      - entity_id
       - acs_url
       type: object
   parameters:

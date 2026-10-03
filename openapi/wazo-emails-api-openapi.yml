@@ -197,7 +197,44 @@ paths:
     servers:
     - url: /1.1
 components:
+  parameters:
+    email_confirm_token:
+      name: token
+      in: query
+      description: The UUID of the token used to confirm the email address
+      required: true
+      schema:
+        type: string
+    email_uuid:
+      name: email_uuid
+      in: path
+      description: The UUID of the email
+      required: true
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
   schemas:
+    UserEmailList:
+      type: object
+      properties:
+        emails:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+              main:
+                type: boolean
+            required:
+            - addresses
+            - main
     AdminUserEmailList:
       type: object
       properties:
@@ -228,21 +265,6 @@ components:
             type: string
         status_code:
           type: integer
-    UserEmailList:
-      type: object
-      properties:
-        emails:
-          type: array
-          items:
-            type: object
-            properties:
-              address:
-                type: string
-              main:
-                type: boolean
-            required:
-            - addresses
-            - main
     EmailConfig:
       title: E-mail configuration
       properties:
@@ -273,10 +295,6 @@ components:
 
             '
           type: string
-    Error_2:
-      type: array
-      items:
-        type: string
     RewritingRule:
       title: Rewriting rule
       properties:
@@ -288,37 +306,19 @@ components:
           type: string
           description: The replacement for the matched rule
           example: '`no-reply@example.org`'
-  parameters:
-    email_uuid:
-      name: email_uuid
-      in: path
-      description: The UUID of the email
-      required: true
-      schema:
-        type: string
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    email_confirm_token:
-      name: token
-      in: query
-      description: The UUID of the token used to confirm the email address
-      required: true
-      schema:
+    Error_2:
+      type: array
+      items:
         type: string
   responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
     UpdateError:
       description: An error occurred when updating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
+    ResourceUpdated:
+      description: Resource was updated successfully
   securitySchemes:
     wazo_auth_basic:
       type: http

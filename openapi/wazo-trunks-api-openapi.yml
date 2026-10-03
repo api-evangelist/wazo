@@ -303,23 +303,6 @@ paths:
     - url: /1.1
 components:
   schemas:
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
     EndpointTrunks:
       type: object
       properties:
@@ -351,17 +334,32 @@ components:
         current_call_count:
           type: integer
           description: The number of ongoing calls on that trunk
-    KeyValueOption:
-      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
-      title: Key Value
-      type: array
-      items:
-        type: string
-      maxItems: 2
-      minItems: 2
-      example:
-      - option
-      - value
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    TrunkItems:
+      title: TrunkItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Trunk'
+        total:
+          type: integer
     TrunkRelationBase:
       properties:
         id:
@@ -372,15 +370,42 @@ components:
           type: string
           description: The UUID of the tenant
           readOnly: true
-    EndpointCustomRelationBase:
+    TrunkId:
+      title: TrunkId
       properties:
         id:
           type: integer
-          description: Custom Endpoint ID
+    TrunksId:
+      title: TrunksId
+      properties:
+        trunks:
+          items:
+            $ref: '#/components/schemas/TrunkId'
+          type: array
+    TrunkRelationOutcalls:
+      properties:
+        outcalls:
+          type: array
           readOnly: true
-        interface:
+          items:
+            $ref: '#/components/schemas/OutcallRelationBase'
+    EndpointSipRelationBase:
+      properties:
+        uuid:
           type: string
-          description: Asterisk interface to use. (e.g. 'dahdi/i1')
+          description: The UUID of this resource
+          readOnly: true
+        name:
+          type: string
+          description: The name of the PJSIP entity, auto-generated if missing
+        label:
+          type: string
+          description: The human readable name for this configuration
+        auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint. Only `username` is supported
     OutcallRelationBase:
       properties:
         id:
@@ -390,6 +415,18 @@ components:
         name:
           type: string
           description: The name of the outcall
+    SIPAuthSectionOptions:
+      title: PJSIP Auth Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    EndpointCustomRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Custom Endpoint ID
+          readOnly: true
+        interface:
+          type: string
+          description: Asterisk interface to use. (e.g. 'dahdi/i1')
     Trunk:
       title: Trunk
       allOf:
@@ -411,9 +448,17 @@ components:
             description: "The format to use for the caller ID of outgoing calls through this trunk, \nwhen the caller id is provided by an application through the `X-Wazo-Selected-Caller-ID` SIP header on an `INVITE`. \nIf the caller ID supplied by an application cannot be formatted, the requested caller ID will be ignored.\n"
       - $ref: '#/components/schemas/TrunkRelationEndpoints'
       - $ref: '#/components/schemas/TrunkRelationOutcalls'
-    SIPAuthSectionOptions:
-      title: PJSIP Auth Section Options
-      $ref: '#/components/schemas/KeyValueOption'
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
     EndpointIAXRelationBase:
       properties:
         id:
@@ -424,35 +469,10 @@ components:
           type: string
           description: IAX name
           default: autogenerated
-    EndpointSipRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of this resource
-          readOnly: true
-        name:
-          type: string
-          description: The name of the PJSIP entity, auto-generated if missing
-        label:
-          type: string
-          description: The human readable name for this configuration
-        auth_section_options:
-          type: array
-          items:
-            $ref: '#/components/schemas/SIPAuthSectionOptions'
-          description: A list of PJSIP auth section options for this endpoint. Only `username` is supported
-    TrunkId:
-      title: TrunkId
-      properties:
-        id:
-          type: integer
-    TrunksId:
-      title: TrunksId
-      properties:
-        trunks:
-          items:
-            $ref: '#/components/schemas/TrunkId'
-          type: array
+    Error_2:
+      type: array
+      items:
+        type: string
     TrunkRelationEndpoints:
       properties:
         endpoint_sip:
@@ -464,38 +484,12 @@ components:
         endpoint_custom:
           readOnly: true
           $ref: '#/components/schemas/EndpointCustomRelationBase'
-    TrunkItems:
-      title: TrunkItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Trunk'
-        total:
-          type: integer
-    Error_2:
-      type: array
-      items:
-        type: string
-    TrunkRelationOutcalls:
-      properties:
-        outcalls:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/OutcallRelationBase'
   parameters:
     TenantUUID:
       name: Wazo-Tenant
       in: header
       description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      schema:
-        type: string
-    sipuuid:
-      required: true
-      name: sip_uuid
-      in: path
       schema:
         type: string
     tenantuuid:
@@ -505,11 +499,65 @@ components:
       required: false
       schema:
         type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    iaxid:
+      required: true
+      name: iax_id
+      in: path
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
     outcallid:
       required: true
       name: outcall_id
       in: path
       description: Outgoing call's ID
+      schema:
+        type: integer
+    sipuuid:
+      required: true
+      name: sip_uuid
+      in: path
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    customid:
+      required: true
+      name: custom_id
+      in: path
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
     trunkid:
@@ -529,54 +577,6 @@ components:
         enum:
         - asc
         - desc
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    customid:
-      required: true
-      name: custom_id
-      in: path
-      schema:
-        type: integer
-    iaxid:
-      required: true
-      name: iax_id
-      in: path
-      schema:
-        type: integer
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
   responses:
     AnotherServiceUnavailable:
       description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
@@ -584,16 +584,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    NotFoundError:
-      description: The resource requested was not found on the server
+    ResourceUpdated:
+      description: Resource was updated successfully
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:
@@ -604,16 +606,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    DeleteError:
-      description: An error occurred when deleting the resource
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:

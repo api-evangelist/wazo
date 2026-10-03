@@ -78,6 +78,38 @@ paths:
               $ref: '#/components/schemas/Presence'
         required: true
 components:
+  parameters:
+    tenant_uuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    user_uuid_query:
+      required: false
+      name: user_uuid
+      in: query
+      description: Filter by user_uuid. Many uuid can be specified. A logical AND is used for filtering. Each uuid MUST be separated by a comma (,).
+      schema:
+        type: array
+        items:
+          type: string
   schemas:
     Presence:
       title: Presence
@@ -145,6 +177,14 @@ components:
           description: If the user has active connections.
       required:
       - state
+    APIError:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
     Line:
       properties:
         id:
@@ -178,14 +218,6 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    APIError:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - properties:
-          resource:
-            description: Resource name of the error
-            type: string
     PresenceList:
       title: PresenceList
       properties:
@@ -200,12 +232,6 @@ components:
           type: integer
           description: The number of results without filter
   responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
     ResourceUpdated:
       description: Resource was updated successfully
     InvalidRequest:
@@ -214,38 +240,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/APIError'
-  parameters:
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    user_uuid_query:
-      required: false
-      name: user_uuid
-      in: query
-      description: Filter by user_uuid. Many uuid can be specified. A logical AND is used for filtering. Each uuid MUST be separated by a comma (,).
-      schema:
-        type: array
-        items:
-          type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    tenant_uuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

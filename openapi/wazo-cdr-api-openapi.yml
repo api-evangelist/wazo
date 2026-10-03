@@ -320,11 +320,18 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    requested_internal_context:
-      name: requested_internal_context
-      description: Filter by requested_internal_context
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      in: query
+      schema:
+        type: string
+    recording_uuid:
+      name: recording_uuid
+      description: UUID of the recording
+      required: true
+      in: path
       schema:
         type: string
     from:
@@ -335,65 +342,11 @@ components:
       schema:
         type: string
         format: date-time
-    until:
-      name: until
-      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+    search:
+      required: false
+      name: search
       in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
-    recording_uuid:
-      name: recording_uuid
-      description: UUID of the recording
-      required: true
-      in: path
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    recorded:
-      name: recorded
-      description: Filter by recorded status.
-      required: false
-      in: query
-      schema:
-        type: boolean
-    user_uuid:
-      required: false
-      name: user_uuid
-      in: query
-      description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will perform a logical OR.
-      schema:
-        type: array
-        items:
-          type: string
-    requested_internal_extension:
-      name: requested_internal_extension
-      description: Filter by requested_internal_extension
-      required: false
-      in: query
-      schema:
-        type: string
-    distinct:
-      required: false
-      name: distinct
-      in: query
-      description: Will only return one result for the selected field
-      schema:
-        type: string
-        enum:
-        - peer_exten
-    conversation_id:
-      name: conversation_id
-      description: Filter by conversation identifier
-      required: false
-      in: query
+      description: Filter list of items
       schema:
         type: string
     format:
@@ -406,17 +359,51 @@ components:
         enum:
         - csv
         - json
-    call_direction:
+    order:
       required: false
-      name: call_direction
+      name: order
       in: query
-      description: Filter list of items
+      description: 'Name of the field to use for sorting the list of items returned. Unsupported values: ``end``.'
       schema:
         type: string
         enum:
-        - internal
-        - inbound
-        - outbound
+        - created_at
+        - message_id
+    email:
+      name: email
+      description: E-mail address
+      in: query
+      schema:
+        type: string
+    conversation_id:
+      name: conversation_id
+      description: Filter by conversation identifier
+      required: false
+      in: query
+      schema:
+        type: string
+    requested_internal_context:
+      name: requested_internal_context
+      description: Filter by requested_internal_context
+      required: false
+      in: query
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    from_id:
+      name: from_id
+      description: Ignore CDR created before the given CDR ID.
+      in: query
+      required: false
+      schema:
+        type: integer
     tags:
       required: false
       name: tags
@@ -433,21 +420,35 @@ components:
       description: Maximum number of items to return in the list. Default to 1000 if not specified.
       schema:
         type: integer
-    direction:
-      required: false
-      name: direction
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
       in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      required: false
+      schema:
+        type: string
+        format: date-time
+    recorded:
+      name: recorded
+      description: Filter by recorded status.
+      required: false
+      in: query
+      schema:
+        type: boolean
+    distinct:
+      required: false
+      name: distinct
+      in: query
+      description: Will only return one result for the selected field
       schema:
         type: string
         enum:
-        - asc
-        - desc
-    from_id:
-      name: from_id
-      description: Ignore CDR created before the given CDR ID.
-      in: query
+        - peer_exten
+    offset:
       required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
     call_status:
@@ -469,31 +470,26 @@ components:
       description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
       schema:
         type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
+    call_direction:
       required: false
-      schema:
-        type: boolean
-        default: false
-    order:
-      required: false
-      name: order
+      name: call_direction
       in: query
-      description: 'Name of the field to use for sorting the list of items returned. Unsupported values: ``end``.'
+      description: Filter list of items
       schema:
         type: string
         enum:
-        - created_at
-        - message_id
-    offset:
+        - internal
+        - inbound
+        - outbound
+    user_uuid:
       required: false
-      name: offset
+      name: user_uuid
       in: query
-      description: Number of items to skip over in the list. Useful for pagination.
+      description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will perform a logical OR.
       schema:
-        type: integer
+        type: array
+        items:
+          type: string
     cdr_id:
       name: cdr_id
       description: ID of the CDR
@@ -501,28 +497,32 @@ components:
       in: path
       schema:
         type: integer
-    email:
-      name: email
-      description: E-mail address
-      in: query
-      schema:
-        type: string
-    search:
+    requested_internal_extension:
+      name: requested_internal_extension
+      description: Filter by requested_internal_extension
       required: false
-      name: search
       in: query
-      description: Filter list of items
       schema:
         type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
   responses:
-    NotFoundError:
-      description: The resource requested was not found on the server
+    InvalidRequest:
+      description: Invalid request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    InvalidRequest:
-      description: Invalid request
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
@@ -546,38 +546,6 @@ components:
           type: integer
         filtered:
           type: integer
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    Recording:
-      type: object
-      properties:
-        uuid:
-          type: string
-        start_time:
-          type: string
-          format: date-time
-        end_time:
-          type: string
-          format: date-time
-        deleted:
-          type: boolean
-        filename:
-          type: string
     CDR:
       type: object
       properties:
@@ -678,6 +646,38 @@ components:
             $ref: '#/components/schemas/Recording'
         call_status:
           $ref: '#/components/schemas/call_status'
+    Recording:
+      type: object
+      properties:
+        uuid:
+          type: string
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        deleted:
+          type: boolean
+        filename:
+          type: string
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
   securitySchemes:
     wazo_auth_token:
       type: apiKey

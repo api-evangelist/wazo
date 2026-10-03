@@ -126,19 +126,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    Error:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
     SessionResult:
       type: object
       properties:
@@ -168,18 +155,39 @@ components:
       - filtered
       - total
       - items
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
   parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
     user_uuid:
       name: user_uuid
       in: path
       description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    session_uuid:
-      name: session_uuid
-      in: path
-      description: The UUID of the session
       required: true
       schema:
         type: string
@@ -190,6 +198,13 @@ components:
       required: false
       schema:
         type: integer
+    session_uuid:
+      name: session_uuid
+      in: path
+      description: The UUID of the session
+      required: true
+      schema:
+        type: string
     offset:
       name: offset
       in: query
@@ -198,21 +213,6 @@ components:
       schema:
         type: integer
         default: 0
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
   securitySchemes:
     wazo_auth_basic:
       type: http

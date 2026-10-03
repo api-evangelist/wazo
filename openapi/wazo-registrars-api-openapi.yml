@@ -118,18 +118,18 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 components:
   responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    NotFoundError:
-      description: The resource requested was not found on the server
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
     ResourceUpdated:
       description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:
@@ -140,17 +140,59 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  schemas:
-    Error:
-      type: array
-      items:
+  parameters:
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
         type: string
+    registrar_id:
+      required: true
+      name: registrar_id
+      in: path
+      description: Registrar ID
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+  schemas:
     RegistrarItems:
       title: RegistrarItems
       properties:
@@ -205,51 +247,9 @@ components:
       required:
       - main_host
       - proxy_main_host
-  parameters:
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    registrar_id:
-      required: true
-      name: registrar_id
-      in: path
-      description: Registrar ID
-      schema:
+    Error:
+      type: array
+      items:
         type: string
   securitySchemes:
     wazo_auth_token:

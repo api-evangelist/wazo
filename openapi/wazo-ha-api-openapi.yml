@@ -51,9 +51,6 @@ paths:
               $ref: '#/components/schemas/HA'
         required: true
 components:
-  responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
   schemas:
     HA:
       title: HA
@@ -71,6 +68,9 @@ components:
           description: The remote IP address of the other machine in the HA cluster. Must be an IP address, a hostname is invalid.
       required:
       - node_type
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
   securitySchemes:
     wazo_auth_token:
       type: apiKey

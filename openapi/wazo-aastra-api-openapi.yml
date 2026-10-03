@@ -68,75 +68,18 @@ paths:
       - $ref: '#/components/parameters/Limit16'
       - $ref: '#/components/parameters/Offset'
 components:
-  schemas:
-    AastraIPPhoneInputScreen:
-      properties:
-        Title:
-          type: string
-        Prompt:
-          type: string
-        URL:
-          type: string
-        Parameter:
-          type: string
-    Error:
-      type: object
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    AastraIPPhoneTextMenu:
-      properties:
-        style:
-          type: string
-          xml:
-            attribute: true
-        destroyOnExit:
-          type: string
-          xml:
-            attribute: true
-        MenuItem:
-          type: array
-          items:
-            $ref: '#/components/schemas/AastraMenuItem'
-    AastraMenuItem:
-      properties:
-        Prompt:
-          type: string
-        URI:
-          type: string
   parameters:
+    XivoUserUUID:
+      name: xivo_user_uuid
+      in: query
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
     Term:
       name: term
       in: query
       description: A search term to look for
-      required: true
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
       required: true
       schema:
         type: string
@@ -148,13 +91,21 @@ components:
       schema:
         type: integer
         default: 16
-    XivoUserUUID:
-      name: xivo_user_uuid
-      in: query
-      description: The user UUID of the user doing that query
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
       required: true
       schema:
         type: string
+    Offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
   responses:
     LimitOffsetInvalid:
       description: The limit or offset should be positive
@@ -174,6 +125,55 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+  schemas:
+    AastraIPPhoneInputScreen:
+      properties:
+        Title:
+          type: string
+        Prompt:
+          type: string
+        URL:
+          type: string
+        Parameter:
+          type: string
+    AastraIPPhoneTextMenu:
+      properties:
+        style:
+          type: string
+          xml:
+            attribute: true
+        destroyOnExit:
+          type: string
+          xml:
+            attribute: true
+        MenuItem:
+          type: array
+          items:
+            $ref: '#/components/schemas/AastraMenuItem'
+    Error:
+      type: object
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    AastraMenuItem:
+      properties:
+        Prompt:
+          type: string
+        URI:
+          type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

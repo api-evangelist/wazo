@@ -128,18 +128,15 @@ paths:
     servers:
     - url: /1.0
 components:
+  parameters:
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
   schemas:
-    MicrosoftPost:
-      type: object
-      properties:
-        scope:
-          description: Scope permissions requested
-          type: array
-          items:
-            type: string
-          default:
-          - offline_access
-          - Contacts.Read
     APIError:
       type: object
       properties:
@@ -167,6 +164,17 @@ components:
       - access_token
       - scope
       - token_expiration
+    MicrosoftPost:
+      type: object
+      properties:
+        scope:
+          description: Scope permissions requested
+          type: array
+          items:
+            type: string
+          default:
+          - offline_access
+          - Contacts.Read
     MicrosoftPostResult:
       type: object
       required:
@@ -175,6 +183,14 @@ components:
         verification_url:
           type: string
           description: The URL to confirm the authorization
+    APIError_2:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
     Error:
       title: Error
       description: Error message for the client
@@ -192,31 +208,15 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    APIError_2:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - properties:
-          resource:
-            description: Resource name of the error
-            type: string
-  parameters:
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
   responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
     NotFoundError:
       description: The resource requested was not found on the server
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/APIError_2'
-    ResourceUpdated:
-      description: Resource was updated successfully
   securitySchemes:
     wazo_auth_basic:
       type: http

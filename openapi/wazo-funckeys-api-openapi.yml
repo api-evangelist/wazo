@@ -371,41 +371,6 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
-  responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
     tenantuuid:
       name: Wazo-Tenant
@@ -414,11 +379,11 @@ components:
       required: false
       schema:
         type: string
-    useriduuid:
-      required: true
-      name: user_id
-      in: path
-      description: the user's ID or UUID
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
     templateid:
@@ -427,11 +392,11 @@ components:
       in: path
       schema:
         type: integer
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
+    funckeyposition:
+      required: true
+      name: position
+      in: path
+      description: position of the funckey
       schema:
         type: integer
     recurse:
@@ -442,6 +407,20 @@ components:
       schema:
         type: boolean
         default: false
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    useriduuid:
+      required: true
+      name: user_id
+      in: path
+      description: the user's ID or UUID
+      schema:
+        type: string
     offset:
       required: false
       name: offset
@@ -449,30 +428,13 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    funckeyposition:
-      required: true
-      name: position
-      in: path
-      description: position of the funckey
-      schema:
-        type: integer
   schemas:
-    FuncKeyDestination:
-      title: FuncKeyDestination
-      properties:
-        type:
-          type: string
-        parameters:
-          items:
-            $ref: '#/components/schemas/FuncKeyDestinationParameter'
-          type: array
+    FuncKeyDestinationItems:
+      title: FuncKeyDestinationItems
+      description: Description of func key destinations and their parameters
+      items:
+        $ref: '#/components/schemas/FuncKeyDestination'
+      type: array
     UserFuncKeyTemplate:
       title: UserFuncKeyTemplate
       description: Association between a User and a FuncKey Template
@@ -485,12 +447,39 @@ components:
           type: integer
           format: int32
           description: FuncKey Template's ID
-    FuncKeyDestinationItems:
-      title: FuncKeyDestinationItems
-      description: Description of func key destinations and their parameters
-      items:
-        $ref: '#/components/schemas/FuncKeyDestination'
-      type: array
+    FuncKeyDestinationParameter:
+      title: FuncKeyDestinationParameter
+      properties:
+        name:
+          type: string
+          description: Parameter name
+        collection:
+          type: string
+          description: URL towards a collection of entities representing possible values as a destination
+        values:
+          description: Array of values to choose from for this parameter
+          items:
+            type: string
+          type: array
+    FuncKeyDestination:
+      title: FuncKeyDestination
+      properties:
+        type:
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/FuncKeyDestinationParameter'
+          type: array
+    FuncKey:
+      title: FuncKey
+      description: Further documentation at https://wazo-platform.org/uc-doc/api_sdk/rest_api/confd/func_keys
+      properties:
+        blf:
+          type: boolean
+        label:
+          type: string
+        destination:
+          type: object
     FuncKeyTemplate:
       title: FuncKeyTemplate
       description: Further documentation at https://wazo-platform.org/uc-doc/administration/users/csv_import
@@ -511,30 +500,41 @@ components:
       type: array
       items:
         type: string
-    FuncKey:
-      title: FuncKey
-      description: Further documentation at https://wazo-platform.org/uc-doc/api_sdk/rest_api/confd/func_keys
-      properties:
-        blf:
-          type: boolean
-        label:
-          type: string
-        destination:
-          type: object
-    FuncKeyDestinationParameter:
-      title: FuncKeyDestinationParameter
-      properties:
-        name:
-          type: string
-          description: Parameter name
-        collection:
-          type: string
-          description: URL towards a collection of entities representing possible values as a destination
-        values:
-          description: Array of values to choose from for this parameter
-          items:
-            type: string
-          type: array
+  responses:
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

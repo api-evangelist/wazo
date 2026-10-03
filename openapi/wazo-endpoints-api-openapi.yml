@@ -792,7 +792,156 @@ paths:
         '400':
           description: Invalid `view`
 components:
+  parameters:
+    template_uuid:
+      required: true
+      name: template_uuid
+      in: path
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    iaxid:
+      required: true
+      name: iax_id
+      in: path
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    sipuuid:
+      required: true
+      name: sip_uuid
+      in: path
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    query_string_uuid_filter:
+      in: query
+      name: uuid
+      required: false
+      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          format: uuid
+        maxItems: 20
+        minItems: 1
+        uniqueItems: true
+    useruuid:
+      required: true
+      name: user_uuid
+      in: path
+      description: the user's UUID
+      schema:
+        type: string
+        format: uuid
+    customid:
+      required: true
+      name: custom_id
+      in: path
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    sccpid:
+      required: true
+      name: sccp_id
+      in: path
+      schema:
+        type: integer
+    endpoint_sip_view:
+      required: false
+      name: view
+      in: query
+      description: 'Different view of the SIP endpoint
+
+
+        The `default` view, when the argument is omitted, is to include only options that
+
+        are defined on the specified endpoint.
+
+
+        The `merged` view includes all options from included templates.
+
+        '
+      schema:
+        type: string
+        enum:
+        - merged
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    trunkid:
+      description: Trunk's ID
+      name: trunk_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
   schemas:
+    TrunkRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the trunk
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
     EndpointSIPTemplatesRelation:
       properties:
         uuid:
@@ -804,95 +953,6 @@ components:
           readOnly: true
       required:
       - uuid
-    EndpointRelationLine:
-      properties:
-        line:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LineRelationBase'
-    KeyValueOption:
-      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
-      title: Key Value
-      type: array
-      items:
-        type: string
-      maxItems: 2
-      minItems: 2
-      example:
-      - option
-      - value
-    TrunkRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the trunk
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
-    EndpointCustomRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Custom Endpoint ID
-          readOnly: true
-        interface:
-          type: string
-          description: Asterisk interface to use. (e.g. 'dahdi/i1')
-    SIPAORSectionOptions:
-      title: PJSIP AOR Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    EndpointRelationTrunk:
-      properties:
-        trunk:
-          $ref: '#/components/schemas/TrunkRelationBase'
-          readOnly: true
-    SIPAuthSectionOptions:
-      title: PJSIP Auth Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    EndpointIAXRelationBase:
-      properties:
-        id:
-          type: integer
-          description: IAX Endpoint ID
-          readOnly: true
-        name:
-          type: string
-          description: IAX name
-          default: autogenerated
-    EndpointSccpRelationBase:
-      properties:
-        id:
-          type: integer
-          description: SCCP Endpoint ID
-          readOnly: true
-    LineRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Line ID
-          readOnly: true
-        name:
-          type: string
-          description: The name of the line
-          readOnly: true
-    SIPTransportRelation:
-      properties:
-        uuid:
-          type: string
-      required:
-      - uuid
-    EndpointSccpItems:
-      title: SCCP Endpoints
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointSccp'
-          type: array
-        total:
-          type: integer
     EndpointSIPItems:
       title: SIP Endpoints
       properties:
@@ -902,6 +962,64 @@ components:
           type: array
         total:
           type: integer
+    EndpointSccpRelationBase:
+      properties:
+        id:
+          type: integer
+          description: SCCP Endpoint ID
+          readOnly: true
+    EndpointCustomItems:
+      title: Custom Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointCustom'
+          type: array
+        total:
+          type: integer
+    SIPEndpointSectionOptions:
+      title: SIP Endpoint Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    SIPRegistrationSectionOptions:
+      title: PJSIP Registration Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    EndpointIAXItems:
+      title: IAX Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointIAX'
+          type: array
+        total:
+          type: integer
+    SIPAORSectionOptions:
+      title: PJSIP AOR Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    EndpointRelationTrunk:
+      properties:
+        trunk:
+          $ref: '#/components/schemas/TrunkRelationBase'
+          readOnly: true
+    EndpointCustom:
+      title: Custom Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointCustomRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          enabled:
+            type: boolean
+            description: Endpoint can be used when it is enabled
+            default: true
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+      - required:
+        - interface
+    SIPIdentifySectionOptions:
+      title: PJSIP Identify Section Options
+      $ref: '#/components/schemas/KeyValueOption'
     EndpointSIP:
       title: SIP Endpoint
       properties:
@@ -972,6 +1090,24 @@ components:
         asterisk_id:
           type: string
           description: The ID of the Asterisk onto which this configuration applies.
+    SIPAuthSectionOptions:
+      title: PJSIP Auth Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    EndpointCustomRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Custom Endpoint ID
+          readOnly: true
+        interface:
+          type: string
+          description: Asterisk interface to use. (e.g. 'dahdi/i1')
+    SIPTransportRelation:
+      properties:
+        uuid:
+          type: string
+      required:
+      - uuid
     EndpointSccp:
       title: SCCP Endpoint
       allOf:
@@ -988,6 +1124,17 @@ components:
               $ref: '#/components/schemas/KeyValueOption'
       - $ref: '#/components/schemas/EndpointRelationTrunk'
       - $ref: '#/components/schemas/EndpointRelationLine'
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
     EndpointIAX:
       title: IAX Endpoint
       allOf:
@@ -1017,204 +1164,59 @@ components:
             default: []
       - $ref: '#/components/schemas/EndpointRelationTrunk'
       - $ref: '#/components/schemas/EndpointRelationLine'
+    LineRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        name:
+          type: string
+          description: The name of the line
+          readOnly: true
+    EndpointRelationLine:
+      properties:
+        line:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    EndpointIAXRelationBase:
+      properties:
+        id:
+          type: integer
+          description: IAX Endpoint ID
+          readOnly: true
+        name:
+          type: string
+          description: IAX name
+          default: autogenerated
+    EndpointSccpItems:
+      title: SCCP Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointSccp'
+          type: array
+        total:
+          type: integer
     Error:
       type: array
       items:
         type: string
-    SIPEndpointSectionOptions:
-      title: SIP Endpoint Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    EndpointCustomItems:
-      title: Custom Endpoints
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointCustom'
-          type: array
-        total:
-          type: integer
-    SIPIdentifySectionOptions:
-      title: PJSIP Identify Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    SIPRegistrationSectionOptions:
-      title: PJSIP Registration Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    EndpointIAXItems:
-      title: IAX Endpoints
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointIAX'
-          type: array
-        total:
-          type: integer
-    EndpointCustom:
-      title: Custom Endpoint
-      allOf:
-      - $ref: '#/components/schemas/EndpointCustomRelationBase'
-      - properties:
-          tenant_uuid:
-            type: string
-            description: The UUID of the tenant
-            readOnly: true
-          enabled:
-            type: boolean
-            description: Endpoint can be used when it is enabled
-            default: true
-      - $ref: '#/components/schemas/EndpointRelationTrunk'
-      - $ref: '#/components/schemas/EndpointRelationLine'
-      - required:
-        - interface
-  parameters:
-    query_string_uuid_filter:
-      in: query
-      name: uuid
-      required: false
-      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-          format: uuid
-        maxItems: 20
-        minItems: 1
-        uniqueItems: true
-    sipuuid:
-      required: true
-      name: sip_uuid
-      in: path
-      schema:
-        type: string
-    template_uuid:
-      required: true
-      name: template_uuid
-      in: path
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    endpoint_sip_view:
-      required: false
-      name: view
-      in: query
-      description: 'Different view of the SIP endpoint
-
-
-        The `default` view, when the argument is omitted, is to include only options that
-
-        are defined on the specified endpoint.
-
-
-        The `merged` view includes all options from included templates.
-
-        '
-      schema:
-        type: string
-        enum:
-        - merged
-    useruuid:
-      required: true
-      name: user_uuid
-      in: path
-      description: the user's UUID
-      schema:
-        type: string
-        format: uuid
-    trunkid:
-      description: Trunk's ID
-      name: trunk_id
-      in: path
-      required: true
-      schema:
-        type: integer
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    customid:
-      required: true
-      name: custom_id
-      in: path
-      schema:
-        type: integer
-    lineid:
-      required: true
-      name: line_id
-      in: path
-      schema:
-        type: integer
-    sccpid:
-      required: true
-      name: sccp_id
-      in: path
-      schema:
-        type: integer
-    iaxid:
-      required: true
-      name: iax_id
-      in: path
-      schema:
-        type: integer
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
   responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
+    ResourceUpdated:
+      description: Resource was updated successfully
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:
@@ -1225,16 +1227,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:

@@ -83,6 +83,18 @@ paths:
           $ref: '#/components/responses/AlreadyConfiguredError'
 components:
   schemas:
+    WizardDiscoverInterface:
+      title: WizardDiscoverInterface
+      properties:
+        interface:
+          type: string
+          description: Interface name (e.g. eth0)
+        ip_address:
+          type: string
+          description: IPv4 address of the interface
+        netmask:
+          type: string
+          description: Netmask of the IP address
     WizardConfigured:
       title: WizardConfigured
       properties:
@@ -95,43 +107,41 @@ components:
         configurable_status:
           type: object
           description: A mapping of all dependencies and there statuses
-    Wizard:
-      title: Wizard
+    WizardNetwork:
+      title: WizardNetwork
       properties:
-        admin_password:
+        hostname:
           type: string
-          description: Wazo administrator ``root`` password
-        license:
-          type: boolean
-          description: 'Accept/decline the GPLv3: http://www.gnu.org/licenses/gpl-3.0.en.html'
-        timezone:
+          description: System hostname
+        domain:
           type: string
-          description: 'System timezone. Example: America/Montreal. For the complete list of supported timezones, see ``/usr/share/zoneinfo/``'
-        language:
+          description: Domain name
+        interface:
           type: string
-          default: en_US
-          enum:
-          - de_DE
-          - en_US
-          - es_ES
-          - fr_FR
-          - fr_CA
-          - it_IT
-          - nl_NL
-          description: The language in which the Wazo will play sounds
-        network:
-          $ref: '#/components/schemas/WizardNetwork'
-        steps:
-          $ref: '#/components/schemas/WizardSteps'
+          description: Interface name (e.g. eth0)
+        ip_address:
+          type: string
+          description: IPv4 address of the VoIP interface (connected to phones)
+        netmask:
+          type: string
+          description: Netmask of the IP address (e.g. 255.255.0.0)
+        gateway:
+          type: string
+          description: Gateway IPv4 address
+        nameservers:
+          type: array
+          items:
+            type: string
+          maxItems: 3
+          description: List of IPv4 addresses. Nameservers are used in resolv.conf.
       required:
-      - admin_password
-      - license
-      - timezone
-      - network
-    Error:
-      type: array
-      items:
-        type: string
+      - hostname
+      - domain
+      - ip_address
+      - interface
+      - netmask
+      - gateway
+      - nameservers
     WizardDiscoverGateway:
       title: WizardDiscoverGateway
       properties:
@@ -172,6 +182,39 @@ components:
           type: boolean
           default: true
           description: Create admin in wazo-auth?
+    Wizard:
+      title: Wizard
+      properties:
+        admin_password:
+          type: string
+          description: Wazo administrator ``root`` password
+        license:
+          type: boolean
+          description: 'Accept/decline the GPLv3: http://www.gnu.org/licenses/gpl-3.0.en.html'
+        timezone:
+          type: string
+          description: 'System timezone. Example: America/Montreal. For the complete list of supported timezones, see ``/usr/share/zoneinfo/``'
+        language:
+          type: string
+          default: en_US
+          enum:
+          - de_DE
+          - en_US
+          - es_ES
+          - fr_FR
+          - fr_CA
+          - it_IT
+          - nl_NL
+          description: The language in which the Wazo will play sounds
+        network:
+          $ref: '#/components/schemas/WizardNetwork'
+        steps:
+          $ref: '#/components/schemas/WizardSteps'
+      required:
+      - admin_password
+      - license
+      - timezone
+      - network
     WizardDiscover:
       title: WizardDiscover
       properties:
@@ -198,62 +241,19 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WizardDiscoverGateway'
-    WizardDiscoverInterface:
-      title: WizardDiscoverInterface
-      properties:
-        interface:
-          type: string
-          description: Interface name (e.g. eth0)
-        ip_address:
-          type: string
-          description: IPv4 address of the interface
-        netmask:
-          type: string
-          description: Netmask of the IP address
-    WizardNetwork:
-      title: WizardNetwork
-      properties:
-        hostname:
-          type: string
-          description: System hostname
-        domain:
-          type: string
-          description: Domain name
-        interface:
-          type: string
-          description: Interface name (e.g. eth0)
-        ip_address:
-          type: string
-          description: IPv4 address of the VoIP interface (connected to phones)
-        netmask:
-          type: string
-          description: Netmask of the IP address (e.g. 255.255.0.0)
-        gateway:
-          type: string
-          description: Gateway IPv4 address
-        nameservers:
-          type: array
-          items:
-            type: string
-          maxItems: 3
-          description: List of IPv4 addresses. Nameservers are used in resolv.conf.
-      required:
-      - hostname
-      - domain
-      - ip_address
-      - interface
-      - netmask
-      - gateway
-      - nameservers
+    Error:
+      type: array
+      items:
+        type: string
   responses:
-    CreateError:
-      description: An error occurred when creating the resource
+    AlreadyConfiguredError:
+      description: The Wazo must not be configured
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    AlreadyConfiguredError:
-      description: The Wazo must not be configured
+    CreateError:
+      description: An error occurred when creating the resource
       content:
         application/json:
           schema:
