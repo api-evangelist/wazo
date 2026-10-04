@@ -1,20 +1,22 @@
 ---
 kin_checks:
   slug: wazo
-  schema_version: 0.22.0
-  scored_at: '2026-09-21'
-  run_ts: 2026-09-21T233935
+  schema_version: 0.23.0
+  scored_at: '2026-10-03'
+  run_ts: 2026-10-03T024842
   note: Actionable checks (missed + partial) in `checks`, plus the ids that did not
-    apply in `na`. Everything else in rubric/scoring-0.22.0.yml was earned; counts
+    apply in `na`. Everything else in rubric/scoring-0.23.0.yml was earned; counts
     below let you verify that.
   counts:
-    total: 136
-    earned: 33
+    total: 153
+    earned: 34
     partial: 26
-    missed: 62
-    na: 15
+    missed: 75
+    na: 18
   checks:
-  - id: maintainer_present
+  - id: newsroom_present
+    status: missed
+  - id: leadership_present
     status: missed
   - id: well_known_published
     status: missed
@@ -22,18 +24,22 @@ kin_checks:
     status: missed
   - id: openapi_3_2
     status: missed
-    detail: 0 of 112 openapi documents pass
+    detail: 0 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: openapi_3_1
     status: missed
-    detail: 0 of 112 openapi documents pass
+    detail: 0 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: openapi_3_0
     status: missed
-    detail: 0 of 112 openapi documents pass
+    detail: 0 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: servers_resolvable
     status: missed
   - id: webhooks_or_callbacks
     status: missed
-    detail: 0 of 112 openapi documents pass
+    detail: 0 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: asyncapi_3_x
     status: missed
     detail: 0 of 1 asyncapi documents pass
@@ -124,6 +130,30 @@ kin_checks:
     status: missed
   - id: reg_write_surface
     status: missed
+  - id: reg_sbom
+    status: missed
+  - id: reg_support_lifetime
+    status: missed
+  - id: reg_accessibility_conformance
+    status: missed
+  - id: reg_global_privacy_control
+    status: missed
+  - id: reg_data_subject_request
+    status: missed
+  - id: reg_subprocessors
+    status: missed
+  - id: reg_data_residency
+    status: missed
+  - id: reg_incident_notification
+    status: missed
+  - id: reg_age_assurance
+    status: missed
+  - id: reg_notice_and_action
+    status: missed
+  - id: reg_transparency_report
+    status: missed
+  - id: reg_exit_assistance
+    status: missed
   - id: reg_mandate_verified
     status: missed
   - id: upsert_alternate_key
@@ -156,62 +186,76 @@ kin_checks:
   - id: info_complete
     status: partial
     earned: 0.62
-    detail: 69 of 112 openapi documents pass
+    detail: 69 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: servers_defined
     status: partial
     earned: 0.75
-    detail: 112 of 112 openapi documents pass
+    detail: 112 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: operations_summary_coverage
     status: partial
     earned: 1.5
-    detail: 112 of 112 openapi documents pass
+    detail: 112 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: operations_description_coverage
     status: partial
     earned: 1.45
-    detail: 108 of 112 openapi documents pass
+    detail: 108 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: operations_tagged
     status: partial
     earned: 1.0
-    detail: 112 of 112 openapi documents pass
+    detail: 112 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: operations_operation_ids
     status: partial
-    earned: 0.99
-    detail: 111 of 112 openapi documents pass
+    earned: 1.0
+    detail: 112 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: response_coverage
     status: partial
     earned: 1.18
-    detail: 106 of 112 openapi documents pass
+    detail: 106 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: error_responses_documented
     status: partial
     earned: 0.91
-    detail: 102 of 112 openapi documents pass
+    detail: 102 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: examples_present
     status: partial
     earned: 0.01
   - id: components_reuse
     status: partial
     earned: 0.46
-    detail: 69 of 112 openapi documents pass
+    detail: 69 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: security_schemes_defined
     status: partial
     earned: 1.0
-    detail: 112 of 112 openapi documents pass
+    detail: 112 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: security_applied
     status: partial
     earned: 0.74
-    detail: 111 of 112 openapi documents pass
+    detail: 111 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: oauth_flows_current
     status: partial
     earned: 1.0
-    detail: 112 of 112 openapi documents pass
+    detail: 112 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: credentials_not_in_query
     status: partial
     earned: 0.75
-    detail: 112 of 112 openapi documents pass
+    detail: 112 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: oauth_scopes_enumerated
     status: partial
     earned: 1.0
-    detail: 112 of 112 openapi documents pass
+    detail: 112 of 112 openapi documents pass; credited at 25% because the documents
+      were derived by API Evangelist from what the provider published
   - id: inbound_contract_published
     status: partial
     earned: 0.5
@@ -256,12 +300,15 @@ kin_checks:
   - graphql_descriptions
   - graphql_sdl_present
   - graphql_type_depth
+  - mcp_endpoint_discoverable
   - os_code_of_conduct
   - os_contribution_guide
   - os_releases
   - os_security_policy
+  - reg_ai_transparency
   - reg_camara_conformance
   - reg_certification_signal
   - reg_entitlement_terms
   - reg_pci_sca
   - reg_smart_configuration
+  - reg_training_data_summary
