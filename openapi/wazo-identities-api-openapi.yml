@@ -217,19 +217,69 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
+  responses:
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
   parameters:
-    identity_value_filter:
-      name: identity
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    identity_type_filter:
+      name: type
       in: query
       required: false
-      description: Filter by exact identity value
+      description: Filter by exact messaging type
       schema:
         type: string
+    identity_uuid:
+      name: identity_uuid
+      in: path
+      description: The UUID of the identity
+      required: true
+      schema:
+        type: string
+        format: uuid
     tenant_uuid:
       name: Wazo-Tenant
       in: header
       description: The tenant's UUID, defining the ownership of a given resource.
       required: false
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    identity_value_filter:
+      name: identity
+      in: query
+      required: false
+      description: Filter by exact identity value
       schema:
         type: string
     identity_user_uuid_filter:
@@ -243,35 +293,6 @@ components:
         '
       schema:
         type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    identity_backend_filter:
-      name: backend
-      in: query
-      required: false
-      description: Filter by exact backend name
-      schema:
-        type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    identity_uuid:
-      name: identity_uuid
-      in: path
-      description: The UUID of the identity
-      required: true
-      schema:
-        type: string
-        format: uuid
     direction:
       required: false
       name: direction
@@ -282,66 +303,35 @@ components:
         enum:
         - asc
         - desc
-    identity_type_filter:
-      name: type
+    identity_backend_filter:
+      name: backend
       in: query
       required: false
-      description: Filter by exact messaging type
+      description: Filter by exact backend name
       schema:
         type: string
-  responses:
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/APIError'
   schemas:
-    APIError:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - properties:
-          resource:
-            description: Resource name of the error
-            type: string
-    UserIdentityList:
-      title: UserIdentityList
+    IdentityUpdateRequest:
+      title: IdentityUpdateRequest
+      description: 'Partial update — every field is optional.
+
+        '
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserIdentity'
-        total:
-          type: integer
-          description: The number of results
-    IdentityList:
-      title: IdentityList
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Identity'
-        filtered:
-          type: integer
-          description: Count after applying filter parameters
-        total:
-          type: integer
-          description: Unfiltered count in the tenant scope
+        identity:
+          type: string
+          description: The external identity value
+          maxLength: 256
+        extra:
+          type: object
+          description: 'Additional metadata. Values must be scalars (string,
+
+            integer, float, boolean, null) or lists of scalars. Keys
+
+            ≤64 chars, individual values ≤1024 chars, total serialized
+
+            size ≤4096 chars.
+
+            '
     Identity:
       title: Identity
       allOf:
@@ -366,6 +356,14 @@ components:
               ≤1024 chars, total serialized size ≤4096 chars.
 
               '
+    APIError:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - properties:
+          resource:
+            description: Resource name of the error
+            type: string
     IdentityCreateRequest:
       title: IdentityCreateRequest
       properties:
@@ -400,27 +398,29 @@ components:
       - backend
       - type
       - identity
-    IdentityUpdateRequest:
-      title: IdentityUpdateRequest
-      description: 'Partial update — every field is optional.
-
-        '
+    UserIdentityList:
+      title: UserIdentityList
       properties:
-        identity:
-          type: string
-          description: The external identity value
-          maxLength: 256
-        extra:
-          type: object
-          description: 'Additional metadata. Values must be scalars (string,
-
-            integer, float, boolean, null) or lists of scalars. Keys
-
-            ≤64 chars, individual values ≤1024 chars, total serialized
-
-            size ≤4096 chars.
-
-            '
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserIdentity'
+        total:
+          type: integer
+          description: The number of results
+    IdentityList:
+      title: IdentityList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Identity'
+        filtered:
+          type: integer
+          description: Count after applying filter parameters
+        total:
+          type: integer
+          description: Unfiltered count in the tenant scope
     UserIdentity:
       title: UserIdentity
       properties:

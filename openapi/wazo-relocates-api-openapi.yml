@@ -132,48 +132,28 @@ paths:
       operationId: putUsersMeRelocatesByRelocateUuidComplete
       x-operation-id-source: derived
 components:
-  parameters:
-    RelocateUUID:
-      name: relocate_uuid
-      in: path
-      description: Unique identifier of the relocate
-      required: true
-      schema:
-        type: string
   schemas:
-    RelocateList:
+    Relocate:
       type: object
       properties:
-        items:
-          $ref: '#/components/schemas/Relocate'
-    UserRelocateLocation:
-      properties:
-        line:
-          $ref: '#/components/schemas/LocationLine'
-    Timeout:
-      description: Number of seconds to wait for the recipient to answer
-      type: integer
-    RelocateCompletions:
-      type: array
-      items:
-        $ref: '#/components/schemas/RelocateCompletion'
-    RelocateCompletion:
-      type: string
-      default: answer
-      enum:
-      - answer
-      - api
-    LocationLine:
-      type: object
-      properties:
-        line_id:
-          type: integer
-          description: the ID of the line where the relocated call should be connected
-        contact:
+        uuid:
+          description: Unique identifier of the relocate
           type: string
-          description: the SIP contact to use when multiple registers are used
-      required:
-      - line_id
+        relocated_call:
+          description: Call ID of the call being relocated to someone else
+          type: string
+        initiator_call:
+          description: Call ID of the relocate initiator
+          type: string
+        recipient_call:
+          description: Call ID of the recipient of the relocate.
+          type: string
+        completions:
+          description: How the relocate will behave. "answer" will complete the relocate as soon as the destination answers. "api" will wait for a call to API `/complete`. "answer" overrides all other values.
+          $ref: '#/components/schemas/RelocateCompletions'
+        initiator:
+          description: The user UUID of the relocate initiator
+          type: string
     UserRelocateRequest:
       type: object
       properties:
@@ -209,27 +189,13 @@ components:
       required:
       - initiator_call
       - destination
-    Relocate:
-      type: object
+    UserRelocateLocation:
       properties:
-        uuid:
-          description: Unique identifier of the relocate
-          type: string
-        relocated_call:
-          description: Call ID of the call being relocated to someone else
-          type: string
-        initiator_call:
-          description: Call ID of the relocate initiator
-          type: string
-        recipient_call:
-          description: Call ID of the recipient of the relocate.
-          type: string
-        completions:
-          description: How the relocate will behave. "answer" will complete the relocate as soon as the destination answers. "api" will wait for a call to API `/complete`. "answer" overrides all other values.
-          $ref: '#/components/schemas/RelocateCompletions'
-        initiator:
-          description: The user UUID of the relocate initiator
-          type: string
+        line:
+          $ref: '#/components/schemas/LocationLine'
+    Timeout:
+      description: Number of seconds to wait for the recipient to answer
+      type: integer
     Error:
       title: Error
       description: Error message for the client
@@ -247,13 +213,33 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
+    RelocateList:
+      type: object
+      properties:
+        items:
+          $ref: '#/components/schemas/Relocate'
+    RelocateCompletion:
+      type: string
+      default: answer
+      enum:
+      - answer
+      - api
+    RelocateCompletions:
+      type: array
+      items:
+        $ref: '#/components/schemas/RelocateCompletion'
+    LocationLine:
+      type: object
+      properties:
+        line_id:
+          type: integer
+          description: the ID of the line where the relocated call should be connected
+        contact:
+          type: string
+          description: the SIP contact to use when multiple registers are used
+      required:
+      - line_id
   responses:
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     NoSuchRelocate:
       description: The specified relocate does not exist
       content:
@@ -266,6 +252,20 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    RelocateUUID:
+      name: relocate_uuid
+      in: path
+      description: Unique identifier of the relocate
+      required: true
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

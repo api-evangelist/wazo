@@ -89,6 +89,21 @@ components:
       required: false
       schema:
         type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
     search:
       required: false
       name: search
@@ -106,37 +121,7 @@ components:
         enum:
         - asc
         - desc
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
   schemas:
-    Office365ContactList:
-      properties:
-        items:
-          type: array
-          items:
-            type: object
-          readOnly: true
-        total:
-          type: integer
-          description: The number of contacts
-          readOnly: true
-        filtered:
-          type: integer
-          description: The number of contacts matching the searched terms
-          readOnly: true
     LegacyError:
       title: LegacyError
       description: Error message for the client
@@ -155,6 +140,21 @@ components:
         status_code:
           description: HTTP status code
           type: integer
+    Office365ContactList:
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+          readOnly: true
+        total:
+          type: integer
+          description: The number of contacts
+          readOnly: true
+        filtered:
+          type: integer
+          description: The number of contacts matching the searched terms
+          readOnly: true
   securitySchemes:
     wazo_auth_token:
       type: apiKey

@@ -77,17 +77,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    Error:
-      properties:
-        timestamp:
-          type: number
-          format: timestamp
-        message:
-          type: string
-        error_id:
-          type: string
-        details:
-          type: object
     ActionArguments:
       properties: {}
       example:
@@ -99,6 +88,17 @@ components:
         - Var1=one
         - Var2=two
         Async: 'True'
+    Error:
+      properties:
+        timestamp:
+          type: number
+          format: timestamp
+        message:
+          type: string
+        error_id:
+          type: string
+        details:
+          type: object
     Response:
       properties:
         response:

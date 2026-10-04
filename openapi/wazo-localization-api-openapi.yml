@@ -55,17 +55,6 @@ paths:
               $ref: '#/components/schemas/Localization'
         required: true
 components:
-  schemas:
-    Localization:
-      title: Localization
-      type: object
-      properties:
-        country:
-          type: string
-          description: The default country for users, in ISO-3166 alpha-2 format, e.g. "CA" for Canada.
-        tenant_uuid:
-          type: string
-          description: UUID of the tenant
   responses:
     ResourceUpdated:
       description: Resource was updated successfully
@@ -77,6 +66,17 @@ components:
       required: false
       schema:
         type: string
+  schemas:
+    Localization:
+      title: Localization
+      type: object
+      properties:
+        country:
+          type: string
+          description: The default country for users, in ISO-3166 alpha-2 format, e.g. "CA" for Canada.
+        tenant_uuid:
+          type: string
+          description: UUID of the tenant
   securitySchemes:
     wazo_auth_token:
       type: apiKey

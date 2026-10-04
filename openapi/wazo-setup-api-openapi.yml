@@ -36,6 +36,14 @@ paths:
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
 components:
+  parameters:
+    SetupBody:
+      name: body
+      in: body
+      required: true
+      description: Setup options
+      schema:
+        $ref: '#/components/schemas/SetupRequest'
   schemas:
     SetupRequest:
       type: object
@@ -129,6 +137,12 @@ components:
           type: number
           format: timestamp
   responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     InvalidRequest:
       description: Invalid request
       content:
@@ -141,20 +155,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-  parameters:
-    SetupBody:
-      name: body
-      in: body
-      required: true
-      description: Setup options
-      schema:
-        $ref: '#/components/schemas/SetupRequest'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

@@ -104,13 +104,6 @@ components:
       required: false
       schema:
         type: string
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`. More precisely, it is the name of the "Direct directory" defined in the web interface.
-      required: true
-      schema:
-        type: string
     Directory:
       name: directory
       in: path
@@ -118,21 +111,32 @@ components:
       required: true
       schema:
         type: string
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`. More precisely, it is the name of the "Direct directory" defined in the web interface.
+      required: true
+      schema:
+        type: string
   schemas:
-    Relation:
+    LegacyError:
+      title: LegacyError
+      description: Error message for the client
       properties:
-        xivo_id:
-          type: string
-        user_id:
-          type: string
-        user_uuid:
-          type: string
-        endpoint_id:
-          type: string
-        agent_id:
-          type: string
-        source_entry_id:
-          type: string
+        timestamp:
+          description: Time at which the error occured
+          type: array
+          items:
+            type: number
+            format: timestamp
+        reason:
+          description: Human readable explanation of the error
+          type: array
+          items:
+            type: string
+        status_code:
+          description: HTTP status code
+          type: integer
     Contact:
       properties:
         column_values:
@@ -163,27 +167,23 @@ components:
             $ref: '#/components/schemas/Contact'
           type: array
           description: List of results
-    LegacyError:
-      title: LegacyError
-      description: Error message for the client
+    Relation:
       properties:
-        timestamp:
-          description: Time at which the error occured
-          type: array
-          items:
-            type: number
-            format: timestamp
-        reason:
-          description: Human readable explanation of the error
-          type: array
-          items:
-            type: string
-        status_code:
-          description: HTTP status code
-          type: integer
+        xivo_id:
+          type: string
+        user_id:
+          type: string
+        user_uuid:
+          type: string
+        endpoint_id:
+          type: string
+        agent_id:
+          type: string
+        source_entry_id:
+          type: string
   responses:
-    DuplicateFavorite:
-      description: The contact has already been favorited
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
       content:
         application/json:
           schema:
@@ -194,8 +194,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyError'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
+    DuplicateFavorite:
+      description: The contact has already been favorited
       content:
         application/json:
           schema:

@@ -371,34 +371,42 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
+  responses:
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    templateid:
-      required: true
-      name: template_id
-      in: path
-      schema:
-        type: integer
-    funckeyposition:
-      required: true
-      name: position
-      in: path
-      description: position of the funckey
-      schema:
-        type: integer
     recurse:
       name: recurse
       in: query
@@ -407,6 +415,13 @@ components:
       schema:
         type: boolean
         default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
     limit:
       required: false
       name: limit
@@ -428,6 +443,26 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    templateid:
+      required: true
+      name: template_id
+      in: path
+      schema:
+        type: integer
+    funckeyposition:
+      required: true
+      name: position
+      in: path
+      description: position of the funckey
+      schema:
+        type: integer
   schemas:
     FuncKeyDestinationItems:
       title: FuncKeyDestinationItems
@@ -435,18 +470,16 @@ components:
       items:
         $ref: '#/components/schemas/FuncKeyDestination'
       type: array
-    UserFuncKeyTemplate:
-      title: UserFuncKeyTemplate
-      description: Association between a User and a FuncKey Template
+    FuncKey:
+      title: FuncKey
+      description: Further documentation at https://wazo-platform.org/uc-doc/api_sdk/rest_api/confd/func_keys
       properties:
-        user_id:
-          type: integer
-          format: int32
-          description: User's ID
-        template_id:
-          type: integer
-          format: int32
-          description: FuncKey Template's ID
+        blf:
+          type: boolean
+        label:
+          type: string
+        destination:
+          type: object
     FuncKeyDestinationParameter:
       title: FuncKeyDestinationParameter
       properties:
@@ -461,25 +494,18 @@ components:
           items:
             type: string
           type: array
-    FuncKeyDestination:
-      title: FuncKeyDestination
+    UserFuncKeyTemplate:
+      title: UserFuncKeyTemplate
+      description: Association between a User and a FuncKey Template
       properties:
-        type:
-          type: string
-        parameters:
-          items:
-            $ref: '#/components/schemas/FuncKeyDestinationParameter'
-          type: array
-    FuncKey:
-      title: FuncKey
-      description: Further documentation at https://wazo-platform.org/uc-doc/api_sdk/rest_api/confd/func_keys
-      properties:
-        blf:
-          type: boolean
-        label:
-          type: string
-        destination:
-          type: object
+        user_id:
+          type: integer
+          format: int32
+          description: User's ID
+        template_id:
+          type: integer
+          format: int32
+          description: FuncKey Template's ID
     FuncKeyTemplate:
       title: FuncKeyTemplate
       description: Further documentation at https://wazo-platform.org/uc-doc/administration/users/csv_import
@@ -500,41 +526,15 @@ components:
       type: array
       items:
         type: string
-  responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+    FuncKeyDestination:
+      title: FuncKeyDestination
+      properties:
+        type:
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/FuncKeyDestinationParameter'
+          type: array
   securitySchemes:
     wazo_auth_token:
       type: apiKey

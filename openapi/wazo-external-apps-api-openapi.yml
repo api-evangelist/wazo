@@ -236,85 +236,36 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
-  schemas:
-    ExternalApp:
-      title: ExternalApp
-      properties:
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
-        name:
-          type: string
-          description: The name to identify the external app
-          readOnly: true
-        label:
-          type: string
-          description: The label of the external app
-        configuration:
-          type: object
-          description: Arbitrary settings needed by an external app
-    ExternalAppItems:
-      title: ExternalAppItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExternalApp'
-        total:
-          type: integer
-      required:
-      - total
-    UserExternalAppItems:
-      title: UserExternalAppItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserExternalApp'
-        total:
-          type: integer
-      required:
-      - total
-    Error:
-      type: array
-      items:
-        type: string
-    UserExternalApp:
-      title: UserExternalApp
-      properties:
-        name:
-          type: string
-          description: The name to identify the external app
-          readOnly: true
-        label:
-          type: string
-          description: The label of the external app
-        configuration:
-          type: object
-          description: Arbitrary settings needed by an external app
+  responses:
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
     recurse:
       name: recurse
       in: query
@@ -323,14 +274,27 @@ components:
       schema:
         type: boolean
         default: false
-    useruuid:
-      required: true
-      name: user_uuid
-      in: path
-      description: the user's UUID
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
       schema:
         type: string
-        format: uuid
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
     user_external_app_view:
       required: false
       name: view
@@ -355,13 +319,6 @@ components:
         type: string
         enum:
         - fallback
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
     offset:
       required: false
       name: offset
@@ -369,6 +326,28 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    externalappname:
+      required: true
+      name: app_name
+      in: path
+      description: External App's name
+      schema:
+        type: string
+    useruuid:
+      required: true
+      name: user_uuid
+      in: path
+      description: the user's UUID
+      schema:
+        type: string
+        format: uuid
     direction:
       required: false
       name: direction
@@ -379,42 +358,63 @@ components:
         enum:
         - asc
         - desc
-    externalappname:
-      required: true
-      name: app_name
-      in: path
-      description: External App's name
-      schema:
+  schemas:
+    UserExternalApp:
+      title: UserExternalApp
+      properties:
+        name:
+          type: string
+          description: The name to identify the external app
+          readOnly: true
+        label:
+          type: string
+          description: The label of the external app
+        configuration:
+          type: object
+          description: Arbitrary settings needed by an external app
+    UserExternalAppItems:
+      title: UserExternalAppItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserExternalApp'
+        total:
+          type: integer
+      required:
+      - total
+    Error:
+      type: array
+      items:
         type: string
-  responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    ResourceUpdated:
-      description: Resource was updated successfully
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+    ExternalAppItems:
+      title: ExternalAppItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalApp'
+        total:
+          type: integer
+      required:
+      - total
+    ExternalApp:
+      title: ExternalApp
+      properties:
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the external app
+          readOnly: true
+        label:
+          type: string
+          description: The label of the external app
+        configuration:
+          type: object
+          description: Arbitrary settings needed by an external app
   securitySchemes:
     wazo_auth_token:
       type: apiKey

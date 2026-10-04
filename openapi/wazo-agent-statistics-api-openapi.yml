@@ -81,33 +81,14 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    week_days:
-      name: week_days
-      description: The days of the week that should be included. A week starts on Monday (1) and ends on Sunday (7).
-      in: query
-      required: false
-      schema:
-        type: array
-        items:
-          type: integer
-          minimum: 1
-          maximum: 7
-        default:
-        - 1
-        - 2
-        - 3
-        - 4
-        - 5
-        - 6
-        - 7
-        uniqueItems: true
-    day_end_time:
-      name: day_end_time
-      description: The time at which a day ends, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
       in: query
       required: false
       schema:
         type: string
+        format: date-time
     tenantuuid:
       name: Wazo-Tenant
       in: header
@@ -137,21 +118,6 @@ components:
       schema:
         type: string
         default: UTC
-    day_start_time:
-      name: day_start_time
-      description: The time at which a day starts, inclusively. Accepted format is `HH:MM`, minutes are ignored.
-      in: query
-      required: false
-      schema:
-        type: string
-    until:
-      name: until
-      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
     interval:
       name: interval
       description: Aggregation interval. An empty value means no interval, so an aggregation on all values.
@@ -163,8 +129,42 @@ components:
         - hour
         - day
         - month
+    week_days:
+      name: week_days
+      description: The days of the week that should be included. A week starts on Monday (1) and ends on Sunday (7).
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: integer
+          minimum: 1
+          maximum: 7
+        default:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        uniqueItems: true
+    day_end_time:
+      name: day_end_time
+      description: The time at which a day ends, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+      in: query
+      required: false
+      schema:
+        type: string
+    day_start_time:
+      name: day_start_time
+      description: The time at which a day starts, inclusively. Accepted format is `HH:MM`, minutes are ignored.
+      in: query
+      required: false
+      schema:
+        type: string
   schemas:
-    AgentsStatistics:
+    AgentStatistics:
       type: object
       properties:
         items:
@@ -173,6 +173,23 @@ components:
             $ref: '#/components/schemas/AgentStatistic'
         total:
           type: integer
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     AgentQueueStatistic:
       type: object
       properties:
@@ -194,15 +211,6 @@ components:
         wrapup_time:
           type: integer
           description: Time this agent spent in wrap-up after calls on this queue, in seconds
-    AgentStatistics:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/AgentStatistic'
-        total:
-          type: integer
     AgentStatistic:
       type: object
       properties:
@@ -242,32 +250,24 @@ components:
           description: Per-queue breakdown of agent activity over this interval
           items:
             $ref: '#/components/schemas/AgentQueueStatistic'
-    Error:
-      title: Error
-      description: Error message for the client
+    AgentsStatistics:
+      type: object
       properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentStatistic'
+        total:
+          type: integer
   responses:
-    InvalidRequest:
-      description: Invalid request
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
+    InvalidRequest:
+      description: Invalid request
       content:
         application/json:
           schema:

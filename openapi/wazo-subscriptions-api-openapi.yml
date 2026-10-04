@@ -257,7 +257,82 @@ paths:
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
 components:
+  parameters:
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    SubscriptionUUID:
+      name: subscription_uuid
+      description: The UUID of the subscription
+      in: path
+      required: true
+      schema:
+        type: string
+    SearchMetadata:
+      name: search_metadata
+      in: query
+      description: A search term formatted like "key:value" that will only match subscriptions having a metadata entry "key=value". May be given multiple times to filter more precisely on different metadata keys.
+      schema:
+        type: string
+    UserSubscriptionBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/UserSubscriptionRequest'
+    SubscriptionBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/SubscriptionRequest'
   schemas:
+    SubscriptionMetadata:
+      type: object
+      description: Arbitrary key-value storage for this subscription. May be used to tag subscriptions. PUT replaces all metadata.
+    ServiceConfig:
+      type: object
+      additionalProperties:
+        type: string
+    HTTPServiceConfig:
+      type: object
+      properties:
+        url:
+          type: string
+          description: Jinja2 template, where variables come from the event triggering the webhook. For more details, see https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/templates
+        method:
+          type: string
+          enum:
+          - head
+          - get
+          - post
+          - put
+          - delete
+        body:
+          type: string
+          description: Jinja2 template, where variables come from the event triggering the webhook. For more details, see https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/templates. **Default:** the complete event data, JSON-encoded.
+        verify_certificate:
+          description: May be `true`, `false` or a path to the certificate bundle
+          type: string
+          default: 'true'
+        content_type:
+          description: Content-Type of the body
+          type: string
+      required:
+      - url
+      - method
     Subscription:
       type: object
       properties:
@@ -292,80 +367,6 @@ components:
         services:
           description: The keys are the service names.
           type: object
-    HTTPServiceConfig:
-      type: object
-      properties:
-        url:
-          type: string
-          description: Jinja2 template, where variables come from the event triggering the webhook. For more details, see https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/templates
-        method:
-          type: string
-          enum:
-          - head
-          - get
-          - post
-          - put
-          - delete
-        body:
-          type: string
-          description: Jinja2 template, where variables come from the event triggering the webhook. For more details, see https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/templates. **Default:** the complete event data, JSON-encoded.
-        verify_certificate:
-          description: May be `true`, `false` or a path to the certificate bundle
-          type: string
-          default: 'true'
-        content_type:
-          description: Content-Type of the body
-          type: string
-      required:
-      - url
-      - method
-    ServiceConfig:
-      type: object
-      additionalProperties:
-        type: string
-    SubscriptionMetadata:
-      type: object
-      description: Arbitrary key-value storage for this subscription. May be used to tag subscriptions. PUT replaces all metadata.
-    SubscriptionRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        service:
-          type: string
-          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
-
-            '
-        config:
-          $ref: '#/components/schemas/HTTPServiceConfig'
-        events:
-          type: array
-          items:
-            type: string
-        events_user_uuid:
-          type: string
-          description: 'Only trigger webhook when an event occurs related to this user. Not compatible with all events. For more details, see: https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/user_filter.'
-        events_wazo_uuid:
-          type: string
-          description: Only trigger webhook when an event occurs on this Wazo.
-        tags:
-          type: object
-      required:
-      - name
-      - service
-      - config
-      - events
-    SubscriptionList:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Subscription'
-          readOnly: true
-        total:
-          type: integer
-          readOnly: true
     HTTPServiceLog:
       type: object
       properties:
@@ -389,29 +390,6 @@ components:
             type: string
         response_body:
           type: string
-    UserSubscriptionRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        service:
-          type: string
-          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
-
-            '
-        config:
-          $ref: '#/components/schemas/HTTPServiceConfig'
-        events:
-          type: array
-          items:
-            type: string
-        tags:
-          $ref: '#/components/schemas/SubscriptionMetadata'
-      required:
-      - name
-      - service
-      - config
-      - events
     Error:
       title: Error
       description: Error message for the client
@@ -457,48 +435,76 @@ components:
         detail:
           description: output of the service
           $ref: '#/components/schemas/HTTPServiceLog'
-  parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    SearchMetadata:
-      name: search_metadata
-      in: query
-      description: A search term formatted like "key:value" that will only match subscriptions having a metadata entry "key=value". May be given multiple times to filter more precisely on different metadata keys.
-      schema:
-        type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    UserSubscriptionBody:
-      name: body
-      in: body
-      required: true
-      schema:
-        $ref: '#/components/schemas/UserSubscriptionRequest'
-    SubscriptionUUID:
-      name: subscription_uuid
-      description: The UUID of the subscription
-      in: path
-      required: true
-      schema:
-        type: string
-    SubscriptionBody:
-      name: body
-      in: body
-      required: true
-      schema:
-        $ref: '#/components/schemas/SubscriptionRequest'
+    SubscriptionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        service:
+          type: string
+          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
+
+            '
+        config:
+          $ref: '#/components/schemas/HTTPServiceConfig'
+        events:
+          type: array
+          items:
+            type: string
+        events_user_uuid:
+          type: string
+          description: 'Only trigger webhook when an event occurs related to this user. Not compatible with all events. For more details, see: https://wazo-platform.org/uc-doc/api_sdk/rest_api/webhookd/user_filter.'
+        events_wazo_uuid:
+          type: string
+          description: Only trigger webhook when an event occurs on this Wazo.
+        tags:
+          type: object
+      required:
+      - name
+      - service
+      - config
+      - events
+    SubscriptionList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+          readOnly: true
+        total:
+          type: integer
+          readOnly: true
+    UserSubscriptionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        service:
+          type: string
+          description: 'Known services: http. The service may be arbitrary, but it must be bound to an installed plugin in order to be effective.
+
+            '
+        config:
+          $ref: '#/components/schemas/HTTPServiceConfig'
+        events:
+          type: array
+          items:
+            type: string
+        tags:
+          $ref: '#/components/schemas/SubscriptionMetadata'
+      required:
+      - name
+      - service
+      - config
+      - events
   responses:
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     InvalidRequest:
       description: Invalid request
       content:
@@ -507,12 +513,6 @@ components:
             $ref: '#/components/schemas/Error'
     Unauthorized:
       description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
       content:
         application/json:
           schema:

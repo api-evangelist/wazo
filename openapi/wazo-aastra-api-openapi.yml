@@ -69,20 +69,6 @@ paths:
       - $ref: '#/components/parameters/Offset'
 components:
   parameters:
-    XivoUserUUID:
-      name: xivo_user_uuid
-      in: query
-      description: The user UUID of the user doing that query
-      required: true
-      schema:
-        type: string
-    Term:
-      name: term
-      in: query
-      description: A search term to look for
-      required: true
-      schema:
-        type: string
     Limit16:
       name: limit
       in: query
@@ -91,10 +77,17 @@ components:
       schema:
         type: integer
         default: 16
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
+      required: true
+      schema:
+        type: string
+    XivoUserUUID:
+      name: xivo_user_uuid
+      in: query
+      description: The user UUID of the user doing that query
       required: true
       schema:
         type: string
@@ -106,15 +99,16 @@ components:
       schema:
         type: integer
         default: 0
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
   responses:
     LimitOffsetInvalid:
       description: The limit or offset should be positive
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ProfileInvalid:
-      description: The profile does not exist
       content:
         application/json:
           schema:
@@ -125,31 +119,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    AastraIPPhoneInputScreen:
-      properties:
-        Title:
-          type: string
-        Prompt:
-          type: string
-        URL:
-          type: string
-        Parameter:
-          type: string
-    AastraIPPhoneTextMenu:
-      properties:
-        style:
-          type: string
-          xml:
-            attribute: true
-        destroyOnExit:
-          type: string
-          xml:
-            attribute: true
-        MenuItem:
-          type: array
-          items:
-            $ref: '#/components/schemas/AastraMenuItem'
     Error:
       type: object
       title: Error
@@ -168,12 +144,36 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
+    AastraIPPhoneInputScreen:
+      properties:
+        Title:
+          type: string
+        Prompt:
+          type: string
+        URL:
+          type: string
+        Parameter:
+          type: string
     AastraMenuItem:
       properties:
         Prompt:
           type: string
         URI:
           type: string
+    AastraIPPhoneTextMenu:
+      properties:
+        style:
+          type: string
+          xml:
+            attribute: true
+        destroyOnExit:
+          type: string
+          xml:
+            attribute: true
+        MenuItem:
+          type: array
+          items:
+            $ref: '#/components/schemas/AastraMenuItem'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

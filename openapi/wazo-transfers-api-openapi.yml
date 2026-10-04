@@ -208,7 +208,48 @@ paths:
       operationId: putUsersMeTransfersByTransferIdComplete
       x-operation-id-source: derived
 components:
+  parameters:
+    TransferID:
+      name: transfer_id
+      in: path
+      description: Unique identifier of the transfer
+      required: true
+      schema:
+        type: string
   schemas:
+    UserTransferRequest:
+      type: object
+      properties:
+        initiator_call:
+          description: Call ID of the transfer initiator. This call must be owned by the authenticated user.
+          type: string
+        exten:
+          description: Extension of the recipient of the transfer
+          type: string
+        flow:
+          $ref: '#/components/schemas/TransferFlow'
+        timeout:
+          $ref: '#/components/schemas/TransferTimeout'
+      required:
+      - initiator_call
+      - exten
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     Transfer:
       type: object
       properties:
@@ -247,36 +288,6 @@ components:
           enum:
           - attended
           - blind
-    TransferFlow:
-      description: Behavior of the transfer. `attended` allows the initiator to talk to the recipient. `blind` does not.
-      type: string
-      default: attended
-      enum:
-      - attended
-      - blind
-    UserTransferRequest:
-      type: object
-      properties:
-        initiator_call:
-          description: Call ID of the transfer initiator. This call must be owned by the authenticated user.
-          type: string
-        exten:
-          description: Extension of the recipient of the transfer
-          type: string
-        flow:
-          $ref: '#/components/schemas/TransferFlow'
-        timeout:
-          $ref: '#/components/schemas/TransferTimeout'
-      required:
-      - initiator_call
-      - exten
-    TransferList:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Transfer'
     TransferRequest:
       type: object
       properties:
@@ -304,37 +315,26 @@ components:
       - initiator_call
       - context
       - exten
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
     TransferTimeout:
       description: Maximum ringing time before cancelling the transfer (in seconds). Default (or null) is an unlimited ring time.
       type: integer
-  parameters:
-    TransferID:
-      name: transfer_id
-      in: path
-      description: Unique identifier of the transfer
-      required: true
-      schema:
-        type: string
+    TransferFlow:
+      description: Behavior of the transfer. `attended` allows the initiator to talk to the recipient. `blind` does not.
+      type: string
+      default: attended
+      enum:
+      - attended
+      - blind
+    TransferList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transfer'
   responses:
-    InvalidRequest:
-      description: Invalid request
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
       content:
         application/json:
           schema:
@@ -345,8 +345,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+    InvalidRequest:
+      description: Invalid request
       content:
         application/json:
           schema:

@@ -322,7 +322,50 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
+  responses:
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
     tenantuuid:
       name: Wazo-Tenant
       in: header
@@ -330,17 +373,11 @@ components:
       required: false
       schema:
         type: string
-    search:
+    limit:
       required: false
-      name: search
+      name: limit
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    iaxid:
-      required: true
-      name: iax_id
-      in: path
+      description: Maximum number of items to return in the list
       schema:
         type: integer
     order:
@@ -350,24 +387,9 @@ components:
       description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    registeriaxid:
-      description: Register IAX's ID
-      name: register_iax_id
+    trunkid:
+      description: Trunk's ID
+      name: trunk_id
       in: path
       required: true
       schema:
@@ -379,13 +401,13 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
-    trunkid:
-      description: Trunk's ID
-      name: trunk_id
-      in: path
-      required: true
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
-        type: integer
+        type: string
     direction:
       required: false
       name: direction
@@ -396,47 +418,61 @@ components:
         enum:
         - asc
         - desc
+    registeriaxid:
+      description: Register IAX's ID
+      name: register_iax_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    iaxid:
+      required: true
+      name: iax_id
+      in: path
+      schema:
+        type: integer
   schemas:
-    TrunkRelationBase:
+    IAXCallNumberLimits:
+      title: IAXCallNumberLimits
       properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the trunk
-        tenant_uuid:
+        ip_address:
           type: string
-          description: The UUID of the tenant
-          readOnly: true
-    EndpointIAXItems:
-      title: IAX Endpoints
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointIAX'
-          type: array
-        total:
-          type: integer
-    IAXCallNumberLimitss:
-      title: IAXCallNumberLimitss
-      properties:
-        items:
-          description: 'IAX callnumberlimits configuration. This configuration will be in the file ''iax.conf'' used by asterisk.
-
-            Please consult the asterisk documentation for further details on available parameters.'
-          type: array
-          items:
-            $ref: '#/components/schemas/IAXCallNumberLimits'
+          description: IPv4 address of the destination
+        netmask:
+          type: string
+          description: Netmask of the IP address (e.g. 255.255.255.255)
+        limit:
+          type: string
+          description: Maximum call for the ip_address destination
+      required:
+      - ip_address
+      - netmask
+      - limit
     EndpointRelationTrunk:
       properties:
         trunk:
           $ref: '#/components/schemas/TrunkRelationBase'
           readOnly: true
-    RegisterIAXRelationBase:
+    RegisterIAXItems:
+      title: RegisterItems
       properties:
-        id:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegisterIAX'
+        total:
           type: integer
-          readOnly: true
-          description: The id of the register IAX
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
     RegisterIAX:
       title: Register IAX
       allOf:
@@ -462,17 +498,46 @@ components:
             description: The callback context to use for the register
         required:
         - remote_host
-    KeyValueOption:
-      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
-      title: Key Value
+    EndpointRelationLine:
+      properties:
+        line:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    IAXCallNumberLimitss:
+      title: IAXCallNumberLimitss
+      properties:
+        items:
+          description: 'IAX callnumberlimits configuration. This configuration will be in the file ''iax.conf'' used by asterisk.
+
+            Please consult the asterisk documentation for further details on available parameters.'
+          type: array
+          items:
+            $ref: '#/components/schemas/IAXCallNumberLimits'
+    EndpointIAXItems:
+      title: IAX Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointIAX'
+          type: array
+        total:
+          type: integer
+    Error:
       type: array
       items:
         type: string
-      maxItems: 2
-      minItems: 2
-      example:
-      - option
-      - value
+    TrunkRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the trunk
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
     EndpointIAX:
       title: IAX Endpoint
       allOf:
@@ -502,23 +567,6 @@ components:
             default: []
       - $ref: '#/components/schemas/EndpointRelationTrunk'
       - $ref: '#/components/schemas/EndpointRelationLine'
-    LineRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Line ID
-          readOnly: true
-        name:
-          type: string
-          description: The name of the line
-          readOnly: true
-    EndpointRelationLine:
-      properties:
-        line:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LineRelationBase'
     EndpointIAXRelationBase:
       properties:
         id:
@@ -529,70 +577,22 @@ components:
           type: string
           description: IAX name
           default: autogenerated
-    RegisterIAXItems:
-      title: RegisterItems
+    LineRelationBase:
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/RegisterIAX'
-        total:
+        id:
           type: integer
-    IAXCallNumberLimits:
-      title: IAXCallNumberLimits
+          description: Line ID
+          readOnly: true
+        name:
+          type: string
+          description: The name of the line
+          readOnly: true
+    RegisterIAXRelationBase:
       properties:
-        ip_address:
-          type: string
-          description: IPv4 address of the destination
-        netmask:
-          type: string
-          description: Netmask of the IP address (e.g. 255.255.255.255)
-        limit:
-          type: string
-          description: Maximum call for the ip_address destination
-      required:
-      - ip_address
-      - netmask
-      - limit
-    Error:
-      type: array
-      items:
-        type: string
-  responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the register IAX
   securitySchemes:
     wazo_auth_token:
       type: apiKey

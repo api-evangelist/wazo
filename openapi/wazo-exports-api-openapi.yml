@@ -103,20 +103,119 @@ paths:
       operationId: getExportsByExportUuidDownload
       x-operation-id-source: derived
 components:
-  responses:
-    NotDoneYetError:
-      description: Not done yet
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+  parameters:
+    number:
+      required: false
+      name: number
+      in: query
+      description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    from_id:
+      name: from_id
+      description: Ignore CDR created before the given CDR ID.
+      in: query
+      required: false
+      schema:
+        type: integer
+    tags:
+      required: false
+      name: tags
+      in: query
+      description: Filter by tags. Each tag MUST be separated by a coma (,). Many tag will perform a logical AND.
+      schema:
+        type: array
+        items:
+          type: string
+    from:
+      name: from
+      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    user_uuid:
+      required: false
+      name: user_uuid
+      in: query
+      description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will perform a logical OR.
+      schema:
+        type: array
+        items:
+          type: string
+    call_direction:
+      required: false
+      name: call_direction
+      in: query
+      description: Filter list of items
+      schema:
+        type: string
+        enum:
+        - internal
+        - inbound
+        - outbound
+    export_uuid:
+      name: export_uuid
+      description: UUID of the given export
+      required: true
+      in: path
+      schema:
+        type: string
+    email:
+      name: email
+      description: E-mail address
+      in: query
+      schema:
+        type: string
+    search:
+      required: false
+      name: search
+      in: query
+      description: Filter list of items
+      schema:
+        type: string
   schemas:
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     Export:
       type: object
       properties:
@@ -139,118 +238,19 @@ components:
           - finished
           - deleted
           - error
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-  parameters:
-    number:
-      required: false
-      name: number
-      in: query
-      description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    export_uuid:
-      name: export_uuid
-      description: UUID of the given export
-      required: true
-      in: path
-      schema:
-        type: string
-    call_direction:
-      required: false
-      name: call_direction
-      in: query
-      description: Filter list of items
-      schema:
-        type: string
-        enum:
-        - internal
-        - inbound
-        - outbound
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    user_uuid:
-      required: false
-      name: user_uuid
-      in: query
-      description: Filter by user_uuid. Many uuid can be specified. Each uuid MUST be separated by a comma (,). Many uuid will perform a logical OR.
-      schema:
-        type: array
-        items:
-          type: string
-    from:
-      name: from
-      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
-    from_id:
-      name: from_id
-      description: Ignore CDR created before the given CDR ID.
-      in: query
-      required: false
-      schema:
-        type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Filter list of items
-      schema:
-        type: string
-    tags:
-      required: false
-      name: tags
-      in: query
-      description: Filter by tags. Each tag MUST be separated by a coma (,). Many tag will perform a logical AND.
-      schema:
-        type: array
-        items:
-          type: string
-    until:
-      name: until
-      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
-    email:
-      name: email
-      description: E-mail address
-      in: query
-      schema:
-        type: string
+  responses:
+    NotDoneYetError:
+      description: Not done yet
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

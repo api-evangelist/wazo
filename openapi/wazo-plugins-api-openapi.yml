@@ -514,11 +514,49 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    PackageObject:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Package'
+    EmptyObject:
+      description: Empty body
+      properties: {}
     PackageList:
       type: object
       properties:
         pkgs:
           $ref: '#/components/schemas/PackageObject'
+    Package:
+      type: object
+      properties:
+        capabilities:
+          $ref: '#/components/schemas/CapabilitiesObject'
+        description:
+          type: string
+        dsize:
+          type: integer
+        sha1sum:
+          type: string
+        version:
+          type: string
+    PluginInfo:
+      properties:
+        plugin_info:
+          $ref: '#/components/schemas/PluginInfoObject'
+    LinkObject:
+      description: Link Object
+      type: object
+      properties:
+        href:
+          type: string
+          description: Location of the resource
+        rel:
+          type: string
+          description: Relation to the resource
+    Plugins:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LinksObject'
     OperationInProgressObject:
       properties:
         status:
@@ -546,18 +584,33 @@ components:
             The state of an operation is either ``waiting``, ``progress``, ``success`` or ``fail``.
 
             '
-    Package:
+    PluginsObject:
       type: object
+      properties:
+        plugins:
+          $ref: '#/components/schemas/Plugins'
+    PluginInfoObject:
       properties:
         capabilities:
           $ref: '#/components/schemas/CapabilitiesObject'
         description:
           type: string
-        dsize:
-          type: integer
-        sha1sum:
-          type: string
         version:
+          type: string
+    LinksObject:
+      description: Links object
+      type: object
+      properties:
+        links:
+          type: array
+          description: Links to different resources
+          items:
+            $ref: '#/components/schemas/LinkObject'
+    CapabilitiesObject:
+      type: object
+      additionalProperties:
+        type: object
+        additionalProperties:
           type: string
     ErrorMessage:
       description: Error message response
@@ -568,88 +621,13 @@ components:
           type: string
       example:
         id: abcdef1234567890
-    PluginInfoObject:
-      properties:
-        capabilities:
-          $ref: '#/components/schemas/CapabilitiesObject'
-        description:
-          type: string
-        version:
-          type: string
-    PackageObject:
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/Package'
-    PluginsObject:
-      type: object
-      properties:
-        plugins:
-          $ref: '#/components/schemas/Plugins'
-    LinkObject:
-      description: Link Object
-      type: object
-      properties:
-        href:
-          type: string
-          description: Location of the resource
-        rel:
-          type: string
-          description: Relation to the resource
-    EmptyObject:
-      description: Empty body
-      properties: {}
-    LinksObject:
-      description: Links object
-      type: object
-      properties:
-        links:
-          type: array
-          description: Links to different resources
-          items:
-            $ref: '#/components/schemas/LinkObject'
-    Plugins:
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/LinksObject'
-    PluginInfo:
-      properties:
-        plugin_info:
-          $ref: '#/components/schemas/PluginInfoObject'
-    CapabilitiesObject:
-      type: object
-      additionalProperties:
-        type: object
-        additionalProperties:
-          type: string
-  responses:
-    InvalidJSONError:
-      description: Invalid JSON document
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    NoContentResponse:
-      description: No content
-    OperationInProgressResponse:
-      description: Operation in progress
-      headers:
-        Location:
-          description: Location of the OperationInProgress resource
-          schema:
-            type: string
-    UnsupportedMediaError:
-      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    NoSuchResourceError:
-      description: No such resource. The provided id does not exist
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
   parameters:
+    PluginIdBody:
+      description: Plugin ID body definition
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/IdObject'
     OperationId:
       required: true
       name: operation_id
@@ -657,8 +635,8 @@ components:
       description: Operation In Progress ID
       schema:
         type: string
-    PluginIdBody:
-      description: Plugin ID body definition
+    PackageIdBody:
+      description: Package ID body definition
       name: body
       in: body
       schema:
@@ -676,12 +654,34 @@ components:
       description: Plugin ID
       schema:
         type: string
-    PackageIdBody:
-      description: Package ID body definition
-      name: body
-      in: body
-      schema:
-        $ref: '#/components/schemas/IdObject'
+  responses:
+    NoContentResponse:
+      description: No content
+    OperationInProgressResponse:
+      description: Operation in progress
+      headers:
+        Location:
+          description: Location of the OperationInProgress resource
+          schema:
+            type: string
+    UnsupportedMediaError:
+      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    InvalidJSONError:
+      description: Invalid JSON document
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    NoSuchResourceError:
+      description: No such resource. The provided id does not exist
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

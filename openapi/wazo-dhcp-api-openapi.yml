@@ -51,6 +51,9 @@ paths:
               $ref: '#/components/schemas/DHCP'
         required: true
 components:
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
   schemas:
     DHCP:
       title: DHCP
@@ -70,9 +73,6 @@ components:
           items:
             type: string
           description: A comma separated list of network interface that the DHCP server listens on
-  responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
   securitySchemes:
     wazo_auth_token:
       type: apiKey

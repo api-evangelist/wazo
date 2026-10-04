@@ -486,146 +486,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 components:
   schemas:
-    ExtensionFeature:
-      title: ExtensionFeature
-      properties:
-        uuid:
-          type: string
-          description: Extension UUID
-          readOnly: true
-        context:
-          type: string
-          readOnly: true
-        exten:
-          type: string
-        feature:
-          type: string
-          readOnly: true
-          description: The feature of the extension
-        enabled:
-          type: boolean
-          description: If False the extension feature is disabled
-      required:
-      - exten
-    ExtensionItems:
-      title: ExtensionItems
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/Extension'
-          type: array
-        total:
-          type: integer
-      required:
-      - total
-    ExtensionRelationConference:
-      properties:
-        conference:
-          readOnly: true
-          $ref: '#/components/schemas/ConferenceRelationBase'
-    ExtensionRelationQueue:
-      properties:
-        queue:
-          readOnly: true
-          $ref: '#/components/schemas/QueueRelationBase'
-    IncallRelationBase:
-      title: IncallRelation
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the incoming call
-    ExtensionRelationOutcall:
-      properties:
-        outcall:
-          readOnly: true
-          $ref: '#/components/schemas/OutcallRelationBase'
-    GroupRelationBase:
-      properties:
-        name:
-          type: string
-          description: The name of the group
-          readOnly: true
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the group
-        uuid:
-          type: string
-          description: Group UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-    ExtensionFeatureItems:
-      title: ExtensionFeatureItems
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ExtensionFeature'
-          type: array
-        total:
-          type: integer
-      required:
-      - total
-    OutcallRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the outgoing call
-        name:
-          type: string
-          description: The name of the outcall
-    ExtensionRelationGroup:
-      properties:
-        group:
-          readOnly: true
-          $ref: '#/components/schemas/GroupRelationBase'
-    ExtensionRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Extension ID
-          readOnly: true
-        context:
-          type: string
-        exten:
-          type: string
-    ConferenceRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          description: name to identify the conference
-    ExtensionRelationLines:
-      properties:
-        lines:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LineRelationBase'
-    LineRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Line ID
-          readOnly: true
-        name:
-          type: string
-          description: The name of the line
-          readOnly: true
-    QueueRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the queue
-        name:
-          type: string
-          description: The name of the queue. Cannot be modified
-        label:
-          type: string
-          description: The label of the queue
     Extension:
       title: Extension
       allOf:
@@ -651,6 +511,79 @@ components:
       - required:
         - context
         - exten
+    ExtensionRelationQueue:
+      properties:
+        queue:
+          readOnly: true
+          $ref: '#/components/schemas/QueueRelationBase'
+    OutcallRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the outgoing call
+        name:
+          type: string
+          description: The name of the outcall
+    ExtensionRelationLines:
+      properties:
+        lines:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    ExtensionRelationGroup:
+      properties:
+        group:
+          readOnly: true
+          $ref: '#/components/schemas/GroupRelationBase'
+    ExtensionItems:
+      title: ExtensionItems
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Extension'
+          type: array
+        total:
+          type: integer
+      required:
+      - total
+    GroupRelationBase:
+      properties:
+        name:
+          type: string
+          description: The name of the group
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the group
+        uuid:
+          type: string
+          description: Group UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+    ExtensionRelationOutcall:
+      properties:
+        outcall:
+          readOnly: true
+          $ref: '#/components/schemas/OutcallRelationBase'
+    Error:
+      type: array
+      items:
+        type: string
+    ParkingLotRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: name to identify the parking lot
+    ExtensionRelationParkingLot:
+      properties:
+        parking_lot:
+          readOnly: true
+          $ref: '#/components/schemas/ParkingLotRelationBase'
     OutcallExtension:
       title: OutcallExtension
       properties:
@@ -665,142 +598,95 @@ components:
           description: The number of leading digits to strip
         caller_id:
           type: string
-    ExtensionRelationParkingLot:
+    ExtensionRelationBase:
       properties:
-        parking_lot:
+        id:
+          type: integer
+          description: Extension ID
           readOnly: true
-          $ref: '#/components/schemas/ParkingLotRelationBase'
-    ExtensionRelationIncall:
+        context:
+          type: string
+        exten:
+          type: string
+    ExtensionFeatureItems:
+      title: ExtensionFeatureItems
       properties:
-        incall:
+        items:
+          items:
+            $ref: '#/components/schemas/ExtensionFeature'
+          type: array
+        total:
+          type: integer
+      required:
+      - total
+    LineRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Line ID
           readOnly: true
-          $ref: '#/components/schemas/IncallRelationBase'
-    ParkingLotRelationBase:
+        name:
+          type: string
+          description: The name of the line
+          readOnly: true
+    ExtensionRelationConference:
+      properties:
+        conference:
+          readOnly: true
+          $ref: '#/components/schemas/ConferenceRelationBase'
+    ConferenceRelationBase:
       properties:
         id:
           type: integer
           readOnly: true
         name:
           type: string
-          description: name to identify the parking lot
-    Error:
-      type: array
-      items:
-        type: string
-  parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    queueid:
-      required: true
-      name: queue_id
-      in: path
-      description: Queue’s ID
-      schema:
-        type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    conferenceid:
-      required: true
-      name: conference_id
-      in: path
-      description: Conference's ID
-      schema:
-        type: integer
-    outcallid:
-      required: true
-      name: outcall_id
-      in: path
-      description: Outgoing call's ID
-      schema:
-        type: integer
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    incallid:
-      required: true
-      name: incall_id
-      in: path
-      description: Incoming call's ID
-      schema:
-        type: integer
-    extensionid:
-      required: true
-      name: extension_id
-      in: path
-      schema:
-        type: integer
-    parkinglotid:
-      required: true
-      name: parking_lot_id
-      in: path
-      description: Parking Lot's ID
-      schema:
-        type: integer
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    lineid:
-      required: true
-      name: line_id
-      in: path
-      schema:
-        type: integer
-    groupuuid:
-      required: true
-      name: group_uuid
-      in: path
-      description: the group's UUID
-      schema:
-        type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    extensionuuid:
-      required: true
-      name: extension_uuid
-      in: path
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
+          description: name to identify the conference
+    ExtensionFeature:
+      title: ExtensionFeature
+      properties:
+        uuid:
+          type: string
+          description: Extension UUID
+          readOnly: true
+        context:
+          type: string
+          readOnly: true
+        exten:
+          type: string
+        feature:
+          type: string
+          readOnly: true
+          description: The feature of the extension
+        enabled:
+          type: boolean
+          description: If False the extension feature is disabled
+      required:
+      - exten
+    IncallRelationBase:
+      title: IncallRelation
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the incoming call
+    ExtensionRelationIncall:
+      properties:
+        incall:
+          readOnly: true
+          $ref: '#/components/schemas/IncallRelationBase'
+    QueueRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the queue
+        name:
+          type: string
+          description: The name of the queue. Cannot be modified
+        label:
+          type: string
+          description: The label of the queue
   responses:
     ResourceDeleted:
       description: Resource was deleted successfully
@@ -812,14 +698,14 @@ components:
             $ref: '#/components/schemas/Error'
     ResourceUpdated:
       description: Resource was updated successfully
-    CreateError:
-      description: An error occurred when creating the resource
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
+    CreateError:
+      description: An error occurred when creating the resource
       content:
         application/json:
           schema:
@@ -830,6 +716,120 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    outcallid:
+      required: true
+      name: outcall_id
+      in: path
+      description: Outgoing call's ID
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
+    conferenceid:
+      required: true
+      name: conference_id
+      in: path
+      description: Conference's ID
+      schema:
+        type: integer
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    queueid:
+      required: true
+      name: queue_id
+      in: path
+      description: Queue’s ID
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    parkinglotid:
+      required: true
+      name: parking_lot_id
+      in: path
+      description: Parking Lot's ID
+      schema:
+        type: integer
+    extensionuuid:
+      required: true
+      name: extension_uuid
+      in: path
+      schema:
+        type: string
+    incallid:
+      required: true
+      name: incall_id
+      in: path
+      description: Incoming call's ID
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    groupuuid:
+      required: true
+      name: group_uuid
+      in: path
+      description: the group's UUID
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

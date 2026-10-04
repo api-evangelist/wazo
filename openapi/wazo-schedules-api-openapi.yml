@@ -301,55 +301,20 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 components:
   schemas:
-    DestinationConference:
-      title: DestinationConference
-      properties:
-        type:
-          type: string
-          description: MUST be 'conference'
-        conference_id:
-          type: integer
-          description: The id of the conference
-      required:
-      - type
-      - conference_id
-    DestinationNone:
-      title: DestinationNone
-      properties:
-        type:
-          type: string
-          description: MUST be 'none'
-      required:
-      - type
-    ScheduleRelationIncalls:
-      properties:
-        incalls:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/IncallRelationBase'
-    ScheduleRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        tenant_uuid:
-          type: string
-          description: The UUID of the tenant
-          readOnly: true
-        name:
-          type: string
-          description: The name to identify the schedule
-    DestinationHangupNormal:
-      title: DestinationHangupNormal
+    DestinationApplicationVoicemail:
+      title: DestinationApplicationVoicemail
       allOf:
-      - $ref: '#/components/schemas/DestinationHangup'
+      - $ref: '#/components/schemas/DestinationApplication'
       - properties:
-          cause:
+          application:
             type: string
-            description: MUST be 'normal'
-      required:
-      - cause
+            description: MUST be 'voicemail'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
     DestinationSwitchboard:
       title: DestinationSwitchboard
       properties:
@@ -362,6 +327,150 @@ components:
       required:
       - type
       - switchboard_uuid
+    DestinationUser:
+      title: DestinationUser
+      properties:
+        type:
+          type: string
+          description: MUST be 'user'
+        user_id:
+          type: integer
+          description: The id of the user
+        ring_time:
+          type: number
+          format: float
+        moh_uuid:
+          type: string
+          description: The UUID of the music on hold to use instead of a ringback tone.
+      required:
+      - type
+      - user_id
+    DestinationSound:
+      title: DestinationSound
+      properties:
+        type:
+          type: string
+          description: MUST be 'sound'
+        filename:
+          type: string
+          description: The filename of the sound. The file MUST be imported by to webi in the playback directory. The extension of file SHOULD be not present.
+        skip:
+          type: boolean
+          description: Do not play this sound if the call is not answered
+        no_answer:
+          type: boolean
+          description: Play this sound without answering the call
+      required:
+      - type
+      - filename
+    ScheduleExceptionalPeriod:
+      allOf:
+      - $ref: '#/components/schemas/ScheduleOpenPeriod'
+      - properties:
+          destination:
+            description: The destination to redirect the caller to when the given period is satisfied
+            $ref: '#/components/schemas/DestinationType'
+    DestinationHangupCongestion:
+      title: DestinationHangupCongestion
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'congestion'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
+      required:
+      - cause
+    DestinationApplicationApplication:
+      title: DestinationApplicationApplication
+      properties:
+        callback_disa:
+          $ref: '#/components/schemas/DestinationApplicationCallbackDISA'
+        custom:
+          $ref: '#/components/schemas/DestinationApplicationCustom'
+        directory:
+          $ref: '#/components/schemas/DestinationApplicationDirectory'
+        disa:
+          $ref: '#/components/schemas/DestinationApplicationDISA'
+        fax_to_mail:
+          $ref: '#/components/schemas/DestinationApplicationFaxToMail'
+        voicemail:
+          $ref: '#/components/schemas/DestinationApplicationVoicemail'
+    ScheduleRelationOutcalls:
+      properties:
+        incalls:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/OutcallRelationBase'
+    ScheduleRelationQueues:
+      properties:
+        incalls:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/QueueRelationBase'
+    ScheduleItems:
+      title: ScheduleItems
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Schedule'
+        total:
+          type: integer
+      required:
+      - total
+    OutcallRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the outgoing call
+        name:
+          type: string
+          description: The name of the outcall
+    DestinationApplicationFaxToMail:
+      title: DestinationApplicationFaxToMail
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'fax_to_mail'
+          email:
+            type: string
+            description: The email of the application
+      required:
+      - application
+      - email
+    ScheduleRelationGroups:
+      properties:
+        incalls:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/GroupRelationBase'
+    DestinationHangup:
+      title: DestinationHangup
+      properties:
+        type:
+          type: string
+          description: MUST be 'hangup'
+      required:
+      - type
+    DestinationHangupNormal:
+      title: DestinationHangupNormal
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'normal'
+      required:
+      - cause
     DestinationOutcall:
       title: DestinationOutcall
       properties:
@@ -391,134 +500,35 @@ components:
         required:
         - application
         - context
-    Schedule:
-      title: Schedule
-      allOf:
-      - $ref: '#/components/schemas/ScheduleRelationBase'
-      - properties:
-          timezone:
-            type: string
-            description: The number of the schedule
-          closed_destination:
-            description: The destination to redirect the caller to when the schedule is not opened
-            $ref: '#/components/schemas/DestinationType'
-          open_periods:
-            type: array
-            items:
-              $ref: '#/components/schemas/ScheduleOpenPeriod'
-          exceptional_periods:
-            type: array
-            items:
-              $ref: '#/components/schemas/ScheduleExceptionalPeriod'
-          enabled:
-            type: boolean
-            default: true
-        required:
-        - closed_destination
-      - $ref: '#/components/schemas/ScheduleRelationIncalls'
-      - $ref: '#/components/schemas/ScheduleRelationGroups'
-      - $ref: '#/components/schemas/ScheduleRelationQueues'
-      - $ref: '#/components/schemas/ScheduleRelationUsers'
-      - $ref: '#/components/schemas/ScheduleRelationOutcalls'
-    DestinationHangup:
-      title: DestinationHangup
+    DestinationApplication:
+      title: DestinationApplication
       properties:
         type:
           type: string
-          description: MUST be 'hangup'
+          description: MUST be 'application'
       required:
       - type
-    DestinationApplicationCustom:
-      title: DestinationApplicationCustom
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'custom'
-          application_uuid:
-            type: string
-            description: The UUID of the application.
-      required:
-      - application
-      - application_uuid
-    DestinationGroup:
-      title: DestinationGroup
+    UserRelationBase:
       properties:
-        type:
+        uuid:
           type: string
-          description: MUST be 'group'
-        group_id:
-          type: integer
-          description: The id of the group
-        ring_time:
-          type: number
-          format: float
-      required:
-      - type
-      - group_id
-    DestinationExtension:
-      title: DestinationExtension
-      properties:
-        type:
-          type: string
-          description: MUST be 'extension'
-        exten:
-          type: string
-        context:
-          type: string
-          description: Context of the extension
-      required:
-      - type
-      - exten
-      - context
-    IncallRelationBase:
-      title: IncallRelation
-      properties:
-        id:
-          type: integer
+          description: User UUID. This ID is globally unique across multiple Wazo instances
           readOnly: true
-          description: The id of the incoming call
-    DestinationUser:
-      title: DestinationUser
-      properties:
-        type:
+        firstname:
           type: string
-          description: MUST be 'user'
-        user_id:
-          type: integer
-          description: The id of the user
-        ring_time:
-          type: number
-          format: float
-        moh_uuid:
+          description: User firstname
+        lastname:
           type: string
-          description: The UUID of the music on hold to use instead of a ringback tone.
-      required:
-      - type
-      - user_id
-    DestinationApplicationApplication:
-      title: DestinationApplicationApplication
+          description: User lastname
+    DestinationHangupCause:
+      title: DestinationHangupCause
       properties:
-        callback_disa:
-          $ref: '#/components/schemas/DestinationApplicationCallbackDISA'
-        custom:
-          $ref: '#/components/schemas/DestinationApplicationCustom'
-        directory:
-          $ref: '#/components/schemas/DestinationApplicationDirectory'
-        disa:
-          $ref: '#/components/schemas/DestinationApplicationDISA'
-        fax_to_mail:
-          $ref: '#/components/schemas/DestinationApplicationFaxToMail'
-        voicemail:
-          $ref: '#/components/schemas/DestinationApplicationVoicemail'
-    ScheduleRelationOutcalls:
-      properties:
-        incalls:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/OutcallRelationBase'
+        busy:
+          $ref: '#/components/schemas/DestinationHangupBusy'
+        congestion:
+          $ref: '#/components/schemas/DestinationHangupCongestion'
+        normal:
+          $ref: '#/components/schemas/DestinationHangupNormal'
     GroupRelationBase:
       properties:
         name:
@@ -533,39 +543,6 @@ components:
           type: string
           description: Group UUID. This ID is globally unique across multiple Wazo instances
           readOnly: true
-    DestinationQueue:
-      title: DestinationQueue
-      properties:
-        type:
-          type: string
-          description: MUST be 'queue'
-        queue_id:
-          type: integer
-          description: The id of the queue
-        ring_time:
-          type: number
-          format: float
-        skill_rule_id:
-          type: integer
-          description: The id of the skill rule
-        skill_rule_variables:
-          type: object
-          description: key-value where key represents the variable of the skill rule and value represents a value
-      required:
-      - type
-      - queue_id
-    DestinationIVR:
-      title: DestinationIVR
-      properties:
-        type:
-          type: string
-          description: MUST be 'ivr'
-        ivr_id:
-          type: integer
-          description: The id of the IVR
-      required:
-      - type
-      - ivr_id
     DestinationApplicationCallbackDISA:
       title: DestinationApplicationCallbackDISA
       allOf:
@@ -583,148 +560,20 @@ components:
         required:
         - application
         - context
-    ScheduleRelationQueues:
-      properties:
-        incalls:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/QueueRelationBase'
-    DestinationHangupCongestion:
-      title: DestinationHangupCongestion
-      allOf:
-      - $ref: '#/components/schemas/DestinationHangup'
-      - properties:
-          cause:
-            type: string
-            description: MUST be 'congestion'
-          timeout:
-            type: integer
-            description: The timeout of the hangup
-      required:
-      - cause
-    DestinationHangupBusy:
-      title: DestinationHangupBusy
-      allOf:
-      - $ref: '#/components/schemas/DestinationHangup'
-      - properties:
-          cause:
-            type: string
-            description: MUST be 'busy'
-          timeout:
-            type: integer
-            description: The timeout of the hangup
-      required:
-      - cause
-    Error:
-      type: array
-      items:
-        type: string
-    OutcallRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the outgoing call
-        name:
-          type: string
-          description: The name of the outcall
-    DestinationHangupCause:
-      title: DestinationHangupCause
-      properties:
-        busy:
-          $ref: '#/components/schemas/DestinationHangupBusy'
-        congestion:
-          $ref: '#/components/schemas/DestinationHangupCongestion'
-        normal:
-          $ref: '#/components/schemas/DestinationHangupNormal'
-    DestinationCustom:
-      title: DestinationCustom
-      properties:
-        type:
-          type: string
-          description: MUST be 'custom'
-        command:
-          type: string
-          description: The command to execute
-      required:
-      - type
-      - command
-    DestinationApplicationFaxToMail:
-      title: DestinationApplicationFaxToMail
+    DestinationApplicationCustom:
+      title: DestinationApplicationCustom
       allOf:
       - $ref: '#/components/schemas/DestinationApplication'
       - properties:
           application:
             type: string
-            description: MUST be 'fax_to_mail'
-          email:
+            description: MUST be 'custom'
+          application_uuid:
             type: string
-            description: The email of the application
+            description: The UUID of the application.
       required:
       - application
-      - email
-    ScheduleRelationGroups:
-      properties:
-        incalls:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/GroupRelationBase'
-    UserRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: User UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-        firstname:
-          type: string
-          description: User firstname
-        lastname:
-          type: string
-          description: User lastname
-    ScheduleRelationUsers:
-      properties:
-        incalls:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/UserRelationBase'
-    DestinationApplicationVoicemail:
-      title: DestinationApplicationVoicemail
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'voicemail'
-          context:
-            type: integer
-            description: The context of the application
-        required:
-        - application
-        - context
-    DestinationVoicemail:
-      title: DestinationVoicemail
-      properties:
-        type:
-          type: string
-          description: MUST be 'voicemail'
-        voicemail_id:
-          type: integer
-          description: The id of the voicemail
-        skip_instructions:
-          type: boolean
-          description: Skip the playback of instructions for leaving a message
-        greeting:
-          type: string
-          enum:
-          - busy
-          - unavailable
-          description: Play the specified greeting
-      required:
-      - type
-      - voicemail_id
+      - application_uuid
     DestinationApplicationDISA:
       title: DestinationApplicationDISA
       allOf:
@@ -742,18 +591,25 @@ components:
         required:
         - application
         - context
-    QueueRelationBase:
+    DestinationConference:
+      title: DestinationConference
       properties:
-        id:
+        type:
+          type: string
+          description: MUST be 'conference'
+        conference_id:
           type: integer
+          description: The id of the conference
+      required:
+      - type
+      - conference_id
+    ScheduleRelationIncalls:
+      properties:
+        incalls:
+          type: array
           readOnly: true
-          description: The id of the queue
-        name:
-          type: string
-          description: The name of the queue. Cannot be modified
-        label:
-          type: string
-          description: The label of the queue
+          items:
+            $ref: '#/components/schemas/IncallRelationBase'
     DestinationType:
       title: DestinationType
       properties:
@@ -785,39 +641,23 @@ components:
           $ref: '#/components/schemas/DestinationUser'
         voicemail:
           $ref: '#/components/schemas/DestinationVoicemail'
-    ScheduleExceptionalPeriod:
+    Error:
+      type: array
+      items:
+        type: string
+    DestinationHangupBusy:
+      title: DestinationHangupBusy
       allOf:
-      - $ref: '#/components/schemas/ScheduleOpenPeriod'
+      - $ref: '#/components/schemas/DestinationHangup'
       - properties:
-          destination:
-            description: The destination to redirect the caller to when the given period is satisfied
-            $ref: '#/components/schemas/DestinationType'
-    DestinationSound:
-      title: DestinationSound
-      properties:
-        type:
-          type: string
-          description: MUST be 'sound'
-        filename:
-          type: string
-          description: The filename of the sound. The file MUST be imported by to webi in the playback directory. The extension of file SHOULD be not present.
-        skip:
-          type: boolean
-          description: Do not play this sound if the call is not answered
-        no_answer:
-          type: boolean
-          description: Play this sound without answering the call
+          cause:
+            type: string
+            description: MUST be 'busy'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
       required:
-      - type
-      - filename
-    DestinationApplication:
-      title: DestinationApplication
-      properties:
-        type:
-          type: string
-          description: MUST be 'application'
-      required:
-      - type
+      - cause
     ScheduleOpenPeriod:
       properties:
         hours_start:
@@ -841,18 +681,186 @@ components:
           type: array
           items:
             type: integer
-    ScheduleItems:
-      title: ScheduleItems
+    DestinationGroup:
+      title: DestinationGroup
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Schedule'
-        total:
+        type:
+          type: string
+          description: MUST be 'group'
+        group_id:
           type: integer
+          description: The id of the group
+        ring_time:
+          type: number
+          format: float
       required:
-      - total
+      - type
+      - group_id
+    Schedule:
+      title: Schedule
+      allOf:
+      - $ref: '#/components/schemas/ScheduleRelationBase'
+      - properties:
+          timezone:
+            type: string
+            description: The number of the schedule
+          closed_destination:
+            description: The destination to redirect the caller to when the schedule is not opened
+            $ref: '#/components/schemas/DestinationType'
+          open_periods:
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleOpenPeriod'
+          exceptional_periods:
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleExceptionalPeriod'
+          enabled:
+            type: boolean
+            default: true
+        required:
+        - closed_destination
+      - $ref: '#/components/schemas/ScheduleRelationIncalls'
+      - $ref: '#/components/schemas/ScheduleRelationGroups'
+      - $ref: '#/components/schemas/ScheduleRelationQueues'
+      - $ref: '#/components/schemas/ScheduleRelationUsers'
+      - $ref: '#/components/schemas/ScheduleRelationOutcalls'
+    DestinationQueue:
+      title: DestinationQueue
+      properties:
+        type:
+          type: string
+          description: MUST be 'queue'
+        queue_id:
+          type: integer
+          description: The id of the queue
+        ring_time:
+          type: number
+          format: float
+        skill_rule_id:
+          type: integer
+          description: The id of the skill rule
+        skill_rule_variables:
+          type: object
+          description: key-value where key represents the variable of the skill rule and value represents a value
+      required:
+      - type
+      - queue_id
+    DestinationNone:
+      title: DestinationNone
+      properties:
+        type:
+          type: string
+          description: MUST be 'none'
+      required:
+      - type
+    DestinationCustom:
+      title: DestinationCustom
+      properties:
+        type:
+          type: string
+          description: MUST be 'custom'
+        command:
+          type: string
+          description: The command to execute
+      required:
+      - type
+      - command
+    ScheduleRelationUsers:
+      properties:
+        incalls:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/UserRelationBase'
+    IncallRelationBase:
+      title: IncallRelation
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the incoming call
+    ScheduleRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the schedule
+    DestinationExtension:
+      title: DestinationExtension
+      properties:
+        type:
+          type: string
+          description: MUST be 'extension'
+        exten:
+          type: string
+        context:
+          type: string
+          description: Context of the extension
+      required:
+      - type
+      - exten
+      - context
+    QueueRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The id of the queue
+        name:
+          type: string
+          description: The name of the queue. Cannot be modified
+        label:
+          type: string
+          description: The label of the queue
+    DestinationIVR:
+      title: DestinationIVR
+      properties:
+        type:
+          type: string
+          description: MUST be 'ivr'
+        ivr_id:
+          type: integer
+          description: The id of the IVR
+      required:
+      - type
+      - ivr_id
+    DestinationVoicemail:
+      title: DestinationVoicemail
+      properties:
+        type:
+          type: string
+          description: MUST be 'voicemail'
+        voicemail_id:
+          type: integer
+          description: The id of the voicemail
+        skip_instructions:
+          type: boolean
+          description: Skip the playback of instructions for leaving a message
+        greeting:
+          type: string
+          enum:
+          - busy
+          - unavailable
+          description: Play the specified greeting
+      required:
+      - type
+      - voicemail_id
   parameters:
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
     tenantuuid:
       name: Wazo-Tenant
       in: header
@@ -860,18 +868,11 @@ components:
       required: false
       schema:
         type: string
-    search:
+    limit:
       required: false
-      name: search
+      name: limit
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    queueid:
-      required: true
-      name: queue_id
-      in: path
-      description: Queue’s ID
+      description: Maximum number of items to return in the list
       schema:
         type: integer
     order:
@@ -888,33 +889,32 @@ components:
       description: Outgoing call's ID
       schema:
         type: integer
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    incallid:
-      required: true
-      name: incall_id
-      in: path
-      description: Incoming call's ID
-      schema:
-        type: integer
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
     useriduuid:
       required: true
       name: user_id
       in: path
       description: the user's ID or UUID
+      schema:
+        type: string
+    queueid:
+      required: true
+      name: queue_id
+      in: path
+      description: Queue’s ID
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
     groupuuid:
@@ -924,18 +924,11 @@ components:
       description: the group's UUID
       schema:
         type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    scheduleid:
+    incallid:
       required: true
-      name: schedule_id
+      name: incall_id
       in: path
-      description: Schedule's ID
+      description: Incoming call's ID
       schema:
         type: integer
     direction:
@@ -948,9 +941,14 @@ components:
         enum:
         - asc
         - desc
+    scheduleid:
+      required: true
+      name: schedule_id
+      in: path
+      description: Schedule's ID
+      schema:
+        type: integer
   responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
     GenericError:
       description: An error occurred during the operation
       content:
@@ -959,8 +957,8 @@ components:
             $ref: '#/components/schemas/Error'
     ResourceUpdated:
       description: Resource was updated successfully
-    DeleteError:
-      description: An error occurred when deleting the resource
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
@@ -971,12 +969,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    ResourceDeleted:
+      description: Resource was deleted successfully
     NotFoundError:
       description: The resource requested was not found on the server
       content:

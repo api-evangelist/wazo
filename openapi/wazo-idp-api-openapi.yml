@@ -121,6 +121,19 @@ components:
       schema:
         type: string
   schemas:
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
     IDPList:
       type: object
       properties:
@@ -141,6 +154,12 @@ components:
         type:
           type: string
           description: The type of identity provider
+    IDPUser:
+      properties:
+        uuid:
+          type: string
+      required:
+      - uuid
     IDPUsers:
       properties:
         users:
@@ -149,25 +168,6 @@ components:
           type: array
       required:
       - users
-    IDPUser:
-      properties:
-        uuid:
-          type: string
-      required:
-      - uuid
-    Error:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
   securitySchemes:
     wazo_auth_basic:
       type: http

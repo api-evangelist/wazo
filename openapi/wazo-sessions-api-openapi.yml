@@ -125,18 +125,52 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 components:
+  parameters:
+    session_uuid:
+      name: session_uuid
+      in: path
+      description: The UUID of the session
+      required: true
+      schema:
+        type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
   schemas:
-    SessionResult:
-      type: object
-      properties:
-        uuid:
-          type: string
-        user_uuid:
-          type: string
-        tenant_uuid:
-          type: string
-        mobile:
-          type: boolean
     GetSessionsResult:
       type: object
       properties:
@@ -155,6 +189,17 @@ components:
       - filtered
       - total
       - items
+    SessionResult:
+      type: object
+      properties:
+        uuid:
+          type: string
+        user_uuid:
+          type: string
+        tenant_uuid:
+          type: string
+        mobile:
+          type: boolean
     Error:
       type: object
       properties:
@@ -168,51 +213,6 @@ components:
             type: string
         status_code:
           type: integer
-  parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    session_uuid:
-      name: session_uuid
-      in: path
-      description: The UUID of the session
-      required: true
-      schema:
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
   securitySchemes:
     wazo_auth_basic:
       type: http

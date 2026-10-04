@@ -138,6 +138,17 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
     MobileData:
       type: object
       properties:
@@ -159,17 +170,6 @@ components:
         apns_default_topic:
           type: string
           description: APNs topic for non-call notifications such as messages, voicemails, and missed calls (e.g. com.example.app). When set, overrides the server-wide mobile_apns_default_topic configuration.
-    APIError:
-      type: object
-      properties:
-        timestamp:
-          type: number
-        message:
-          type: string
-        resource:
-          type: string
-        details:
-          type: object
   parameters:
     user_uuid:
       name: user_uuid

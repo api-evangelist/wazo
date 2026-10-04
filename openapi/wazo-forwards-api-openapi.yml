@@ -94,15 +94,36 @@ paths:
               $ref: '#/components/schemas/UserForward'
         required: true
 components:
+  schemas:
+    Error:
+      type: array
+      items:
+        type: string
+    UserForwards:
+      title: UserForwards
+      properties:
+        busy:
+          $ref: '#/components/schemas/UserForward'
+        noanswer:
+          $ref: '#/components/schemas/UserForward'
+        unconditional:
+          $ref: '#/components/schemas/UserForward'
+    UserForward:
+      title: UserForward
+      properties:
+        enabled:
+          type: boolean
+        destination:
+          type: string
   responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
     UpdateError:
       description: An error occurred when updating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
   parameters:
     forward:
       required: true
@@ -121,27 +142,6 @@ components:
       in: path
       description: the user's ID or UUID
       schema:
-        type: string
-  schemas:
-    UserForward:
-      title: UserForward
-      properties:
-        enabled:
-          type: boolean
-        destination:
-          type: string
-    UserForwards:
-      title: UserForwards
-      properties:
-        busy:
-          $ref: '#/components/schemas/UserForward'
-        noanswer:
-          $ref: '#/components/schemas/UserForward'
-        unconditional:
-          $ref: '#/components/schemas/UserForward'
-    Error:
-      type: array
-      items:
         type: string
   securitySchemes:
     wazo_auth_token:

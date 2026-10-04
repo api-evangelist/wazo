@@ -83,18 +83,6 @@ paths:
           $ref: '#/components/responses/AlreadyConfiguredError'
 components:
   schemas:
-    WizardDiscoverInterface:
-      title: WizardDiscoverInterface
-      properties:
-        interface:
-          type: string
-          description: Interface name (e.g. eth0)
-        ip_address:
-          type: string
-          description: IPv4 address of the interface
-        netmask:
-          type: string
-          description: Netmask of the IP address
     WizardConfigured:
       title: WizardConfigured
       properties:
@@ -107,41 +95,22 @@ components:
         configurable_status:
           type: object
           description: A mapping of all dependencies and there statuses
-    WizardNetwork:
-      title: WizardNetwork
+    Error:
+      type: array
+      items:
+        type: string
+    WizardDiscoverInterface:
+      title: WizardDiscoverInterface
       properties:
-        hostname:
-          type: string
-          description: System hostname
-        domain:
-          type: string
-          description: Domain name
         interface:
           type: string
           description: Interface name (e.g. eth0)
         ip_address:
           type: string
-          description: IPv4 address of the VoIP interface (connected to phones)
+          description: IPv4 address of the interface
         netmask:
           type: string
-          description: Netmask of the IP address (e.g. 255.255.0.0)
-        gateway:
-          type: string
-          description: Gateway IPv4 address
-        nameservers:
-          type: array
-          items:
-            type: string
-          maxItems: 3
-          description: List of IPv4 addresses. Nameservers are used in resolv.conf.
-      required:
-      - hostname
-      - domain
-      - ip_address
-      - interface
-      - netmask
-      - gateway
-      - nameservers
+          description: Netmask of the IP address
     WizardDiscoverGateway:
       title: WizardDiscoverGateway
       properties:
@@ -182,6 +151,32 @@ components:
           type: boolean
           default: true
           description: Create admin in wazo-auth?
+    WizardDiscover:
+      title: WizardDiscover
+      properties:
+        hostname:
+          type: string
+          description: System hostname
+        domain:
+          type: string
+          description: System domain name
+        timezone:
+          type: string
+          description: System timezone from file ``/etc/timezone``
+        nameservers:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+          description: Nameservers from file ``/etc/resolv.conf``
+        interfaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/WizardDiscoverInterface'
+        gateways:
+          type: array
+          items:
+            $ref: '#/components/schemas/WizardDiscoverGateway'
     Wizard:
       title: Wizard
       properties:
@@ -215,45 +210,50 @@ components:
       - license
       - timezone
       - network
-    WizardDiscover:
-      title: WizardDiscover
+    WizardNetwork:
+      title: WizardNetwork
       properties:
         hostname:
           type: string
           description: System hostname
         domain:
           type: string
-          description: System domain name
-        timezone:
+          description: Domain name
+        interface:
           type: string
-          description: System timezone from file ``/etc/timezone``
+          description: Interface name (e.g. eth0)
+        ip_address:
+          type: string
+          description: IPv4 address of the VoIP interface (connected to phones)
+        netmask:
+          type: string
+          description: Netmask of the IP address (e.g. 255.255.0.0)
+        gateway:
+          type: string
+          description: Gateway IPv4 address
         nameservers:
           type: array
-          maxItems: 3
           items:
             type: string
-          description: Nameservers from file ``/etc/resolv.conf``
-        interfaces:
-          type: array
-          items:
-            $ref: '#/components/schemas/WizardDiscoverInterface'
-        gateways:
-          type: array
-          items:
-            $ref: '#/components/schemas/WizardDiscoverGateway'
-    Error:
-      type: array
-      items:
-        type: string
+          maxItems: 3
+          description: List of IPv4 addresses. Nameservers are used in resolv.conf.
+      required:
+      - hostname
+      - domain
+      - ip_address
+      - interface
+      - netmask
+      - gateway
+      - nameservers
   responses:
-    AlreadyConfiguredError:
-      description: The Wazo must not be configured
+    CreateError:
+      description: An error occurred when creating the resource
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
+    AlreadyConfiguredError:
+      description: The Wazo must not be configured
       content:
         application/json:
           schema:

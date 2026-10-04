@@ -792,46 +792,42 @@ paths:
         '400':
           description: Invalid `view`
 components:
+  responses:
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
-    template_uuid:
-      required: true
-      name: template_uuid
-      in: path
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    iaxid:
-      required: true
-      name: iax_id
-      in: path
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    sipuuid:
-      required: true
-      name: sip_uuid
-      in: path
-      schema:
-        type: string
     recurse:
       name: recurse
       in: query
@@ -840,40 +836,37 @@ components:
       schema:
         type: boolean
         default: false
-    query_string_uuid_filter:
-      in: query
-      name: uuid
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-          format: uuid
-        maxItems: 20
-        minItems: 1
-        uniqueItems: true
-    useruuid:
-      required: true
-      name: user_uuid
-      in: path
-      description: the user's UUID
       schema:
         type: string
-        format: uuid
-    customid:
-      required: true
-      name: custom_id
-      in: path
-      schema:
-        type: integer
     limit:
       required: false
       name: limit
       in: query
       description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    sipuuid:
+      required: true
+      name: sip_uuid
+      in: path
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    customid:
+      required: true
+      name: custom_id
+      in: path
       schema:
         type: integer
     sccpid:
@@ -882,6 +875,39 @@ components:
       in: path
       schema:
         type: integer
+    template_uuid:
+      required: true
+      name: template_uuid
+      in: path
+      schema:
+        type: string
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    trunkid:
+      description: Trunk's ID
+      name: trunk_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
     endpoint_sip_view:
       required: false
       name: view
@@ -901,26 +927,35 @@ components:
         type: string
         enum:
         - merged
-    offset:
-      required: false
-      name: offset
+    query_string_uuid_filter:
       in: query
-      description: Number of items to skip over in the list. Useful for pagination.
+      name: uuid
+      required: false
+      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
+      style: form
+      explode: false
       schema:
-        type: integer
-    trunkid:
-      description: Trunk's ID
-      name: trunk_id
-      in: path
+        type: array
+        items:
+          type: string
+          format: uuid
+        maxItems: 20
+        minItems: 1
+        uniqueItems: true
+    iaxid:
       required: true
-      schema:
-        type: integer
-    lineid:
-      required: true
-      name: line_id
+      name: iax_id
       in: path
       schema:
         type: integer
+    useruuid:
+      required: true
+      name: user_uuid
+      in: path
+      description: the user's UUID
+      schema:
+        type: string
+        format: uuid
     direction:
       required: false
       name: direction
@@ -932,6 +967,60 @@ components:
         - asc
         - desc
   schemas:
+    EndpointRelationTrunk:
+      properties:
+        trunk:
+          $ref: '#/components/schemas/TrunkRelationBase'
+          readOnly: true
+    EndpointCustomRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Custom Endpoint ID
+          readOnly: true
+        interface:
+          type: string
+          description: Asterisk interface to use. (e.g. 'dahdi/i1')
+    SIPEndpointSectionOptions:
+      title: SIP Endpoint Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    SIPTransportRelation:
+      properties:
+        uuid:
+          type: string
+      required:
+      - uuid
+    EndpointRelationLine:
+      properties:
+        line:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    EndpointIAXItems:
+      title: IAX Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointIAX'
+          type: array
+        total:
+          type: integer
+    Error:
+      type: array
+      items:
+        type: string
     TrunkRelationBase:
       properties:
         id:
@@ -942,6 +1031,72 @@ components:
           type: string
           description: The UUID of the tenant
           readOnly: true
+    SIPRegistrationSectionOptions:
+      title: PJSIP Registration Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    EndpointSccpItems:
+      title: SCCP Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointSccp'
+          type: array
+        total:
+          type: integer
+    SIPAORSectionOptions:
+      title: PJSIP AOR Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    EndpointSccpRelationBase:
+      properties:
+        id:
+          type: integer
+          description: SCCP Endpoint ID
+          readOnly: true
+    EndpointSccp:
+      title: SCCP Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointSccpRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          options:
+            description: "Advanced configuration options. Options are appended at the end of a \nSCCP account in the file 'sccp.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Because of database limitations, only the following options are allowed:\n\n * cid_name\n * cid_num\n * allow\n * disallow\n \nOptions must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in sip.conf will have the following form:\n\n```\n[1000]\nname1=value1\nname2=value2\n```\n"
+            type: array
+            items:
+              $ref: '#/components/schemas/KeyValueOption'
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
+    EndpointIAX:
+      title: IAX Endpoint
+      allOf:
+      - $ref: '#/components/schemas/EndpointIAXRelationBase'
+      - properties:
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          type:
+            type: string
+            enum:
+            - friend
+            - peer
+            - user
+            default: friend
+            description: Type of IAX account
+          host:
+            type: string
+            description: Hosts that are allowed to use this IAX account
+            default: dynamic
+          options:
+            description: "Advanced configuration: options. Options are appended at the end of a IAX account in the file 'iax.conf' used by asterisk. Please consult the asterisk documentation for further details on available parameters. Because of database limitations, the following options can only be configured once:\n\n* accountcode\n* adsi\n* allow\n* amaflags\n* auth\n* callerid\n* category\n* cid_number\n* codecpriority\n* commented\n* context\n* dbsecret\n* defaultip\n* deny\n* encryption\n* forceencryption\n* forcejitterbuffer\n* fullname\n* immediate\n* inkeys\n* jitterbuffer\n* keyrotate\n* language\n* mailbox\n* mask\n* maxauthreq\n* mohinterpret\n* mohsuggest\n* outkey\n* parkinglot\n* peercontext\n* permit\n* port\n* protocol\n* qualify\n* qualifyfreqnoto\n* qualifyfreqok\n* qualifysmoothing\n* regexten\n* requirecalltoken\n* secret\n* sendani\n* setvar\n* sourceaddress\n* timezone\n* transfer\n* trunk\n* username\n\nAny other options may be repeated as many times as needed. Options must have the following form:\n```\n{\n  \"options\": [\n     [\"name1\", \"value1\"],\n     [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in iax.conf will have the following form:\n```\n[iaxusername]\ncontext=default\nsecret=iaxsecret\nname1=value1\nname2=value2\n```\n"
+            type: array
+            items:
+              $ref: '#/components/schemas/KeyValueOption'
+            default: []
+      - $ref: '#/components/schemas/EndpointRelationTrunk'
+      - $ref: '#/components/schemas/EndpointRelationLine'
     EndpointSIPTemplatesRelation:
       properties:
         uuid:
@@ -953,53 +1108,16 @@ components:
           readOnly: true
       required:
       - uuid
-    EndpointSIPItems:
-      title: SIP Endpoints
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointSIP'
-          type: array
-        total:
-          type: integer
-    EndpointSccpRelationBase:
+    EndpointIAXRelationBase:
       properties:
         id:
           type: integer
-          description: SCCP Endpoint ID
+          description: IAX Endpoint ID
           readOnly: true
-    EndpointCustomItems:
-      title: Custom Endpoints
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointCustom'
-          type: array
-        total:
-          type: integer
-    SIPEndpointSectionOptions:
-      title: SIP Endpoint Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    SIPRegistrationSectionOptions:
-      title: PJSIP Registration Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    EndpointIAXItems:
-      title: IAX Endpoints
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointIAX'
-          type: array
-        total:
-          type: integer
-    SIPAORSectionOptions:
-      title: PJSIP AOR Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    EndpointRelationTrunk:
-      properties:
-        trunk:
-          $ref: '#/components/schemas/TrunkRelationBase'
-          readOnly: true
+        name:
+          type: string
+          description: IAX name
+          default: autogenerated
     EndpointCustom:
       title: Custom Endpoint
       allOf:
@@ -1017,9 +1135,25 @@ components:
       - $ref: '#/components/schemas/EndpointRelationLine'
       - required:
         - interface
-    SIPIdentifySectionOptions:
-      title: PJSIP Identify Section Options
-      $ref: '#/components/schemas/KeyValueOption'
+    LineRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Line ID
+          readOnly: true
+        name:
+          type: string
+          description: The name of the line
+          readOnly: true
+    EndpointSIPItems:
+      title: SIP Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointSIP'
+          type: array
+        total:
+          type: integer
     EndpointSIP:
       title: SIP Endpoint
       properties:
@@ -1090,155 +1224,21 @@ components:
         asterisk_id:
           type: string
           description: The ID of the Asterisk onto which this configuration applies.
-    SIPAuthSectionOptions:
-      title: PJSIP Auth Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    EndpointCustomRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Custom Endpoint ID
-          readOnly: true
-        interface:
-          type: string
-          description: Asterisk interface to use. (e.g. 'dahdi/i1')
-    SIPTransportRelation:
-      properties:
-        uuid:
-          type: string
-      required:
-      - uuid
-    EndpointSccp:
-      title: SCCP Endpoint
-      allOf:
-      - $ref: '#/components/schemas/EndpointSccpRelationBase'
-      - properties:
-          tenant_uuid:
-            type: string
-            description: The UUID of the tenant
-            readOnly: true
-          options:
-            description: "Advanced configuration options. Options are appended at the end of a \nSCCP account in the file 'sccp.conf' used by asterisk.\nPlease consult the asterisk documentation for further details on available\nparameters. Because of database limitations, only the following options are allowed:\n\n * cid_name\n * cid_num\n * allow\n * disallow\n \nOptions must have the following the form:\n\n```\n{\n  \"options\": [\n    [\"name1\", \"value1\"],\n    [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in sip.conf will have the following form:\n\n```\n[1000]\nname1=value1\nname2=value2\n```\n"
-            type: array
-            items:
-              $ref: '#/components/schemas/KeyValueOption'
-      - $ref: '#/components/schemas/EndpointRelationTrunk'
-      - $ref: '#/components/schemas/EndpointRelationLine'
-    KeyValueOption:
-      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
-      title: Key Value
-      type: array
-      items:
-        type: string
-      maxItems: 2
-      minItems: 2
-      example:
-      - option
-      - value
-    EndpointIAX:
-      title: IAX Endpoint
-      allOf:
-      - $ref: '#/components/schemas/EndpointIAXRelationBase'
-      - properties:
-          tenant_uuid:
-            type: string
-            description: The UUID of the tenant
-            readOnly: true
-          type:
-            type: string
-            enum:
-            - friend
-            - peer
-            - user
-            default: friend
-            description: Type of IAX account
-          host:
-            type: string
-            description: Hosts that are allowed to use this IAX account
-            default: dynamic
-          options:
-            description: "Advanced configuration: options. Options are appended at the end of a IAX account in the file 'iax.conf' used by asterisk. Please consult the asterisk documentation for further details on available parameters. Because of database limitations, the following options can only be configured once:\n\n* accountcode\n* adsi\n* allow\n* amaflags\n* auth\n* callerid\n* category\n* cid_number\n* codecpriority\n* commented\n* context\n* dbsecret\n* defaultip\n* deny\n* encryption\n* forceencryption\n* forcejitterbuffer\n* fullname\n* immediate\n* inkeys\n* jitterbuffer\n* keyrotate\n* language\n* mailbox\n* mask\n* maxauthreq\n* mohinterpret\n* mohsuggest\n* outkey\n* parkinglot\n* peercontext\n* permit\n* port\n* protocol\n* qualify\n* qualifyfreqnoto\n* qualifyfreqok\n* qualifysmoothing\n* regexten\n* requirecalltoken\n* secret\n* sendani\n* setvar\n* sourceaddress\n* timezone\n* transfer\n* trunk\n* username\n\nAny other options may be repeated as many times as needed. Options must have the following form:\n```\n{\n  \"options\": [\n     [\"name1\", \"value1\"],\n     [\"name2\", \"value2\"]\n  ]\n}\n```\n\nThe resulting configuration in iax.conf will have the following form:\n```\n[iaxusername]\ncontext=default\nsecret=iaxsecret\nname1=value1\nname2=value2\n```\n"
-            type: array
-            items:
-              $ref: '#/components/schemas/KeyValueOption'
-            default: []
-      - $ref: '#/components/schemas/EndpointRelationTrunk'
-      - $ref: '#/components/schemas/EndpointRelationLine'
-    LineRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Line ID
-          readOnly: true
-        name:
-          type: string
-          description: The name of the line
-          readOnly: true
-    EndpointRelationLine:
-      properties:
-        line:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LineRelationBase'
-    EndpointIAXRelationBase:
-      properties:
-        id:
-          type: integer
-          description: IAX Endpoint ID
-          readOnly: true
-        name:
-          type: string
-          description: IAX name
-          default: autogenerated
-    EndpointSccpItems:
-      title: SCCP Endpoints
+    EndpointCustomItems:
+      title: Custom Endpoints
       properties:
         items:
           items:
-            $ref: '#/components/schemas/EndpointSccp'
+            $ref: '#/components/schemas/EndpointCustom'
           type: array
         total:
           type: integer
-    Error:
-      type: array
-      items:
-        type: string
-  responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+    SIPAuthSectionOptions:
+      title: PJSIP Auth Section Options
+      $ref: '#/components/schemas/KeyValueOption'
+    SIPIdentifySectionOptions:
+      title: PJSIP Identify Section Options
+      $ref: '#/components/schemas/KeyValueOption'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

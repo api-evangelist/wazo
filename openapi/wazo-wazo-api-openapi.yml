@@ -83,13 +83,6 @@ components:
       required: false
       schema:
         type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
     order:
       required: false
       name: order
@@ -97,16 +90,6 @@ components:
       description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
     wazo_backend_uuid:
       required: false
       name: uuid
@@ -124,7 +107,42 @@ components:
       schema:
         type: integer
         default: 0
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
   schemas:
+    LegacyError:
+      title: LegacyError
+      description: Error message for the client
+      properties:
+        timestamp:
+          description: Time at which the error occured
+          type: array
+          items:
+            type: number
+            format: timestamp
+        reason:
+          description: Human readable explanation of the error
+          type: array
+          items:
+            type: string
+        status_code:
+          description: HTTP status code
+          type: integer
     WazoContact:
       properties:
         id:
@@ -169,24 +187,6 @@ components:
       - items
       - total
       - filtered
-    LegacyError:
-      title: LegacyError
-      description: Error message for the client
-      properties:
-        timestamp:
-          description: Time at which the error occured
-          type: array
-          items:
-            type: number
-            format: timestamp
-        reason:
-          description: Human readable explanation of the error
-          type: array
-          items:
-            type: string
-        status_code:
-          description: HTTP status code
-          type: integer
   securitySchemes:
     wazo_auth_token:
       type: apiKey

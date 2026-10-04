@@ -50,65 +50,6 @@ paths:
       - $ref: '#/components/parameters/first'
       - $ref: '#/components/parameters/AcceptLanguage'
 components:
-  responses:
-    LimitOffsetInvalid:
-      description: The limit or offset should be positive
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-  parameters:
-    count:
-      name: count
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      schema:
-        type: integer
-    AcceptLanguage:
-      name: Accept-Language
-      in: header
-      required: false
-      description: The language to translate the query results in
-      schema:
-        type: string
-    set_first:
-      name: set_first
-      in: query
-      description: A search term to look for
-      schema:
-        type: string
-    first:
-      name: first
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      schema:
-        type: integer
-    UserUUID:
-      name: user_uuid
-      in: path
-      description: The user UUID of the user doing that query
-      required: true
-      schema:
-        type: string
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
-      required: true
-      schema:
-        type: string
   schemas:
     list:
       properties:
@@ -146,6 +87,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/entry'
+    entry:
+      properties:
+        id:
+          type: integer
+          xml:
+            attribute: true
+          example:
+          - 1001
+        fn:
+          type: string
+        hm:
+          type: string
     Error:
       type: object
       title: Error
@@ -164,18 +117,65 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    entry:
-      properties:
-        id:
-          type: integer
-          xml:
-            attribute: true
-          example:
-          - 1001
-        fn:
-          type: string
-        hm:
-          type: string
+  parameters:
+    count:
+      name: count
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      schema:
+        type: integer
+    set_first:
+      name: set_first
+      in: query
+      description: A search term to look for
+      schema:
+        type: string
+    UserUUID:
+      name: user_uuid
+      in: path
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
+    first:
+      name: first
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      schema:
+        type: integer
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+      required: true
+      schema:
+        type: string
+  responses:
+    LimitOffsetInvalid:
+      description: The limit or offset should be positive
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

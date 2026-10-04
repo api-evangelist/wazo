@@ -79,13 +79,6 @@ paths:
         required: true
 components:
   parameters:
-    tenant_uuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
     recurse:
       name: recurse
       in: query
@@ -94,13 +87,6 @@ components:
       schema:
         type: boolean
         default: false
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
     user_uuid_query:
       required: false
       name: user_uuid
@@ -110,7 +96,38 @@ components:
         type: array
         items:
           type: string
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
+    tenant_uuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
   schemas:
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     Presence:
       title: Presence
       properties:
@@ -177,6 +194,19 @@ components:
           description: If the user has active connections.
       required:
       - state
+    PresenceList:
+      title: PresenceList
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Presence'
+        filtered:
+          type: integer
+          description: The number of result matching the searched terms
+        total:
+          type: integer
+          description: The number of results without filter
     APIError:
       type: object
       allOf:
@@ -201,47 +231,17 @@ components:
           - progressing
           - talking
           - unavailable
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    PresenceList:
-      title: PresenceList
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Presence'
-        filtered:
-          type: integer
-          description: The number of result matching the searched terms
-        total:
-          type: integer
-          description: The number of results without filter
   responses:
     ResourceUpdated:
       description: Resource was updated successfully
-    InvalidRequest:
-      description: Invalid request
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/APIError'
-    NotFoundError:
-      description: The resource requested was not found on the server
+    InvalidRequest:
+      description: Invalid request
       content:
         application/json:
           schema:

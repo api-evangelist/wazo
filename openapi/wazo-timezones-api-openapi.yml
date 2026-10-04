@@ -37,11 +37,6 @@ paths:
                 $ref: '#/components/schemas/TimezoneItems'
 components:
   schemas:
-    Timezone:
-      title: Timezone
-      properties:
-        zone_name:
-          type: string
     TimezoneItems:
       title: TimezoneItems
       properties:
@@ -51,6 +46,11 @@ components:
             $ref: '#/components/schemas/Timezone'
         total:
           type: integer
+    Timezone:
+      title: Timezone
+      properties:
+        zone_name:
+          type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

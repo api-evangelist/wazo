@@ -1540,8 +1540,8 @@ components:
       description: Resource was updated successfully
     ResourceDeleted:
       description: Resource was deleted successfully
-    DuplicateError:
-      description: The name already exist
+    UpdateError_2:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
@@ -1552,8 +1552,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/APIError'
-    UpdateError_2:
-      description: An error occurred when updating the resource
+    DuplicateError:
+      description: The name already exist
       content:
         application/json:
           schema:
@@ -1574,21 +1574,17 @@ components:
       properties:
         enabled:
           type: boolean
-    SourceIdentifier:
-      title: SourceUUID
-      allOf:
-      - properties:
-          uuid:
-            type: string
-            description: The source's UUID
-      - required:
-        - uuid
-    PersonalSource:
-      title: PersonalSource
-      allOf:
-      - $ref: '#/components/schemas/Source'
-      - required:
-        - name
+    ServiceConfiguration:
+      title: Service
+      properties:
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceIdentifier'
+            default: []
+        options:
+          type: object
+          description: Service specific configuration options
     CSVSource:
       title: CSVSource
       allOf:
@@ -1606,43 +1602,146 @@ components:
             description: The column to use for favorites
       - required:
         - name
-    ConferenceSourceItems:
-      title: ConferenceSourceItems
+    SourceListItem:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of the source
+          readOnly: true
+        backend:
+          type: string
+          description: The backend of this source
+          readOnly: true
+        name:
+          type: string
+          description: The name of the source
+          readOnly: true
+      required:
+      - uuid
+      - backend
+      - name
+    ServiceItems:
+      title: ServiceItems
       allOf:
-      - $ref: '#/components/schemas/SourceItems'
       - properties:
           items:
             type: array
             items:
-              $ref: '#/components/schemas/ConferenceSource'
+              $ref: '#/components/schemas/Service'
+            readOnly: true
+          total:
+            type: integer
+            description: The number of services
+            readOnly: true
+          filtered:
+            type: integer
+            description: The number of services matching the search filters
             readOnly: true
       - required:
         - items
         - total
         - filtered
-    DisplayIdentifier:
-      title: DisplayUUID
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
+    Display:
+      title: Display
       allOf:
       - properties:
           uuid:
             type: string
             description: The display's UUID
+            readOnly: true
+          name:
+            type: string
+            description: The name of the display
+          columns:
+            type: array
+            items:
+              $ref: '#/components/schemas/DisplayColumn'
+            default: []
       - required:
-        - uuid
-    WazoSourceItems:
-      title: WazoSourceItems
+        - name
+    MicrosoftSourceItems:
+      title: MicrosoftSourceItems
       allOf:
       - $ref: '#/components/schemas/SourceItems'
       - properties:
           items:
             type: array
             items:
-              $ref: '#/components/schemas/WazoSource'
+              $ref: '#/components/schemas/MicrosoftSource'
             readOnly: true
       - required:
         - items
         - total
         - filtered
+    PhonebookSourceItems:
+      title: PhonebookSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/PhonebookSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    GoogleSourceItems:
+      title: GoogleSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/GoogleSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    Service:
+      title: Service
+      allOf:
+      - properties:
+          name:
+            type: string
+            readOnly: true
+      - required:
+        - name
+    DisplayColumn:
+      title: Column
+      allOf:
+      - properties:
+          field:
+            type: string
+            description: The name of the field to display in this column
+          title:
+            type: string
+            description: A human readable name for this column
+          type:
+            type: string
+            description: The type of this column
+          default:
+            type: string
+            description: A default value if theres no result in this column
+          number_display:
+            type: string
+            description: A format string that overrides the default display. for number columns only.
+      - required:
+        - name
     PersonalSourceItems:
       title: PersonalSourceItems
       allOf:
@@ -1657,41 +1756,40 @@ components:
         - items
         - total
         - filtered
-    GoogleSource:
-      title: GoogleSource
+    BackendItems:
+      title: BackendItems
       allOf:
-      - $ref: '#/components/schemas/Source'
       - properties:
-          auth:
-            $ref: '#/components/schemas/WazoAuthConfigNoAuth'
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Backend'
+            readOnly: true
+          total:
+            type: integer
+            description: The number of backends
+            readOnly: true
+          filtered:
+            type: integer
+            description: The number of backends matching the search filters
+            readOnly: true
       - required:
-        - name
-        - auth
-    LegacyError:
-      title: LegacyError
-      description: Error message for the client
-      properties:
-        timestamp:
-          description: Time at which the error occured
-          type: array
-          items:
-            type: number
-            format: timestamp
-        reason:
-          description: Human readable explanation of the error
-          type: array
-          items:
-            type: string
-        status_code:
-          description: HTTP status code
-          type: integer
-    Service:
-      title: Service
+        - items
+        - total
+        - filtered
+    Backend:
+      title: Backend
       allOf:
       - properties:
           name:
             type: string
             readOnly: true
+      - required:
+        - name
+    PersonalSource:
+      title: PersonalSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
       - required:
         - name
     Profile:
@@ -1713,129 +1811,16 @@ components:
                 $ref: '#/components/schemas/ServiceConfiguration'
       - required:
         - name
-    CSVWSSourceItems:
-      title: CSVWSSourceItems
-      allOf:
-      - $ref: '#/components/schemas/SourceItems'
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/CSVWSSource'
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    ConferenceSource:
-      title: ConferenceSource
-      allOf:
-      - $ref: '#/components/schemas/Source'
-      - properties:
-          auth:
-            $ref: '#/components/schemas/WazoAuthConfig'
-          confd:
-            $ref: '#/components/schemas/ConfdConfig'
-      - required:
-        - name
-        - auth
-        - confd
-    ConfdConfig:
-      title: Confd
-      allOf:
-      - $ref: '#/components/schemas/ExternalServiceConfig'
-      - properties:
-          port:
-            type: integer
-            default: 9486
-          https:
-            type: boolean
-            default: true
-          version:
-            type: string
-            default: '1.1'
-    MicrosoftSource:
-      title: MicrosoftSource
-      description: 'In addition to the keys defined by the [Microsoft API](https://docs.microsoft.com/en-us/graph/api/resources/contact?view=graph-rest-1.0#),
-
-        `format_columns` also accepts the following columns:
-
-        * a `numbers` field that aggregates the values from the `businessPhones`, `homePhones` and `mobilePhone` fields. Example: `"format_columns": {"phone": "{numbers[0]}"}`
-
-        * a `numbers_except_label` field that aggregates the same values than `numbers`, except for one field. Example: `"format_columns": {"phone": "{numbers_except_label[mobilePhone][0]}"}` will result in one of the phone numbers except the mobile phone.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/Source'
-      - properties:
-          auth:
-            $ref: '#/components/schemas/WazoAuthConfig'
-          confd:
-            $ref: '#/components/schemas/ConfdConfig'
-          endpoint:
-            description: Endpoint where to get the information from
-            example: https://graph.microsoft.com/v1.0/me/contacts
-            default: https://graph.microsoft.com/v1.0/me/contacts
-            type: string
-      - required:
-        - name
-        - auth
-        - confd
-    APIError:
-      type: object
+    SourceItems:
       properties:
-        timestamp:
-          type: number
-        message:
-          type: string
-        resource:
-          type: string
-        details:
-          type: object
-    GoogleSourceItems:
-      title: GoogleSourceItems
-      allOf:
-      - $ref: '#/components/schemas/SourceItems'
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/GoogleSource'
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    Backend:
-      title: Backend
-      allOf:
-      - properties:
-          name:
-            type: string
-            readOnly: true
-      - required:
-        - name
-    ProfileItems:
-      title: ProfileItems
-      allOf:
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/Profile'
-            readOnly: true
-          total:
-            type: integer
-            description: The number of configured profiles
-            readOnly: true
-          filtered:
-            type: integer
-            description: The number of configured profiles matching the searched terms
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
+        total:
+          type: integer
+          description: The number of configured sources for this backend
+          readOnly: true
+        filtered:
+          type: integer
+          description: The number of configured sources matching the searched terms for this backend
+          readOnly: true
     CSVWSSource:
       title: CSVWSSource
       allOf:
@@ -1861,55 +1846,6 @@ components:
       - required:
         - name
         - lookup_url
-    SourceItems:
-      properties:
-        total:
-          type: integer
-          description: The number of configured sources for this backend
-          readOnly: true
-        filtered:
-          type: integer
-          description: The number of configured sources matching the searched terms for this backend
-          readOnly: true
-    WazoAuthConfigNoAuth:
-      title: Auth
-      allOf:
-      - $ref: '#/components/schemas/ExternalServiceConfig'
-      - properties:
-          port:
-            type: integer
-            default: 80
-          version:
-            type: string
-            default: '0.1'
-    PhonebookSourceItems:
-      title: PhonebookSourceItems
-      allOf:
-      - $ref: '#/components/schemas/SourceItems'
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/PhonebookSource'
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    CSVSourceItems:
-      title: CSVSourceItems
-      allOf:
-      - $ref: '#/components/schemas/SourceItems'
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/CSVSource'
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
     PhonebookSource:
       title: PhonebookSource
       allOf:
@@ -1928,60 +1864,20 @@ components:
             readOnly: true
       - required:
         - phonebook_uuid
-    WazoAuthConfig:
-      title: Auth
+    ConfdConfig:
+      title: Confd
       allOf:
       - $ref: '#/components/schemas/ExternalServiceConfig'
-      - $ref: '#/components/schemas/WazoAuthConfigNoAuth'
       - properties:
-          key_file:
-            type: string
-            description: The path the the file containing the credentials
-          username:
-            type: string
-            description: The username to use when not using a key_file
-          password:
-            type: string
-            description: The password to use when not using a key_file
-    ServiceItems:
-      title: ServiceItems
-      allOf:
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/Service'
-            readOnly: true
-          total:
+          port:
             type: integer
-            description: The number of services
-            readOnly: true
-          filtered:
-            type: integer
-            description: The number of services matching the search filters
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    Display:
-      title: Display
-      allOf:
-      - properties:
-          uuid:
+            default: 9486
+          https:
+            type: boolean
+            default: true
+          version:
             type: string
-            description: The display's UUID
-            readOnly: true
-          name:
-            type: string
-            description: The name of the display
-          columns:
-            type: array
-            items:
-              $ref: '#/components/schemas/DisplayColumn'
-            default: []
-      - required:
-        - name
+            default: '1.1'
     LDAPSourceItems:
       title: LDAPSourceItems
       allOf:
@@ -2015,6 +1911,103 @@ components:
       - items
       - total
       - filtered
+    DisplayIdentifier:
+      title: DisplayUUID
+      allOf:
+      - properties:
+          uuid:
+            type: string
+            description: The display's UUID
+      - required:
+        - uuid
+    LegacyError:
+      title: LegacyError
+      description: Error message for the client
+      properties:
+        timestamp:
+          description: Time at which the error occured
+          type: array
+          items:
+            type: number
+            format: timestamp
+        reason:
+          description: Human readable explanation of the error
+          type: array
+          items:
+            type: string
+        status_code:
+          description: HTTP status code
+          type: integer
+    CSVWSSourceItems:
+      title: CSVWSSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/CSVWSSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    WazoAuthConfigNoAuth:
+      title: Auth
+      allOf:
+      - $ref: '#/components/schemas/ExternalServiceConfig'
+      - properties:
+          port:
+            type: integer
+            default: 80
+          version:
+            type: string
+            default: '0.1'
+    WazoSourceItems:
+      title: WazoSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/WazoSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    ProfileItems:
+      title: ProfileItems
+      allOf:
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Profile'
+            readOnly: true
+          total:
+            type: integer
+            description: The number of configured profiles
+            readOnly: true
+          filtered:
+            type: integer
+            description: The number of configured profiles matching the searched terms
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
+    GoogleSource:
+      title: GoogleSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          auth:
+            $ref: '#/components/schemas/WazoAuthConfigNoAuth'
+      - required:
+        - name
+        - auth
     LDAPSource:
       title: LDAPSource
       allOf:
@@ -2056,76 +2049,6 @@ components:
         - name
         - ldap_uri
         - ldap_base_dn
-    WazoSource:
-      title: WazoSource
-      allOf:
-      - $ref: '#/components/schemas/Source'
-      - properties:
-          auth:
-            $ref: '#/components/schemas/WazoAuthConfig'
-          confd:
-            $ref: '#/components/schemas/ConfdConfig'
-      - required:
-        - name
-        - auth
-        - confd
-    DisplayColumn:
-      title: Column
-      allOf:
-      - properties:
-          field:
-            type: string
-            description: The name of the field to display in this column
-          title:
-            type: string
-            description: A human readable name for this column
-          type:
-            type: string
-            description: The type of this column
-          default:
-            type: string
-            description: A default value if theres no result in this column
-          number_display:
-            type: string
-            description: A format string that overrides the default display. for number columns only.
-      - required:
-        - name
-    MicrosoftSourceItems:
-      title: MicrosoftSourceItems
-      allOf:
-      - $ref: '#/components/schemas/SourceItems'
-      - properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/MicrosoftSource'
-            readOnly: true
-      - required:
-        - items
-        - total
-        - filtered
-    ExternalServiceConfig:
-      properties:
-        host:
-          type: string
-          default: localhost
-        verify_certificate:
-          type: string
-          description: If the HTTPs certificates should be verified and the path of the certificate if a custom certificate is used.
-          default: 'true'
-        timeout:
-          type: number
-    ServiceConfiguration:
-      title: Service
-      properties:
-        sources:
-          type: array
-          items:
-            $ref: '#/components/schemas/SourceIdentifier'
-            default: []
-        options:
-          type: object
-          description: Service specific configuration options
     DisplayItems:
       title: DisplayItems
       allOf:
@@ -2147,45 +2070,73 @@ components:
         - items
         - total
         - filtered
-    BackendItems:
-      title: BackendItems
+    ExternalServiceConfig:
+      properties:
+        host:
+          type: string
+          default: localhost
+        verify_certificate:
+          type: string
+          description: If the HTTPs certificates should be verified and the path of the certificate if a custom certificate is used.
+          default: 'true'
+        timeout:
+          type: number
+    WazoAuthConfig:
+      title: Auth
       allOf:
+      - $ref: '#/components/schemas/ExternalServiceConfig'
+      - $ref: '#/components/schemas/WazoAuthConfigNoAuth'
+      - properties:
+          key_file:
+            type: string
+            description: The path the the file containing the credentials
+          username:
+            type: string
+            description: The username to use when not using a key_file
+          password:
+            type: string
+            description: The password to use when not using a key_file
+    MicrosoftSource:
+      title: MicrosoftSource
+      description: 'In addition to the keys defined by the [Microsoft API](https://docs.microsoft.com/en-us/graph/api/resources/contact?view=graph-rest-1.0#),
+
+        `format_columns` also accepts the following columns:
+
+        * a `numbers` field that aggregates the values from the `businessPhones`, `homePhones` and `mobilePhone` fields. Example: `"format_columns": {"phone": "{numbers[0]}"}`
+
+        * a `numbers_except_label` field that aggregates the same values than `numbers`, except for one field. Example: `"format_columns": {"phone": "{numbers_except_label[mobilePhone][0]}"}` will result in one of the phone numbers except the mobile phone.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          auth:
+            $ref: '#/components/schemas/WazoAuthConfig'
+          confd:
+            $ref: '#/components/schemas/ConfdConfig'
+          endpoint:
+            description: Endpoint where to get the information from
+            example: https://graph.microsoft.com/v1.0/me/contacts
+            default: https://graph.microsoft.com/v1.0/me/contacts
+            type: string
+      - required:
+        - name
+        - auth
+        - confd
+    ConferenceSourceItems:
+      title: ConferenceSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
       - properties:
           items:
             type: array
             items:
-              $ref: '#/components/schemas/Backend'
-            readOnly: true
-          total:
-            type: integer
-            description: The number of backends
-            readOnly: true
-          filtered:
-            type: integer
-            description: The number of backends matching the search filters
+              $ref: '#/components/schemas/ConferenceSource'
             readOnly: true
       - required:
         - items
         - total
         - filtered
-    SourceListItem:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of the source
-          readOnly: true
-        backend:
-          type: string
-          description: The backend of this source
-          readOnly: true
-        name:
-          type: string
-          description: The name of the source
-          readOnly: true
-      required:
-      - uuid
-      - backend
-      - name
     Source:
       properties:
         uuid:
@@ -2208,40 +2159,61 @@ components:
         format_columns:
           type: object
           description: A mapping of new fields and a python format string to generate the new columns value
+    ConferenceSource:
+      title: ConferenceSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          auth:
+            $ref: '#/components/schemas/WazoAuthConfig'
+          confd:
+            $ref: '#/components/schemas/ConfdConfig'
+      - required:
+        - name
+        - auth
+        - confd
+    WazoSource:
+      title: WazoSource
+      allOf:
+      - $ref: '#/components/schemas/Source'
+      - properties:
+          auth:
+            $ref: '#/components/schemas/WazoAuthConfig'
+          confd:
+            $ref: '#/components/schemas/ConfdConfig'
+      - required:
+        - name
+        - auth
+        - confd
+    SourceIdentifier:
+      title: SourceUUID
+      allOf:
+      - properties:
+          uuid:
+            type: string
+            description: The source's UUID
+      - required:
+        - uuid
+    CSVSourceItems:
+      title: CSVSourceItems
+      allOf:
+      - $ref: '#/components/schemas/SourceItems'
+      - properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/CSVSource'
+            readOnly: true
+      - required:
+        - items
+        - total
+        - filtered
   parameters:
     tenantuuid:
       name: Wazo-Tenant
       in: header
       description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    displayuuid:
-      required: true
-      name: display_uuid
-      in: path
-      description: the display's UUID
       schema:
         type: string
     recurse:
@@ -2252,13 +2224,6 @@ components:
       schema:
         type: boolean
         default: false
-    profileuuid:
-      required: true
-      name: profile_uuid
-      in: path
-      description: the profile's UUID
-      schema:
-        type: string
     limit:
       name: limit
       in: query
@@ -2266,6 +2231,13 @@ components:
       required: false
       schema:
         type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
     Offset:
       name: offset
       in: query
@@ -2274,6 +2246,13 @@ components:
       schema:
         type: integer
         default: 0
+    Limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
     offset:
       name: offset
       in: query
@@ -2282,11 +2261,18 @@ components:
       schema:
         type: integer
         default: 0
-    sourceuuid:
-      name: source_uuid
-      in: path
-      description: The source's UUID
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    displayuuid:
       required: true
+      name: display_uuid
+      in: path
+      description: the display's UUID
       schema:
         type: string
     direction:
@@ -2299,6 +2285,20 @@ components:
         enum:
         - asc
         - desc
+    profileuuid:
+      required: true
+      name: profile_uuid
+      in: path
+      description: the profile's UUID
+      schema:
+        type: string
+    sourceuuid:
+      name: source_uuid
+      in: path
+      description: The source's UUID
+      required: true
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

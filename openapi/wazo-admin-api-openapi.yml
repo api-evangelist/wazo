@@ -50,6 +50,19 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
     AdminUserEmailList:
       type: object
       properties:
@@ -67,19 +80,6 @@ components:
             required:
             - addresses
             - main
-    Error:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
   parameters:
     user_uuid:
       name: user_uuid

@@ -181,26 +181,6 @@ paths:
             '
 components:
   schemas:
-    SAMLLoginContext:
-      properties:
-        redirect_url:
-          description: Where to redirect the browser once the login succeeded
-          type: string
-        domain:
-          description: The domain name of the tenant
-          type: string
-      required:
-      - redirect_url
-      - domain
-      type: object
-    SAMLLogoutRequest:
-      type: object
-      properties:
-        location:
-          description: 'The URL that the client should open to complete the logout.
-
-            '
-          type: string
     SAMLIdpResponse:
       properties:
         SAMLResponse:
@@ -212,6 +192,39 @@ components:
       required:
       - SAMLResponse
       - RelayState
+      type: object
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    SAMLLogoutRequest:
+      type: object
+      properties:
+        location:
+          description: 'The URL that the client should open to complete the logout.
+
+            '
+          type: string
+    SAMLLoginContext:
+      properties:
+        redirect_url:
+          description: Where to redirect the browser once the login succeeded
+          type: string
+        domain:
+          description: The domain name of the tenant
+          type: string
+      required:
+      - redirect_url
+      - domain
       type: object
     SAMLSSOResponse:
       type: object
@@ -230,19 +243,6 @@ components:
             once the SAML authentication has been completed successfully
 
             '
-    Error:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
   securitySchemes:
     wazo_auth_basic:
       type: http

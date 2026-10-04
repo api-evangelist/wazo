@@ -235,27 +235,6 @@ paths:
     - url: /1.1
 components:
   parameters:
-    ParkCall:
-      name: park_call
-      in: body
-      description: Payload required to park a call
-      required: true
-      schema:
-        $ref: '#/components/schemas/ParkCallBody'
-    TenantUUID:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    CallID:
-      name: call_id
-      in: path
-      description: ID of the call
-      required: true
-      schema:
-        type: string
     ParkingLotID:
       name: parking_id
       in: path
@@ -263,25 +242,25 @@ components:
       required: true
       schema:
         type: string
-    tenantuuid:
+    ParkCall:
+      name: park_call
+      in: body
+      description: Payload required to park a call
+      required: true
+      schema:
+        $ref: '#/components/schemas/ParkCallBody'
+    CallID:
+      name: call_id
+      in: path
+      description: ID of the call
+      required: true
+      schema:
+        type: string
+    TenantUUID:
       name: Wazo-Tenant
       in: header
       description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
     recurse:
@@ -292,6 +271,27 @@ components:
       schema:
         type: boolean
         default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
     extensionid:
       required: true
       name: extension_id
@@ -305,13 +305,6 @@ components:
       description: Parking Lot's ID
       schema:
         type: integer
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
     offset:
       required: false
       name: offset
@@ -319,6 +312,13 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
     direction:
       required: false
       name: direction
@@ -330,6 +330,53 @@ components:
         - asc
         - desc
   schemas:
+    ParkCallBody:
+      title: Information needed to park the call
+      required:
+      - parking_id
+      type: object
+      properties:
+        parking_id:
+          description: Parking lot ID in which to park the call
+          type: integer
+          minimum: 1
+          example: 2
+        preferred_slot:
+          description: 'Preferred slot in which to park the call.  If slots is already
+
+            occupied, another slot will be automatically chosen
+
+            '
+          type: string
+          example: '501'
+        timeout:
+          description: 'A timeout specified in seconds after which the call will redial the
+
+            parker.  If unspecified, it will defaults to the parking''s timeout value.
+
+            (A value of 0 disables the timeout feature)
+
+            '
+          type: integer
+          minimum: 0
+          example: 30
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     ParkingLot:
       title: Parking lot
       type: object
@@ -402,36 +449,6 @@ components:
             '
           type: string
           format: date-time
-    ParkCallBody:
-      title: Information needed to park the call
-      required:
-      - parking_id
-      type: object
-      properties:
-        parking_id:
-          description: Parking lot ID in which to park the call
-          type: integer
-          minimum: 1
-          example: 2
-        preferred_slot:
-          description: 'Preferred slot in which to park the call.  If slots is already
-
-            occupied, another slot will be automatically chosen
-
-            '
-          type: string
-          example: '501'
-        timeout:
-          description: 'A timeout specified in seconds after which the call will redial the
-
-            parker.  If unspecified, it will defaults to the parking''s timeout value.
-
-            (A value of 0 disables the timeout feature)
-
-            '
-          type: integer
-          minimum: 0
-          example: 30
     ParkedCallInfo:
       description: Information returned when a call has been parked
       properties:
@@ -443,31 +460,6 @@ components:
           description: Timestamp when the call will timeout
           type: string
           format: date-time
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    GroupRelationExtensions:
-      description: extensions configured for this group
-      properties:
-        extensions:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
     ParkingLotItems:
       properties:
         items:
@@ -478,6 +470,36 @@ components:
           type: integer
       required:
       - total
+    Error_2:
+      type: array
+      items:
+        type: string
+    ParkingLotRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: name to identify the parking lot
+    ExtensionRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Extension ID
+          readOnly: true
+        context:
+          type: string
+        exten:
+          type: string
+    GroupRelationExtensions:
+      description: extensions configured for this group
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
     ParkingLot_2:
       allOf:
       - $ref: '#/components/schemas/ParkingLotRelationBase'
@@ -504,28 +526,6 @@ components:
       - required:
         - slots_start
         - slots_end
-    ExtensionRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Extension ID
-          readOnly: true
-        context:
-          type: string
-        exten:
-          type: string
-    ParkingLotRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          description: name to identify the parking lot
-    Error_2:
-      type: array
-      items:
-        type: string
   responses:
     FullOrServiceUnavailable:
       description: Parking is full or another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
@@ -549,8 +549,8 @@ components:
             $ref: '#/components/schemas/Error_2'
     ResourceUpdated:
       description: Resource was updated successfully
-    DeleteError:
-      description: An error occurred when deleting the resource
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
@@ -561,8 +561,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    UpdateError:
-      description: An error occurred when updating the resource
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:

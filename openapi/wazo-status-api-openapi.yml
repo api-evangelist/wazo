@@ -59,11 +59,6 @@ components:
       enum:
       - fail
       - ok
-    ComponentWithStatus:
-      type: object
-      properties:
-        status:
-          $ref: '#/components/schemas/StatusValue'
     StatusSummary:
       type: object
       properties:
@@ -71,6 +66,11 @@ components:
           $ref: '#/components/schemas/ComponentWithStatus'
         service_token:
           $ref: '#/components/schemas/ComponentWithStatus'
+    ComponentWithStatus:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusValue'
     StatusSummary_2:
       type: object
       properties:
@@ -91,6 +91,17 @@ components:
           $ref: '#/components/schemas/ComponentWithStatus'
         service_token:
           $ref: '#/components/schemas/ComponentWithStatus'
+    StatusSummary_4:
+      type: object
+      properties:
+        ari:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        bus_consumer:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        service_token:
+          $ref: '#/components/schemas/ComponentWithStatus'
+        plugins:
+          $ref: '#/components/schemas/PluginsStatus'
     VoicemailsStatus:
       type: object
       allOf:
@@ -105,17 +116,6 @@ components:
           $ref: '#/components/schemas/ComponentWithStatus'
         voicemails:
           $ref: '#/components/schemas/VoicemailsStatus'
-    StatusSummary_4:
-      type: object
-      properties:
-        ari:
-          $ref: '#/components/schemas/ComponentWithStatus'
-        bus_consumer:
-          $ref: '#/components/schemas/ComponentWithStatus'
-        service_token:
-          $ref: '#/components/schemas/ComponentWithStatus'
-        plugins:
-          $ref: '#/components/schemas/PluginsStatus'
     StatusSummary_5:
       type: object
       properties:

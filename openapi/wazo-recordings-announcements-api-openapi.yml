@@ -55,17 +55,6 @@ paths:
               $ref: '#/components/schemas/RecordingsAnnouncements'
         required: true
 components:
-  schemas:
-    RecordingsAnnouncements:
-      title: Recordings announcements
-      type: object
-      properties:
-        recording_start:
-          type: string
-          description: The filename for the recording start announcement
-        recording_stop:
-          type: string
-          description: The filename for the recording stop announcement
   responses:
     ResourceUpdated:
       description: Resource was updated successfully
@@ -77,6 +66,17 @@ components:
       required: false
       schema:
         type: string
+  schemas:
+    RecordingsAnnouncements:
+      title: Recordings announcements
+      type: object
+      properties:
+        recording_start:
+          type: string
+          description: The filename for the recording start announcement
+        recording_stop:
+          type: string
+          description: The filename for the recording stop announcement
   securitySchemes:
     wazo_auth_token:
       type: apiKey

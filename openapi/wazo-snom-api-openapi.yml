@@ -70,40 +70,7 @@ paths:
       - $ref: '#/components/parameters/Offset'
       - $ref: '#/components/parameters/AcceptLanguage'
 components:
-  responses:
-    LimitOffsetInvalid:
-      description: The limit or offset should be positive
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
-    Term:
-      name: term
-      in: query
-      description: A search term to look for
-      required: true
-      schema:
-        type: string
-    AcceptLanguage:
-      name: Accept-Language
-      in: header
-      required: false
-      description: The language to translate the query results in
-      schema:
-        type: string
     Limit16:
       name: limit
       in: query
@@ -112,10 +79,24 @@ components:
       schema:
         type: integer
         default: 16
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
+      required: true
+      schema:
+        type: string
+    XivoUserUUID:
+      name: xivo_user_uuid
+      in: query
+      description: The user UUID of the user doing that query
       required: true
       schema:
         type: string
@@ -127,52 +108,14 @@ components:
       schema:
         type: integer
         default: 0
-    XivoUserUUID:
-      name: xivo_user_uuid
-      in: query
-      description: The user UUID of the user doing that query
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
       required: true
       schema:
         type: string
   schemas:
-    SnomIPPhoneInput:
-      properties:
-        Title:
-          type: string
-        Prompt:
-          type: string
-        URL:
-          type: string
-        InputItem:
-          $ref: '#/components/schemas/SnomInputItem'
-    SnomSoftKeyItem:
-      properties:
-        Label:
-          type: string
-        URL:
-          type: string
-        Name:
-          type: integer
-    SnomIPPhoneMenu:
-      properties:
-        MenuItem:
-          type: array
-          items:
-            $ref: '#/components/schemas/SnomMenuItem'
-        SoftKeyItem:
-          type: array
-          items:
-            $ref: '#/components/schemas/SnomSoftKeyItem'
-    SnomInputItem:
-      properties:
-        DisplayName:
-          type: string
-        QueryStringParam:
-          type: string
-        DefaultValue:
-          type: string
-        InputFlags:
-          type: string
     SnomMenuItem:
       properties:
         name:
@@ -199,6 +142,63 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
+    SnomSoftKeyItem:
+      properties:
+        Label:
+          type: string
+        URL:
+          type: string
+        Name:
+          type: integer
+    SnomInputItem:
+      properties:
+        DisplayName:
+          type: string
+        QueryStringParam:
+          type: string
+        DefaultValue:
+          type: string
+        InputFlags:
+          type: string
+    SnomIPPhoneInput:
+      properties:
+        Title:
+          type: string
+        Prompt:
+          type: string
+        URL:
+          type: string
+        InputItem:
+          $ref: '#/components/schemas/SnomInputItem'
+    SnomIPPhoneMenu:
+      properties:
+        MenuItem:
+          type: array
+          items:
+            $ref: '#/components/schemas/SnomMenuItem'
+        SoftKeyItem:
+          type: array
+          items:
+            $ref: '#/components/schemas/SnomSoftKeyItem'
+  responses:
+    LimitOffsetInvalid:
+      description: The limit or offset should be positive
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

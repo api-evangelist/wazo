@@ -527,47 +527,42 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 components:
+  responses:
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
-    template_uuid:
-      required: true
-      name: template_uuid
-      in: path
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    transportuuid:
-      required: true
-      name: transport_uuid
-      in: path
-      description: The UUID of the transport
-      schema:
-        type: string
-    sipuuid:
-      required: true
-      name: sip_uuid
-      in: path
-      schema:
-        type: string
     recurse:
       name: recurse
       in: query
@@ -576,30 +571,11 @@ components:
       schema:
         type: boolean
         default: false
-    query_string_uuid_filter:
-      in: query
-      name: uuid
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
       required: false
-      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-          format: uuid
-        maxItems: 20
-        minItems: 1
-        uniqueItems: true
-    fallback_transport:
-      required: false
-      name: fallback
-      in: query
-      description: 'The UUID of the transport that should be associated to orphaned
-
-        SIP configurations
-
-        '
       schema:
         type: string
     limit:
@@ -609,6 +585,59 @@ components:
       description: Maximum number of items to return in the list
       schema:
         type: integer
+    sipuuid:
+      required: true
+      name: sip_uuid
+      in: path
+      schema:
+        type: string
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    template_uuid:
+      required: true
+      name: template_uuid
+      in: path
+      schema:
+        type: string
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    transportuuid:
+      required: true
+      name: transport_uuid
+      in: path
+      description: The UUID of the transport
+      schema:
+        type: string
+    trunkid:
+      description: Trunk's ID
+      name: trunk_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
     endpoint_sip_view:
       required: false
       name: view
@@ -628,26 +657,21 @@ components:
         type: string
         enum:
         - merged
-    offset:
-      required: false
-      name: offset
+    query_string_uuid_filter:
       in: query
-      description: Number of items to skip over in the list. Useful for pagination.
+      name: uuid
+      required: false
+      description: Search filter for resource UUID, can be used to search multiple elements. Using a comma separated list of UUID
+      style: form
+      explode: false
       schema:
-        type: integer
-    lineid:
-      required: true
-      name: line_id
-      in: path
-      schema:
-        type: integer
-    trunkid:
-      description: Trunk's ID
-      name: trunk_id
-      in: path
-      required: true
-      schema:
-        type: integer
+        type: array
+        items:
+          type: string
+          format: uuid
+        maxItems: 20
+        minItems: 1
+        uniqueItems: true
     direction:
       required: false
       name: direction
@@ -658,56 +682,21 @@ components:
         enum:
         - asc
         - desc
-  schemas:
-    PJSIPConfigurationOption:
-      properties:
-        name:
-          type: string
-          description: The name of the option
-        synopsis:
-          type: string
-          description: A brief description of the option
-        description:
-          type: string
-          description: A long description of the option
-        default:
-          type: string
-          description: The default value for this option
-    EndpointSIPTemplatesRelation:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of this resource
-        label:
-          type: string
-          description: The label of this resource
-          readOnly: true
-      required:
-      - uuid
-    EndpointSIPItems:
-      title: SIP Endpoints
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointSIP'
-          type: array
-        total:
-          type: integer
-    PJSIPGlobal:
-      description: 'PJSIP global configuration.
+    fallback_transport:
+      required: false
+      name: fallback
+      in: query
+      description: 'The UUID of the transport that should be associated to orphaned
 
-        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
+        SIP configurations
 
         '
-      properties:
-        options:
-          type: object
-      example:
-        options:
-          max_forwards: '5'
-          keep_alive_interval: '30'
-          user_agent: Wazo
-          debug: false
+      schema:
+        type: string
+  schemas:
+    SIPEndpointSectionOptions:
+      title: SIP Endpoint Section Options
+      $ref: '#/components/schemas/KeyValueOption'
     SIPTransport:
       properties:
         uuid:
@@ -729,15 +718,68 @@ components:
           - udp
         - - bind
           - 0.0.0.0:5060
-    SIPEndpointSectionOptions:
-      title: SIP Endpoint Section Options
-      $ref: '#/components/schemas/KeyValueOption'
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    SIPTransportRelation:
+      properties:
+        uuid:
+          type: string
+      required:
+      - uuid
+    PJSIPGlobal:
+      description: 'PJSIP global configuration.
+
+        This configuration will be in the file ''''pjsip.conf'''' used by asterisk.
+
+        '
+      properties:
+        options:
+          type: object
+      example:
+        options:
+          max_forwards: '5'
+          keep_alive_interval: '30'
+          user_agent: Wazo
+          debug: false
+    Error:
+      type: array
+      items:
+        type: string
     SIPRegistrationSectionOptions:
       title: PJSIP Registration Section Options
       $ref: '#/components/schemas/KeyValueOption'
     SIPAORSectionOptions:
       title: PJSIP AOR Section Options
       $ref: '#/components/schemas/KeyValueOption'
+    EndpointSIPTemplatesRelation:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+        label:
+          type: string
+          description: The label of this resource
+          readOnly: true
+      required:
+      - uuid
+    EndpointSIPItems:
+      title: SIP Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointSIP'
+          type: array
+        total:
+          type: integer
     PJSIPSystem:
       description: 'PJSIP system configuration.
 
@@ -753,9 +795,6 @@ components:
           compact_headers: 'yes'
           disable_tcp_switch: 'yes'
           follow_early_media_fork: 'no'
-    SIPIdentifySectionOptions:
-      title: PJSIP Identify Section Options
-      $ref: '#/components/schemas/KeyValueOption'
     EndpointSIP:
       title: SIP Endpoint
       properties:
@@ -829,12 +868,6 @@ components:
     SIPAuthSectionOptions:
       title: PJSIP Auth Section Options
       $ref: '#/components/schemas/KeyValueOption'
-    SIPTransportRelation:
-      properties:
-        uuid:
-          type: string
-      required:
-      - uuid
     PJSIPConfigurationOptions:
       properties:
         aor:
@@ -882,17 +915,23 @@ components:
           items:
             $ref: '#/components/schemas/PJSIPConfigurationOption'
           type: array
-    KeyValueOption:
-      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
-      title: Key Value
-      type: array
-      items:
-        type: string
-      maxItems: 2
-      minItems: 2
-      example:
-      - option
-      - value
+    PJSIPConfigurationOption:
+      properties:
+        name:
+          type: string
+          description: The name of the option
+        synopsis:
+          type: string
+          description: A brief description of the option
+        description:
+          type: string
+          description: A long description of the option
+        default:
+          type: string
+          description: The default value for this option
+    SIPIdentifySectionOptions:
+      title: PJSIP Identify Section Options
+      $ref: '#/components/schemas/KeyValueOption'
     SIPTransportItems:
       properties:
         items:
@@ -901,45 +940,6 @@ components:
             $ref: '#/components/schemas/SIPTransport'
         total:
           type: integer
-    Error:
-      type: array
-      items:
-        type: string
-  responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

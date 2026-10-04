@@ -1004,23 +1004,29 @@ paths:
     - url: /1.1
 components:
   schemas:
-    ApplicationCallRequestToUser:
+    ApplicationNode:
       type: object
       properties:
-        autoanswer:
-          type: boolean
-          default: false
-        variables:
-          type: object
-          description: channel variables that should be assigned on this new channel
-        displayed_caller_id_name:
+        uuid:
           type: string
-        displayed_caller_id_number:
-          type: string
-        user_uuid:
-          type: string
-      required:
-      - user_uuid
+        calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationCall'
+    ApplicationNodeRequest:
+      type: object
+      properties:
+        calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationNodeCallRequest'
+    ApplicationCalls:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationCall'
     ApplicationCall:
       type: object
       properties:
@@ -1059,30 +1065,6 @@ components:
           type: object
         snoops:
           type: object
-    ApplicationNodeCallRequest:
-      type: object
-      properties:
-        id:
-          type: string
-    Application:
-      type: object
-      properties:
-        destination_node_uuid:
-          type: string
-    ApplicationCalls:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApplicationCall'
-    ApplicationNodes:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApplicationNode'
     ApplicationSnoops:
       type: object
       properties:
@@ -1090,13 +1072,94 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApplicationSnoop'
-    ApplicationNodeRequest:
+    ApplicationCallRequestToExten:
       type: object
       properties:
-        calls:
+        exten:
+          type: string
+        context:
+          type: string
+        autoanswer:
+          type: boolean
+          default: false
+        variables:
+          type: object
+          description: channel variables that should be assigned on this new channel
+        displayed_caller_id_name:
+          type: string
+        displayed_caller_id_number:
+          type: string
+      required:
+      - exten
+      - context
+    ApplicationNodes:
+      type: object
+      properties:
+        items:
           type: array
           items:
-            $ref: '#/components/schemas/ApplicationNodeCallRequest'
+            $ref: '#/components/schemas/ApplicationNode'
+    ApplicationCallRequestToUser:
+      type: object
+      properties:
+        autoanswer:
+          type: boolean
+          default: false
+        variables:
+          type: object
+          description: channel variables that should be assigned on this new channel
+        displayed_caller_id_name:
+          type: string
+        displayed_caller_id_number:
+          type: string
+        user_uuid:
+          type: string
+      required:
+      - user_uuid
+    ApplicationSnoopPut:
+      type: object
+      properties:
+        whisper_mode:
+          type: string
+          enum:
+          - in
+          - out
+          - none
+          - both
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    Application:
+      type: object
+      properties:
+        destination_node_uuid:
+          type: string
+    ApplicationPlayback:
+      type: object
+      properties:
+        uuid:
+          type: string
+          readOnly: true
+        uri:
+          type: string
+        language:
+          type: string
+        state:
+          type: string
     ApplicationSnoop:
       type: object
       properties:
@@ -1118,74 +1181,27 @@ components:
       required:
       - snooping_call_id
       - whisper_mode
-    ApplicationNode:
+    ApplicationNodeCallRequest:
       type: object
+      properties:
+        id:
+          type: string
+    ApplicationRelationBase:
       properties:
         uuid:
           type: string
-        calls:
+          description: Application UUID
+          readOnly: true
+        name:
+          type: string
+          description: Application name
+    ApplicationItems:
+      type: object
+      properties:
+        items:
           type: array
           items:
-            $ref: '#/components/schemas/ApplicationCall'
-    ApplicationCallRequestToExten:
-      type: object
-      properties:
-        exten:
-          type: string
-        context:
-          type: string
-        autoanswer:
-          type: boolean
-          default: false
-        variables:
-          type: object
-          description: channel variables that should be assigned on this new channel
-        displayed_caller_id_name:
-          type: string
-        displayed_caller_id_number:
-          type: string
-      required:
-      - exten
-      - context
-    ApplicationSnoopPut:
-      type: object
-      properties:
-        whisper_mode:
-          type: string
-          enum:
-          - in
-          - out
-          - none
-          - both
-    ApplicationPlayback:
-      type: object
-      properties:
-        uuid:
-          type: string
-          readOnly: true
-        uri:
-          type: string
-        language:
-          type: string
-        state:
-          type: string
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
+            $ref: '#/components/schemas/Application_2'
     ApplicationDestinationNode:
       type: object
       properties:
@@ -1200,13 +1216,10 @@ components:
           description: type of the default node
           enum:
           - holding
-    ApplicationRelationLines:
-      properties:
-        lines:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LineRelationBase'
+    Error_2:
+      type: array
+      items:
+        type: string
     Application_2:
       type: object
       allOf:
@@ -1224,13 +1237,6 @@ components:
           destination_options:
             $ref: '#/components/schemas/ApplicationDestinationNode'
       - $ref: '#/components/schemas/ApplicationRelationLines'
-    ApplicationItems:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Application_2'
     LineRelationBase:
       properties:
         id:
@@ -1241,24 +1247,18 @@ components:
           type: string
           description: The name of the line
           readOnly: true
-    ApplicationRelationBase:
+    ApplicationRelationLines:
       properties:
-        uuid:
-          type: string
-          description: Application UUID
+        lines:
+          type: array
           readOnly: true
-        name:
-          type: string
-          description: Application name
-    Error_2:
-      type: array
-      items:
-        type: string
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
   parameters:
-    ApplicationPlaybackUUID:
-      name: playback_uuid
-      in: path
-      description: ID of the playback
+    DTMFDigits:
+      name: digits
+      in: query
+      description: Digits to send via DTMF. Must contain only `0-9*#ABCD` (letters are case insensitive).
       required: true
       schema:
         type: string
@@ -1276,10 +1276,10 @@ components:
       required: true
       schema:
         type: string
-    ApplicationSnoopUUID:
-      name: snoop_uuid
+    ApplicationPlaybackUUID:
+      name: playback_uuid
       in: path
-      description: UUID of the snoop
+      description: ID of the playback
       required: true
       schema:
         type: string
@@ -1290,13 +1290,6 @@ components:
       required: true
       schema:
         type: string
-    DTMFDigits:
-      name: digits
-      in: query
-      description: Digits to send via DTMF. Must contain only `0-9*#ABCD` (letters are case insensitive).
-      required: true
-      schema:
-        type: string
     ApplicationMOHUUID:
       name: moh_uuid
       in: path
@@ -1304,25 +1297,11 @@ components:
       required: true
       schema:
         type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
+    ApplicationSnoopUUID:
+      name: snoop_uuid
+      in: path
+      description: UUID of the snoop
+      required: true
       schema:
         type: string
     recurse:
@@ -1333,6 +1312,13 @@ components:
       schema:
         type: boolean
         default: false
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
     limit:
       required: false
       name: limit
@@ -1340,6 +1326,13 @@ components:
       description: Maximum number of items to return in the list
       schema:
         type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
     lineid:
       required: true
       name: line_id
@@ -1353,13 +1346,13 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
-    application_uuid:
-      required: true
-      name: application_uuid
-      in: path
-      description: Application's UUID
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
-        type: integer
+        type: string
     direction:
       required: false
       name: direction
@@ -1370,6 +1363,13 @@ components:
         enum:
         - asc
         - desc
+    application_uuid:
+      required: true
+      name: application_uuid
+      in: path
+      description: Application's UUID
+      schema:
+        type: integer
   responses:
     AnotherServiceUnavailable:
       description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
@@ -1387,8 +1387,8 @@ components:
             $ref: '#/components/schemas/Error_2'
     ResourceUpdated:
       description: Resource was updated successfully
-    DeleteError:
-      description: An error occurred when deleting the resource
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:
@@ -1399,8 +1399,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error_2'
-    UpdateError:
-      description: An error occurred when updating the resource
+    DeleteError:
+      description: An error occurred when deleting the resource
       content:
         application/json:
           schema:

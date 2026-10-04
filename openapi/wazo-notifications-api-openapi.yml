@@ -96,18 +96,18 @@ components:
       - title
       - body
   parameters:
-    NotificationBody:
-      name: body
-      in: body
-      required: true
-      schema:
-        $ref: '#/components/schemas/Notification'
     TenantUuidHeader:
       name: Wazo-Tenant
       in: header
       description: The User's tenant UUID, defining the ownership of a given resource.
       schema:
         type: string
+    NotificationBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/Notification'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

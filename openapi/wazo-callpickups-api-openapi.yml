@@ -241,7 +241,50 @@ paths:
         description: Users to associated
         required: true
 components:
+  responses:
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
     tenantuuid:
       name: Wazo-Tenant
       in: header
@@ -249,18 +292,11 @@ components:
       required: false
       schema:
         type: string
-    search:
+    limit:
       required: false
-      name: search
+      name: limit
       in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    callpickupid:
-      required: true
-      name: callpickup_id
-      in: path
-      description: Call Pickup's ID
+      description: Maximum number of items to return in the list
       schema:
         type: integer
     order:
@@ -270,19 +306,11 @@ components:
       description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
+    callpickupid:
+      required: true
+      name: callpickup_id
+      in: path
+      description: Call Pickup's ID
       schema:
         type: integer
     offset:
@@ -292,6 +320,13 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
     direction:
       required: false
       name: direction
@@ -303,27 +338,12 @@ components:
         - asc
         - desc
   schemas:
-    UsersUuid:
-      properties:
-        users:
-          items:
-            $ref: '#/components/schemas/UserUuid'
-          type: array
     CallPickupTargetUser:
       allOf:
       - properties:
           timeout:
             type: integer
       - $ref: '#/components/schemas/UserRelationBase'
-    CallPickupTargets:
-      properties:
-        recipients:
-          readOnly: true
-          $ref: '#/components/schemas/CallPickupTargetUsers'
-    GroupID:
-      properties:
-        id:
-          type: integer
     CallPickup:
       title: CallPickup
       allOf:
@@ -357,6 +377,10 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/UserRelationBase'
+    GroupID:
+      properties:
+        id:
+          type: integer
     UserRelationBase:
       properties:
         uuid:
@@ -369,6 +393,21 @@ components:
         lastname:
           type: string
           description: User lastname
+    UsersUuid:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/UserUuid'
+          type: array
+    CallPickupTargets:
+      properties:
+        recipients:
+          readOnly: true
+          $ref: '#/components/schemas/CallPickupTargetUsers'
+    Error:
+      type: array
+      items:
+        type: string
     CallPickupItems:
       title: CallPickupItems
       properties:
@@ -380,12 +419,6 @@ components:
           type: integer
       required:
       - total
-    GroupsID:
-      properties:
-        groups:
-          items:
-            $ref: '#/components/schemas/GroupID'
-          type: array
     CallPickupInterceptors:
       properties:
         surrogates:
@@ -402,45 +435,12 @@ components:
       properties:
         uuid:
           type: string
-    Error:
-      type: array
-      items:
-        type: string
-  responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+    GroupsID:
+      properties:
+        groups:
+          items:
+            $ref: '#/components/schemas/GroupID'
+          type: array
   securitySchemes:
     wazo_auth_token:
       type: apiKey
