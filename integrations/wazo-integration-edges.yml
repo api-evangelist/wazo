@@ -1,0 +1,16 @@
+generated: '2026-10-12'
+method: none
+source:
+- https://zapier.com/apps/wazo/integrations
+- https://n8n.io/integrations/wazo/
+- https://composio.dev/toolkits/wazo
+- https://monid.ai/tools/wazo
+checked:
+- https://composio.dev/toolkits/wazo
+- https://monid.ai/tools/wazo
+- https://n8n.io/integrations/wazo/
+- https://zapier.com/apps/wazo/integrations
+summary: null
+marketplace_apps: []
+edges: []
+templates: []
