@@ -224,51 +224,72 @@ paths:
         description: Users to associated
         required: true
 components:
+  parameters:
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    callfilterid:
+      required: true
+      name: callfilter_id
+      in: path
+      description: Call Filter's ID
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
   schemas:
-    DestinationApplicationVoicemail:
-      title: DestinationApplicationVoicemail
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'voicemail'
-          context:
-            type: integer
-            description: The context of the application
-        required:
-        - application
-        - context
-    DestinationSwitchboard:
-      title: DestinationSwitchboard
+    UserUuid:
       properties:
-        type:
+        uuid:
           type: string
-          description: MUST be 'switchboard'
-        switchboard_uuid:
-          type: string
-          description: The UUID of the switchboard.
-      required:
-      - type
-      - switchboard_uuid
-    DestinationUser:
-      title: DestinationUser
-      properties:
-        type:
-          type: string
-          description: MUST be 'user'
-        user_id:
-          type: integer
-          description: The id of the user
-        ring_time:
-          type: number
-          format: float
-        moh_uuid:
-          type: string
-          description: The UUID of the music on hold to use instead of a ringback tone.
-      required:
-      - type
-      - user_id
     DestinationSound:
       title: DestinationSound
       properties:
@@ -287,19 +308,14 @@ components:
       required:
       - type
       - filename
-    DestinationHangupCongestion:
-      title: DestinationHangupCongestion
+    CallFilterSurrogateUser:
       allOf:
-      - $ref: '#/components/schemas/DestinationHangup'
       - properties:
-          cause:
-            type: string
-            description: MUST be 'congestion'
-          timeout:
+          member_id:
             type: integer
-            description: The timeout of the hangup
-      required:
-      - cause
+          exten:
+            type: string
+      - $ref: '#/components/schemas/UserRelationBase'
     DestinationApplicationApplication:
       title: DestinationApplicationApplication
       properties:
@@ -315,203 +331,71 @@ components:
           $ref: '#/components/schemas/DestinationApplicationFaxToMail'
         voicemail:
           $ref: '#/components/schemas/DestinationApplicationVoicemail'
-    DestinationApplicationFaxToMail:
-      title: DestinationApplicationFaxToMail
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'fax_to_mail'
-          email:
-            type: string
-            description: The email of the application
-      required:
-      - application
-      - email
-    DestinationHangup:
-      title: DestinationHangup
-      properties:
-        type:
-          type: string
-          description: MUST be 'hangup'
-      required:
-      - type
-    DestinationHangupNormal:
-      title: DestinationHangupNormal
-      allOf:
-      - $ref: '#/components/schemas/DestinationHangup'
-      - properties:
-          cause:
-            type: string
-            description: MUST be 'normal'
-      required:
-      - cause
-    CallFilterSurrogateUsers:
-      properties:
-        users:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/CallFilterSurrogateUser'
-    DestinationOutcall:
-      title: DestinationOutcall
-      properties:
-        type:
-          type: string
-          description: MUST be 'outcall'
-        exten:
-          type: string
-        outcall_id:
-          type: integer
-          description: The id of the outcall
-      required:
-      - type
-      - exten
-      - outcall_id
-    DestinationApplicationDirectory:
-      title: DestinationApplicationDirectory
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'directory'
-          context:
-            type: integer
-            description: The context of the application
-        required:
-        - application
-        - context
-    CallFilterSurrogates:
-      properties:
-        surrogates:
-          readOnly: true
-          $ref: '#/components/schemas/CallFilterSurrogateUsers'
-    DestinationApplication:
-      title: DestinationApplication
-      properties:
-        type:
-          type: string
-          description: MUST be 'application'
-      required:
-      - type
-    UserRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: User UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-        firstname:
-          type: string
-          description: User firstname
-        lastname:
-          type: string
-          description: User lastname
-    CallFilterSurrogateUser:
-      allOf:
-      - properties:
-          member_id:
-            type: integer
-          exten:
-            type: string
-      - $ref: '#/components/schemas/UserRelationBase'
-    DestinationHangupCause:
-      title: DestinationHangupCause
-      properties:
-        busy:
-          $ref: '#/components/schemas/DestinationHangupBusy'
-        congestion:
-          $ref: '#/components/schemas/DestinationHangupCongestion'
-        normal:
-          $ref: '#/components/schemas/DestinationHangupNormal'
-    CallFilterRecipientUserUuid:
-      allOf:
-      - properties:
-          timeout:
-            type: integer
-      - $ref: '#/components/schemas/UserUuid'
-    DestinationApplicationCallbackDISA:
-      title: DestinationApplicationCallbackDISA
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'callback_disa'
-          context:
-            type: integer
-            description: The context of the application
-          pin:
-            type: string
-            description: the pin of the application
-        required:
-        - application
-        - context
-    UsersUuid:
-      properties:
-        users:
-          items:
-            $ref: '#/components/schemas/UserUuid'
-          type: array
-    CallFilterRecipientUsers:
-      properties:
-        users:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/CallFilterRecipientUser'
-    CallFilterFallbacks:
-      properties:
-        noanswer_destination:
-          description: The destination to redirect the caller to when there are no answer
-          $ref: '#/components/schemas/DestinationType'
-      example:
-        noanswer_destination:
-          type: user
-          user_id: 1
-    CallFilterRecipients:
-      properties:
-        recipients:
-          readOnly: true
-          $ref: '#/components/schemas/CallFilterRecipientUsers'
-    DestinationApplicationDISA:
-      title: DestinationApplicationDISA
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'disa'
-          context:
-            type: integer
-            description: The context of the application
-          pin:
-            type: string
-            description: the pin of the application
-        required:
-        - application
-        - context
-    DestinationApplicationCustom:
-      title: DestinationApplicationCustom
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'custom'
-          application_uuid:
-            type: string
-            description: The UUID of the application.
-      required:
-      - application
-      - application_uuid
     CallFilterRecipientUsersUuid:
       properties:
         users:
           items:
             $ref: '#/components/schemas/CallFilterRecipientUserUuid'
           type: array
+    CallFilterRecipientUser:
+      allOf:
+      - properties:
+          timeout:
+            type: integer
+      - $ref: '#/components/schemas/UserRelationBase'
+    DestinationSwitchboard:
+      title: DestinationSwitchboard
+      properties:
+        type:
+          type: string
+          description: MUST be 'switchboard'
+        switchboard_uuid:
+          type: string
+          description: The UUID of the switchboard.
+      required:
+      - type
+      - switchboard_uuid
+    DestinationQueue:
+      title: DestinationQueue
+      properties:
+        type:
+          type: string
+          description: MUST be 'queue'
+        queue_id:
+          type: integer
+          description: The id of the queue
+        ring_time:
+          type: number
+          format: float
+        skill_rule_id:
+          type: integer
+          description: The id of the skill rule
+        skill_rule_variables:
+          type: object
+          description: key-value where key represents the variable of the skill rule and value represents a value
+      required:
+      - type
+      - queue_id
+    DestinationNone:
+      title: DestinationNone
+      properties:
+        type:
+          type: string
+          description: MUST be 'none'
+      required:
+      - type
+    DestinationCustom:
+      title: DestinationCustom
+      properties:
+        type:
+          type: string
+          description: MUST be 'custom'
+        command:
+          type: string
+          description: The command to execute
+      required:
+      - type
+      - command
     DestinationType:
       title: DestinationType
       properties:
@@ -543,10 +427,37 @@ components:
           $ref: '#/components/schemas/DestinationUser'
         voicemail:
           $ref: '#/components/schemas/DestinationVoicemail'
+    DestinationApplicationDirectory:
+      title: DestinationApplicationDirectory
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'directory'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
     Error:
       type: array
       items:
         type: string
+    DestinationApplication:
+      title: DestinationApplication
+      properties:
+        type:
+          type: string
+          description: MUST be 'application'
+      required:
+      - type
+    CallFilterSurrogates:
+      properties:
+        surrogates:
+          readOnly: true
+          $ref: '#/components/schemas/CallFilterSurrogateUsers'
     DestinationConference:
       title: DestinationConference
       properties:
@@ -572,6 +483,62 @@ components:
             description: The timeout of the hangup
       required:
       - cause
+    DestinationApplicationDISA:
+      title: DestinationApplicationDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    DestinationOutcall:
+      title: DestinationOutcall
+      properties:
+        type:
+          type: string
+          description: MUST be 'outcall'
+        exten:
+          type: string
+        outcall_id:
+          type: integer
+          description: The id of the outcall
+      required:
+      - type
+      - exten
+      - outcall_id
+    CallFilterRecipientUserUuid:
+      allOf:
+      - properties:
+          timeout:
+            type: integer
+      - $ref: '#/components/schemas/UserUuid'
+    DestinationUser:
+      title: DestinationUser
+      properties:
+        type:
+          type: string
+          description: MUST be 'user'
+        user_id:
+          type: integer
+          description: The id of the user
+        ring_time:
+          type: number
+          format: float
+        moh_uuid:
+          type: string
+          description: The UUID of the music on hold to use instead of a ringback tone.
+      required:
+      - type
+      - user_id
     CallFilterItems:
       title: CallFilterItems
       properties:
@@ -583,50 +550,63 @@ components:
           type: integer
       required:
       - total
-    DestinationGroup:
-      title: DestinationGroup
+    DestinationHangupCongestion:
+      title: DestinationHangupCongestion
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'congestion'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
+      required:
+      - cause
+    DestinationIVR:
+      title: DestinationIVR
       properties:
         type:
           type: string
-          description: MUST be 'group'
-        group_id:
+          description: MUST be 'ivr'
+        ivr_id:
           type: integer
-          description: The id of the group
-        ring_time:
-          type: number
-          format: float
+          description: The id of the IVR
       required:
       - type
-      - group_id
-    DestinationQueue:
-      title: DestinationQueue
+      - ivr_id
+    CallFilterSurrogateUsers:
+      properties:
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/CallFilterSurrogateUser'
+    CallFilterRecipients:
+      properties:
+        recipients:
+          readOnly: true
+          $ref: '#/components/schemas/CallFilterRecipientUsers'
+    DestinationHangup:
+      title: DestinationHangup
       properties:
         type:
           type: string
-          description: MUST be 'queue'
-        queue_id:
-          type: integer
-          description: The id of the queue
-        ring_time:
-          type: number
-          format: float
-        skill_rule_id:
-          type: integer
-          description: The id of the skill rule
-        skill_rule_variables:
-          type: object
-          description: key-value where key represents the variable of the skill rule and value represents a value
+          description: MUST be 'hangup'
       required:
       - type
-      - queue_id
-    DestinationNone:
-      title: DestinationNone
+    UserRelationBase:
       properties:
-        type:
+        uuid:
           type: string
-          description: MUST be 'none'
-      required:
-      - type
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
+          type: string
+          description: User firstname
+        lastname:
+          type: string
+          description: User lastname
     CallFilter:
       title: CallFilter
       allOf:
@@ -684,22 +664,38 @@ components:
         - strategy
       - $ref: '#/components/schemas/CallFilterRecipients'
       - $ref: '#/components/schemas/CallFilterSurrogates'
-    UserUuid:
+    DestinationHangupNormal:
+      title: DestinationHangupNormal
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'normal'
+      required:
+      - cause
+    CallFilterRecipientUsers:
       properties:
-        uuid:
-          type: string
-    DestinationCustom:
-      title: DestinationCustom
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/CallFilterRecipientUser'
+    DestinationGroup:
+      title: DestinationGroup
       properties:
         type:
           type: string
-          description: MUST be 'custom'
-        command:
-          type: string
-          description: The command to execute
+          description: MUST be 'group'
+        group_id:
+          type: integer
+          description: The id of the group
+        ring_time:
+          type: number
+          format: float
       required:
       - type
-      - command
+      - group_id
     DestinationExtension:
       title: DestinationExtension
       properties:
@@ -715,24 +711,6 @@ components:
       - type
       - exten
       - context
-    CallFilterRecipientUser:
-      allOf:
-      - properties:
-          timeout:
-            type: integer
-      - $ref: '#/components/schemas/UserRelationBase'
-    DestinationIVR:
-      title: DestinationIVR
-      properties:
-        type:
-          type: string
-          description: MUST be 'ivr'
-        ivr_id:
-          type: integer
-          description: The id of the IVR
-      required:
-      - type
-      - ivr_id
     DestinationVoicemail:
       title: DestinationVoicemail
       properties:
@@ -754,86 +732,92 @@ components:
       required:
       - type
       - voicemail_id
-  parameters:
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    callfilterid:
-      required: true
-      name: callfilter_id
-      in: path
-      description: Call Filter's ID
-      schema:
-        type: integer
+    DestinationApplicationVoicemail:
+      title: DestinationApplicationVoicemail
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'voicemail'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    DestinationApplicationCustom:
+      title: DestinationApplicationCustom
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'custom'
+          application_uuid:
+            type: string
+            description: The UUID of the application.
+      required:
+      - application
+      - application_uuid
+    CallFilterFallbacks:
+      properties:
+        noanswer_destination:
+          description: The destination to redirect the caller to when there are no answer
+          $ref: '#/components/schemas/DestinationType'
+      example:
+        noanswer_destination:
+          type: user
+          user_id: 1
+    DestinationApplicationFaxToMail:
+      title: DestinationApplicationFaxToMail
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'fax_to_mail'
+          email:
+            type: string
+            description: The email of the application
+      required:
+      - application
+      - email
+    DestinationHangupCause:
+      title: DestinationHangupCause
+      properties:
+        busy:
+          $ref: '#/components/schemas/DestinationHangupBusy'
+        congestion:
+          $ref: '#/components/schemas/DestinationHangupCongestion'
+        normal:
+          $ref: '#/components/schemas/DestinationHangupNormal'
+    DestinationApplicationCallbackDISA:
+      title: DestinationApplicationCallbackDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'callback_disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    UsersUuid:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/UserUuid'
+          type: array
   responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
+    NotFoundError:
+      description: The resource requested was not found on the server
       content:
         application/json:
           schema:
@@ -844,8 +828,24 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    UpdateError:
+      description: An error occurred when updating the resource
       content:
         application/json:
           schema:

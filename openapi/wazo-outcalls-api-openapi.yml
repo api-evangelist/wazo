@@ -255,91 +255,7 @@ paths:
         description: Trunks to associated
         required: true
 components:
-  responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    outcallid:
-      required: true
-      name: outcall_id
-      in: path
-      description: Outgoing call's ID
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    extensionid:
-      required: true
-      name: extension_id
-      in: path
-      schema:
-        type: integer
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
     search:
       required: false
       name: search
@@ -347,11 +263,18 @@ components:
       description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
-    callpermissionid:
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    outcallid:
       required: true
-      name: callpermission_id
+      name: outcall_id
       in: path
-      description: Call Permission's ID
+      description: Outgoing call's ID
       schema:
         type: integer
     direction:
@@ -364,6 +287,12 @@ components:
         enum:
         - asc
         - desc
+    extensionid:
+      required: true
+      name: extension_id
+      in: path
+      schema:
+        type: integer
     scheduleid:
       required: true
       name: schedule_id
@@ -371,47 +300,126 @@ components:
       description: Schedule's ID
       schema:
         type: integer
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    callpermissionid:
+      required: true
+      name: callpermission_id
+      in: path
+      description: Call Permission's ID
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    CallPermissionRelationBase:
+    OutcallRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/OutcallRelationExtension'
+    EndpointSipRelationBase:
+      properties:
+        uuid:
+          type: string
+          description: The UUID of this resource
+          readOnly: true
+        name:
+          type: string
+          description: The name of the PJSIP entity, auto-generated if missing
+        label:
+          type: string
+          description: The human readable name for this configuration
+        auth_section_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SIPAuthSectionOptions'
+          description: A list of PJSIP auth section options for this endpoint. Only `username` is supported
+    EndpointIAXRelationBase:
+      properties:
+        id:
+          type: integer
+          description: IAX Endpoint ID
+          readOnly: true
+        name:
+          type: string
+          description: IAX name
+          default: autogenerated
+    Error:
+      type: array
+      items:
+        type: string
+    TrunkRelationBase:
       properties:
         id:
           type: integer
           readOnly: true
-          description: The id of the call permission
+          description: The id of the trunk
         tenant_uuid:
           type: string
           description: The UUID of the tenant
           readOnly: true
-        name:
-          type: string
-          description: The name of the call permission
-      required:
-      - name
-    OutcallRelationBase:
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the outgoing call
-        name:
-          type: string
-          description: The name of the outcall
-    TrunksId:
-      title: TrunksId
-      properties:
-        trunks:
-          items:
-            $ref: '#/components/schemas/TrunkId'
-          type: array
-    EndpointCustomRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Custom Endpoint ID
-          readOnly: true
-        interface:
-          type: string
-          description: Asterisk interface to use. (e.g. 'dahdi/i1')
     KeyValueOption:
       description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
       title: Key Value
@@ -423,24 +431,23 @@ components:
       example:
       - option
       - value
-    OutcallRelationSchedules:
+    OutcallItems:
+      title: OutcallItems
       properties:
-        schedules:
+        items:
           type: array
-          readOnly: true
           items:
-            $ref: '#/components/schemas/OutcallRelationSchedule'
-    TrunkRelationEndpoints:
-      properties:
-        endpoint_sip:
-          readOnly: true
-          $ref: '#/components/schemas/EndpointSipRelationBase'
-        endpoint_iax:
-          readOnly: true
-          $ref: '#/components/schemas/EndpointIAXRelationBase'
-        endpoint_custom:
-          readOnly: true
-          $ref: '#/components/schemas/EndpointCustomRelationBase'
+            $ref: '#/components/schemas/Outcall'
+        total:
+          type: integer
+      required:
+      - total
+    OutcallRelationSchedule:
+      allOf:
+      - $ref: '#/components/schemas/ScheduleRelationBase'
+    SIPAuthSectionOptions:
+      title: PJSIP Auth Section Options
+      $ref: '#/components/schemas/KeyValueOption'
     OutcallRelationExtension:
       allOf:
       - $ref: '#/components/schemas/ExtensionRelationBase'
@@ -456,6 +463,78 @@ components:
           strip_digits:
             type: integer
             description: The number of leading digits to strip
+    TrunkRelationEndpoints:
+      properties:
+        endpoint_sip:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointSipRelationBase'
+        endpoint_iax:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointIAXRelationBase'
+        endpoint_custom:
+          readOnly: true
+          $ref: '#/components/schemas/EndpointCustomRelationBase'
+    ScheduleRelationBase:
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant_uuid:
+          type: string
+          description: The UUID of the tenant
+          readOnly: true
+        name:
+          type: string
+          description: The name to identify the schedule
+    TrunksId:
+      title: TrunksId
+      properties:
+        trunks:
+          items:
+            $ref: '#/components/schemas/TrunkId'
+          type: array
+    ExtensionRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Extension ID
+          readOnly: true
+        context:
+          type: string
+        exten:
+          type: string
+    TrunkId:
+      title: TrunkId
+      properties:
+        id:
+          type: integer
+    OutcallExtension:
+      title: OutcallExtension
+      properties:
+        external_prefix:
+          type: string
+          description: The prefix added to the outgoing call when sent on the trunk
+        prefix:
+          type: string
+          description: The prefix that the user need to dial before the pattern
+        strip_digits:
+          type: integer
+          description: The number of leading digits to strip
+        caller_id:
+          type: string
+    EndpointCustomRelationBase:
+      properties:
+        id:
+          type: integer
+          description: Custom Endpoint ID
+          readOnly: true
+        interface:
+          type: string
+          description: Asterisk interface to use. (e.g. 'dahdi/i1')
+    OutcallRelationTrunk:
+      allOf:
+      - $ref: '#/components/schemas/TrunkRelationBase'
+      - $ref: '#/components/schemas/TrunkRelationEndpoints'
     Outcall:
       title: Outcall
       allOf:
@@ -487,38 +566,15 @@ components:
       - $ref: '#/components/schemas/OutcallRelationCallPermissions'
       - required:
         - name
-    OutcallItems:
-      title: OutcallItems
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Outcall'
-        total:
-          type: integer
-      required:
-      - total
-    Error:
-      type: array
-      items:
-        type: string
-    TrunkRelationBase:
+    OutcallRelationBase:
       properties:
         id:
           type: integer
           readOnly: true
-          description: The id of the trunk
-        tenant_uuid:
+          description: The id of the outgoing call
+        name:
           type: string
-          description: The UUID of the tenant
-          readOnly: true
-    OutcallRelationExtensions:
-      properties:
-        extensions:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/OutcallRelationExtension'
+          description: The name of the outcall
     OutcallRelationCallPermissions:
       properties:
         call_permissions:
@@ -526,45 +582,13 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/CallPermissionRelationBase'
-    TrunkId:
-      title: TrunkId
+    OutcallRelationSchedules:
       properties:
-        id:
-          type: integer
-    ExtensionRelationBase:
-      properties:
-        id:
-          type: integer
-          description: Extension ID
+        schedules:
+          type: array
           readOnly: true
-        context:
-          type: string
-        exten:
-          type: string
-    OutcallExtension:
-      title: OutcallExtension
-      properties:
-        external_prefix:
-          type: string
-          description: The prefix added to the outgoing call when sent on the trunk
-        prefix:
-          type: string
-          description: The prefix that the user need to dial before the pattern
-        strip_digits:
-          type: integer
-          description: The number of leading digits to strip
-        caller_id:
-          type: string
-    EndpointIAXRelationBase:
-      properties:
-        id:
-          type: integer
-          description: IAX Endpoint ID
-          readOnly: true
-        name:
-          type: string
-          description: IAX name
-          default: autogenerated
+          items:
+            $ref: '#/components/schemas/OutcallRelationSchedule'
     OutcallRelationTrunks:
       properties:
         trunks:
@@ -572,45 +596,21 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/OutcallRelationTrunk'
-    EndpointSipRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: The UUID of this resource
-          readOnly: true
-        name:
-          type: string
-          description: The name of the PJSIP entity, auto-generated if missing
-        label:
-          type: string
-          description: The human readable name for this configuration
-        auth_section_options:
-          type: array
-          items:
-            $ref: '#/components/schemas/SIPAuthSectionOptions'
-          description: A list of PJSIP auth section options for this endpoint. Only `username` is supported
-    OutcallRelationTrunk:
-      allOf:
-      - $ref: '#/components/schemas/TrunkRelationBase'
-      - $ref: '#/components/schemas/TrunkRelationEndpoints'
-    ScheduleRelationBase:
+    CallPermissionRelationBase:
       properties:
         id:
           type: integer
           readOnly: true
+          description: The id of the call permission
         tenant_uuid:
           type: string
           description: The UUID of the tenant
           readOnly: true
         name:
           type: string
-          description: The name to identify the schedule
-    SIPAuthSectionOptions:
-      title: PJSIP Auth Section Options
-      $ref: '#/components/schemas/KeyValueOption'
-    OutcallRelationSchedule:
-      allOf:
-      - $ref: '#/components/schemas/ScheduleRelationBase'
+          description: The name of the call permission
+      required:
+      - name
   securitySchemes:
     wazo_auth_token:
       type: apiKey

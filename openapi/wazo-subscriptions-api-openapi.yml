@@ -257,55 +257,18 @@ paths:
         '503':
           $ref: '#/components/responses/AnotherServiceUnavailable'
 components:
-  parameters:
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    SubscriptionUUID:
-      name: subscription_uuid
-      description: The UUID of the subscription
-      in: path
-      required: true
-      schema:
-        type: string
-    SearchMetadata:
-      name: search_metadata
-      in: query
-      description: A search term formatted like "key:value" that will only match subscriptions having a metadata entry "key=value". May be given multiple times to filter more precisely on different metadata keys.
-      schema:
-        type: string
-    UserSubscriptionBody:
-      name: body
-      in: body
-      required: true
-      schema:
-        $ref: '#/components/schemas/UserSubscriptionRequest'
-    SubscriptionBody:
-      name: body
-      in: body
-      required: true
-      schema:
-        $ref: '#/components/schemas/SubscriptionRequest'
   schemas:
-    SubscriptionMetadata:
+    SubscriptionList:
       type: object
-      description: Arbitrary key-value storage for this subscription. May be used to tag subscriptions. PUT replaces all metadata.
-    ServiceConfig:
-      type: object
-      additionalProperties:
-        type: string
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+          readOnly: true
+        total:
+          type: integer
+          readOnly: true
     HTTPServiceConfig:
       type: object
       properties:
@@ -361,35 +324,6 @@ components:
       - service
       - config
       - events
-    Services:
-      type: object
-      properties:
-        services:
-          description: The keys are the service names.
-          type: object
-    HTTPServiceLog:
-      type: object
-      properties:
-        request_method:
-          type: string
-        request_url:
-          type: string
-        request_headers:
-          type: object
-          additionalProperties:
-            type: string
-        request_body:
-          type: string
-        response_method:
-          type: string
-        response_url:
-          type: string
-        response_headers:
-          type: object
-          additionalProperties:
-            type: string
-        response_body:
-          type: string
     Error:
       title: Error
       description: Error message for the client
@@ -407,34 +341,12 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    SubscriptionLog:
+    Services:
       type: object
       properties:
-        uuid:
-          type: string
-        status:
-          type: string
-          enum:
-          - success
-          - failure
-          - error
-        started_at:
-          type: string
-          format: date-time
-        ended_at:
-          type: string
-          format: date-time
-        attempts:
-          type: integer
-          description: The current attempts
-        max_attempts:
-          type: integer
-          description: Limit of number of attempts
-        event:
-          type: string
-        detail:
-          description: output of the service
-          $ref: '#/components/schemas/HTTPServiceLog'
+        services:
+          description: The keys are the service names.
+          type: object
     SubscriptionRequest:
       type: object
       properties:
@@ -464,17 +376,33 @@ components:
       - service
       - config
       - events
-    SubscriptionList:
+    ServiceConfig:
+      type: object
+      additionalProperties:
+        type: string
+    HTTPServiceLog:
       type: object
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Subscription'
-          readOnly: true
-        total:
-          type: integer
-          readOnly: true
+        request_method:
+          type: string
+        request_url:
+          type: string
+        request_headers:
+          type: object
+          additionalProperties:
+            type: string
+        request_body:
+          type: string
+        response_method:
+          type: string
+        response_url:
+          type: string
+        response_headers:
+          type: object
+          additionalProperties:
+            type: string
+        response_body:
+          type: string
     UserSubscriptionRequest:
       type: object
       properties:
@@ -498,19 +426,38 @@ components:
       - service
       - config
       - events
+    SubscriptionLog:
+      type: object
+      properties:
+        uuid:
+          type: string
+        status:
+          type: string
+          enum:
+          - success
+          - failure
+          - error
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+        attempts:
+          type: integer
+          description: The current attempts
+        max_attempts:
+          type: integer
+          description: Limit of number of attempts
+        event:
+          type: string
+        detail:
+          description: output of the service
+          $ref: '#/components/schemas/HTTPServiceLog'
+    SubscriptionMetadata:
+      type: object
+      description: Arbitrary key-value storage for this subscription. May be used to tag subscriptions. PUT replaces all metadata.
   responses:
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     Unauthorized:
       description: Unauthorized
       content:
@@ -523,6 +470,59 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    UserSubscriptionBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/UserSubscriptionRequest'
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    SearchMetadata:
+      name: search_metadata
+      in: query
+      description: A search term formatted like "key:value" that will only match subscriptions having a metadata entry "key=value". May be given multiple times to filter more precisely on different metadata keys.
+      schema:
+        type: string
+    SubscriptionBody:
+      name: body
+      in: body
+      required: true
+      schema:
+        $ref: '#/components/schemas/SubscriptionRequest'
+    SubscriptionUUID:
+      name: subscription_uuid
+      description: The UUID of the subscription
+      in: path
+      required: true
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

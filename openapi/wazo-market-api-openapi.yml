@@ -77,6 +77,13 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
+    search:
+      required: false
+      name: search
+      in: query
+      description: Filter list of items, this search is applied to all fields and is not strict (eba matches Sébastien)
+      schema:
+        type: string
     installed_filter:
       required: false
       name: installed
@@ -84,11 +91,42 @@ components:
       description: Filter installed plugins
       schema:
         type: boolean
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    namespace_filter:
+      required: false
+      name: namespace
+      in: query
+      description: Search by namespace
+      schema:
+        type: string
     name:
       required: true
       name: name
       in: path
       description: The plugin's name
+      schema:
+        type: string
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
       schema:
         type: string
     limit:
@@ -105,13 +143,6 @@ components:
       description: The plugin's namespace
       schema:
         type: string
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
     name_filter:
       required: false
       name: name
@@ -119,52 +150,7 @@ components:
       description: Search by name
       schema:
         type: string
-    namespace_filter:
-      required: false
-      name: namespace
-      in: query
-      description: Search by namespace
-      schema:
-        type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Filter list of items, this search is applied to all fields and is not strict (eba matches Sébastien)
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
   schemas:
-    MarketPluginList:
-      type: object
-      properties:
-        namespace:
-          type: string
-          description: The namespace of the plugin
-        name:
-          type: string
-          description: The name of the plugin
-        versions:
-          type: array
-          items:
-            $ref: '#/components/schemas/VersionInfo'
-          description: Version specific information
     VersionInfo:
       type: object
       properties:
@@ -180,6 +166,20 @@ components:
         upgradable:
           type: boolean
           description: An indication wether installing this version would be an upgrade on not. Unstalled plugins are marked as upgradable.
+    GetMarketResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of plugins available on the market
+        filtered:
+          type: integer
+          description: The number of plugins matching the given search
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarketPluginList'
+          description: A list of plugins
     Error:
       title: Error
       description: Error message for the client
@@ -200,29 +200,29 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
-    GetMarketResult:
+    MarketPluginList:
       type: object
       properties:
-        total:
-          type: integer
-          description: The number of plugins available on the market
-        filtered:
-          type: integer
-          description: The number of plugins matching the given search
-        items:
+        namespace:
+          type: string
+          description: The namespace of the plugin
+        name:
+          type: string
+          description: The name of the plugin
+        versions:
           type: array
           items:
-            $ref: '#/components/schemas/MarketPluginList'
-          description: A list of plugins
+            $ref: '#/components/schemas/VersionInfo'
+          description: Version specific information
   responses:
-    InvalidRequest:
-      description: Invalid request
+    NotFoundError:
+      description: Plugin not found
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: Plugin not found
+    InvalidRequest:
+      description: Invalid request
       content:
         application/json:
           schema:

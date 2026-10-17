@@ -50,24 +50,6 @@ paths:
     servers:
     - url: /1.0
 components:
-  parameters:
-    ConfigPatch:
-      name: ConfigPatch
-      in: body
-      required: true
-      description: See https://en.wikipedia.org/wiki/JSON_Patch.
-      schema:
-        type: array
-        items:
-          $ref: '#/components/schemas/ConfigPatchItem'
-    configpatch:
-      name: config_patch
-      in: body
-      required: true
-      schema:
-        type: array
-        items:
-          $ref: '#/components/schemas/ConfigPatchItem_2'
   schemas:
     ConfigPatchItem:
       properties:
@@ -91,6 +73,24 @@ components:
         value:
           type: object
           description: The new value for the resource.
+  parameters:
+    ConfigPatch:
+      name: ConfigPatch
+      in: body
+      required: true
+      description: See https://en.wikipedia.org/wiki/JSON_Patch.
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ConfigPatchItem'
+    configpatch:
+      name: config_patch
+      in: body
+      required: true
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ConfigPatchItem_2'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

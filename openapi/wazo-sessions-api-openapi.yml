@@ -133,35 +133,6 @@ components:
       required: true
       schema:
         type: string
-    user_uuid:
-      name: user_uuid
-      in: path
-      description: The UUID of the user
-      required: true
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
     offset:
       name: offset
       in: query
@@ -170,6 +141,35 @@ components:
       schema:
         type: integer
         default: 0
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    user_uuid:
+      name: user_uuid
+      in: path
+      description: The UUID of the user
+      required: true
+      schema:
+        type: string
   schemas:
     GetSessionsResult:
       type: object
@@ -189,17 +189,6 @@ components:
       - filtered
       - total
       - items
-    SessionResult:
-      type: object
-      properties:
-        uuid:
-          type: string
-        user_uuid:
-          type: string
-        tenant_uuid:
-          type: string
-        mobile:
-          type: boolean
     Error:
       type: object
       properties:
@@ -213,6 +202,17 @@ components:
             type: string
         status_code:
           type: integer
+    SessionResult:
+      type: object
+      properties:
+        uuid:
+          type: string
+        user_uuid:
+          type: string
+        tenant_uuid:
+          type: string
+        mobile:
+          type: boolean
   securitySchemes:
     wazo_auth_basic:
       type: http

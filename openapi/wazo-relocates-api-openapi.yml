@@ -133,27 +133,42 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    Relocate:
+    LocationLine:
       type: object
       properties:
-        uuid:
-          description: Unique identifier of the relocate
+        line_id:
+          type: integer
+          description: the ID of the line where the relocated call should be connected
+        contact:
           type: string
-        relocated_call:
-          description: Call ID of the call being relocated to someone else
+          description: the SIP contact to use when multiple registers are used
+      required:
+      - line_id
+    RelocateCompletions:
+      type: array
+      items:
+        $ref: '#/components/schemas/RelocateCompletion'
+    UserRelocateLocation:
+      properties:
+        line:
+          $ref: '#/components/schemas/LocationLine'
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
           type: string
-        initiator_call:
-          description: Call ID of the relocate initiator
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
           type: string
-        recipient_call:
-          description: Call ID of the recipient of the relocate.
-          type: string
-        completions:
-          description: How the relocate will behave. "answer" will complete the relocate as soon as the destination answers. "api" will wait for a call to API `/complete`. "answer" overrides all other values.
-          $ref: '#/components/schemas/RelocateCompletions'
-        initiator:
-          description: The user UUID of the relocate initiator
-          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
     UserRelocateRequest:
       type: object
       properties:
@@ -189,56 +204,41 @@ components:
       required:
       - initiator_call
       - destination
-    UserRelocateLocation:
-      properties:
-        line:
-          $ref: '#/components/schemas/LocationLine'
-    Timeout:
-      description: Number of seconds to wait for the recipient to answer
-      type: integer
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    RelocateList:
-      type: object
-      properties:
-        items:
-          $ref: '#/components/schemas/Relocate'
     RelocateCompletion:
       type: string
       default: answer
       enum:
       - answer
       - api
-    RelocateCompletions:
-      type: array
-      items:
-        $ref: '#/components/schemas/RelocateCompletion'
-    LocationLine:
+    Timeout:
+      description: Number of seconds to wait for the recipient to answer
+      type: integer
+    Relocate:
       type: object
       properties:
-        line_id:
-          type: integer
-          description: the ID of the line where the relocated call should be connected
-        contact:
+        uuid:
+          description: Unique identifier of the relocate
           type: string
-          description: the SIP contact to use when multiple registers are used
-      required:
-      - line_id
+        relocated_call:
+          description: Call ID of the call being relocated to someone else
+          type: string
+        initiator_call:
+          description: Call ID of the relocate initiator
+          type: string
+        recipient_call:
+          description: Call ID of the recipient of the relocate.
+          type: string
+        completions:
+          description: How the relocate will behave. "answer" will complete the relocate as soon as the destination answers. "api" will wait for a call to API `/complete`. "answer" overrides all other values.
+          $ref: '#/components/schemas/RelocateCompletions'
+        initiator:
+          description: The user UUID of the relocate initiator
+          type: string
+    RelocateList:
+      type: object
+      properties:
+        items:
+          $ref: '#/components/schemas/Relocate'
   responses:
     NoSuchRelocate:
       description: The specified relocate does not exist
@@ -246,14 +246,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+    InvalidRequest:
+      description: Invalid request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    InvalidRequest:
-      description: Invalid request
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
       content:
         application/json:
           schema:

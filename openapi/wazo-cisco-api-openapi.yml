@@ -91,32 +91,10 @@ paths:
       - $ref: '#/components/parameters/AcceptLanguage'
 components:
   parameters:
-    Limit16:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-        default: 16
-    AcceptLanguage:
-      name: Accept-Language
-      in: header
-      required: false
-      description: The language to translate the query results in
-      schema:
-        type: string
-    Term:
-      name: term
-      in: query
-      description: A search term to look for
-      required: true
-      schema:
-        type: string
-    XivoUserUUID:
-      name: xivo_user_uuid
-      in: query
-      description: The user UUID of the user doing that query
+    Profile:
+      name: profile
+      in: path
+      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
       required: true
       schema:
         type: string
@@ -128,44 +106,52 @@ components:
       schema:
         type: integer
         default: 0
-    Profile:
-      name: profile
-      in: path
-      description: The profile defines the list of directories to query and how the results are displayed. The profile is the context name of the user who started the contact lookup, e.g. `default`.
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: The language to translate the query results in
+      schema:
+        type: string
+    Limit16:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+        default: 16
+    XivoUserUUID:
+      name: xivo_user_uuid
+      in: query
+      description: The user UUID of the user doing that query
+      required: true
+      schema:
+        type: string
+    Term:
+      name: term
+      in: query
+      description: A search term to look for
       required: true
       schema:
         type: string
   schemas:
-    CiscoIPPhoneMenu:
-      properties:
-        MenuItem:
-          $ref: '#/components/schemas/CiscoMenuItem'
     CiscoMenuItem:
       properties:
         Name:
           type: string
         URL:
           type: string
-    CiscoInputItem:
+    CiscoIPPhoneMenu:
       properties:
-        DisplayName:
-          type: string
-        QueryStringParam:
-          type: string
-        DefaultValue:
-          type: string
-        InputFlags:
-          type: string
-    CiscoIPPhoneInput:
+        MenuItem:
+          $ref: '#/components/schemas/CiscoMenuItem'
+    CiscoDirectoryEntry:
       properties:
-        Title:
+        Name:
           type: string
-        Prompt:
+        Telephone:
           type: string
-        URL:
-          type: string
-        InputItem:
-          $ref: '#/components/schemas/CiscoInputItem'
     Error:
       type: object
       title: Error
@@ -184,6 +170,34 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
+    CiscoIPPhoneInput:
+      properties:
+        Title:
+          type: string
+        Prompt:
+          type: string
+        URL:
+          type: string
+        InputItem:
+          $ref: '#/components/schemas/CiscoInputItem'
+    CiscoInputItem:
+      properties:
+        DisplayName:
+          type: string
+        QueryStringParam:
+          type: string
+        DefaultValue:
+          type: string
+        InputFlags:
+          type: string
+    CiscoSoftKeyItem:
+      properties:
+        Name:
+          type: string
+        URL:
+          type: string
+        position:
+          type: integer
     CiscoIPPhoneDirectory:
       properties:
         DirectoryEntry:
@@ -194,20 +208,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CiscoSoftKeyItem'
-    CiscoSoftKeyItem:
-      properties:
-        Name:
-          type: string
-        URL:
-          type: string
-        position:
-          type: integer
-    CiscoDirectoryEntry:
-      properties:
-        Name:
-          type: string
-        Telephone:
-          type: string
   responses:
     LimitOffsetInvalid:
       description: The limit or offset should be positive
@@ -215,14 +215,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
+    ProfileInvalid:
+      description: The profile does not exist
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    ProfileInvalid:
-      description: The profile does not exist
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-dird, ...)
       content:
         application/json:
           schema:

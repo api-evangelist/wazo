@@ -320,34 +320,39 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    recorded:
-      name: recorded
-      description: Filter by recorded status.
+    search:
       required: false
+      name: search
       in: query
-      schema:
-        type: boolean
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    until:
-      name: until
-      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
+      description: Filter list of items
       schema:
         type: string
-        format: date-time
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
+    offset:
       required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    from_id:
+      name: from_id
+      description: Ignore CDR created before the given CDR ID.
+      in: query
+      required: false
+      schema:
+        type: integer
+    number:
+      required: false
+      name: number
+      in: query
+      description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
+      schema:
+        type: string
+    conversation_id:
+      name: conversation_id
+      description: Filter by conversation identifier
+      required: false
+      in: query
       schema:
         type: string
     user_uuid:
@@ -359,32 +364,81 @@ components:
         type: array
         items:
           type: string
-    call_status:
-      name: call_status
-      description: Filter by call statuses (comma-separated status strings). Defaults to non-blocked calls.
+    tags:
       required: false
+      name: tags
       in: query
+      description: Filter by tags. Each tag MUST be separated by a coma (,). Many tag will perform a logical AND.
+      schema:
+        type: array
+        items:
+          type: string
+    from:
+      name: from
+      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    until:
+      name: until
+      description: Ignore CDR starting at or after the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
       schema:
         type: string
         enum:
-        - answered
-        - blocked
-        - voicemail
-        - unknown
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list. Default to 1000 if not specified.
-      schema:
-        type: integer
-    number:
-      required: false
-      name: number
-      in: query
-      description: Filter by source_extension and destination_extension. A wildcard (underscore) can be used at the start and/or the end of the number.
+        - asc
+        - desc
+    recording_uuid:
+      name: recording_uuid
+      description: UUID of the recording
+      required: true
+      in: path
       schema:
         type: string
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    recorded:
+      name: recorded
+      description: Filter by recorded status.
+      required: false
+      in: query
+      schema:
+        type: boolean
+    requested_internal_extension:
+      name: requested_internal_extension
+      description: Filter by requested_internal_extension
+      required: false
+      in: query
+      schema:
+        type: string
+    call_direction:
+      required: false
+      name: call_direction
+      in: query
+      description: Filter list of items
+      schema:
+        type: string
+        enum:
+        - internal
+        - inbound
+        - outbound
     distinct:
       required: false
       name: distinct
@@ -394,10 +448,16 @@ components:
         type: string
         enum:
         - peer_exten
-    requested_internal_extension:
-      name: requested_internal_extension
-      description: Filter by requested_internal_extension
-      required: false
+    cdr_id:
+      name: cdr_id
+      description: ID of the CDR
+      required: true
+      in: path
+      schema:
+        type: integer
+    email:
+      name: email
+      description: E-mail address
       in: query
       schema:
         type: string
@@ -411,92 +471,18 @@ components:
         enum:
         - created_at
         - message_id
-    recording_uuid:
-      name: recording_uuid
-      description: UUID of the recording
-      required: true
-      in: path
-      schema:
-        type: string
-    conversation_id:
-      name: conversation_id
-      description: Filter by conversation identifier
+    call_status:
+      name: call_status
+      description: Filter by call statuses (comma-separated status strings). Defaults to non-blocked calls.
       required: false
       in: query
-      schema:
-        type: string
-    from_id:
-      name: from_id
-      description: Ignore CDR created before the given CDR ID.
-      in: query
-      required: false
-      schema:
-        type: integer
-    email:
-      name: email
-      description: E-mail address
-      in: query
-      schema:
-        type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Filter list of items
-      schema:
-        type: string
-    cdr_id:
-      name: cdr_id
-      description: ID of the CDR
-      required: true
-      in: path
-      schema:
-        type: integer
-    tags:
-      required: false
-      name: tags
-      in: query
-      description: Filter by tags. Each tag MUST be separated by a coma (,). Many tag will perform a logical AND.
-      schema:
-        type: array
-        items:
-          type: string
-    call_direction:
-      required: false
-      name: call_direction
-      in: query
-      description: Filter list of items
       schema:
         type: string
         enum:
-        - internal
-        - inbound
-        - outbound
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    from:
-      name: from
-      description: Ignore CDR starting before the given date. Format is <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO-8601</a>.
-      in: query
-      required: false
-      schema:
-        type: string
-        format: date-time
+        - answered
+        - blocked
+        - voicemail
+        - unknown
     format:
       name: format
       description: Overrides the Content-Type header. This is used to be able to have a downloadable link. Allowed values are "csv" and "json"
@@ -507,6 +493,20 @@ components:
         enum:
         - csv
         - json
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list. Default to 1000 if not specified.
+      schema:
+        type: integer
     requested_internal_context:
       name: requested_internal_context
       description: Filter by requested_internal_context
@@ -514,57 +514,20 @@ components:
       in: query
       schema:
         type: string
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    call_status:
-      type: string
-      enum:
-      - answered
-      - blocked
-      - voicemail
-      - unknown
-    CDRList:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CDR'
-        total:
-          type: integer
-        filtered:
-          type: integer
-    Recording:
-      type: object
-      properties:
-        uuid:
-          type: string
-        start_time:
-          type: string
-          format: date-time
-        end_time:
-          type: string
-          format: date-time
-        deleted:
-          type: boolean
-        filename:
-          type: string
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
     CDR:
       type: object
       properties:
@@ -665,19 +628,56 @@ components:
             $ref: '#/components/schemas/Recording'
         call_status:
           $ref: '#/components/schemas/call_status'
-  responses:
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    call_status:
+      type: string
+      enum:
+      - answered
+      - blocked
+      - voicemail
+      - unknown
+    CDRList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CDR'
+        total:
+          type: integer
+        filtered:
+          type: integer
+    Recording:
+      type: object
+      properties:
+        uuid:
+          type: string
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        deleted:
+          type: boolean
+        filename:
+          type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

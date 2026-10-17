@@ -77,6 +77,11 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    Response:
+      properties:
+        response:
+          type: string
+          description: Name of the action response
     ActionArguments:
       properties: {}
       example:
@@ -99,11 +104,6 @@ components:
           type: string
         details:
           type: object
-    Response:
-      properties:
-        response:
-          type: string
-          description: Name of the action response
   securitySchemes:
     wazo_auth_token:
       type: apiKey

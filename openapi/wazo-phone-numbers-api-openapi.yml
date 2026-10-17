@@ -199,72 +199,7 @@ paths:
         description: specification of the phone number to set as main
         required: true
 components:
-  responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    phone_number_uuid:
-      name: phone_number_uuid
-      in: path
-      description: UUID of the phone number
-      required: true
-      schema:
-        type: string
-    shared:
-      in: query
-      name: shared
-      description: Only include shared phone numbers
-      schema:
-        type: boolean
     search:
       required: false
       name: search
@@ -279,10 +214,10 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
-    main:
+    shared:
       in: query
-      name: main
-      description: Only include the main phone number of the tenant
+      name: shared
+      description: Only include shared phone numbers
       schema:
         type: boolean
     direction:
@@ -295,28 +230,72 @@ components:
         enum:
         - asc
         - desc
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    phone_number_uuid:
+      name: phone_number_uuid
+      in: path
+      description: UUID of the phone number
+      required: true
+      schema:
+        type: string
+    main:
+      in: query
+      name: main
+      description: Only include the main phone number of the tenant
+      schema:
+        type: boolean
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    PhoneNumberRange:
-      type: object
-      description: a request to register a range of phone number resources
-      properties:
-        start_number:
-          type: string
-          description: 'the first phone number part of a contiguous range of numbers to be registered in the `/phone-numbers` resource;
-
-            a e.164 phone number, otherwise a phone number string part of a numbering plan dialable on the trunk network
-
-            '
-        end_number:
-          type: string
-          description: 'The last phone number part of the contiguous range to be registered in the `/phone-numbers` resource;
-
-            a e.164 phone number, otherwise a phone number string part of a numbering plan dialable on the trunk network
-
-            '
-      required:
-      - start_number
-      - end_number
     PhoneNumberItems:
       type: object
       properties:
@@ -353,6 +332,20 @@ components:
       required:
       - number
       - shared
+    Link:
+      title: Link
+      description: a pointer to a linked resource related in some way to the current resource
+      properties:
+        href:
+          type: string
+          description: The URL of the link
+        rel:
+          type: string
+          description: The relationship of the link relative to the current resource
+    Error:
+      type: array
+      items:
+        type: string
     PhoneNumberRangeResponse:
       type: object
       properties:
@@ -374,20 +367,27 @@ components:
             '
           items:
             $ref: '#/components/schemas/Link'
-    Error:
-      type: array
-      items:
-        type: string
-    Link:
-      title: Link
-      description: a pointer to a linked resource related in some way to the current resource
+    PhoneNumberRange:
+      type: object
+      description: a request to register a range of phone number resources
       properties:
-        href:
+        start_number:
           type: string
-          description: The URL of the link
-        rel:
+          description: 'the first phone number part of a contiguous range of numbers to be registered in the `/phone-numbers` resource;
+
+            a e.164 phone number, otherwise a phone number string part of a numbering plan dialable on the trunk network
+
+            '
+        end_number:
           type: string
-          description: The relationship of the link relative to the current resource
+          description: 'The last phone number part of the contiguous range to be registered in the `/phone-numbers` resource;
+
+            a e.164 phone number, otherwise a phone number string part of a numbering plan dialable on the trunk network
+
+            '
+      required:
+      - start_number
+      - end_number
   securitySchemes:
     wazo_auth_token:
       type: apiKey

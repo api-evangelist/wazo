@@ -244,7 +244,202 @@ paths:
     servers:
     - url: /0.1
 components:
+  parameters:
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    parent_tenant_uuid:
+      name: parent_tenant_uuid
+      in: path
+      description: The UUID of the new parent tenant
+      required: true
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: The offset defines the offsets the start by the number specified
+      required: false
+      schema:
+        type: integer
+        default: 0
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+    tenant_uuid:
+      name: tenant_uuid
+      in: path
+      description: The UUID of the tenant
+      required: true
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The limit defines the number of individual objects that are returned
+      required: false
+      schema:
+        type: integer
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    offset_2:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    urltenantuuid:
+      description: Resource UUID
+      name: tenant_uuid
+      in: path
+      required: true
+      schema:
+        type: string
+    limit_2:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
+      schema:
+        type: boolean
+        default: false
   schemas:
+    TenantEdit:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/TenantBase'
+    APIError:
+      type: object
+      properties:
+        timestamp:
+          type: number
+        message:
+          type: string
+        resource:
+          type: string
+        details:
+          type: object
+    TenantResult:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/TenantBase'
+      - properties:
+          uuid:
+            type: string
+          slug:
+            type: string
+            description: A unique, human readeable identifier for this tenant
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    TenantAddress:
+      type: object
+      properties:
+        line_1:
+          type: string
+          description: The first line of the address
+        line_2:
+          type: string
+          description: The second line of the address
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        zip_code:
+          type: string
+    TenantDomainsList:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of domains
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              uuid:
+                type: string
+          description: A non-paginated list of domains
+    TenantList:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of tenants
+        filtered:
+          type: integer
+          description: The number of tenants matching the searched term
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantResult'
+          description: A paginated list of tenants
+    TenantCreate:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/TenantBase'
+      - properties:
+          uuid:
+            type: string
+            description: The tenant's UUID
+          slug:
+            type: string
+            description: A unique, human readeable identifier for this tenant. This field cannot be modified and will be auto-generated if missing.
+    TenantPostResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        uuid:
+          type: string
+        parent_uuid:
+          type: string
     TenantBase:
       type: object
       properties:
@@ -277,115 +472,6 @@ components:
           - native
           - saml
           - ldap
-    TenantList:
-      type: object
-      properties:
-        total:
-          type: integer
-          description: The number of tenants
-        filtered:
-          type: integer
-          description: The number of tenants matching the searched term
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TenantResult'
-          description: A paginated list of tenants
-    Error:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
-    TenantResult:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/TenantBase'
-      - properties:
-          uuid:
-            type: string
-          slug:
-            type: string
-            description: A unique, human readeable identifier for this tenant
-    TenantCreate:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/TenantBase'
-      - properties:
-          uuid:
-            type: string
-            description: The tenant's UUID
-          slug:
-            type: string
-            description: A unique, human readeable identifier for this tenant. This field cannot be modified and will be auto-generated if missing.
-    APIError:
-      type: object
-      properties:
-        timestamp:
-          type: number
-        message:
-          type: string
-        resource:
-          type: string
-        details:
-          type: object
-    TenantEdit:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/TenantBase'
-    TenantDomainsList:
-      type: object
-      properties:
-        total:
-          type: integer
-          description: The number of domains
-        items:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-              uuid:
-                type: string
-          description: A non-paginated list of domains
-    TenantAddress:
-      type: object
-      properties:
-        line_1:
-          type: string
-          description: The first line of the address
-        line_2:
-          type: string
-          description: The second line of the address
-        city:
-          type: string
-        state:
-          type: string
-        country:
-          type: string
-        zip_code:
-          type: string
-    TenantPostResponse:
-      type: object
-      properties:
-        name:
-          type: string
-        uuid:
-          type: string
-        parent_uuid:
-          type: string
-    Error_2:
-      type: array
-      items:
-        type: string
     Tenant:
       properties:
         uuid:
@@ -414,96 +500,10 @@ components:
             $ref: '#/components/schemas/Tenant'
         total:
           type: integer
-  parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
+    Error_2:
+      type: array
+      items:
         type: string
-    limit:
-      name: limit
-      in: query
-      description: The limit defines the number of individual objects that are returned
-      required: false
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: The offset defines the offsets the start by the number specified
-      required: false
-      schema:
-        type: integer
-        default: 0
-    tenant_uuid:
-      name: tenant_uuid
-      in: path
-      description: The UUID of the tenant
-      required: true
-      schema:
-        type: string
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-    parent_tenant_uuid:
-      name: parent_tenant_uuid
-      in: path
-      description: The UUID of the new parent tenant
-      required: true
-      schema:
-        type: string
-    recurse:
-      name: recurse
-      in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    limit_2:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    urltenantuuid:
-      description: Resource UUID
-      name: tenant_uuid
-      in: path
-      required: true
-      schema:
-        type: string
-    offset_2:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
   responses:
     NotFoundError:
       description: The resource requested was not found on the server

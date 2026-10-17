@@ -55,17 +55,6 @@ paths:
               $ref: '#/components/schemas/Localization'
         required: true
 components:
-  responses:
-    ResourceUpdated:
-      description: Resource was updated successfully
-  parameters:
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
   schemas:
     Localization:
       title: Localization
@@ -77,6 +66,17 @@ components:
         tenant_uuid:
           type: string
           description: UUID of the tenant
+  responses:
+    ResourceUpdated:
+      description: Resource was updated successfully
+  parameters:
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
   securitySchemes:
     wazo_auth_token:
       type: apiKey

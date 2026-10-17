@@ -534,133 +534,14 @@ paths:
     servers:
     - url: /api/provd/0.2
 components:
-  responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NoContentResponse:
-      description: No content
-    DeviceCreationResponse:
-      description: Device creation response
-      headers:
-        Location:
-          description: Location of the newly created device
-          schema:
-            type: string
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/IdObject'
-    UnsupportedMediaError:
-      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    DeviceUniqueResponse:
-      description: A complete device response
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/DeviceObject'
-    DevicesResponse:
-      description: A list of devices
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/DevicesList'
-    BadRequestError:
-      description: Bad request. The device ID, IP or MAC may be invalid
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    InternalServerError:
-      description: Internal Server Error. The IP or MAC address may be malformed
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    NoSuchResourceError:
-      description: No such resource. The provided id does not exist
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
   parameters:
-    recurse:
-      name: recurse
+    search:
+      required: false
+      name: search
       in: query
-      description: Should the query include sub-tenants
-      required: false
-      schema:
-        type: boolean
-        default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
       schema:
         type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    deviceid:
-      required: true
-      name: device_id
-      in: path
-      description: Device's ID
-      schema:
-        type: string
-    lineid:
-      required: true
-      name: line_id
-      in: path
-      schema:
-        type: integer
     offset:
       required: false
       name: offset
@@ -668,11 +549,11 @@ components:
       description: Number of items to skip over in the list. Useful for pagination.
       schema:
         type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+    deviceid:
+      required: true
+      name: device_id
+      in: path
+      description: Device's ID
       schema:
         type: string
     direction:
@@ -685,22 +566,46 @@ components:
         enum:
         - asc
         - desc
-    DeviceDHCPInfo:
-      description: DHCP request information
-      name: body
-      in: body
+    recurse:
+      name: recurse
+      in: query
+      description: Should the query include sub-tenants
+      required: false
       schema:
-        $ref: '#/components/schemas/DHCPInfoObject'
-    DeviceIdBody:
-      description: Device ID body definition
-      name: body
-      in: body
+        type: boolean
+        default: false
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
       schema:
-        $ref: '#/components/schemas/IdObject'
-    TenantUUID:
+        type: string
+    tenantuuid:
       name: Wazo-Tenant
       in: header
-      description: The tenant's UUID, defining the ownership of a given resource
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    lineid:
+      required: true
+      name: line_id
+      in: path
+      schema:
+        type: integer
+    limit:
+      required: false
+      name: limit
+      in: query
+      description: Maximum number of items to return in the list
+      schema:
+        type: integer
+    OperationId:
+      required: true
+      name: operation_id
+      in: path
+      description: Operation In Progress ID
       schema:
         type: string
     Recurse:
@@ -710,6 +615,40 @@ components:
       schema:
         type: boolean
         default: false
+    SortOrder:
+      name: sort_ord
+      in: query
+      description: The order of sort
+      required: false
+      schema:
+        type: string
+        enum:
+        - ASC
+        - DESC
+    Skip:
+      name: skip
+      in: query
+      description: 'An integer specifing the number of entries to skip.
+
+
+        Example: 10
+
+        '
+      required: false
+      schema:
+        type: integer
+    DeviceDHCPInfo:
+      description: DHCP request information
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/DHCPInfoObject'
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource
+      schema:
+        type: string
     SearchFields:
       name: fields
       in: query
@@ -729,35 +668,12 @@ components:
       description: Device ID
       schema:
         type: string
-    SortOrder:
-      name: sort_ord
-      in: query
-      description: The order of sort
-      required: false
+    DeviceIdBody:
+      description: Device ID body definition
+      name: body
+      in: body
       schema:
-        type: string
-        enum:
-        - ASC
-        - DESC
-    OperationId:
-      required: true
-      name: operation_id
-      in: path
-      description: Operation In Progress ID
-      schema:
-        type: string
-    Skip:
-      name: skip
-      in: query
-      description: 'An integer specifing the number of entries to skip.
-
-
-        Example: 10
-
-        '
-      required: false
-      schema:
-        type: integer
+        $ref: '#/components/schemas/IdObject'
     SortEntries:
       name: sort
       in: query
@@ -782,7 +698,95 @@ components:
       required: false
       schema:
         type: string
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoContentResponse:
+      description: No content
+    DeviceUniqueResponse:
+      description: A complete device response
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/DeviceObject'
+    UnsupportedMediaError:
+      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    DeviceCreationResponse:
+      description: Device creation response
+      headers:
+        Location:
+          description: Location of the newly created device
+          schema:
+            type: string
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/IdObject'
+    NoSuchResourceError:
+      description: No such resource. The provided id does not exist
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    DevicesResponse:
+      description: A list of devices
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/DevicesList'
+    BadRequestError:
+      description: Bad request. The device ID, IP or MAC may be invalid
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    InternalServerError:
+      description: Internal Server Error. The IP or MAC address may be malformed
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
   schemas:
+    Error:
+      type: array
+      items:
+        type: string
     DeviceOptions:
       title: DeviceOptions
       description: List of standard keys
@@ -801,21 +805,6 @@ components:
           type: string
           description: Device's ID
           readOnly: true
-    LineDeviceItems:
-      title: LineDeviceItems
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/LineDevice'
-          type: array
-        total:
-          type: integer
-      required:
-      - total
-    Error:
-      type: array
-      items:
-        type: string
     Device:
       title: Device
       properties:
@@ -879,6 +868,17 @@ components:
           type: boolean
           description: Indicates if the device is a new device, ie in the master tenant
           readOnly: true
+    LineDeviceItems:
+      title: LineDeviceItems
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/LineDevice'
+          type: array
+        total:
+          type: integer
+      required:
+      - total
     DeviceItems:
       title: DeviceItems
       properties:
@@ -890,6 +890,30 @@ components:
           type: integer
       required:
       - total
+    DHCPInfoObject:
+      properties:
+        dhcp_info:
+          $ref: '#/components/schemas/DHCPInfo'
+    DeviceObject:
+      description: A device object
+      properties:
+        device:
+          $ref: '#/components/schemas/Device_2'
+    LinksObject:
+      description: Links object
+      type: object
+      properties:
+        links:
+          type: array
+          description: Links to different resources
+          items:
+            $ref: '#/components/schemas/LinkObject'
+    IdObject:
+      properties:
+        id:
+          type: string
+      example:
+        id: abcdef1234567890
     DevicesList:
       description: A list of devices
       properties:
@@ -897,37 +921,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Device_2'
-    LinkObject:
-      description: Link Object
-      type: object
-      properties:
-        href:
-          type: string
-          description: Location of the resource
-        rel:
-          type: string
-          description: Relation to the resource
-    DHCPInfo:
-      type: object
-      properties:
-        ip:
-          type: string
-          description: The IP address of the device
-        mac:
-          type: string
-          description: The MAC address of the device
-        op:
-          type: string
-          enum:
-          - commit
-          description: The operation to perform
-        options:
-          type: array
-          items:
-            type: string
-            description: 'The option string. The first 3 characters are the option number, the following pairs of dot-separated hexadecimal numbers are the option value characters.
-
-              '
+    ErrorMessage:
+      description: Error message response
+      type: string
     OperationInProgressObject:
       properties:
         status:
@@ -955,10 +951,16 @@ components:
             The state of an operation is either ``waiting``, ``progress``, ``success`` or ``fail``.
 
             '
-    DHCPInfoObject:
+    LinkObject:
+      description: Link Object
+      type: object
       properties:
-        dhcp_info:
-          $ref: '#/components/schemas/DHCPInfo'
+        href:
+          type: string
+          description: Location of the resource
+        rel:
+          type: string
+          description: Relation to the resource
     Device_2:
       description: A device schema
       properties:
@@ -1004,29 +1006,27 @@ components:
           type: boolean
           description: Indicates if the device is a new device, ie in the master tenant
           readOnly: true
-    LinksObject:
-      description: Links object
+    DHCPInfo:
       type: object
       properties:
-        links:
-          type: array
-          description: Links to different resources
-          items:
-            $ref: '#/components/schemas/LinkObject'
-    DeviceObject:
-      description: A device object
-      properties:
-        device:
-          $ref: '#/components/schemas/Device_2'
-    ErrorMessage:
-      description: Error message response
-      type: string
-    IdObject:
-      properties:
-        id:
+        ip:
           type: string
-      example:
-        id: abcdef1234567890
+          description: The IP address of the device
+        mac:
+          type: string
+          description: The MAC address of the device
+        op:
+          type: string
+          enum:
+          - commit
+          description: The operation to perform
+        options:
+          type: array
+          items:
+            type: string
+            description: 'The option string. The first 3 characters are the option number, the following pairs of dot-separated hexadecimal numbers are the option value characters.
+
+              '
   securitySchemes:
     wazo_auth_token:
       type: apiKey

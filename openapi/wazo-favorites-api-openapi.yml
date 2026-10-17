@@ -90,20 +90,6 @@ paths:
       - $ref: '#/components/parameters/FavoriteID'
 components:
   parameters:
-    FavoriteID:
-      name: contact
-      in: path
-      description: The ID of the contact. This ID is unique within the {directory}.
-      required: true
-      schema:
-        type: string
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
     Directory:
       name: directory
       in: path
@@ -118,7 +104,67 @@ components:
       required: true
       schema:
         type: string
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
+    FavoriteID:
+      name: contact
+      in: path
+      description: The ID of the contact. This ID is unique within the {directory}.
+      required: true
+      schema:
+        type: string
+  responses:
+    DuplicateFavorite:
+      description: The contact has already been favorited
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    ProfileInvalid:
+      description: The profile does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
   schemas:
+    Contact:
+      properties:
+        column_values:
+          items:
+            type: string
+          type: array
+        relations:
+          $ref: '#/components/schemas/Relation'
+        source:
+          type: string
+        backend:
+          type: string
+          description: Backend type
+    Relation:
+      properties:
+        xivo_id:
+          type: string
+        user_id:
+          type: string
+        user_uuid:
+          type: string
+        endpoint_id:
+          type: string
+        agent_id:
+          type: string
+        source_entry_id:
+          type: string
     LegacyError:
       title: LegacyError
       description: Error message for the client
@@ -137,19 +183,6 @@ components:
         status_code:
           description: HTTP status code
           type: integer
-    Contact:
-      properties:
-        column_values:
-          items:
-            type: string
-          type: array
-        relations:
-          $ref: '#/components/schemas/Relation'
-        source:
-          type: string
-        backend:
-          type: string
-          description: Backend type
     ContactList:
       properties:
         column_headers:
@@ -167,39 +200,6 @@ components:
             $ref: '#/components/schemas/Contact'
           type: array
           description: List of results
-    Relation:
-      properties:
-        xivo_id:
-          type: string
-        user_id:
-          type: string
-        user_uuid:
-          type: string
-        endpoint_id:
-          type: string
-        agent_id:
-          type: string
-        source_entry_id:
-          type: string
-  responses:
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, postgresql, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    ProfileInvalid:
-      description: The profile does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
-    DuplicateFavorite:
-      description: The contact has already been favorited
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyError'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

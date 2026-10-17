@@ -513,50 +513,76 @@ paths:
       operationId: postPgMgrReload
       x-operation-id-source: derived
 components:
+  parameters:
+    OperationId:
+      required: true
+      name: operation_id
+      in: path
+      description: Operation In Progress ID
+      schema:
+        type: string
+    EmptyBody:
+      description: Empty object body
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/EmptyObject'
+    PackageIdBody:
+      description: Package ID body definition
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/IdObject'
+    PluginId:
+      required: true
+      name: plugin_id
+      in: path
+      description: Plugin ID
+      schema:
+        type: string
+    PluginIdBody:
+      description: Plugin ID body definition
+      name: body
+      in: body
+      schema:
+        $ref: '#/components/schemas/IdObject'
   schemas:
-    PackageObject:
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/Package'
-    EmptyObject:
-      description: Empty body
-      properties: {}
     PackageList:
       type: object
       properties:
         pkgs:
           $ref: '#/components/schemas/PackageObject'
-    Package:
-      type: object
+    PluginInfoObject:
       properties:
         capabilities:
           $ref: '#/components/schemas/CapabilitiesObject'
         description:
           type: string
-        dsize:
-          type: integer
-        sha1sum:
-          type: string
         version:
           type: string
-    PluginInfo:
-      properties:
-        plugin_info:
-          $ref: '#/components/schemas/PluginInfoObject'
-    LinkObject:
-      description: Link Object
+    LinksObject:
+      description: Links object
       type: object
       properties:
-        href:
+        links:
+          type: array
+          description: Links to different resources
+          items:
+            $ref: '#/components/schemas/LinkObject'
+    IdObject:
+      properties:
+        id:
           type: string
-          description: Location of the resource
-        rel:
-          type: string
-          description: Relation to the resource
-    Plugins:
+      example:
+        id: abcdef1234567890
+    PluginsObject:
       type: object
-      additionalProperties:
-        $ref: '#/components/schemas/LinksObject'
+      properties:
+        plugins:
+          $ref: '#/components/schemas/Plugins'
+    ErrorMessage:
+      description: Error message response
+      type: string
     OperationInProgressObject:
       properties:
         status:
@@ -584,79 +610,65 @@ components:
             The state of an operation is either ``waiting``, ``progress``, ``success`` or ``fail``.
 
             '
-    PluginsObject:
+    Plugins:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LinksObject'
+    LinkObject:
+      description: Link Object
       type: object
       properties:
-        plugins:
-          $ref: '#/components/schemas/Plugins'
-    PluginInfoObject:
-      properties:
-        capabilities:
-          $ref: '#/components/schemas/CapabilitiesObject'
-        description:
+        href:
           type: string
-        version:
+          description: Location of the resource
+        rel:
           type: string
-    LinksObject:
-      description: Links object
-      type: object
+          description: Relation to the resource
+    PluginInfo:
       properties:
-        links:
-          type: array
-          description: Links to different resources
-          items:
-            $ref: '#/components/schemas/LinkObject'
+        plugin_info:
+          $ref: '#/components/schemas/PluginInfoObject'
+    EmptyObject:
+      description: Empty body
+      properties: {}
     CapabilitiesObject:
       type: object
       additionalProperties:
         type: object
         additionalProperties:
           type: string
-    ErrorMessage:
-      description: Error message response
-      type: string
-    IdObject:
+    Package:
+      type: object
       properties:
-        id:
+        capabilities:
+          $ref: '#/components/schemas/CapabilitiesObject'
+        description:
           type: string
-      example:
-        id: abcdef1234567890
-  parameters:
-    PluginIdBody:
-      description: Plugin ID body definition
-      name: body
-      in: body
-      schema:
-        $ref: '#/components/schemas/IdObject'
-    OperationId:
-      required: true
-      name: operation_id
-      in: path
-      description: Operation In Progress ID
-      schema:
-        type: string
-    PackageIdBody:
-      description: Package ID body definition
-      name: body
-      in: body
-      schema:
-        $ref: '#/components/schemas/IdObject'
-    EmptyBody:
-      description: Empty object body
-      name: body
-      in: body
-      schema:
-        $ref: '#/components/schemas/EmptyObject'
-    PluginId:
-      required: true
-      name: plugin_id
-      in: path
-      description: Plugin ID
-      schema:
-        type: string
+        dsize:
+          type: integer
+        sha1sum:
+          type: string
+        version:
+          type: string
+    PackageObject:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Package'
   responses:
     NoContentResponse:
       description: No content
+    UnsupportedMediaError:
+      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    NoSuchResourceError:
+      description: No such resource. The provided id does not exist
+      content:
+        application/vnd.proformatique.provd+json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
     OperationInProgressResponse:
       description: Operation in progress
       headers:
@@ -664,20 +676,8 @@ components:
           description: Location of the OperationInProgress resource
           schema:
             type: string
-    UnsupportedMediaError:
-      description: Unsupported media type. This error occurs if you forgot to include the Content-Type header
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
     InvalidJSONError:
       description: Invalid JSON document
-      content:
-        application/vnd.proformatique.provd+json:
-          schema:
-            $ref: '#/components/schemas/ErrorMessage'
-    NoSuchResourceError:
-      description: No such resource. The provided id does not exist
       content:
         application/vnd.proformatique.provd+json:
           schema:

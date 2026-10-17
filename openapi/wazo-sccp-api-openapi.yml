@@ -193,42 +193,31 @@ paths:
               $ref: '#/components/schemas/SCCPGeneral'
         required: true
 components:
-  responses:
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    DeleteError:
-      description: An error occurred when deleting the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    direction:
+      required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
     recurse:
       name: recurse
       in: query
@@ -237,20 +226,6 @@ components:
       schema:
         type: boolean
         default: false
-    tenantuuid:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
-      schema:
-        type: string
-    limit:
-      required: false
-      name: limit
-      in: query
-      description: Maximum number of items to return in the list
-      schema:
-        type: integer
     order:
       required: false
       name: order
@@ -264,67 +239,68 @@ components:
       in: path
       schema:
         type: integer
+    tenantuuid:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
     lineid:
       required: true
       name: line_id
       in: path
       schema:
         type: integer
-    offset:
+    limit:
       required: false
-      name: offset
+      name: limit
       in: query
-      description: Number of items to skip over in the list. Useful for pagination.
+      description: Maximum number of items to return in the list
       schema:
         type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
+  responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DeleteError:
+      description: An error occurred when deleting the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    EndpointRelationTrunk:
+    EndpointSccpRelationBase:
       properties:
-        trunk:
-          $ref: '#/components/schemas/TrunkRelationBase'
+        id:
+          type: integer
+          description: SCCP Endpoint ID
           readOnly: true
-    KeyValueOption:
-      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
-      title: Key Value
-      type: array
-      items:
-        type: string
-      maxItems: 2
-      minItems: 2
-      example:
-      - option
-      - value
-    EndpointRelationLine:
-      properties:
-        line:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LineRelationBase'
-    SCCPGeneral:
-      title: SCCPGeneral
-      description: SCCP general configuration. This configuration will be in the file 'sccp.conf' used by asterisk.
-      properties:
-        options:
-          description: "General SCCP options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
-          type: object
     Error:
       type: array
       items:
@@ -339,21 +315,31 @@ components:
           type: string
           description: The UUID of the tenant
           readOnly: true
-    EndpointSccpItems:
-      title: SCCP Endpoints
+    EndpointRelationLine:
       properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EndpointSccp'
+        line:
           type: array
-        total:
-          type: integer
-    EndpointSccpRelationBase:
-      properties:
-        id:
-          type: integer
-          description: SCCP Endpoint ID
           readOnly: true
+          items:
+            $ref: '#/components/schemas/LineRelationBase'
+    KeyValueOption:
+      description: "Options must have the following form:\n```\n{\n  \"options\": [\n      [\"option\", \"value\"],\n  ]\n}\n```\n"
+      title: Key Value
+      type: array
+      items:
+        type: string
+      maxItems: 2
+      minItems: 2
+      example:
+      - option
+      - value
+    SCCPGeneral:
+      title: SCCPGeneral
+      description: SCCP general configuration. This configuration will be in the file 'sccp.conf' used by asterisk.
+      properties:
+        options:
+          description: "General SCCP options. These options must be unique and unordered. Option must have the following form:\n\n```\n{\n  \"options\": {\n    \"name1\": \"value1\",\n    ...\n  }\n}\n```\n\n"
+          type: object
     EndpointSccp:
       title: SCCP Endpoint
       allOf:
@@ -380,6 +366,20 @@ components:
           type: string
           description: The name of the line
           readOnly: true
+    EndpointRelationTrunk:
+      properties:
+        trunk:
+          $ref: '#/components/schemas/TrunkRelationBase'
+          readOnly: true
+    EndpointSccpItems:
+      title: SCCP Endpoints
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointSccp'
+          type: array
+        total:
+          type: integer
   securitySchemes:
     wazo_auth_token:
       type: apiKey

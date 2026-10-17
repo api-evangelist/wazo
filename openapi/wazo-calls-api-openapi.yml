@@ -821,152 +821,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ParkedCallInfo:
-      description: Information returned when a call has been parked
-      properties:
-        slot:
-          description: Parking slot where this call has been parked
-          type: string
-          example: 501
-        timeout_at:
-          description: Timestamp when the call will timeout
-          type: string
-          format: date-time
-    UserCallRequest:
-      type: object
-      properties:
-        extension:
-          description: Extension to call
-          type: string
-        variables:
-          description: Channel variables to set
-          type: object
-        line_id:
-          type: integer
-          description: ID of the line of the user used to make the call. Default is the main line of the user.
-        from_mobile:
-          type: boolean
-          description: 'Start the call from the user''s mobile phone. Default is False. Limitation: this feature may return a wrong call_id if the outgoing call used to dial the mobile number has more than one associated trunk.'
-        all_lines:
-          type: boolean
-          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
-        auto_answer_caller:
-          type: boolean
-          description: 'Inform the caller phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
-      required:
-      - extension
-    ParkCallBody:
-      title: Information needed to park the call
-      required:
-      - parking_id
-      type: object
-      properties:
-        parking_id:
-          description: Parking lot ID in which to park the call
-          type: integer
-          minimum: 1
-          example: 2
-        preferred_slot:
-          description: 'Preferred slot in which to park the call.  If slots is already
-
-            occupied, another slot will be automatically chosen
-
-            '
-          type: string
-          example: '501'
-        timeout:
-          description: 'A timeout specified in seconds after which the call will redial the
-
-            parker.  If unspecified, it will defaults to the parking''s timeout value.
-
-            (A value of 0 disables the timeout feature)
-
-            '
-          type: integer
-          minimum: 0
-          example: 30
-    CallRequestDestination:
-      description: Destination parameters
-      type: object
-      properties:
-        extension:
-          type: string
-        context:
-          type: string
-        priority:
-          type: integer
-      required:
-      - extension
-      - context
-      - priority
-    Error:
-      title: Error
-      description: Error message for the client
-      properties:
-        message:
-          description: Human readable explanation of the error
-          type: string
-        error_id:
-          description: Identifier of the type of error. It is more precise than the HTTP status code.
-          type: string
-        details:
-          description: Additional information about the error. The keys are specific to each error.
-          type: object
-        timestamp:
-          description: Time when the error occured
-          type: number
-          format: timestamp
-    ConnectCallToUserRequest:
-      type: object
-      properties:
-        timeout:
-          description: 'timeout in seconds for the dial attempt to the targeted user,
-
-            or null for no timeout(infinite ring time).
-
-            Omission leads to a default timeout of 30s.
-
-            '
-          type: integer
-    TalkingTo:
-      type: object
-      properties:
-        '{channel_id}':
-          type: string
-    CallRequestSource:
-      description: Caller parameters
-      type: object
-      properties:
-        user:
-          type: string
-          description: UUID of the user making the call
-        line_id:
-          type: integer
-          description: ID of the line of the user used to make the call. Default is the main line of the user.
-        from_mobile:
-          type: boolean
-          description: Start the call from the user's mobile phone. Default is False
-        all_lines:
-          type: boolean
-          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
-        auto_answer:
-          type: boolean
-          description: 'Inform the phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
-      required:
-      - user
-    CallRequest:
-      type: object
-      properties:
-        destination:
-          $ref: '#/components/schemas/CallRequestDestination'
-        source:
-          $ref: '#/components/schemas/CallRequestSource'
-        variables:
-          description: Channel variables to set
-          type: object
-      required:
-      - destination
-      - source
     Call:
       type: object
       properties:
@@ -1036,14 +890,160 @@ components:
           enum:
           - active
           - inactive
+    UserCallRequest:
+      type: object
+      properties:
+        extension:
+          description: Extension to call
+          type: string
+        variables:
+          description: Channel variables to set
+          type: object
+        line_id:
+          type: integer
+          description: ID of the line of the user used to make the call. Default is the main line of the user.
+        from_mobile:
+          type: boolean
+          description: 'Start the call from the user''s mobile phone. Default is False. Limitation: this feature may return a wrong call_id if the outgoing call used to dial the mobile number has more than one associated trunk.'
+        all_lines:
+          type: boolean
+          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
+        auto_answer_caller:
+          type: boolean
+          description: 'Inform the caller phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
+      required:
+      - extension
+    Error:
+      title: Error
+      description: Error message for the client
+      properties:
+        message:
+          description: Human readable explanation of the error
+          type: string
+        error_id:
+          description: Identifier of the type of error. It is more precise than the HTTP status code.
+          type: string
+        details:
+          description: Additional information about the error. The keys are specific to each error.
+          type: object
+        timestamp:
+          description: Time when the error occured
+          type: number
+          format: timestamp
+    ConnectCallToUserRequest:
+      type: object
+      properties:
+        timeout:
+          description: 'timeout in seconds for the dial attempt to the targeted user,
+
+            or null for no timeout(infinite ring time).
+
+            Omission leads to a default timeout of 30s.
+
+            '
+          type: integer
+    CallRequest:
+      type: object
+      properties:
+        destination:
+          $ref: '#/components/schemas/CallRequestDestination'
+        source:
+          $ref: '#/components/schemas/CallRequestSource'
+        variables:
+          description: Channel variables to set
+          type: object
+      required:
+      - destination
+      - source
+    CallRequestDestination:
+      description: Destination parameters
+      type: object
+      properties:
+        extension:
+          type: string
+        context:
+          type: string
+        priority:
+          type: integer
+      required:
+      - extension
+      - context
+      - priority
+    TalkingTo:
+      type: object
+      properties:
+        '{channel_id}':
+          type: string
+    ParkCallBody:
+      title: Information needed to park the call
+      required:
+      - parking_id
+      type: object
+      properties:
+        parking_id:
+          description: Parking lot ID in which to park the call
+          type: integer
+          minimum: 1
+          example: 2
+        preferred_slot:
+          description: 'Preferred slot in which to park the call.  If slots is already
+
+            occupied, another slot will be automatically chosen
+
+            '
+          type: string
+          example: '501'
+        timeout:
+          description: 'A timeout specified in seconds after which the call will redial the
+
+            parker.  If unspecified, it will defaults to the parking''s timeout value.
+
+            (A value of 0 disables the timeout feature)
+
+            '
+          type: integer
+          minimum: 0
+          example: 30
+    ParkedCallInfo:
+      description: Information returned when a call has been parked
+      properties:
+        slot:
+          description: Parking slot where this call has been parked
+          type: string
+          example: 501
+        timeout_at:
+          description: Timestamp when the call will timeout
+          type: string
+          format: date-time
+    CallRequestSource:
+      description: Caller parameters
+      type: object
+      properties:
+        user:
+          type: string
+          description: UUID of the user making the call
+        line_id:
+          type: integer
+          description: ID of the line of the user used to make the call. Default is the main line of the user.
+        from_mobile:
+          type: boolean
+          description: Start the call from the user's mobile phone. Default is False
+        all_lines:
+          type: boolean
+          description: Use all of the lines of the user to make the call (ignored when `line_id` is specified).
+        auto_answer:
+          type: boolean
+          description: 'Inform the phone that it should answer automatically. Limitation: this does not work if `all_lines` is true, if `from_mobile` is true or if the phone is SCCP.'
+      required:
+      - user
   parameters:
-    ParkCall:
-      name: park_call
-      in: body
-      description: Payload required to park a call
-      required: true
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
       schema:
-        $ref: '#/components/schemas/ParkCallBody'
+        type: string
     DTMFDigits:
       name: digits
       in: query
@@ -1058,14 +1058,20 @@ components:
       required: true
       schema:
         type: string
-    TenantUUID:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
-      required: false
+    ParkCall:
+      name: park_call
+      in: body
+      description: Payload required to park a call
+      required: true
       schema:
-        type: string
+        $ref: '#/components/schemas/ParkCallBody'
   responses:
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     AnotherServiceUnavailable:
       description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
       content:
@@ -1074,12 +1080,6 @@ components:
             $ref: '#/components/schemas/Error'
     FullOrServiceUnavailable:
       description: Parking is full or another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFoundError:
-      description: The resource requested was not found on the server
       content:
         application/json:
           schema:

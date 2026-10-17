@@ -354,53 +354,6 @@ paths:
     servers:
     - url: /1.1
 components:
-  responses:
-    NoSuchSwitchboard:
-      description: The specified switchboard does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    AnotherServiceUnavailable:
-      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    InvalidRequest:
-      description: Invalid request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ResourceDeleted:
-      description: Resource was deleted successfully
-    GenericError:
-      description: An error occurred during the operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    ResourceUpdated:
-      description: Resource was updated successfully
-    UpdateError:
-      description: An error occurred when updating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    CreateError:
-      description: An error occurred when creating the resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    NotFoundError:
-      description: The resource requested was not found on the server
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
   schemas:
     SwitchboardQueuedCalls:
       type: object
@@ -409,6 +362,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SwitchboardQueuedCall'
+    SwitchboardQueuedCall:
+      type: object
+      properties:
+        id:
+          type: string
+        caller_id_name:
+          type: string
+        caller_id_number:
+          type: string
     Error:
       title: Error
       description: Error message for the client
@@ -426,6 +388,11 @@ components:
           description: Time when the error occured
           type: number
           format: timestamp
+    CallID:
+      type: object
+      properties:
+        call_id:
+          type: string
     SwitchboardHeldCalls:
       type: object
       properties:
@@ -433,15 +400,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SwitchboardHeldCall'
-    SwitchboardQueuedCall:
-      type: object
-      properties:
-        id:
-          type: string
-        caller_id_name:
-          type: string
-        caller_id_number:
-          type: string
     SwitchboardHeldCall:
       type: object
       properties:
@@ -451,55 +409,17 @@ components:
           type: string
         caller_id_number:
           type: string
-    CallID:
-      type: object
+    UserUuid:
       properties:
-        call_id:
+        uuid:
           type: string
-    DestinationApplicationVoicemail:
-      title: DestinationApplicationVoicemail
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'voicemail'
-          context:
-            type: integer
-            description: The context of the application
-        required:
-        - application
-        - context
-    DestinationSwitchboard:
-      title: DestinationSwitchboard
+    SwitchboardRelationMemberUsers:
       properties:
-        type:
-          type: string
-          description: MUST be 'switchboard'
-        switchboard_uuid:
-          type: string
-          description: The UUID of the switchboard.
-      required:
-      - type
-      - switchboard_uuid
-    DestinationUser:
-      title: DestinationUser
-      properties:
-        type:
-          type: string
-          description: MUST be 'user'
-        user_id:
-          type: integer
-          description: The id of the user
-        ring_time:
-          type: number
-          format: float
-        moh_uuid:
-          type: string
-          description: The UUID of the music on hold to use instead of a ringback tone.
-      required:
-      - type
-      - user_id
+        users:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/UserRelationBase'
     DestinationSound:
       title: DestinationSound
       properties:
@@ -518,19 +438,6 @@ components:
       required:
       - type
       - filename
-    DestinationHangupCongestion:
-      title: DestinationHangupCongestion
-      allOf:
-      - $ref: '#/components/schemas/DestinationHangup'
-      - properties:
-          cause:
-            type: string
-            description: MUST be 'congestion'
-          timeout:
-            type: integer
-            description: The timeout of the hangup
-      required:
-      - cause
     DestinationApplicationApplication:
       title: DestinationApplicationApplication
       properties:
@@ -555,208 +462,66 @@ components:
         noanswer_destination:
           type: user
           user_id: 1
-    SwitchboardRelationFallbacks:
-      properties:
-        fallbacks:
-          readOnly: true
-          $ref: '#/components/schemas/SwitchboardFallbacks'
-    SwitchboardRelationMemberUsers:
-      properties:
-        users:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/UserRelationBase'
-    SwitchboardRelationIncall:
-      allOf:
-      - $ref: '#/components/schemas/IncallRelationBase'
-      - $ref: '#/components/schemas/IncallRelationExtensions'
-    DestinationApplicationFaxToMail:
-      title: DestinationApplicationFaxToMail
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'fax_to_mail'
-          email:
-            type: string
-            description: The email of the application
-      required:
-      - application
-      - email
-    DestinationHangup:
-      title: DestinationHangup
+    DestinationSwitchboard:
+      title: DestinationSwitchboard
       properties:
         type:
           type: string
-          description: MUST be 'hangup'
+          description: MUST be 'switchboard'
+        switchboard_uuid:
+          type: string
+          description: The UUID of the switchboard.
       required:
       - type
-    DestinationHangupNormal:
-      title: DestinationHangupNormal
-      allOf:
-      - $ref: '#/components/schemas/DestinationHangup'
-      - properties:
-          cause:
-            type: string
-            description: MUST be 'normal'
-      required:
-      - cause
-    DestinationOutcall:
-      title: DestinationOutcall
+      - switchboard_uuid
+    IncallRelationBase:
+      title: IncallRelation
       properties:
-        type:
-          type: string
-          description: MUST be 'outcall'
-        exten:
-          type: string
-        outcall_id:
+        id:
           type: integer
-          description: The id of the outcall
-      required:
-      - type
-      - exten
-      - outcall_id
-    DestinationApplicationDirectory:
-      title: DestinationApplicationDirectory
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'directory'
-          context:
-            type: integer
-            description: The context of the application
-        required:
-        - application
-        - context
-    SwitchboardRelationIncalls:
-      properties:
-        incalls:
-          type: array
           readOnly: true
-          items:
-            $ref: '#/components/schemas/SwitchboardRelationIncall'
-    DestinationApplication:
-      title: DestinationApplication
+          description: The id of the incoming call
+    DestinationQueue:
+      title: DestinationQueue
       properties:
         type:
           type: string
-          description: MUST be 'application'
-      required:
-      - type
-    UserRelationBase:
-      properties:
-        uuid:
-          type: string
-          description: User UUID. This ID is globally unique across multiple Wazo instances
-          readOnly: true
-        firstname:
-          type: string
-          description: User firstname
-        lastname:
-          type: string
-          description: User lastname
-    DestinationHangupCause:
-      title: DestinationHangupCause
-      properties:
-        busy:
-          $ref: '#/components/schemas/DestinationHangupBusy'
-        congestion:
-          $ref: '#/components/schemas/DestinationHangupCongestion'
-        normal:
-          $ref: '#/components/schemas/DestinationHangupNormal'
-    Switchboard:
-      type: object
-      allOf:
-      - properties:
-          uuid:
-            type: string
-            readOnly: true
-          tenant_uuid:
-            type: string
-            description: The UUID of the tenant
-            readOnly: true
-          name:
-            type: string
-          timeout:
-            type: integer
-            description: Maximum time allowed for a call to be queued. When the timeout expires, the call is redirected to the no-answer fallback.
-          queue_music_on_hold:
-            type: string
-          waiting_room_music_on_hold:
-            type: string
-      - $ref: '#/components/schemas/SwitchboardRelationIncalls'
-      - $ref: '#/components/schemas/SwitchboardRelationMembers'
-      - $ref: '#/components/schemas/SwitchboardRelationFallbacks'
-    DestinationApplicationCallbackDISA:
-      title: DestinationApplicationCallbackDISA
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'callback_disa'
-          context:
-            type: integer
-            description: The context of the application
-          pin:
-            type: string
-            description: the pin of the application
-        required:
-        - application
-        - context
-    UsersUuid:
-      properties:
-        users:
-          items:
-            $ref: '#/components/schemas/UserUuid'
-          type: array
-    DestinationApplicationCustom:
-      title: DestinationApplicationCustom
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'custom'
-          application_uuid:
-            type: string
-            description: The UUID of the application.
-      required:
-      - application
-      - application_uuid
-    DestinationApplicationDISA:
-      title: DestinationApplicationDISA
-      allOf:
-      - $ref: '#/components/schemas/DestinationApplication'
-      - properties:
-          application:
-            type: string
-            description: MUST be 'disa'
-          context:
-            type: integer
-            description: The context of the application
-          pin:
-            type: string
-            description: the pin of the application
-        required:
-        - application
-        - context
-    DestinationConference:
-      title: DestinationConference
-      properties:
-        type:
-          type: string
-          description: MUST be 'conference'
-        conference_id:
+          description: MUST be 'queue'
+        queue_id:
           type: integer
-          description: The id of the conference
+          description: The id of the queue
+        ring_time:
+          type: number
+          format: float
+        skill_rule_id:
+          type: integer
+          description: The id of the skill rule
+        skill_rule_variables:
+          type: object
+          description: key-value where key represents the variable of the skill rule and value represents a value
       required:
       - type
-      - conference_id
+      - queue_id
+    DestinationNone:
+      title: DestinationNone
+      properties:
+        type:
+          type: string
+          description: MUST be 'none'
+      required:
+      - type
+    DestinationCustom:
+      title: DestinationCustom
+      properties:
+        type:
+          type: string
+          description: MUST be 'custom'
+        command:
+          type: string
+          description: The command to execute
+      required:
+      - type
+      - command
     DestinationType:
       title: DestinationType
       properties:
@@ -788,10 +553,49 @@ components:
           $ref: '#/components/schemas/DestinationUser'
         voicemail:
           $ref: '#/components/schemas/DestinationVoicemail'
+    DestinationApplicationDirectory:
+      title: DestinationApplicationDirectory
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'directory'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
     Error_2:
       type: array
       items:
         type: string
+    DestinationApplication:
+      title: DestinationApplication
+      properties:
+        type:
+          type: string
+          description: MUST be 'application'
+      required:
+      - type
+    DestinationConference:
+      title: DestinationConference
+      properties:
+        type:
+          type: string
+          description: MUST be 'conference'
+        conference_id:
+          type: integer
+          description: The id of the conference
+      required:
+      - type
+      - conference_id
+    SwitchboardRelationMembers:
+      properties:
+        members:
+          readOnly: true
+          $ref: '#/components/schemas/SwitchboardRelationMemberUsers'
     DestinationHangupBusy:
       title: DestinationHangupBusy
       allOf:
@@ -805,42 +609,82 @@ components:
             description: The timeout of the hangup
       required:
       - cause
-    DestinationGroup:
-      title: DestinationGroup
+    UsersUuid:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/UserUuid'
+          type: array
+    SwitchboardRelationIncalls:
+      properties:
+        incalls:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/SwitchboardRelationIncall'
+    DestinationApplicationDISA:
+      title: DestinationApplicationDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    DestinationOutcall:
+      title: DestinationOutcall
       properties:
         type:
           type: string
-          description: MUST be 'group'
-        group_id:
+          description: MUST be 'outcall'
+        exten:
+          type: string
+        outcall_id:
           type: integer
-          description: The id of the group
-        ring_time:
-          type: number
-          format: float
+          description: The id of the outcall
       required:
       - type
-      - group_id
-    DestinationQueue:
-      title: DestinationQueue
+      - exten
+      - outcall_id
+    DestinationUser:
+      title: DestinationUser
       properties:
         type:
           type: string
-          description: MUST be 'queue'
-        queue_id:
+          description: MUST be 'user'
+        user_id:
           type: integer
-          description: The id of the queue
+          description: The id of the user
         ring_time:
           type: number
           format: float
-        skill_rule_id:
-          type: integer
-          description: The id of the skill rule
-        skill_rule_variables:
-          type: object
-          description: key-value where key represents the variable of the skill rule and value represents a value
+        moh_uuid:
+          type: string
+          description: The UUID of the music on hold to use instead of a ringback tone.
       required:
       - type
-      - queue_id
+      - user_id
+    DestinationHangupCongestion:
+      title: DestinationHangupCongestion
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'congestion'
+          timeout:
+            type: integer
+            description: The timeout of the hangup
+      required:
+      - cause
     ExtensionRelationBase:
       properties:
         id:
@@ -851,44 +695,75 @@ components:
           type: string
         exten:
           type: string
-    DestinationNone:
-      title: DestinationNone
+    DestinationIVR:
+      title: DestinationIVR
       properties:
         type:
           type: string
-          description: MUST be 'none'
+          description: MUST be 'ivr'
+        ivr_id:
+          type: integer
+          description: The id of the IVR
       required:
       - type
-    UserUuid:
+      - ivr_id
+    DestinationHangup:
+      title: DestinationHangup
+      properties:
+        type:
+          type: string
+          description: MUST be 'hangup'
+      required:
+      - type
+    UserRelationBase:
       properties:
         uuid:
           type: string
-    DestinationCustom:
-      title: DestinationCustom
-      properties:
-        type:
+          description: User UUID. This ID is globally unique across multiple Wazo instances
+          readOnly: true
+        firstname:
           type: string
-          description: MUST be 'custom'
-        command:
+          description: User firstname
+        lastname:
           type: string
-          description: The command to execute
+          description: User lastname
+    Switchboard:
+      type: object
+      allOf:
+      - properties:
+          uuid:
+            type: string
+            readOnly: true
+          tenant_uuid:
+            type: string
+            description: The UUID of the tenant
+            readOnly: true
+          name:
+            type: string
+          timeout:
+            type: integer
+            description: Maximum time allowed for a call to be queued. When the timeout expires, the call is redirected to the no-answer fallback.
+          queue_music_on_hold:
+            type: string
+          waiting_room_music_on_hold:
+            type: string
+      - $ref: '#/components/schemas/SwitchboardRelationIncalls'
+      - $ref: '#/components/schemas/SwitchboardRelationMembers'
+      - $ref: '#/components/schemas/SwitchboardRelationFallbacks'
+    DestinationHangupNormal:
+      title: DestinationHangupNormal
+      allOf:
+      - $ref: '#/components/schemas/DestinationHangup'
+      - properties:
+          cause:
+            type: string
+            description: MUST be 'normal'
       required:
-      - type
-      - command
-    IncallRelationBase:
-      title: IncallRelation
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The id of the incoming call
-    IncallRelationExtensions:
-      properties:
-        extensions:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ExtensionRelationBase'
+      - cause
+    SwitchboardRelationIncall:
+      allOf:
+      - $ref: '#/components/schemas/IncallRelationBase'
+      - $ref: '#/components/schemas/IncallRelationExtensions'
     DestinationExtension:
       title: DestinationExtension
       properties:
@@ -904,18 +779,6 @@ components:
       - type
       - exten
       - context
-    DestinationIVR:
-      title: DestinationIVR
-      properties:
-        type:
-          type: string
-          description: MUST be 'ivr'
-        ivr_id:
-          type: integer
-          description: The id of the IVR
-      required:
-      - type
-      - ivr_id
     DestinationVoicemail:
       title: DestinationVoicemail
       properties:
@@ -937,16 +800,120 @@ components:
       required:
       - type
       - voicemail_id
-    SwitchboardRelationMembers:
+    DestinationApplicationVoicemail:
+      title: DestinationApplicationVoicemail
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'voicemail'
+          context:
+            type: integer
+            description: The context of the application
+        required:
+        - application
+        - context
+    SwitchboardRelationFallbacks:
       properties:
-        members:
+        fallbacks:
           readOnly: true
-          $ref: '#/components/schemas/SwitchboardRelationMemberUsers'
+          $ref: '#/components/schemas/SwitchboardFallbacks'
+    DestinationApplicationCustom:
+      title: DestinationApplicationCustom
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'custom'
+          application_uuid:
+            type: string
+            description: The UUID of the application.
+      required:
+      - application
+      - application_uuid
+    IncallRelationExtensions:
+      properties:
+        extensions:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ExtensionRelationBase'
+    DestinationApplicationFaxToMail:
+      title: DestinationApplicationFaxToMail
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'fax_to_mail'
+          email:
+            type: string
+            description: The email of the application
+      required:
+      - application
+      - email
+    DestinationHangupCause:
+      title: DestinationHangupCause
+      properties:
+        busy:
+          $ref: '#/components/schemas/DestinationHangupBusy'
+        congestion:
+          $ref: '#/components/schemas/DestinationHangupCongestion'
+        normal:
+          $ref: '#/components/schemas/DestinationHangupNormal'
+    DestinationApplicationCallbackDISA:
+      title: DestinationApplicationCallbackDISA
+      allOf:
+      - $ref: '#/components/schemas/DestinationApplication'
+      - properties:
+          application:
+            type: string
+            description: MUST be 'callback_disa'
+          context:
+            type: integer
+            description: The context of the application
+          pin:
+            type: string
+            description: the pin of the application
+        required:
+        - application
+        - context
+    DestinationGroup:
+      title: DestinationGroup
+      properties:
+        type:
+          type: string
+          description: MUST be 'group'
+        group_id:
+          type: integer
+          description: The id of the group
+        ring_time:
+          type: number
+          format: float
+      required:
+      - type
+      - group_id
   parameters:
+    TenantUUID:
+      name: Wazo-Tenant
+      in: header
+      description: The tenant's UUID, defining the ownership of a given resource.
+      required: false
+      schema:
+        type: string
     SwitchboardUUID:
       name: switchboard_uuid
       in: path
       description: Unique identifier of the switchboard
+      required: true
+      schema:
+        type: string
+    CallID:
+      name: call_id
+      in: path
+      description: ID of the call
       required: true
       schema:
         type: string
@@ -956,20 +923,36 @@ components:
       description: ID of the line of the user used to make the call. Default is the main line of the user.
       schema:
         type: integer
-    CallID:
-      name: call_id
+    search:
+      required: false
+      name: search
+      in: query
+      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
+      schema:
+        type: string
+    offset:
+      required: false
+      name: offset
+      in: query
+      description: Number of items to skip over in the list. Useful for pagination.
+      schema:
+        type: integer
+    switchboard_uuid:
+      name: switchboard_uuid
       in: path
-      description: ID of the call
       required: true
       schema:
         type: string
-    TenantUUID:
-      name: Wazo-Tenant
-      in: header
-      description: The tenant's UUID, defining the ownership of a given resource.
+    direction:
       required: false
+      name: direction
+      in: query
+      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
       schema:
         type: string
+        enum:
+        - asc
+        - desc
     recurse:
       name: recurse
       in: query
@@ -978,6 +961,13 @@ components:
       schema:
         type: boolean
         default: false
+    order:
+      required: false
+      name: order
+      in: query
+      description: Name of the field to use for sorting the list of items returned.
+      schema:
+        type: string
     tenantuuid:
       name: Wazo-Tenant
       in: header
@@ -992,43 +982,53 @@ components:
       description: Maximum number of items to return in the list
       schema:
         type: integer
-    order:
-      required: false
-      name: order
-      in: query
-      description: Name of the field to use for sorting the list of items returned.
-      schema:
-        type: string
-    switchboard_uuid:
-      name: switchboard_uuid
-      in: path
-      required: true
-      schema:
-        type: string
-    offset:
-      required: false
-      name: offset
-      in: query
-      description: Number of items to skip over in the list. Useful for pagination.
-      schema:
-        type: integer
-    search:
-      required: false
-      name: search
-      in: query
-      description: Search term for filtering a list of items. Only items with a field containing the search term will be returned.
-      schema:
-        type: string
-    direction:
-      required: false
-      name: direction
-      in: query
-      description: Sort list of items in 'asc' (ascending) or 'desc' (descending) order
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
+  responses:
+    NoSuchSwitchboard:
+      description: The specified switchboard does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AnotherServiceUnavailable:
+      description: Another service is unavailable (e.g. wazo-auth, wazo-confd, Asterisk, ...)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The resource requested was not found on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    GenericError:
+      description: An error occurred during the operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    CreateError:
+      description: An error occurred when creating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    ResourceUpdated:
+      description: Resource was updated successfully
+    ResourceDeleted:
+      description: Resource was deleted successfully
+    UpdateError:
+      description: An error occurred when updating the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
   securitySchemes:
     wazo_auth_token:
       type: apiKey

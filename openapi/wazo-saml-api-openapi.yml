@@ -193,19 +193,6 @@ components:
       - SAMLResponse
       - RelayState
       type: object
-    Error:
-      type: object
-      properties:
-        reason:
-          type: array
-          items:
-            type: string
-        timestamp:
-          type: array
-          items:
-            type: string
-        status_code:
-          type: integer
     SAMLLogoutRequest:
       type: object
       properties:
@@ -214,18 +201,6 @@ components:
 
             '
           type: string
-    SAMLLoginContext:
-      properties:
-        redirect_url:
-          description: Where to redirect the browser once the login succeeded
-          type: string
-        domain:
-          description: The domain name of the tenant
-          type: string
-      required:
-      - redirect_url
-      - domain
-      type: object
     SAMLSSOResponse:
       type: object
       properties:
@@ -243,6 +218,31 @@ components:
             once the SAML authentication has been completed successfully
 
             '
+    Error:
+      type: object
+      properties:
+        reason:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: array
+          items:
+            type: string
+        status_code:
+          type: integer
+    SAMLLoginContext:
+      properties:
+        redirect_url:
+          description: Where to redirect the browser once the login succeeded
+          type: string
+        domain:
+          description: The domain name of the tenant
+          type: string
+      required:
+      - redirect_url
+      - domain
+      type: object
   securitySchemes:
     wazo_auth_basic:
       type: http
