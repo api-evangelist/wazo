@@ -153,7 +153,7 @@ apis:
   - Event-Driven
   - Real-Time
   - Telephony
-  - Pub-Sub
+  - Pub/Sub
   - Streaming
   tags_raw:
   - websocket
@@ -1515,9 +1515,10 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
-  - Blocklist
+  - Blacklist
   tags_raw:
   - blocklist
+  - Blocklist
   properties:
   - type: OpenAPI
     url: openapi/wazo-blocklist-api-openapi.yml
@@ -6644,9 +6645,10 @@ apis:
   humanURL: https://api.wazo.io/documentation/api/authentication.html
   baseURL: https://{wazo_stack}/api/auth/0.1
   tags:
-  - IDP
+  - Intelligent Document Processing
   tags_raw:
   - idp
+  - IDP
   properties:
   - type: OpenAPI
     url: openapi/wazo-idp-api-openapi.yml
